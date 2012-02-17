@@ -16,14 +16,21 @@ namespace Registration
 
     public class SeatReservationManager
     {
+        public SeatReservationManager(Guid id)
+        {
+            this.Id = id;
+        }
+
+        internal Guid Id { get; set; }
+
         internal int RemainingSeats { get; set; }
 
-        public void AddSeats(int additionalSeats, Guid ticketTypeId)
+        public void AddSeats(int additionalSeats)
         {
             this.RemainingSeats += additionalSeats;
         }
 
-        public void MakeReservation(Guid reservationId, int numberOfSeats, Guid ticketTypeId)
+        public void MakeReservation(Guid reservationId, int numberOfSeats)
         {
             if (numberOfSeats > this.RemainingSeats)
             {

@@ -23,8 +23,8 @@ namespace Registration.Tests
 
         public SeatReservationManager given_available_seats()
         {
-            var sut = new SeatReservationManager();
-            sut.AddSeats(10, TicketTypeId);
+            var sut = new SeatReservationManager(TicketTypeId);
+            sut.AddSeats(10);
             return sut;
         }
 
@@ -32,7 +32,7 @@ namespace Registration.Tests
         public void when_reserving_less_seats_than_available_then_succeeds()
         {
             var sut = this.given_available_seats();
-            sut.MakeReservation(Guid.NewGuid(), 4, TicketTypeId);
+            sut.MakeReservation(Guid.NewGuid(), 4);
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace Registration.Tests
         public void when_reserving_more_seats_than_available_then_fails()
         {
             var sut = this.given_available_seats();
-            sut.MakeReservation(Guid.NewGuid(), 11, TicketTypeId);
+            sut.MakeReservation(Guid.NewGuid(), 11);
         }
     }
 }
