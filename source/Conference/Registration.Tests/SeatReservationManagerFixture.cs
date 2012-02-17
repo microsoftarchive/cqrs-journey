@@ -28,8 +28,15 @@ namespace Registration.Tests
             return sut;
         }
 
+        public SeatReservationManager given_some_avilable_seats_and_some_taken()
+        {
+            var sut = this.given_available_seats();
+            sut.MakeReservation(Guid.NewGuid(), 6);
+            return sut;
+        }
+
         [TestMethod]
-        public void when_reserving_less_seats_than_available_then_succeeds()
+        public void when_reserving_less_seats_than_total_then_succeeds()
         {
             var sut = this.given_available_seats();
             sut.MakeReservation(Guid.NewGuid(), 4);
@@ -37,10 +44,25 @@ namespace Registration.Tests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void when_reserving_more_seats_than_available_then_fails()
+        public void when_reserving_more_seats_than_total_then_fails()
         {
             var sut = this.given_available_seats();
             sut.MakeReservation(Guid.NewGuid(), 11);
+        }
+
+        [TestMethod]
+        public void when_reserving_less_seats_than_remaining_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.MakeReservation(Guid.NewGuid(), 4);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void when_reserving_more_seats_than_remaining_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.MakeReservation(Guid.NewGuid(), 5);
         }
     }
 }
