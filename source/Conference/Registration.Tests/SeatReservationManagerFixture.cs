@@ -34,5 +34,13 @@ namespace Registration.Tests
             var sut = this.given_available_seats();
             sut.MakeReservation(Guid.NewGuid(), 4, TicketTypeId);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void when_reserving_more_seats_than_available_then_fails()
+        {
+            var sut = this.given_available_seats();
+            sut.MakeReservation(Guid.NewGuid(), 11, TicketTypeId);
+        }
     }
 }
