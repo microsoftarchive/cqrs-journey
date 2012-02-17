@@ -16,14 +16,21 @@ namespace Registration
 
     public class SeatReservationManager
     {
+        internal int RemainingSeats { get; set; }
+
         public void AddSeats(int additionalSeats, Guid ticketTypeId)
         {
-            
+            this.RemainingSeats += additionalSeats;
         }
 
         public void MakeReservation(Guid reservationId, int numberOfSeats, Guid ticketTypeId)
         {
-            
+            if (numberOfSeats > this.RemainingSeats)
+            {
+                throw new ArgumentOutOfRangeException("numberOfSeats");
+            }
+
+            this.RemainingSeats -= numberOfSeats;
         }
     }
 }
