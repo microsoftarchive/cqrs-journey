@@ -13,6 +13,7 @@
 namespace Registration.Tests
 {
     using System;
+    using System.Collections.Generic;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,6 +21,7 @@ namespace Registration.Tests
     public class Context
     {
         private static readonly Guid TicketTypeId = Guid.NewGuid();
+        private static readonly Guid ReservationId = Guid.NewGuid();
 
         public SeatReservationManager given_available_seats()
         {
@@ -31,7 +33,7 @@ namespace Registration.Tests
         public SeatReservationManager given_some_avilable_seats_and_some_taken()
         {
             var sut = this.given_available_seats();
-            sut.MakeReservation(Guid.NewGuid(), 6);
+            sut.MakeReservation(ReservationId, 6);
             return sut;
         }
 
@@ -63,6 +65,29 @@ namespace Registration.Tests
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
             sut.MakeReservation(Guid.NewGuid(), 5);
+        }
+
+        [TestMethod]
+        public void when_expiring_a_reservation_then_succeeds()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.ExpireReservation(ReservationId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void when_expiring_an_inexistant_reservation_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.ExpireReservation(Guid.NewGuid());
+        }
+
+        [TestMethod]
+        public void when_expiring_a_reservation_then_can_reuse_seats()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.ExpireReservation(ReservationId);
+            sut.MakeReservation(Guid.NewGuid(), 10);
         }
     }
 }

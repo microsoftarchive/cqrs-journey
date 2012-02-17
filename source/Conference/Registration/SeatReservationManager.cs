@@ -13,17 +13,21 @@
 namespace Registration
 {
     using System;
+    using System.Collections.Generic;
 
     public class SeatReservationManager
     {
         public SeatReservationManager(Guid id)
         {
             this.Id = id;
+            this.PendingReservations = new Dictionary<Guid, int>();
         }
 
         internal Guid Id { get; set; }
 
         internal int RemainingSeats { get; set; }
+
+        internal Dictionary<Guid, int> PendingReservations { get; set; }
 
         public void AddSeats(int additionalSeats)
         {
@@ -37,7 +41,15 @@ namespace Registration
                 throw new ArgumentOutOfRangeException("numberOfSeats");
             }
 
+            this.PendingReservations.Add(reservationId, numberOfSeats);
             this.RemainingSeats -= numberOfSeats;
+        }
+
+        public void ExpireReservation(Guid reservationId)
+        {
+            var numberOfSeats = this.PendingReservations[reservationId];
+            this.PendingReservations.Remove(reservationId);
+            this.RemainingSeats += numberOfSeats;
         }
     }
 }
