@@ -23,14 +23,14 @@ namespace Registration.Tests
         private static readonly Guid TicketTypeId = Guid.NewGuid();
         private static readonly Guid ReservationId = Guid.NewGuid();
 
-        public SeatReservationManager given_available_seats()
+        public ConferenceSeatsAvailability given_available_seats()
         {
-            var sut = new SeatReservationManager(TicketTypeId);
+            var sut = new ConferenceSeatsAvailability(TicketTypeId);
             sut.AddSeats(10);
             return sut;
         }
 
-        public SeatReservationManager given_some_avilable_seats_and_some_taken()
+        public ConferenceSeatsAvailability given_some_avilable_seats_and_some_taken()
         {
             var sut = this.given_available_seats();
             sut.MakeReservation(ReservationId, 6);

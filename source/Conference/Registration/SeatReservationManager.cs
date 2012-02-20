@@ -15,9 +15,9 @@ namespace Registration
     using System;
     using System.Collections.Generic;
 
-    public class SeatReservationManager
+    public class ConferenceSeatsAvailability
     {
-        public SeatReservationManager(Guid id)
+        public ConferenceSeatsAvailability(Guid id)
         {
             this.Id = id;
             this.PendingReservations = new Dictionary<Guid, int>();
