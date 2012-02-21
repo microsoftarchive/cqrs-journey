@@ -89,5 +89,40 @@ namespace Registration.Tests
             sut.ExpireReservation(ReservationId);
             sut.MakeReservation(Guid.NewGuid(), 10);
         }
+
+        [TestMethod]
+        public void when_committing_a_reservation_then_succeeds()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.CommitReservation(ReservationId);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void when_committing_an_inexistant_reservation_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.CommitReservation(Guid.NewGuid());
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void when_committing_a_reservation_then_can_seats_are_not_available()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.CommitReservation(ReservationId);
+
+            sut.MakeReservation(Guid.NewGuid(), 5);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void when_committing_a_reservation_then_cannot_expire_it()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.CommitReservation(ReservationId);
+
+            sut.ExpireReservation(ReservationId);
+        }
     }
 }

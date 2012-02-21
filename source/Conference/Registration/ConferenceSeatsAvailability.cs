@@ -47,7 +47,8 @@ namespace Registration
 
         public void CommitReservation(Guid reservationId)
         {
-            
+            var numberOfSeats = this.PendingReservations[reservationId];
+            this.PendingReservations.Remove(reservationId);
         }
 
         public void ExpireReservation(Guid reservationId)
