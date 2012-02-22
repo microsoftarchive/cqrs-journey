@@ -12,48 +12,52 @@
 
 namespace Registration
 {
-    using System;
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
 
-    public class ConferenceSeatsAvailability
-    {
-        private readonly Guid id;
-        private readonly Dictionary<Guid, int> pendingReservations;
-        private int remainingSeats;
+	public class ConferenceSeatsAvailability : IAggregateRoot
+	{
+		private readonly Dictionary<Guid, int> pendingReservations;
+		private int remainingSeats;
 
-        public ConferenceSeatsAvailability(Guid id)
-        {
-            this.id = id;
-            this.pendingReservations = new Dictionary<Guid, int>();
-        }
+		// ORM requirement
+		protected ConferenceSeatsAvailability() { }
 
-        public void AddSeats(int additionalSeats)
-        {
-            this.remainingSeats += additionalSeats;
-        }
+		public ConferenceSeatsAvailability(Guid id)
+		{
+			this.Id = id;
+			this.pendingReservations = new Dictionary<Guid, int>();
+		}
 
-        public void MakeReservation(Guid reservationId, int numberOfSeats)
-        {
-            if (numberOfSeats > this.remainingSeats)
-            {
-                throw new ArgumentOutOfRangeException("numberOfSeats");
-            }
+		public Guid Id { get; private set; }
 
-            this.pendingReservations.Add(reservationId, numberOfSeats);
-            this.remainingSeats -= numberOfSeats;
-        }
+		public void AddSeats(int additionalSeats)
+		{
+			this.remainingSeats += additionalSeats;
+		}
 
-        public void CommitReservation(Guid reservationId)
-        {
-            var numberOfSeats = this.pendingReservations[reservationId];
-            this.pendingReservations.Remove(reservationId);
-        }
+		public void MakeReservation(Guid reservationId, int numberOfSeats)
+		{
+			if (numberOfSeats > this.remainingSeats)
+			{
+				throw new ArgumentOutOfRangeException("numberOfSeats");
+			}
 
-        public void ExpireReservation(Guid reservationId)
-        {
-            var numberOfSeats = this.pendingReservations[reservationId];
-            this.pendingReservations.Remove(reservationId);
-            this.remainingSeats += numberOfSeats;
-        }
-    }
+			this.pendingReservations.Add(reservationId, numberOfSeats);
+			this.remainingSeats -= numberOfSeats;
+		}
+
+		public void CommitReservation(Guid reservationId)
+		{
+			var numberOfSeats = this.pendingReservations[reservationId];
+			this.pendingReservations.Remove(reservationId);
+		}
+
+		public void ExpireReservation(Guid reservationId)
+		{
+			var numberOfSeats = this.pendingReservations[reservationId];
+			this.pendingReservations.Remove(reservationId);
+			this.remainingSeats += numberOfSeats;
+		}
+	}
 }
