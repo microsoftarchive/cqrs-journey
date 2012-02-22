@@ -37,10 +37,13 @@ namespace Registration.Tests
         }
 
         [TestMethod]
-        public void when_reserving_less_seats_than_total_then_succeeds()
+        public void when_reserving_less_seats_than_total_then_seats_become_unavailable()
         {
             var sut = this.given_available_seats();
-            sut.MakeReservation(Guid.NewGuid(), 4);
+            
+			sut.MakeReservation(Guid.NewGuid(), 4);
+
+			Assert.AreEqual(6, sut.RemainingSeats);
         }
 
         [TestMethod]
@@ -52,11 +55,14 @@ namespace Registration.Tests
         }
 
         [TestMethod]
-        public void when_reserving_less_seats_than_remaining_then_fails()
+        public void when_reserving_less_seats_than_remaining_then_seats_become_unavailable()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.MakeReservation(Guid.NewGuid(), 4);
-        }
+        
+			sut.MakeReservation(Guid.NewGuid(), 4);
+
+			Assert.AreEqual(0, sut.RemainingSeats);
+		}
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
@@ -67,10 +73,13 @@ namespace Registration.Tests
         }
 
         [TestMethod]
-        public void when_expiring_a_reservation_then_succeeds()
+        public void when_expiring_a_reservation_then_seats_become_available()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
+
             sut.ExpireReservation(ReservationId);
+
+			Assert.AreEqual(10, sut.RemainingSeats);
         }
 
         [TestMethod]
@@ -82,18 +91,14 @@ namespace Registration.Tests
         }
 
         [TestMethod]
-        public void when_expiring_a_reservation_then_can_reuse_seats()
+        public void when_committing_a_reservation_then_remaining_seats_are_not_modified()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.ExpireReservation(ReservationId);
-            sut.MakeReservation(Guid.NewGuid(), 10);
-        }
+			var remaining = sut.RemainingSeats;
 
-        [TestMethod]
-        public void when_committing_a_reservation_then_succeeds()
-        {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.CommitReservation(ReservationId);
+			sut.CommitReservation(ReservationId);
+
+			Assert.AreEqual(remaining, sut.RemainingSeats);
         }
 
         [TestMethod]
@@ -102,16 +107,6 @@ namespace Registration.Tests
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
             sut.CommitReservation(Guid.NewGuid());
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void when_committing_a_reservation_then_can_seats_are_not_available()
-        {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.CommitReservation(ReservationId);
-
-            sut.MakeReservation(Guid.NewGuid(), 5);
         }
 
         [TestMethod]

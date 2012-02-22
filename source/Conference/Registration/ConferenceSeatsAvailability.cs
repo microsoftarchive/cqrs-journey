@@ -14,50 +14,60 @@ namespace Registration
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+	using System.Linq;
 
 	public class ConferenceSeatsAvailability : IAggregateRoot
 	{
-		private readonly Dictionary<Guid, int> pendingReservations;
-		private int remainingSeats;
-
 		// ORM requirement
-		protected ConferenceSeatsAvailability() { }
+		protected ConferenceSeatsAvailability()
+		{
+			this.PendingReservations = new ObservableCollection<Reservation>();
+		}
 
 		public ConferenceSeatsAvailability(Guid id)
 		{
 			this.Id = id;
-			this.pendingReservations = new Dictionary<Guid, int>();
+			this.PendingReservations = new ObservableCollection<Reservation>();
 		}
 
 		public Guid Id { get; private set; }
+		public int RemainingSeats { get; set; }
+		private ObservableCollection<Reservation> PendingReservations { get; set; }
 
 		public void AddSeats(int additionalSeats)
 		{
-			this.remainingSeats += additionalSeats;
+			this.RemainingSeats += additionalSeats;
 		}
 
 		public void MakeReservation(Guid reservationId, int numberOfSeats)
 		{
-			if (numberOfSeats > this.remainingSeats)
+			if (numberOfSeats > this.RemainingSeats)
 			{
 				throw new ArgumentOutOfRangeException("numberOfSeats");
 			}
 
-			this.pendingReservations.Add(reservationId, numberOfSeats);
-			this.remainingSeats -= numberOfSeats;
+			this.PendingReservations.Add(new Reservation(reservationId, numberOfSeats));
+			this.RemainingSeats -= numberOfSeats;
 		}
 
 		public void CommitReservation(Guid reservationId)
 		{
-			var numberOfSeats = this.pendingReservations[reservationId];
-			this.pendingReservations.Remove(reservationId);
+			var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
+			if (reservation == null)
+				throw new KeyNotFoundException();
+
+			this.PendingReservations.Remove(reservation);
 		}
 
 		public void ExpireReservation(Guid reservationId)
 		{
-			var numberOfSeats = this.pendingReservations[reservationId];
-			this.pendingReservations.Remove(reservationId);
-			this.remainingSeats += numberOfSeats;
+			var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
+			if (reservation == null)
+				throw new KeyNotFoundException();
+
+			this.PendingReservations.Remove(reservation);
+			this.RemainingSeats += reservation.Seats;
 		}
 	}
 }
