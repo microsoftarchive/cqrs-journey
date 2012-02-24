@@ -18,47 +18,6 @@ using Registration.Database;
 namespace Registration.Tests
 {
 	[TestClass]
-	public class OrmContext : Context
-	{
-		[TestInitialize]
-		public void Initialize()
-		{
-			using (var context = new OrmRepository())
-			{
-				if (context.Database.Exists())
-					context.Database.Delete();
-
-				context.Database.Create();
-			}
-		}
-
-		public override ConferenceSeatsAvailability Sut
-		{
-			get
-			{
-				using (var context = new OrmRepository())
-				{
-					context.Save(base.Sut);
-				}
-
-				using (var context = new OrmRepository())
-				{
-					return context.Find<ConferenceSeatsAvailability>(base.Sut.Id);
-				}
-			}
-			set
-			{
-				using (var context = new OrmRepository())
-				{
-					context.Save(value);
-				}
-
-				base.Sut = value;
-			}
-		}
-	}
-
-	[TestClass]
 	public class Context
 	{
 		private static readonly Guid TicketTypeId = Guid.NewGuid();
