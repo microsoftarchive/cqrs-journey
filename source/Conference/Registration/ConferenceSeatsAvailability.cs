@@ -17,57 +17,57 @@ using System.Linq;
 
 namespace Registration
 {
-	public class ConferenceSeatsAvailability : IAggregateRoot
-	{
-		// ORM requirement
-		protected ConferenceSeatsAvailability()
-		{
-			this.PendingReservations = new ObservableCollection<Reservation>();
-		}
+    public class ConferenceSeatsAvailability : IAggregateRoot
+    {
+        // ORM requirement
+        protected ConferenceSeatsAvailability()
+        {
+            this.PendingReservations = new ObservableCollection<Reservation>();
+        }
 
-		public ConferenceSeatsAvailability(Guid id)
-		{
-			this.Id = id;
-			this.PendingReservations = new ObservableCollection<Reservation>();
-		}
+        public ConferenceSeatsAvailability(Guid id)
+        {
+            this.Id = id;
+            this.PendingReservations = new ObservableCollection<Reservation>();
+        }
 
-		public virtual Guid Id { get; private set; }
-		public virtual int RemainingSeats { get; set; }
-		public virtual ObservableCollection<Reservation> PendingReservations { get; private set; }
+        public virtual Guid Id { get; private set; }
 
-		public void AddSeats(int additionalSeats)
-		{
-			this.RemainingSeats += additionalSeats;
-		}
+        public virtual int RemainingSeats { get; set; }
 
-		public void MakeReservation(Guid reservationId, int numberOfSeats)
-		{
-			if (numberOfSeats > this.RemainingSeats)
-			{
-				throw new ArgumentOutOfRangeException("numberOfSeats");
-			}
+        public virtual ObservableCollection<Reservation> PendingReservations { get; private set; }
 
-			this.PendingReservations.Add(new Reservation(reservationId, numberOfSeats));
-			this.RemainingSeats -= numberOfSeats;
-		}
+        public void AddSeats(int additionalSeats)
+        {
+            this.RemainingSeats += additionalSeats;
+        }
 
-		public void CommitReservation(Guid reservationId)
-		{
-			var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
-			if (reservation == null)
-				throw new KeyNotFoundException();
+        public void MakeReservation(Guid reservationId, int numberOfSeats)
+        {
+            if (numberOfSeats > this.RemainingSeats)
+            {
+                throw new ArgumentOutOfRangeException("numberOfSeats");
+            }
 
-			this.PendingReservations.Remove(reservation);
-		}
+            this.PendingReservations.Add(new Reservation(reservationId, numberOfSeats));
+            this.RemainingSeats -= numberOfSeats;
+        }
 
-		public void ExpireReservation(Guid reservationId)
-		{
-			var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
-			if (reservation == null)
-				throw new KeyNotFoundException();
+        public void CommitReservation(Guid reservationId)
+        {
+            var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
+            if (reservation == null) throw new KeyNotFoundException();
 
-			this.PendingReservations.Remove(reservation);
-			this.RemainingSeats += reservation.Seats;
-		}
-	}
+            this.PendingReservations.Remove(reservation);
+        }
+
+        public void ExpireReservation(Guid reservationId)
+        {
+            var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
+            if (reservation == null) throw new KeyNotFoundException();
+
+            this.PendingReservations.Remove(reservation);
+            this.RemainingSeats += reservation.Seats;
+        }
+    }
 }

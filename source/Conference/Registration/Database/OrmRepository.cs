@@ -11,42 +11,37 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data.Entity;
 using System.Data;
-using System.Linq.Expressions;
 
 namespace Registration.Database
 {
-	public class OrmRepository : DbContext, IRepository
-	{
-		public OrmRepository()
-			: base("ConferenceRegistration")
-		{
-		}
+    public class OrmRepository : DbContext, IRepository
+    {
+        public OrmRepository()
+            : base("ConferenceRegistration")
+        {
+        }
 
-		public T Find<T>(Guid id) where T : class, IAggregateRoot
-		{
-			return this.Set<T>().Find(id);
-		}
+        public T Find<T>(Guid id) where T : class, IAggregateRoot
+        {
+            return this.Set<T>().Find(id);
+        }
 
-		public void Save<T>(T aggregate) where T : class, IAggregateRoot
-		{
-			var entry = this.Entry(aggregate);
-			
-			// Add if the object was not loaded from the repository.
-			if (entry.State == EntityState.Detached)
-				this.Set<T>().Add(aggregate);
+        public void Save<T>(T aggregate) where T : class, IAggregateRoot
+        {
+            var entry = this.Entry(aggregate);
 
-			// Otherwise, do nothing as the ORM already tracks 
-			// attached entities that need to be saved (or not).
+            // Add if the object was not loaded from the repository.
+            if (entry.State == EntityState.Detached) this.Set<T>().Add(aggregate);
 
-			this.SaveChanges();
-		}
+            // Otherwise, do nothing as the ORM already tracks 
+            // attached entities that need to be saved (or not).
 
-		// Define the available entity sets for the database.
-		public virtual DbSet<ConferenceSeatsAvailability> ConferenceSeats { get; private set; }
-	}
+            this.SaveChanges();
+        }
+
+        // Define the available entity sets for the database.
+        public virtual DbSet<ConferenceSeatsAvailability> ConferenceSeats { get; private set; }
+    }
 }

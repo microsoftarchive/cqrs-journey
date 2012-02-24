@@ -11,16 +11,13 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Registration
 {
-	public interface IRepository
-	{
-		T Find<T>(Guid id) where T : class, IAggregateRoot;
+    public interface IRepository
+    {
+        T Find<T>(Guid id) where T : class, IAggregateRoot;
 
-		void Save<T>(T aggregate) where T : class, IAggregateRoot;
-	}
+        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+    }
 }

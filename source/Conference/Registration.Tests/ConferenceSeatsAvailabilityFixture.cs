@@ -17,109 +17,110 @@ using Registration.Database;
 
 namespace Registration.Tests
 {
-	[TestClass]
-	public class Context
-	{
-		private static readonly Guid TicketTypeId = Guid.NewGuid();
-		private static readonly Guid ReservationId = Guid.NewGuid();
+    [TestClass]
+    public class Context
+    {
+        private static readonly Guid TicketTypeId = Guid.NewGuid();
 
-		public virtual ConferenceSeatsAvailability Sut { get; set; }
+        private static readonly Guid ReservationId = Guid.NewGuid();
 
-		public ConferenceSeatsAvailability given_available_seats()
-		{
-			var sut = new ConferenceSeatsAvailability(TicketTypeId);
-			sut.AddSeats(10);
-			return sut;
-		}
+        public virtual ConferenceSeatsAvailability Sut { get; set; }
 
-		public ConferenceSeatsAvailability given_some_avilable_seats_and_some_taken()
-		{
-			var sut = this.given_available_seats();
-			sut.MakeReservation(ReservationId, 6);
-			return sut;
-		}
+        public ConferenceSeatsAvailability given_available_seats()
+        {
+            var sut = new ConferenceSeatsAvailability(TicketTypeId);
+            sut.AddSeats(10);
+            return sut;
+        }
 
-		[TestMethod]
-		public void when_reserving_less_seats_than_total_then_seats_become_unavailable()
-		{
-			this.Sut = this.given_available_seats();
+        public ConferenceSeatsAvailability given_some_avilable_seats_and_some_taken()
+        {
+            var sut = this.given_available_seats();
+            sut.MakeReservation(ReservationId, 6);
+            return sut;
+        }
 
-			this.Sut.MakeReservation(Guid.NewGuid(), 4);
+        [TestMethod]
+        public void when_reserving_less_seats_than_total_then_seats_become_unavailable()
+        {
+            this.Sut = this.given_available_seats();
 
-			Assert.AreEqual(6, this.Sut.RemainingSeats);
-		}
+            this.Sut.MakeReservation(Guid.NewGuid(), 4);
 
-		[TestMethod]
-		[ExpectedException(typeof(ArgumentOutOfRangeException))]
-		public void when_reserving_more_seats_than_total_then_fails()
-		{
-			var sut = this.given_available_seats();
-			sut.MakeReservation(Guid.NewGuid(), 11);
-		}
+            Assert.AreEqual(6, this.Sut.RemainingSeats);
+        }
 
-		[TestMethod]
-		public void when_reserving_less_seats_than_remaining_then_seats_become_unavailable()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void when_reserving_more_seats_than_total_then_fails()
+        {
+            var sut = this.given_available_seats();
+            sut.MakeReservation(Guid.NewGuid(), 11);
+        }
 
-			sut.MakeReservation(Guid.NewGuid(), 4);
+        [TestMethod]
+        public void when_reserving_less_seats_than_remaining_then_seats_become_unavailable()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
 
-			Assert.AreEqual(0, sut.RemainingSeats);
-		}
+            sut.MakeReservation(Guid.NewGuid(), 4);
 
-		[TestMethod]
-		[ExpectedException(typeof(ArgumentOutOfRangeException))]
-		public void when_reserving_more_seats_than_remaining_then_fails()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
-			sut.MakeReservation(Guid.NewGuid(), 5);
-		}
+            Assert.AreEqual(0, sut.RemainingSeats);
+        }
 
-		[TestMethod]
-		public void when_expiring_a_reservation_then_seats_become_available()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void when_reserving_more_seats_than_remaining_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.MakeReservation(Guid.NewGuid(), 5);
+        }
 
-			sut.ExpireReservation(ReservationId);
+        [TestMethod]
+        public void when_expiring_a_reservation_then_seats_become_available()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
 
-			Assert.AreEqual(10, sut.RemainingSeats);
-		}
+            sut.ExpireReservation(ReservationId);
 
-		[TestMethod]
-		[ExpectedException(typeof(KeyNotFoundException))]
-		public void when_expiring_an_inexistant_reservation_then_fails()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
-			sut.ExpireReservation(Guid.NewGuid());
-		}
+            Assert.AreEqual(10, sut.RemainingSeats);
+        }
 
-		[TestMethod]
-		public void when_committing_a_reservation_then_remaining_seats_are_not_modified()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
-			var remaining = sut.RemainingSeats;
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void when_expiring_an_inexistant_reservation_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.ExpireReservation(Guid.NewGuid());
+        }
 
-			sut.CommitReservation(ReservationId);
+        [TestMethod]
+        public void when_committing_a_reservation_then_remaining_seats_are_not_modified()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            var remaining = sut.RemainingSeats;
 
-			Assert.AreEqual(remaining, sut.RemainingSeats);
-		}
+            sut.CommitReservation(ReservationId);
 
-		[TestMethod]
-		[ExpectedException(typeof(KeyNotFoundException))]
-		public void when_committing_an_inexistant_reservation_then_fails()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
-			sut.CommitReservation(Guid.NewGuid());
-		}
+            Assert.AreEqual(remaining, sut.RemainingSeats);
+        }
 
-		[TestMethod]
-		[ExpectedException(typeof(KeyNotFoundException))]
-		public void when_committing_a_reservation_then_cannot_expire_it()
-		{
-			var sut = this.given_some_avilable_seats_and_some_taken();
-			sut.CommitReservation(ReservationId);
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void when_committing_an_inexistant_reservation_then_fails()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.CommitReservation(Guid.NewGuid());
+        }
 
-			sut.ExpireReservation(ReservationId);
-		}
-	}
+        [TestMethod]
+        [ExpectedException(typeof(KeyNotFoundException))]
+        public void when_committing_a_reservation_then_cannot_expire_it()
+        {
+            var sut = this.given_some_avilable_seats_and_some_taken();
+            sut.CommitReservation(ReservationId);
+
+            sut.ExpireReservation(ReservationId);
+        }
+    }
 }

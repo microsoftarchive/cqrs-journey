@@ -11,25 +11,25 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel.DataAnnotations;
 
 namespace Registration
 {
-	[ComplexType]
-	public class Reservation
-	{
-		public Reservation(Guid id, int seats)
-		{
-			this.Id = id;
-			this.Seats = seats;
-		}
+    [ComplexType]
+    public class Reservation
+    {
+        public Reservation(Guid id, int seats)
+        {
+            this.Id = id;
+            this.Seats = seats;
+        }
 
-		public Guid Id { get; private set; }
-		public int Seats { get; private set; }
+        public Guid Id { get; private set; }
 
-		protected Reservation() { }
-	}
+        public int Seats { get; private set; }
+
+        protected Reservation()
+        {
+        }
+    }
 }
