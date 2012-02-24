@@ -10,13 +10,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
 namespace Registration
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.ObjectModel;
-	using System.Linq;
-
 	public class ConferenceSeatsAvailability : IAggregateRoot
 	{
 		// ORM requirement
@@ -31,9 +31,9 @@ namespace Registration
 			this.PendingReservations = new ObservableCollection<Reservation>();
 		}
 
-		public Guid Id { get; private set; }
-		public int RemainingSeats { get; set; }
-		private ObservableCollection<Reservation> PendingReservations { get; set; }
+		public virtual Guid Id { get; private set; }
+		public virtual int RemainingSeats { get; set; }
+		public virtual ObservableCollection<Reservation> PendingReservations { get; private set; }
 
 		public void AddSeats(int additionalSeats)
 		{

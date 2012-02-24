@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B9334E
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{B5786D07-5888-4DF5-B295-3FEA593F3BFE}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Conference.vsmdi
@@ -35,6 +37,10 @@ Global
 		{1F861D4D-FD0C-4CA3-BEDB-EDD276CB0248}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F861D4D-FD0C-4CA3-BEDB-EDD276CB0248}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F861D4D-FD0C-4CA3-BEDB-EDD276CB0248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
