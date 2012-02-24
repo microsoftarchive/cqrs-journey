@@ -16,51 +16,50 @@ using Xunit;
 
 namespace Registration.Tests
 {
-    public class Context
+    public class given_available_seats
     {
-        private static readonly Guid TicketTypeId = Guid.NewGuid();
+        protected static readonly Guid TicketTypeId = Guid.NewGuid();
 
-        private static readonly Guid ReservationId = Guid.NewGuid();
+        protected ConferenceSeatsAvailability sut;
 
-        public virtual ConferenceSeatsAvailability Sut { get; set; }
-
-        public ConferenceSeatsAvailability given_available_seats()
+        public given_available_seats()
         {
-            var sut = new ConferenceSeatsAvailability(TicketTypeId);
-            sut.AddSeats(10);
-            return sut;
-        }
-
-        public ConferenceSeatsAvailability given_some_avilable_seats_and_some_taken()
-        {
-            var sut = this.given_available_seats();
-            sut.MakeReservation(ReservationId, 6);
-            return sut;
+            this.sut = new ConferenceSeatsAvailability(TicketTypeId);
+            this.sut.AddSeats(10);
         }
 
         [Fact]
         public void when_reserving_less_seats_than_total_then_seats_become_unavailable()
         {
-            this.Sut = this.given_available_seats();
+            sut.MakeReservation(Guid.NewGuid(), 4);
 
-            this.Sut.MakeReservation(Guid.NewGuid(), 4);
-
-            Assert.Equal(6, this.Sut.RemainingSeats);
+            Assert.Equal(6, this.sut.RemainingSeats);
         }
 
         [Fact]
         public void when_reserving_more_seats_than_total_then_fails()
         {
-            var sut = this.given_available_seats();
-
             Assert.Throws<ArgumentOutOfRangeException>(() => sut.MakeReservation(Guid.NewGuid(), 11));
+        }
+    }
+
+    public class given_some_avilable_seats_and_some_taken
+    {
+        protected static readonly Guid TicketTypeId = Guid.NewGuid();
+        protected static readonly Guid ReservationId = Guid.NewGuid();
+
+        protected ConferenceSeatsAvailability sut;
+
+        public given_some_avilable_seats_and_some_taken()
+        {
+            this.sut = new ConferenceSeatsAvailability(TicketTypeId);
+            this.sut.AddSeats(10); 
+            this.sut.MakeReservation(ReservationId, 6);
         }
 
         [Fact]
         public void when_reserving_less_seats_than_remaining_then_seats_become_unavailable()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-
             sut.MakeReservation(Guid.NewGuid(), 4);
 
             Assert.Equal(0, sut.RemainingSeats);
@@ -69,16 +68,12 @@ namespace Registration.Tests
         [Fact]
         public void when_reserving_more_seats_than_remaining_then_fails()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-
             Assert.Throws<ArgumentOutOfRangeException>(() => sut.MakeReservation(Guid.NewGuid(), 5));
         }
 
         [Fact]
         public void when_expiring_a_reservation_then_seats_become_available()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-
             sut.ExpireReservation(ReservationId);
 
             Assert.Equal(10, sut.RemainingSeats);
@@ -87,15 +82,12 @@ namespace Registration.Tests
         [Fact]
         public void when_expiring_an_inexistant_reservation_then_fails()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-            
             Assert.Throws<KeyNotFoundException>(() => sut.ExpireReservation(Guid.NewGuid()));
         }
 
         [Fact]
         public void when_committing_a_reservation_then_remaining_seats_are_not_modified()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
             var remaining = sut.RemainingSeats;
 
             sut.CommitReservation(ReservationId);
@@ -106,15 +98,12 @@ namespace Registration.Tests
         [Fact]
         public void when_committing_an_inexistant_reservation_then_fails()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
-            
             Assert.Throws<KeyNotFoundException>(() => sut.CommitReservation(Guid.NewGuid()));
         }
 
         [Fact]
         public void when_committing_a_reservation_then_cannot_expire_it()
         {
-            var sut = this.given_some_avilable_seats_and_some_taken();
             sut.CommitReservation(ReservationId);
 
             Assert.Throws<KeyNotFoundException>(() => sut.ExpireReservation(ReservationId));
