@@ -12,12 +12,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Registration.Database;
+using Xunit;
 
 namespace Registration.Tests
 {
-    [TestClass]
     public class Context
     {
         private static readonly Guid TicketTypeId = Guid.NewGuid();
@@ -40,61 +38,61 @@ namespace Registration.Tests
             return sut;
         }
 
-        [TestMethod]
+        [Fact]
         public void when_reserving_less_seats_than_total_then_seats_become_unavailable()
         {
             this.Sut = this.given_available_seats();
 
             this.Sut.MakeReservation(Guid.NewGuid(), 4);
 
-            Assert.AreEqual(6, this.Sut.RemainingSeats);
+            Assert.Equal(6, this.Sut.RemainingSeats);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Fact]
         public void when_reserving_more_seats_than_total_then_fails()
         {
             var sut = this.given_available_seats();
-            sut.MakeReservation(Guid.NewGuid(), 11);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.MakeReservation(Guid.NewGuid(), 11));
         }
 
-        [TestMethod]
+        [Fact]
         public void when_reserving_less_seats_than_remaining_then_seats_become_unavailable()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
 
             sut.MakeReservation(Guid.NewGuid(), 4);
 
-            Assert.AreEqual(0, sut.RemainingSeats);
+            Assert.Equal(0, sut.RemainingSeats);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Fact]
         public void when_reserving_more_seats_than_remaining_then_fails()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.MakeReservation(Guid.NewGuid(), 5);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => sut.MakeReservation(Guid.NewGuid(), 5));
         }
 
-        [TestMethod]
+        [Fact]
         public void when_expiring_a_reservation_then_seats_become_available()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
 
             sut.ExpireReservation(ReservationId);
 
-            Assert.AreEqual(10, sut.RemainingSeats);
+            Assert.Equal(10, sut.RemainingSeats);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
+        [Fact]
         public void when_expiring_an_inexistant_reservation_then_fails()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.ExpireReservation(Guid.NewGuid());
+            
+            Assert.Throws<KeyNotFoundException>(() => sut.ExpireReservation(Guid.NewGuid()));
         }
 
-        [TestMethod]
+        [Fact]
         public void when_committing_a_reservation_then_remaining_seats_are_not_modified()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
@@ -102,25 +100,24 @@ namespace Registration.Tests
 
             sut.CommitReservation(ReservationId);
 
-            Assert.AreEqual(remaining, sut.RemainingSeats);
+            Assert.Equal(remaining, sut.RemainingSeats);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
+        [Fact]
         public void when_committing_an_inexistant_reservation_then_fails()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
-            sut.CommitReservation(Guid.NewGuid());
+            
+            Assert.Throws<KeyNotFoundException>(() => sut.CommitReservation(Guid.NewGuid()));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(KeyNotFoundException))]
+        [Fact]
         public void when_committing_a_reservation_then_cannot_expire_it()
         {
             var sut = this.given_some_avilable_seats_and_some_taken();
             sut.CommitReservation(ReservationId);
 
-            sut.ExpireReservation(ReservationId);
+            Assert.Throws<KeyNotFoundException>(() => sut.ExpireReservation(ReservationId));
         }
     }
 }

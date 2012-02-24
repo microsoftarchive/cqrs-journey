@@ -11,46 +11,40 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Registration.Database;
+using Xunit;
 
 namespace Registration.Tests
 {
-	[TestClass]
-	public class OrmRepositoryFixture
-	{
-		[TestInitialize]
-		public void Initialize()
-		{
-			using (var context = new OrmRepository())
-			{
-				if (context.Database.Exists())
-					context.Database.Delete();
+    public class OrmRepositoryFixture
+    {
+        public OrmRepositoryFixture()
+        {
+            using (var context = new OrmRepository())
+            {
+                if (context.Database.Exists()) context.Database.Delete();
 
-				context.Database.Create();
-			}
-		}
+                context.Database.Create();
+            }
+        }
 
-		[TestMethod]
-		public void WhenSavingEntity_ThenCanRetrieveIt()
-		{
-			var id = Guid.NewGuid();
+        [Fact]
+        public void WhenSavingEntity_ThenCanRetrieveIt()
+        {
+            var id = Guid.NewGuid();
 
-			using (var context= new OrmRepository())
-			{
-				var conference = new ConferenceSeatsAvailability(id);
-				context.Save(conference);
-			}
+            using (var context = new OrmRepository())
+            {
+                var conference = new ConferenceSeatsAvailability(id);
+                context.Save(conference);
+            }
 
-			using (var context = new OrmRepository())
-			{
-				var conference = context.Find<ConferenceSeatsAvailability>(id);
+            using (var context = new OrmRepository())
+            {
+                var conference = context.Find<ConferenceSeatsAvailability>(id);
 
-				Assert.IsNotNull(conference);
-			}
-		}
-	}
+                Assert.NotNull(conference);
+            }
+        }
+    }
 }
