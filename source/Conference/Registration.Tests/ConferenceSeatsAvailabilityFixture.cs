@@ -10,12 +10,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using Xunit;
-
-namespace Registration.Tests
+namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 {
+    using System;
+    using System.Collections.Generic;
+    using Xunit;
+
     public class given_available_seats
     {
         protected static readonly Guid TicketTypeId = Guid.NewGuid();

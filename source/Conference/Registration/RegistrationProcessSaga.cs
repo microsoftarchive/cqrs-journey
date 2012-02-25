@@ -12,12 +12,21 @@
 
 namespace Registration
 {
+    using System;
+
     using Core;
 
     using Registration.Commands;
 
     public class RegistrationProcessSaga
     {
+        public enum SagaState
+        {
+            NotStarted,
+            AwaitingReservationConfirmation,
+            Completed
+        }
+
         private readonly ICommandBus bus;
 
         public RegistrationProcessSaga(ICommandBus bus)
@@ -25,8 +34,19 @@ namespace Registration
             this.bus = bus;
         }
 
+        public SagaState State { get; set; }
+
         public void Handle(RegisterToConference command)
         {
+            if (this.State == SagaState.NotStarted)
+            {
+                this.State = SagaState.AwaitingReservationConfirmation;
+                this.bus.Send(new MakeReservation());
+            }
+            else
+            {
+               throw new InvalidOperationException(); 
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Registration.Tests
 
     using Core;
 
-    internal class FakeBus : ICommandBus
+    public class FakeBus : ICommandBus
     {
         private readonly List<ICommand> sentCommands = new List<ICommand>();
 

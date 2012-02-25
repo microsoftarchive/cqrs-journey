@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+namespace Registration.Tests.RegistrationProcessSagaFixture
 {
     using System;
 
@@ -19,28 +19,35 @@ namespace Registration.Tests
 
     public class given_uninitialized_saga
     {
-        private RegistrationProcessSaga sut;
-        private FakeBus bus;
+        protected RegistrationProcessSaga sut;
+        protected FakeBus bus;
 
         public given_uninitialized_saga()
         {
             this.bus = new FakeBus();
-            this.sut = new RegistrationProcessSaga(bus);
+            this.sut = new RegistrationProcessSaga(this.bus);
+        }
+    }
+
+    public class when_registering : given_uninitialized_saga
+    {
+        public when_registering()
+        {
+            var registerCommand = new RegisterToConference { ConferenceId = Guid.NewGuid(), NumberOfSeats = 1 };
+            sut.Handle(registerCommand);
         }
 
         [Fact]
-        public void when_starting_saga_then_locks_seats()
+        public void then_locks_seats()
         {
-            var registerCommand = new RegisterToConference
-                {
-                    ConferenceId = Guid.NewGuid(),
-                    NumberOfSeats = 1
-                };
-
-            sut.Handle(registerCommand);
-
             Assert.Equal(1, bus.SentCommands.Count);
             Assert.IsAssignableFrom<MakeReservation>(bus.SentCommands[0]);
+        }
+
+        [Fact]
+        public void then_transitions_to_awaiting_reservation_confirmation_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation, sut.State);
         }
     }
 }
