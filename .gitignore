@@ -13,3 +13,4 @@ _ReSharper.*
 TestResults
 packages
 NuGet.exe
+.nuget
