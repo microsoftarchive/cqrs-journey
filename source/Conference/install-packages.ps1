@@ -5,4 +5,4 @@
 #	- select Enable Package Restore
 
 # TODO: List all dependencies and prompt to continue
-Get-Item **\packages.config | ForEach-Object { & .\nuget.exe install $_.FullName -o packages }
+Get-Item **\packages.config | ForEach-Object { & nuget.exe install $_.FullName -o packages }
