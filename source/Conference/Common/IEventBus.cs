@@ -10,12 +10,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-
-namespace Registration
+namespace Common
 {
-    public interface IAggregateRoot
+    public interface IEventBus
     {
-        Guid Id { get; }
+        void Publish(IEvent @event);
     }
 }

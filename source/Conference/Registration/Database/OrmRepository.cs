@@ -10,12 +10,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Data.Entity;
-using System.Data;
-
 namespace Registration.Database
 {
+    using System;
+    using System.Data.Entity;
+    using System.Data;
+    using Common;
+
     public class OrmRepository : DbContext, IRepository
     {
         public OrmRepository()

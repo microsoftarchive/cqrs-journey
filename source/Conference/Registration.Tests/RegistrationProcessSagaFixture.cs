@@ -13,7 +13,6 @@
 namespace Registration.Tests.RegistrationProcessSagaFixture
 {
     using System;
-
     using Registration.Commands;
     using Xunit;
 

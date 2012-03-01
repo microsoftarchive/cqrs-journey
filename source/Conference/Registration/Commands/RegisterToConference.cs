@@ -13,8 +13,7 @@
 namespace Registration.Commands
 {
     using System;
-
-    using Core;
+    using Common;
 
     public class RegisterToConference : ICommand
     {

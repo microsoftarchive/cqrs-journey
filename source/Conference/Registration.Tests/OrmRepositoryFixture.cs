@@ -10,12 +10,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using Registration.Database;
-using Xunit;
-
 namespace Registration.Tests
 {
+    using System;
+    using Registration.Database;
+    using Xunit;
+
     public class OrmRepositoryFixture
     {
         public OrmRepositoryFixture()

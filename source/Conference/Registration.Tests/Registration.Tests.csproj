@@ -61,7 +61,7 @@
     <Compile Include="RegistrationProcessSagaFixture.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Core</Name>
     </ProjectReference>

@@ -13,10 +13,8 @@
 namespace Registration
 {
     using System;
-
-    using Core;
-
     using Registration.Commands;
+    using Common;
 
     public class RegistrationProcessSaga
     {
