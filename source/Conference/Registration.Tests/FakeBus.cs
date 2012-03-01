@@ -13,8 +13,7 @@
 namespace Registration.Tests
 {
     using System.Collections.Generic;
-
-    using Core;
+    using Common;
 
     public class FakeBus : ICommandBus
     {
