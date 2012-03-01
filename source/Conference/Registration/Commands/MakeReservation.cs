@@ -12,7 +12,7 @@
 
 namespace Registration.Commands
 {
-    using Core;
+    using Common;
 
     public class MakeReservation : ICommand
     {
