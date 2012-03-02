@@ -46,5 +46,29 @@ namespace Registration.Tests
                 Assert.NotNull(conference);
             }
         }
+
+		[Fact]
+		public void WhenSavingEntityTwice_ThenCanReloadIt()
+		{
+			var id = Guid.NewGuid();
+
+			using (var context = new OrmRepository())
+			{
+				var conference = new ConferenceSeatsAvailability(id);
+				context.Save(conference);
+			}
+
+			using (var context = new OrmRepository())
+			{
+				var conference = context.Find<ConferenceSeatsAvailability>(id);
+				conference.RemainingSeats = 20;
+
+				context.Save(conference);
+
+				context.Entry(conference).Reload();
+
+				Assert.Equal(20, conference.RemainingSeats);
+			}
+		}
     }
 }
