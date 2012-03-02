@@ -17,5 +17,15 @@
 #	- right-click on the solution in the solution explorer
 #	- select Enable Package Restore
 
+if (Test-Path .\nuget.exe)
+{
+	$nuget = '.\nuget.exe'
+}
+else
+{
+	$nuget = 'nuget.exe'
+}
+
+
 # TODO: List all dependencies and prompt to continue
-Get-Item **\packages.config | ForEach-Object { & nuget.exe install $_.FullName -o packages }
+Get-Item **\packages.config | ForEach-Object { & $nuget install $_.FullName -o packages }
