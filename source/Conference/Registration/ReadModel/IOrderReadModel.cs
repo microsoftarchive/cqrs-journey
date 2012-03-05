@@ -10,19 +10,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.ReadModel
 {
     using System;
-    using Common;
 
-    public class RegisterToConference : ICommand
+    public interface IOrderReadModel
     {
-        public Guid Id { get; private set; }
-
-        public Guid RegistrationId { get; set; }
-
-        public Guid ConferenceId { get; set; }
-
-        public int NumberOfSeats { get; set; }
+        OrderDTO Find(Guid id);
     }
 }

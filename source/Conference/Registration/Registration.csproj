@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\MakeReservation.cs" />
+    <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />
@@ -54,6 +55,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConferenceSeatsAvailability.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
+    <Compile Include="ReadModel\IOrderReadModel.cs" />
+    <Compile Include="ReadModel\OrderDTO.cs" />
+    <Compile Include="ReadModel\OrmOrderReadModel.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
   </ItemGroup>

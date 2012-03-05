@@ -42,7 +42,7 @@
         </tr>
     </table>
 </div>
-@using (Html.BeginForm())
+@using (Html.BeginForm("ConfirmRegistration", "Registration"))
 {
     @Html.HiddenFor(model => model.Id)
     <div>

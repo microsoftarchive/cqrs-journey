@@ -42,7 +42,7 @@ namespace Conference.Web.Public
             routes.MapRoute(
                 "RegisterConfirmation",
                 "conference/{conferenceId}/confirmation",
-                new { controller = "Registration", action = "Confirmation" });
+                new { controller = "Registration", action = "ConfirmRegistration" });
         }
     }
 }

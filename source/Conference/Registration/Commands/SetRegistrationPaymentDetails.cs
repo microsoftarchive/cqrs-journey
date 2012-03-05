@@ -15,14 +15,12 @@ namespace Registration.Commands
     using System;
     using Common;
 
-    public class RegisterToConference : ICommand
+    public class SetRegistrationPaymentDetails : ICommand
     {
         public Guid Id { get; private set; }
 
         public Guid RegistrationId { get; set; }
 
-        public Guid ConferenceId { get; set; }
-
-        public int NumberOfSeats { get; set; }
+        public string PaymentInformation { get; set; }
     }
 }

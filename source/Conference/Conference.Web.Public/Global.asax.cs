@@ -14,11 +14,12 @@ namespace Conference.Web.Public
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Common;
-    using System.Data.Entity;
     using Registration.Database;
+    using Registration.ReadModel;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -33,19 +34,41 @@ namespace Conference.Web.Public
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-            RegisterServices(Services);
+            Services = GetDefaultServices();
 
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>());
         }
 
-        public static void RegisterServices(Dictionary<Type, object> services)
+        public static IDictionary<Type, object> GetDefaultServices()
         {
-            services.Clear();
+            var services = new Dictionary<Type, object>();
 
-            services[typeof(ICommandBus)] = null;
+            services[typeof(ICommandBus)] = CreateCommandBus();
+            services[typeof(IEventBus)] = CreateEventBus();
+
+            services[typeof(IOrderReadModel)] = new OrmOrderReadModel(new OrmRepository());
+
+
+            return services;
         }
 
-        private static Dictionary<Type, object> Services = new Dictionary<Type, object>();
+        private static MemoryCommandBus CreateCommandBus()
+        {
+            // TODO add handlers
+            var handlers = new object[] { };
+
+            return new MemoryCommandBus(handlers);
+        }
+
+        private static MemoryEventBus CreateEventBus()
+        {
+            // TODO add handlers
+            var handlers = new object[] { };
+
+            return new MemoryEventBus(handlers);
+        }
+
+        private static IDictionary<Type, object> Services = new Dictionary<Type, object>();
 
         public static T GetService<T>()
             where T : class

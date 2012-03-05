@@ -17,6 +17,7 @@ namespace Conference.Web.Public.Controllers
     using Common;
     using Conference.Web.Public.Models;
     using Registration.Commands;
+    using Registration.ReadModel;
 
     public class RegistrationController : Controller
     {
@@ -36,12 +37,12 @@ namespace Conference.Web.Public.Controllers
 
         private static ICommandBus GetCommandBus()
         {
-            return null;
+            return MvcApplication.GetService<ICommandBus>();
         }
 
-        private static object GetRegistrationReadService()
+        private static IOrderReadModel GetRegistrationReadService()
         {
-            return null;
+            return MvcApplication.GetService<IOrderReadModel>();
         }
 
         [HttpGet]
@@ -58,38 +59,36 @@ namespace Conference.Web.Public.Controllers
         {
             var registration = UpdateRegistration(conferenceName, contentModel);
 
-            // TODO send create registration command
             var command =
                 new RegisterToConference
                 {
-                    Id = registration.Id,
+                    RegistrationId = registration.Id,
                     ConferenceId = registration.ConferenceId,
                     NumberOfSeats = registration.Seats[0].Quantity
                 };
 
+            this.commandBus.Send(command);
 
-
-            // Wait until updated
+            // TODO: Wait until updated
 
             return View(registration);
         }
 
-        private Registration UpdateRegistration(string conferenceName, Registration contentModel)
-        {
-            var reservation = this.CreateRegistration(conferenceName);
-
-            for (int i = 0; i < reservation.Seats.Count; i++)
-            {
-                var quantity = contentModel.Seats[i].Quantity;
-                reservation.Seats[i].Quantity = quantity;
-            }
-            return reservation;
-        }
-
         [HttpPost]
-        public ActionResult ConfirmRegistration(string conferenceName)
+        public ActionResult ConfirmRegistration(string conferenceName, Registration contentModel)
         {
-            return View();
+            var registration = contentModel;
+
+            var command =
+                new SetRegistrationPaymentDetails
+                {
+                    RegistrationId = registration.Id,
+                    PaymentInformation = "payment"
+                };
+
+            this.commandBus.Send(command);
+
+            return View("RegistrationConfirmed");
         }
 
         private Registration CreateRegistration(string conferenceName)
@@ -102,6 +101,20 @@ namespace Conference.Web.Public.Controllers
                 };
 
             return registration;
+        }
+
+        private Registration UpdateRegistration(string conferenceName, Registration contentModel)
+        {
+            var reservation = this.CreateRegistration(conferenceName);
+            reservation.Id = contentModel.Id;
+
+            for (int i = 0; i < reservation.Seats.Count; i++)
+            {
+                var quantity = contentModel.Seats[i].Quantity;
+                reservation.Seats[i].Quantity = quantity;
+            }
+
+            return reservation;
         }
     }
 }

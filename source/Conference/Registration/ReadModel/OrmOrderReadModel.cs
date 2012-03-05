@@ -10,19 +10,30 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.ReadModel
 {
     using System;
     using Common;
 
-    public class RegisterToConference : ICommand
+    public class OrmOrderReadModel : IOrderReadModel
     {
-        public Guid Id { get; private set; }
+        private IRepository repository;
 
-        public Guid RegistrationId { get; set; }
+        public OrmOrderReadModel(IRepository repository)
+        {
+            this.repository = repository;
+        }
 
-        public Guid ConferenceId { get; set; }
+        public OrderDTO Find(Guid id)
+        {
+            var order = this.repository.Find<Order>(id);
 
-        public int NumberOfSeats { get; set; }
+            if (order == null)
+            {
+                return null;
+            }
+
+            return new OrderDTO(order.Id, "ready");
+        }
     }
 }
