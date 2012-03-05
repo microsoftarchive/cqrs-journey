@@ -12,8 +12,11 @@
 
 namespace Common
 {
-    public interface ICommandBus
+	using System.Collections.Generic;
+	
+	public interface ICommandBus
     {
         void Send(ICommand command);
+		void Send(IEnumerable<ICommand> commands);
     }
 }

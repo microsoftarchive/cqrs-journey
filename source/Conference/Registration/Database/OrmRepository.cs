@@ -16,13 +16,27 @@ namespace Registration.Database
     using System.Data.Entity;
     using System.Data;
     using Common;
+	using System.Transactions;
 
     public class OrmRepository : DbContext, IRepository
     {
+		private IEventBus eventBus;
+
         public OrmRepository()
-            : base("ConferenceRegistration")
+            : this("ConferenceRegistration")
         {
         }
+
+		public OrmRepository(string nameOrConnectionString)
+			// TODO: we need the actual handlers for the in-memory buses here!!!
+			: this(nameOrConnectionString, new MemoryEventBus())
+		{
+		}
+
+		public OrmRepository(string nameOrConnectionString, IEventBus eventBus)
+		{
+			this.eventBus = eventBus;
+		}
 
         public T Find<T>(Guid id) where T : class, IAggregateRoot
         {
@@ -39,7 +53,14 @@ namespace Registration.Database
             // Otherwise, do nothing as the ORM already tracks 
             // attached entities that need to be saved (or not).
 
-            this.SaveChanges();
+			using (var scope = new TransactionScope())
+			{
+				this.SaveChanges();
+
+				var publisher = aggregate as IEventPublisher;
+				if (publisher != null)
+					this.eventBus.Publish(publisher.GetPendingEvents());
+			}
         }
 
         // Define the available entity sets for the database.

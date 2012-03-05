@@ -44,6 +44,14 @@ namespace Common
 			});
 		}
 
+		public void Publish(IEnumerable<IEvent> events)
+		{
+			foreach (var @event in events)
+			{
+				this.Publish(@event);
+			}
+		}
+
 		public IEnumerable<IEvent> Events { get { return this.events; } }
 	}
 }

@@ -17,12 +17,26 @@ namespace Registration.Database
 	using System.Data;
 	using Common;
 	using System.Linq;
+	using System.Transactions;
 
 	public class OrmSagaRepository : DbContext, ISagaRepository
 	{
+		private ICommandBus commandBus;
+
 		public OrmSagaRepository()
-			: base("ConferenceRegistrationSagas")
+			: this("ConferenceRegistrationSagas")
 		{
+		}
+
+		public OrmSagaRepository(string nameOrConnectionString)
+			// TODO: we need the actual handlers for the in-memory buses here!!!
+			: this(nameOrConnectionString, new MemoryCommandBus())
+		{
+		}
+
+		public OrmSagaRepository(string nameOrConnectionString, ICommandBus commandBus)
+		{
+			this.commandBus = commandBus;
 		}
 
 		public T Find<T>(Guid id) where T : class, IAggregateRoot
@@ -40,7 +54,14 @@ namespace Registration.Database
 			// Otherwise, do nothing as the ORM already tracks 
 			// attached entities that need to be saved (or not).
 
-			this.SaveChanges();
+			using (var scope = new TransactionScope())
+			{
+				this.SaveChanges();
+
+				//var commandPublisher = aggregate as ;
+				//if (commandPublisher != null)
+				//    this.commandBus.Publish(commandPublisher.Commands);
+			}
 		}
 
 		public IQueryable<T> Query<T>() where T : class, IAggregateRoot

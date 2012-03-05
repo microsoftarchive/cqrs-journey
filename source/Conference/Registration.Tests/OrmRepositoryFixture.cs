@@ -70,5 +70,7 @@ namespace Registration.Tests
 				Assert.Equal(20, conference.RemainingSeats);
 			}
 		}
+
+		
     }
 }

@@ -47,6 +47,14 @@ namespace Common
 			});
 		}
 
+		public void Send(IEnumerable<ICommand> commands)
+		{
+			foreach (var command in commands)
+			{
+				this.Send(command);
+			}
+		}
+
 		public IEnumerable<ICommand> Commands
 		{
 			get { return this.commands; }

@@ -28,5 +28,11 @@ namespace Registration.Tests
         {
             this.sentCommands.Add(command);
         }
-    }
+
+
+		public void Send(IEnumerable<ICommand> commands)
+		{
+			this.sentCommands.AddRange(commands);
+		}
+	}
 }
