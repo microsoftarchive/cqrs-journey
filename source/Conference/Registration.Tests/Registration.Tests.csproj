@@ -55,6 +55,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OrderFixture.cs" />
     <Compile Include="FakeBus.cs" />
     <Compile Include="OrmRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
