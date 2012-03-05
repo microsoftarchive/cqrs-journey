@@ -59,7 +59,7 @@ namespace Registration.Database
 
 				var publisher = aggregate as IEventPublisher;
 				if (publisher != null)
-					this.eventBus.Publish(publisher.GetPendingEvents());
+					this.eventBus.Publish(publisher.Events);
 			}
         }
 

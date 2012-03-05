@@ -58,9 +58,9 @@ namespace Registration.Database
 			{
 				this.SaveChanges();
 
-				//var commandPublisher = aggregate as ;
-				//if (commandPublisher != null)
-				//    this.commandBus.Publish(commandPublisher.Commands);
+				var commandPublisher = aggregate as ICommandPublisher;
+				if (commandPublisher != null)
+				    this.commandBus.Send(commandPublisher.Commands);
 			}
 		}
 
