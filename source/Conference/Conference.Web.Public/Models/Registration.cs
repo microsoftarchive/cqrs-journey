@@ -12,6 +12,7 @@
 
 namespace Conference.Web.Public.Models
 {
+    using System;
     using System.Collections.Generic;
 
     public class Registration
@@ -21,7 +22,11 @@ namespace Conference.Web.Public.Models
             this.Seats = new List<Seat>();
         }
 
-        public string ConferenceId { get; set; }
+        public Guid Id { get; set; }
+
+        public Guid ConferenceId { get; set; }
+
+        public string ConferenceName { get; set; }
 
         public IList<Seat> Seats { get; set; }
 

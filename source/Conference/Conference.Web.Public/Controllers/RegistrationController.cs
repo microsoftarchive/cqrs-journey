@@ -12,62 +12,96 @@
 
 namespace Conference.Web.Public.Controllers
 {
+    using System;
     using System.Web.Mvc;
+    using Common;
     using Conference.Web.Public.Models;
+    using Registration.Commands;
 
     public class RegistrationController : Controller
     {
+        private ICommandBus commandBus;
+        private object registrationReadService;
+
+        public RegistrationController()
+            : this(GetCommandBus(), GetRegistrationReadService())
+        {
+        }
+
+        public RegistrationController(ICommandBus commandBus, object registrationReadService)
+        {
+            this.commandBus = commandBus;
+            this.registrationReadService = registrationReadService;
+        }
+
+        private static ICommandBus GetCommandBus()
+        {
+            return null;
+        }
+
+        private static object GetRegistrationReadService()
+        {
+            return null;
+        }
+
         [HttpGet]
-        public ActionResult ChooseSeats(string conferenceId)
+        public ActionResult ChooseSeats(string conferenceName)
         {
-            var reservation = CreateRegistration(conferenceId);
+            var registration = CreateRegistration(conferenceName);
+            registration.Id = Guid.NewGuid();
 
-            return View(reservation);
+            return View(registration);
         }
 
         [HttpPost]
-        public ActionResult ChooseSeats(string conferenceId, Registration contentModel)
+        public ActionResult ChoosePayment(string conferenceName, Registration contentModel)
         {
-            return View(contentModel);
+            var registration = UpdateRegistration(conferenceName, contentModel);
+
+            // TODO send create registration command
+            var command =
+                new RegisterToConference
+                {
+                    Id = registration.Id,
+                    ConferenceId = registration.ConferenceId,
+                    NumberOfSeats = registration.Seats[0].Quantity
+                };
+
+
+
+            // Wait until updated
+
+            return View(registration);
         }
 
-        [HttpPost]
-        public ActionResult ChoosePayment(string conferenceId, Registration contentModel)
+        private Registration UpdateRegistration(string conferenceName, Registration contentModel)
         {
-            var reservation = this.CreateRegistration(conferenceId);
-            bool hasSeats = false;
+            var reservation = this.CreateRegistration(conferenceName);
 
             for (int i = 0; i < reservation.Seats.Count; i++)
             {
                 var quantity = contentModel.Seats[i].Quantity;
                 reservation.Seats[i].Quantity = quantity;
-                hasSeats |= quantity > 0;
             }
-
-            if (!hasSeats)
-            {
-                return View("ChooseSeats");
-            }
-
-            return View(reservation);
+            return reservation;
         }
 
         [HttpPost]
-        public ActionResult ConfirmRegistration(string conferenceId)
+        public ActionResult ConfirmRegistration(string conferenceName)
         {
             return View();
         }
 
-        private Registration CreateRegistration(string conferenceId)
+        private Registration CreateRegistration(string conferenceName)
         {
-            var reservation =
+            var registration =
                 new Registration
                 {
-                    ConferenceId = conferenceId,
+                    ConferenceName = conferenceName,
                     Seats = { new Seat { SeatId = "testSeat", SeatDescription = "Test seat", Price = 100f } }
                 };
 
-            return reservation;
+            return registration;
         }
     }
 }

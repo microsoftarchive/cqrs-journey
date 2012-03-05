@@ -15,8 +15,11 @@ namespace Conference.Web.Public.Models
     public class Seat
     {
         public string SeatId { get; set; }
+
         public string SeatDescription { get; set; }
+
         public double Price { get; set; }
+
         public int Quantity { get; set; }
 
         public double Total

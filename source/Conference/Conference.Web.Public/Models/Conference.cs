@@ -15,7 +15,9 @@ namespace Conference.Web.Public.Models
     public class Conference
     {
         public string Id { get; set; }
+
         public string Name { get; set; }
+
         public string Description { get; set; }
     }
 }

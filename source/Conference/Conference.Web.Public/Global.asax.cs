@@ -12,8 +12,13 @@
 
 namespace Conference.Web.Public
 {
+    using System;
+    using System.Collections.Generic;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Common;
+    using System.Data.Entity;
+    using Registration.Database;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -27,6 +32,31 @@ namespace Conference.Web.Public
             RegisterGlobalFilters(GlobalFilters.Filters);
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             AppRoutes.RegisterRoutes(RouteTable.Routes);
+
+            RegisterServices(Services);
+
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>());
+        }
+
+        public static void RegisterServices(Dictionary<Type, object> services)
+        {
+            services.Clear();
+
+            services[typeof(ICommandBus)] = null;
+        }
+
+        private static Dictionary<Type, object> Services = new Dictionary<Type, object>();
+
+        public static T GetService<T>()
+            where T : class
+        {
+            object service;
+            if (!Services.TryGetValue(typeof(T), out service))
+            {
+                return null;
+            }
+
+            return service as T;
         }
     }
 }

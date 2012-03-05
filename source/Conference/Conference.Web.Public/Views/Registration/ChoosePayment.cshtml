@@ -44,6 +44,7 @@
 </div>
 @using (Html.BeginForm())
 {
+    @Html.HiddenFor(model => model.Id)
     <div>
         <div class="editor-label">
             @Html.LabelForModel("Payment type")

@@ -6,6 +6,7 @@
     Choose seats</h2>
 @using (Html.BeginForm("ChoosePayment", "Registration"))
 {
+    @Html.HiddenFor(model => model.Id)
     <div id="tickets">
         <table width="100%">
             <tr>
