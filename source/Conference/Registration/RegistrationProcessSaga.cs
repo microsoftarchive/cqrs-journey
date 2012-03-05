@@ -15,8 +15,9 @@ namespace Registration
     using System;
     using Registration.Commands;
     using Common;
+    using System.Collections.Generic;
 
-    public class RegistrationProcessSaga : IAggregateRoot
+    public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
     {
         public enum SagaState
         {
@@ -26,15 +27,7 @@ namespace Registration
 			Deleted
         }
 
-        public RegistrationProcessSaga(ICommandBus bus)
-        {
-            this.Commands = bus;
-        }
-
-		protected RegistrationProcessSaga() { }
-
-		// Dependencies
-		public ICommandBus Commands { get; set; }
+        private List<ICommand> commands = new List<ICommand>();
 
         public SagaState State { get; private set; }
 
@@ -43,7 +36,7 @@ namespace Registration
             if (this.State == SagaState.NotStarted)
             {
                 this.State = SagaState.AwaitingReservationConfirmation;
-                this.Commands.Send(new MakeReservation());
+                this.commands.Add(new MakeReservation());
             }
             else
             {
@@ -52,5 +45,10 @@ namespace Registration
         }
 
 		public Guid Id { get; private set; }
-	}
+
+        public IEnumerable<ICommand> Commands
+        {
+            get { return this.commands; }
+        }
+    }
 }

@@ -17,11 +17,6 @@ namespace Registration.Events
 
     public class OrderPlaced : IEvent
     {
-        public OrderPlaced(Guid orderId)
-        {
-            this.OrderId = orderId;
-        }
-
-        public Guid OrderId { get; private set; }
+        public Guid OrderId { get; set; }
     }
 }

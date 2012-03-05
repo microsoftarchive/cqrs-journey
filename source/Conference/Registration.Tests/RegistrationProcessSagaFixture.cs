@@ -13,18 +13,17 @@
 namespace Registration.Tests.RegistrationProcessSagaFixture
 {
     using System;
+    using System.Linq;
     using Registration.Commands;
     using Xunit;
 
     public class given_uninitialized_saga
     {
         protected RegistrationProcessSaga sut;
-        protected FakeCommandBus bus;
 
         public given_uninitialized_saga()
         {
-            this.bus = new FakeCommandBus();
-            this.sut = new RegistrationProcessSaga(this.bus);
+            this.sut = new RegistrationProcessSaga();
         }
     }
 
@@ -39,8 +38,8 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_locks_seats()
         {
-            Assert.Equal(1, bus.SentCommands.Count);
-            Assert.IsAssignableFrom<MakeReservation>(bus.SentCommands[0]);
+            Assert.Equal(1, sut.Commands.Count());
+            Assert.IsAssignableFrom<MakeReservation>(sut.Commands.Single());
         }
 
         [Fact]

@@ -31,7 +31,7 @@ namespace Registration
             this.Id = id;
             this.UserId = userId;
             this.Lines = lines;
-            this.events.Add(new OrderPlaced(this.Id));
+            this.events.Add(new OrderPlaced { OrderId = this.Id });
         }
 
         public Guid Id { get; private set; }
