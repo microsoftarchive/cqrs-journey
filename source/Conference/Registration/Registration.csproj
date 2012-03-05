@@ -49,7 +49,7 @@
     <Compile Include="Commands\MakeReservation.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Order.cs" />
-    <Compile Include="OrderPlaced.cs" />
+    <Compile Include="Events\OrderPlaced.cs" />
     <Compile Include="Database\OrmSagaRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConferenceSeatsAvailability.cs" />
