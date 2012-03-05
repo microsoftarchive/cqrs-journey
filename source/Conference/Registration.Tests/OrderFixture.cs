@@ -12,10 +12,11 @@
 
 namespace Registration.Tests.OrderFixture
 {
-	using System;
-	using System.Collections.Generic;
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Common;
+    using Registration.Events;
     using Registration.Tests;
     using Xunit;
 

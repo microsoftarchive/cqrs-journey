@@ -16,6 +16,7 @@ namespace Registration
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using Common;
+    using Registration.Events;
 
     public class Order : IAggregateRoot, IEventPublisher
     {
