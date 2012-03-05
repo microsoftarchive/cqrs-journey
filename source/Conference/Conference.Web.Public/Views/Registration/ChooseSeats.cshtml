@@ -1,0 +1,37 @@
+﻿@model Conference.Web.Public.Models.Registration
+@{
+    ViewBag.Title = "ChooseSeats";
+}
+<h2>
+    Choose seats</h2>
+@using (Html.BeginForm("ChoosePayment", "Registration"))
+{
+    <div id="tickets">
+        <table width="100%">
+            <tr>
+                <th align="left">
+                    Seat type
+                </th>
+                <th align="right">
+                    Price
+                </th>
+                <th align="right">
+                    Quantity
+                </th>
+            </tr>
+            @for (var i = 0; i < this.Model.Seats.Count; i++)
+            { 
+                <tr>
+                    <td align="left">@Html.DisplayFor(model => model.Seats[i].SeatDescription)
+                    </td>
+                    <td align="right">@Html.DisplayFor(model => model.Seats[i].Price)
+                    </td>
+                    <td align="right">@Html.EditorFor(model => model.Seats[i].Quantity)
+                        @Html.HiddenFor(model => model.Seats[i].SeatId)
+                    </td>
+                </tr>
+            }
+        </table>
+        <input id="finish" type="submit" value="Proceed" />
+    </div>
+}

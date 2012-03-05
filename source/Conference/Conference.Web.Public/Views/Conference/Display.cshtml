@@ -1,0 +1,14 @@
+﻿@model Conference.Web.Public.Models.Conference
+@{
+    ViewBag.Title = "Display";
+}
+<h2>
+    Welcome to the home page of @Html.DisplayFor(model => model.Name)</h2>
+
+
+@Html.ActionLink("Register", "ChooseSeats", "Registration")
+
+<p>
+@Html.DisplayFor(model => model.Description)
+</p>
+
