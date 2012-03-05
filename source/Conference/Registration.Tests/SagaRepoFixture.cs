@@ -28,12 +28,12 @@ namespace Registration.Tests
 			var events = new MemoryEventBus(
 				new RegistrationSagaUserDeactivatedHandler(repo));
 			var commands = new MemoryCommandBus(
-				new BeginRegistrationCommandHandler(repo),
+				new PlaceOrderCommandCommandHandler(repo),
 				new DeactivateUserCommandHandler(events));
 
 			var userId = Guid.NewGuid();
 
-			commands.Send(new BeginRegistrationCommand(userId));
+			commands.Send(new PlaceOrderCommand(userId));
 
 			// Saga is created.
 			Assert.Equal(1, repo.Query<RegistrationSaga>().Count());
@@ -42,12 +42,12 @@ namespace Registration.Tests
 
 			Assert.True(events.Events.OfType<UserDeactivated>().Any());
 
-			Assert.True(repo.Query<RegistrationSaga>().Single(x => x.UserId == userId).IsDeleted);
+			Assert.True(repo.Query<RegistrationSaga>().Single(x => x.UserId == userId).IsCompleted);
 		}
 
-		class BeginRegistrationCommand : ICommand
+		class PlaceOrderCommand : ICommand
 		{
-			public BeginRegistrationCommand(Guid userId)
+			public PlaceOrderCommand(Guid userId)
 			{
 				this.Id = Guid.NewGuid();
 				this.UserId = userId;
@@ -57,16 +57,16 @@ namespace Registration.Tests
 			public Guid UserId { get; set; }
 		}
 
-		class BeginRegistrationCommandHandler : IHandleCommand<BeginRegistrationCommand>
+		class PlaceOrderCommandCommandHandler : ICommandHandler<PlaceOrderCommand>
 		{
 			private ISagaRepository repo;
 
-			public BeginRegistrationCommandHandler(ISagaRepository repo)
+			public PlaceOrderCommandCommandHandler(ISagaRepository repo)
 			{
 				this.repo = repo;
 			}
 
-			public void Handle(BeginRegistrationCommand command)
+			public void Handle(PlaceOrderCommand command)
 			{
 				var saga = new RegistrationSaga(command.Id, command.UserId);
 
@@ -86,7 +86,7 @@ namespace Registration.Tests
 			public Guid UserId { get; set; }
 		}
 
-		class DeactivateUserCommandHandler : IHandleCommand<DeactivateUserCommand>
+		class DeactivateUserCommandHandler : ICommandHandler<DeactivateUserCommand>
 		{
 			private IEventBus events;
 
@@ -112,7 +112,7 @@ namespace Registration.Tests
 			public Guid UserId { get; set; }
 		}
 
-		class RegistrationSagaUserDeactivatedHandler : IHandleEvent<UserDeactivated>
+		class RegistrationSagaUserDeactivatedHandler : IEventHandler<UserDeactivated>
 		{
 			private ISagaRepository repo;
 
@@ -124,7 +124,7 @@ namespace Registration.Tests
 			public void Handle(UserDeactivated @event)
 			{
 				// Route the event to the corresponding saga by correlation id.
-				var saga = this.repo.Query<RegistrationSaga>().SingleOrDefault(x => !x.IsDeleted && x.UserId == @event.UserId);
+				var saga = this.repo.Query<RegistrationSaga>().SingleOrDefault(x => !x.IsCompleted && x.UserId == @event.UserId);
 				if (saga != null)
 				{
 					saga.Handle(@event);
@@ -133,7 +133,7 @@ namespace Registration.Tests
 			}
 		}
 
-		class RegistrationSaga : IAggregateRoot, IHandleEvent<UserDeactivated>
+		class RegistrationSaga : IAggregateRoot, IEventHandler<UserDeactivated>
 		{
 			public RegistrationSaga(Guid id, Guid userId)
 			{
@@ -149,12 +149,12 @@ namespace Registration.Tests
 
 			public Guid Id { get; private set; }
 			public Guid UserId { get; private set; }
-			public bool IsDeleted { get; private set; }
+			public bool IsCompleted { get; private set; }
 
 			public void Handle(UserDeactivated @event)
 			{
 				if (@event.UserId == this.UserId)
-					this.IsDeleted = true;
+					this.IsCompleted = true;
 			}
 		}
 

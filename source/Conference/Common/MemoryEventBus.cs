@@ -34,7 +34,7 @@ namespace Common
 
 			Task.Factory.StartNew(() =>
 			{
-				var handlerType = typeof(IHandleEvent<>).MakeGenericType(@event.GetType());
+				var handlerType = typeof(IEventHandler<>).MakeGenericType(@event.GetType());
 
 				foreach (dynamic handler in this.handlers
 					.Where(x => handlerType.IsAssignableFrom(x.GetType())))

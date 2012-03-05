@@ -17,9 +17,9 @@ namespace Common
 	using System.Linq;
 	using System.Text;
 
-	public interface IHandleCommand<T> 
-		where T : ICommand
+	public interface IEventHandler<T>
+		where T : IEvent
 	{
-		void Handle(T command);
+		void Handle(T @event);
 	}
 }
