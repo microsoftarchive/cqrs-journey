@@ -55,12 +55,14 @@ namespace Registration.Database
 			// attached entities that need to be saved (or not).
 
 			using (var scope = new TransactionScope())
-			{
+			{	
 				this.SaveChanges();
 
 				var commandPublisher = aggregate as ICommandPublisher;
 				if (commandPublisher != null)
 				    this.commandBus.Send(commandPublisher.Commands);
+
+				scope.Complete();
 			}
 		}
 
