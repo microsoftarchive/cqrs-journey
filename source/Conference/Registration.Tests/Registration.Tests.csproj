@@ -59,6 +59,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MemoryEventBusFixture.cs" />
+    <Compile Include="MemoryCommandBusFixture.cs" />
     <Compile Include="OrderFixture.cs" />
     <Compile Include="FakeCommandBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
