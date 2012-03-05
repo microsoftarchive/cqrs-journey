@@ -12,65 +12,125 @@
 
 namespace Registration.Tests
 {
-    using System;
-    using Registration.Database;
-    using Xunit;
+	using System;
+	using Registration.Database;
+	using Xunit;
+	using Common;
+	using System.Collections.Generic;
+	using System.Data.Entity;
+	using Moq;
 
-    public class OrmRepositoryFixture
-    {
-        public OrmRepositoryFixture()
-        {
-            using (var context = new OrmRepository())
-            {
-                if (context.Database.Exists()) context.Database.Delete();
+	public class OrmRepositoryFixture
+	{
+		public OrmRepositoryFixture()
+		{
+			using (var context = new TestOrmRepository(Mock.Of<IEventBus>()))
+			{
+				if (context.Database.Exists()) context.Database.Delete();
 
-                context.Database.Create();
-            }
-        }
+				context.Database.Create();
+			}
+		}
 
-        [Fact]
-        public void WhenSavingEntity_ThenCanRetrieveIt()
-        {
-            var id = Guid.NewGuid();
+		[Fact]
+		public void WhenSavingEntity_ThenCanRetrieveIt()
+		{
+			var id = Guid.NewGuid();
 
-            using (var context = new OrmRepository())
-            {
-                var conference = new ConferenceSeatsAvailability(id);
-                context.Save(conference);
-            }
+			using (var context = new TestOrmRepository(Mock.Of<IEventBus>()))
+			{
+				var aggregate = new OrmTestAggregate(id);
+				context.Save(aggregate);
+			}
 
-            using (var context = new OrmRepository())
-            {
-                var conference = context.Find<ConferenceSeatsAvailability>(id);
+			using (var context = new TestOrmRepository(Mock.Of<IEventBus>()))
+			{
+				var aggregate = context.Find<OrmTestAggregate>(id);
 
-                Assert.NotNull(conference);
-            }
-        }
+				Assert.NotNull(aggregate);
+			}
+		}
 
 		[Fact]
 		public void WhenSavingEntityTwice_ThenCanReloadIt()
 		{
 			var id = Guid.NewGuid();
 
-			using (var context = new OrmRepository())
+			using (var context = new TestOrmRepository(Mock.Of<IEventBus>()))
 			{
-				var conference = new ConferenceSeatsAvailability(id);
-				context.Save(conference);
+				var aggregate = new OrmTestAggregate(id);
+				context.Save(aggregate);
 			}
 
-			using (var context = new OrmRepository())
+			using (var context = new TestOrmRepository(Mock.Of<IEventBus>()))
 			{
-				var conference = context.Find<ConferenceSeatsAvailability>(id);
-				conference.RemainingSeats = 20;
+				var aggregate = context.Find<OrmTestAggregate>(id);
+				aggregate.Title = "CQRS Journey";
 
-				context.Save(conference);
+				context.Save(aggregate);
 
-				context.Entry(conference).Reload();
+				context.Entry(aggregate).Reload();
 
-				Assert.Equal(20, conference.RemainingSeats);
+				Assert.Equal("CQRS Journey", aggregate.Title);
 			}
 		}
 
-		
-    }
+		[Fact]
+		public void WhenEntityExposesEvent_ThenRepositoryPublishesIt()
+		{
+			var bus = new Mock<IEventBus>();
+			var events = new List<IEvent>();
+
+			bus.Setup(x => x.Publish(It.IsAny<IEnumerable<IEvent>>()))
+				.Callback<IEnumerable<IEvent>>(x => events.AddRange(x));
+
+			var @event = new TestEvent();
+
+			using (var context = new TestOrmRepository(bus.Object))
+			{
+				var aggregate = new OrmTestAggregate(Guid.NewGuid());
+				aggregate.AddEvent(@event);
+				context.Save(aggregate);
+			}
+
+			Assert.Equal(1, events.Count);
+			Assert.True(events.Contains(@event));
+		}
+
+		public class TestOrmRepository : OrmRepository
+		{
+			public TestOrmRepository(IEventBus eventBus)
+				: base("TestOrmRepository", eventBus)
+			{
+			}
+
+			public DbSet<OrmTestAggregate> TestAggregates { get; set; }
+		}
+
+		public class TestEvent : IEvent
+		{
+		}
+	}
+
+	public class OrmTestAggregate : IAggregateRoot, IEventPublisher
+	{
+		private List<IEvent> events = new List<IEvent>();
+
+		protected OrmTestAggregate() { }
+
+		public OrmTestAggregate(Guid id)
+		{
+			this.Id = id;
+		}
+
+		public Guid Id { get; set; }
+		public string Title { get; set; }
+
+		public void AddEvent(IEvent @event)
+		{
+			this.events.Add(@event);
+		}
+
+		public IEnumerable<IEvent> Events { get { return this.events; } }
+	}
 }
