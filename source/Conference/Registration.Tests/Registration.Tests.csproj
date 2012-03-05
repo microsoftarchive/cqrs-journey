@@ -59,10 +59,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OrmSagaRepositoryFixture.cs" />
     <Compile Include="OrderFixture.cs" />
     <Compile Include="FakeCommandBus.cs" />
-    <Compile Include="OrmRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConferenceSeatsAvailabilityFixture.cs" />
     <Compile Include="RegistrationProcessSagaFixture.cs" />
