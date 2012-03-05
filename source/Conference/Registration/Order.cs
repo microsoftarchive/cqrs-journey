@@ -15,6 +15,7 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Linq;
     using Common;
     using Registration.Events;
 
@@ -26,17 +27,31 @@ namespace Registration
         {
         }
 
-        public Order(Guid id, Guid userId, IEnumerable<TicketOrderLine> lines)
+        public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<TicketOrderLine> lines)
         {
             this.Id = id;
             this.UserId = userId;
+            this.ConferenceId = conferenceId;
             this.Lines = lines;
-            this.events.Add(new OrderPlaced { OrderId = this.Id });
+
+            // TODO: it feels awkward publishing an event with ALL the details for the order.
+            // should we just do the following and let the saga handler populate all the info?
+            // this.events.Add(new OrderPlaced { OrderId = this.Id });
+            this.events.Add(
+                new OrderPlaced 
+                { 
+                    OrderId = this.Id,
+                    ConferenceId = this.ConferenceId,
+                    UserId = this.UserId,
+                    Tickets = this.Lines.Select(x => new OrderPlaced.Ticket { TicketTypeId = x.TicketTypeId, Quantity = x.Quantity }).ToArray()
+                });
         }
 
         public Guid Id { get; private set; }
 
         public Guid UserId { get; private set; }
+
+        public Guid ConferenceId { get; private set; }
 
         public IEnumerable<TicketOrderLine> Lines { get; private set; }
 
@@ -49,7 +64,7 @@ namespace Registration
     [ComplexType]
     public class TicketOrderLine
     {
-        public TicketOrderLine(Guid ticketTypeId, int quantity)
+        public TicketOrderLine(string ticketTypeId, int quantity)
         {
             this.TicketTypeId = ticketTypeId;
             this.Quantity = quantity;
@@ -59,7 +74,7 @@ namespace Registration
         {
         }
 
-        public Guid TicketTypeId { get; private set; }
+        public string TicketTypeId { get; private set; }
 
         public int Quantity { get; private set; }
     }

@@ -13,16 +13,24 @@
 namespace Registration.Commands
 {
     using System;
+    using System.Collections.Generic;
     using Common;
 
     public class RegisterToConference : ICommand
     {
+        public class Ticket
+        {
+            public string TicketTypeId { get; set; }
+
+            public int Quantity { get; set; }
+        }
+
         public Guid Id { get; private set; }
 
         public Guid RegistrationId { get; set; }
 
         public Guid ConferenceId { get; set; }
 
-        public int NumberOfSeats { get; set; }
+        public ICollection<Ticket> Tickets { get; set; }
     }
 }

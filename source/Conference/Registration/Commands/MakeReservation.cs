@@ -17,6 +17,10 @@ namespace Registration.Commands
 
     public class MakeReservation : ICommand
     {
-		public Guid Id { get; private set; }
-	}
+		public Guid Id { get; set; }
+
+        public Guid ConferenceId { get; set; }
+
+        public int AmountOfSeats { get; set; }
+    }
 }

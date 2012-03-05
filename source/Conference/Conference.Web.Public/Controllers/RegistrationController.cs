@@ -13,6 +13,7 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
+    using System.Linq;
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
@@ -64,7 +65,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     RegistrationId = registration.Id,
                     ConferenceId = registration.ConferenceId,
-                    NumberOfSeats = registration.Seats[0].Quantity
+                    Tickets = registration.Seats.Select(x => new RegisterToConference.Ticket { TicketTypeId = x.SeatId, Quantity = x.Quantity }).ToList()
                 };
 
             this.commandBus.Send(command);

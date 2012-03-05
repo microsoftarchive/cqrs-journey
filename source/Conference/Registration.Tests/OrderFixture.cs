@@ -23,7 +23,8 @@ namespace Registration.Tests.OrderFixture
     public class given_no_order
     {
         private static readonly Guid OrderId = Guid.NewGuid();
-        private static readonly Guid TicketTypeId = Guid.NewGuid();
+        private static readonly Guid ConferenceId = Guid.NewGuid();
+        private static readonly string TicketTypeId = "testSeat";
         private static readonly Guid UserId = Guid.NewGuid();
 
         private Order sut;
@@ -43,10 +44,24 @@ namespace Registration.Tests.OrderFixture
         public void when_placing_order_then_raises_integration_event()
         {
             var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
-            this.sut = new Order(OrderId, UserId, lines);
+            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
 
             Assert.Single(sut.Events);
             Assert.Equal(OrderId, ((OrderPlaced)sut.Events.Single()).OrderId);
+        }
+
+        [Fact]
+        public void when_placing_order_then_raises_integration_event_with_full_detauls()
+        {
+            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+
+            var @event = (OrderPlaced)sut.Events.Single();
+            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(ConferenceId, @event.ConferenceId);
+            Assert.Equal(UserId, @event.UserId);
+            Assert.Equal(1, @event.Tickets.Count);
+            Assert.Equal(5, @event.Tickets.ElementAt(0).Quantity);
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     using System;
     using System.Linq;
     using Registration.Commands;
+    using Registration.Events;
     using Xunit;
 
     public class given_uninitialized_saga
@@ -27,12 +28,19 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
     }
 
-    public class when_registering : given_uninitialized_saga
+    public class when_order_is_placed : given_uninitialized_saga
     {
-        public when_registering()
+        private OrderPlaced orderPlaced;
+
+        public when_order_is_placed()
         {
-            var registerCommand = new RegisterToConference { ConferenceId = Guid.NewGuid(), NumberOfSeats = 1 };
-            sut.Handle(registerCommand);
+            this.orderPlaced = new OrderPlaced
+            {
+                OrderId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
+                Tickets = new[] { new OrderPlaced.Ticket { TicketTypeId = "testSeat", Quantity = 2 } }
+            };
+            sut.Handle(orderPlaced);
         }
 
         [Fact]
@@ -40,6 +48,15 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         {
             Assert.Equal(1, sut.Commands.Count());
             Assert.IsAssignableFrom<MakeReservation>(sut.Commands.Single());
+        }
+
+        [Fact]
+        public void then_reservation_is_requested_for_specific_conference()
+        {
+            var reservation = (MakeReservation)sut.Commands.Single();
+
+            Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
+            Assert.Equal(2, reservation.AmountOfSeats);
         }
 
         [Fact]

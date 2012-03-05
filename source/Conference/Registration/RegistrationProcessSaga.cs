@@ -13,9 +13,11 @@
 namespace Registration
 {
     using System;
+    using System.Linq;
     using Registration.Commands;
     using Common;
     using System.Collections.Generic;
+    using Registration.Events;
 
     public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
     {
@@ -31,12 +33,17 @@ namespace Registration
 
         public SagaState State { get; private set; }
 
-        public void Handle(RegisterToConference command)
+        public void Handle(OrderPlaced message)
         {
             if (this.State == SagaState.NotStarted)
             {
                 this.State = SagaState.AwaitingReservationConfirmation;
-                this.commands.Add(new MakeReservation());
+                this.commands.Add(
+                    new MakeReservation
+                    {
+                        ConferenceId = message.ConferenceId,
+                        AmountOfSeats = message.Tickets.Sum(x => x.Quantity)
+                    });
             }
             else
             {
