@@ -17,8 +17,10 @@ namespace Registration.Commands
 
     public class RegisterToConference : ICommand
     {
-        public Guid ConferenceId { get; set; }
+		public Guid Id { get; private set; }
+		
+		public Guid ConferenceId { get; set; }
 
         public int NumberOfSeats { get; set; }
-    }
+	}
 }

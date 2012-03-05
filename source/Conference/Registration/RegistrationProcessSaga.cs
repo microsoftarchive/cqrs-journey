@@ -16,35 +16,41 @@ namespace Registration
     using Registration.Commands;
     using Common;
 
-    public class RegistrationProcessSaga
+    public class RegistrationProcessSaga : IAggregateRoot
     {
         public enum SagaState
         {
             NotStarted,
             AwaitingReservationConfirmation,
-            Completed
+            Completed, 
+			Deleted
         }
-
-        private readonly ICommandBus bus;
 
         public RegistrationProcessSaga(ICommandBus bus)
         {
-            this.bus = bus;
+            this.Commands = bus;
         }
 
-        public SagaState State { get; set; }
+		protected RegistrationProcessSaga() { }
+
+		// Dependencies
+		public ICommandBus Commands { get; set; }
+
+        public SagaState State { get; private set; }
 
         public void Handle(RegisterToConference command)
         {
             if (this.State == SagaState.NotStarted)
             {
                 this.State = SagaState.AwaitingReservationConfirmation;
-                this.bus.Send(new MakeReservation());
+                this.Commands.Send(new MakeReservation());
             }
             else
             {
                throw new InvalidOperationException(); 
             }
         }
-    }
+
+		public Guid Id { get; private set; }
+	}
 }

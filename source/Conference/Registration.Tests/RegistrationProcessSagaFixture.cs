@@ -19,11 +19,11 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     public class given_uninitialized_saga
     {
         protected RegistrationProcessSaga sut;
-        protected FakeBus bus;
+        protected FakeCommandBus bus;
 
         public given_uninitialized_saga()
         {
-            this.bus = new FakeBus();
+            this.bus = new FakeCommandBus();
             this.sut = new RegistrationProcessSaga(this.bus);
         }
     }

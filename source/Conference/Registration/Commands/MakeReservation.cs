@@ -13,8 +13,10 @@
 namespace Registration.Commands
 {
     using Common;
+	using System;
 
     public class MakeReservation : ICommand
     {
-    }
+		public Guid Id { get; private set; }
+	}
 }

@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Commands\MakeReservation.cs" />
     <Compile Include="Database\OrmRepository.cs" />
+    <Compile Include="Database\OrmSagaRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConferenceSeatsAvailability.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
@@ -63,7 +64,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Core</Name>
+      <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
