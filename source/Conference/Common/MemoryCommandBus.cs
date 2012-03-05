@@ -10,45 +10,46 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Common
 {
 	using System;
-	using System.Data.Entity;
-	using System.Data;
-	using Common;
+	using System.Collections.Generic;
 	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
 
-	public class OrmSagaRepository : DbContext, ISagaRepository
+	/// <summary>
+	/// Sample in-memory command bus that is asynchronous.
+	/// </summary>
+	public class MemoryCommandBus : ICommandBus
 	{
-		public OrmSagaRepository()
-			: base("ConferenceRegistrationSagas")
+		private object[] handlers;
+		private List<ICommand> commands = new List<ICommand>();
+
+		public MemoryCommandBus(params object[] handlers)
 		{
+			this.handlers = handlers;
 		}
 
-		public T Find<T>(Guid id) where T : class, IAggregateRoot
+		public void Send(ICommand command)
 		{
-			return this.Set<T>().Find(id);
+			this.commands.Add(command);
+
+			Task.Factory.StartNew(() =>
+			{
+				var handlerType = typeof(IHandleCommand<>).MakeGenericType(command.GetType());
+
+				foreach (dynamic handler in this.handlers
+					.Where(x => handlerType.IsAssignableFrom(x.GetType())))
+				{
+					handler.Handle((dynamic)command);
+				}
+			});
 		}
 
-		public void Save<T>(T aggregate) where T : class, IAggregateRoot
+		public IEnumerable<ICommand> Commands
 		{
-			var entry = this.Entry(aggregate);
-
-			// Add if the object was not loaded from the repository.
-			if (entry.State == EntityState.Detached) this.Set<T>().Add(aggregate);
-
-			// Otherwise, do nothing as the ORM already tracks 
-			// attached entities that need to be saved (or not).
-
-			this.SaveChanges();
+			get { return this.commands; }
 		}
-
-		public IQueryable<T> Query<T>() where T : class, IAggregateRoot
-		{
-			return this.Set<T>();
-		}
-
-		// Define the available entity sets for the database.
-		public virtual DbSet<RegistrationProcessSaga> RegistrationProcesses { get; private set; }
 	}
 }

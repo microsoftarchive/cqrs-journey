@@ -162,7 +162,7 @@ namespace Registration.Tests
 		{
 			private List<IAggregateRoot> aggregates = new List<IAggregateRoot>();
 
-			public IQueryable<T> Query<T>() where T : IAggregateRoot
+			public IQueryable<T> Query<T>() where T : class, IAggregateRoot
 			{
 				return this.aggregates.OfType<T>().AsQueryable();
 			}
@@ -179,59 +179,6 @@ namespace Registration.Tests
 			}
 		}
 
-		class MemoryCommandBus : ICommandBus
-		{
-			private object[] handlers;
-			private List<ICommand> commands = new List<ICommand>();
 
-			public MemoryCommandBus(params object[] handlers)
-			{
-				this.handlers = handlers;
-			}
-
-			public void Send(ICommand command)
-			{
-				this.commands.Add(command);
-
-				var handlerType = typeof(IHandleCommand<>).MakeGenericType(command.GetType());
-
-				foreach (dynamic handler in this.handlers
-					.Where(x => handlerType.IsAssignableFrom(x.GetType())))
-				{
-					handler.Handle((dynamic)command);
-				}
-			}
-
-			public IEnumerable<ICommand> Commands
-			{
-				get { return this.commands; }
-			}
-		}
-
-		class MemoryEventBus : IEventBus
-		{
-			private object[] handlers;
-			private List<IEvent> events = new List<IEvent>();
-
-			public MemoryEventBus(params object[] handlers)
-			{
-				this.handlers = handlers;
-			}
-
-			public void Publish(IEvent @event)
-			{
-				this.events.Add(@event);
-
-				var handlerType = typeof(IHandleEvent<>).MakeGenericType(@event.GetType());
-
-				foreach (dynamic handler in this.handlers
-					.Where(x => handlerType.IsAssignableFrom(x.GetType())))
-				{
-					handler.Handle((dynamic)@event);
-				}
-			}
-
-			public IEnumerable<IEvent> Events { get { return this.events; } }
-		}
 	}
 }

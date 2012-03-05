@@ -22,6 +22,6 @@ namespace Common
 		// TODO: queryability to reload sagas from correlation ids, etc. 
 		// Is this appropriate? How do others reload sagas? (MassTransit 
 		// uses this kind of queryable thinghy, apparently).
-		IQueryable<T> Query<T>() where T : IAggregateRoot;
+		IQueryable<T> Query<T>() where T : class, IAggregateRoot;
 	}
 }
