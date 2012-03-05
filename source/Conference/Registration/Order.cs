@@ -19,7 +19,7 @@ namespace Registration
 
     public class Order : IAggregateRoot, IEventPublisher
     {
-        private List<IEvent> pendingEvents = new List<IEvent>();
+        private List<IEvent> events = new List<IEvent>();
 
         protected Order()
         {
@@ -30,7 +30,7 @@ namespace Registration
             this.Id = id;
             this.UserId = userId;
             this.Lines = lines;
-            this.pendingEvents.Add(new OrderPlaced(this.Id));
+            this.events.Add(new OrderPlaced(this.Id));
         }
 
         public Guid Id { get; private set; }
@@ -39,9 +39,9 @@ namespace Registration
 
         public IEnumerable<TicketOrderLine> Lines { get; private set; }
 
-        public IEnumerable<IEvent> GetPendingEvents()
+        public IEnumerable<IEvent> Events
         {
-            return this.pendingEvents;
+            get { return this.events; }
         }
     }
 

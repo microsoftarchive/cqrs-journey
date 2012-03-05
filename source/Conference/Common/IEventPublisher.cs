@@ -16,6 +16,6 @@ namespace Common
 
     public interface IEventPublisher
     {
-        IEnumerable<IEvent> GetPendingEvents();
+        IEnumerable<IEvent> Events { get; }
     }
 }

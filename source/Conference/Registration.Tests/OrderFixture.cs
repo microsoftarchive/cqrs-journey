@@ -44,8 +44,8 @@ namespace Registration.Tests.OrderFixture
             var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
             this.sut = new Order(OrderId, UserId, lines);
 
-            Assert.Single(sut.GetPendingEvents());
-            Assert.Equal(OrderId, ((OrderPlaced)sut.GetPendingEvents().Single()).OrderId);
+            Assert.Single(sut.Events);
+            Assert.Equal(OrderId, ((OrderPlaced)sut.Events.Single()).OrderId);
         }
     }
 }
