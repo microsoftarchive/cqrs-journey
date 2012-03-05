@@ -18,6 +18,9 @@ namespace Registration
     using System.Linq;
     using Common;
 
+	/// <summary>
+	/// Manages the availability of conference seats.
+	/// </summary>
     public class ConferenceSeatsAvailability : IAggregateRoot
     {
         // ORM requirement

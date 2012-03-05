@@ -37,6 +37,7 @@ namespace Azure.Common
 		{
 			var serializer = new DataContractJsonSerializer(body.GetType());
 
+			// TODO: serialize, send, etc.
 		}
 	}
 }
