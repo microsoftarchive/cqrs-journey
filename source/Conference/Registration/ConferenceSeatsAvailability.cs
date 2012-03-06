@@ -19,9 +19,9 @@ namespace Registration
     using Common;
     using Registration.Events;
 
-	/// <summary>
-	/// Manages the availability of conference seats.
-	/// </summary>
+    /// <summary>
+    /// Manages the availability of conference seats.
+    /// </summary>
     public class ConferenceSeatsAvailability : IAggregateRoot, IEventPublisher
     {
         private List<IEvent> events = new List<IEvent>();
@@ -40,7 +40,7 @@ namespace Registration
 
         public virtual Guid Id { get; private set; }
 
-        public virtual int RemainingSeats { get; set; }
+        public virtual int RemainingSeats { get; private set; }
 
         public virtual ObservableCollection<Reservation> PendingReservations { get; private set; }
 
