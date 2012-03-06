@@ -17,12 +17,15 @@ namespace Registration
     using System.Collections.ObjectModel;
     using System.Linq;
     using Common;
+    using Registration.Events;
 
-    /// <summary>
-    /// Manages the availability of conference seats.
-    /// </summary>
+	/// <summary>
+	/// Manages the availability of conference seats.
+	/// </summary>
     public class ConferenceSeatsAvailability : IAggregateRoot, IEventPublisher
     {
+        private List<IEvent> events = new List<IEvent>();
+
         // ORM requirement
         protected ConferenceSeatsAvailability()
         {
@@ -41,6 +44,11 @@ namespace Registration
 
         public virtual ObservableCollection<Reservation> PendingReservations { get; private set; }
 
+        public IEnumerable<IEvent> Events
+        {
+            get { return this.events; }
+        }
+
         public void AddSeats(int additionalSeats)
         {
             this.RemainingSeats += additionalSeats;
@@ -50,11 +58,14 @@ namespace Registration
         {
             if (numberOfSeats > this.RemainingSeats)
             {
-                throw new ArgumentOutOfRangeException("numberOfSeats");
+                this.events.Add(new ReservationRejected { ReservationId = reservationId, ConferenceId = this.Id });
             }
-
-            this.PendingReservations.Add(new Reservation(reservationId, numberOfSeats));
-            this.RemainingSeats -= numberOfSeats;
+            else
+            {
+                this.PendingReservations.Add(new Reservation(reservationId, numberOfSeats));
+                this.RemainingSeats -= numberOfSeats;
+                this.events.Add(new ReservationAccepted { ReservationId = reservationId, ConferenceId = this.Id });
+            }
         }
 
         public void CommitReservation(Guid reservationId)
@@ -72,11 +83,6 @@ namespace Registration
 
             this.PendingReservations.Remove(reservation);
             this.RemainingSeats += reservation.Seats;
-        }
-
-        public IEnumerable<IEvent> Events
-        {
-            get { throw new NotImplementedException(); }
         }
     }
 }

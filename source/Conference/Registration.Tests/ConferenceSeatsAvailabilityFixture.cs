@@ -14,9 +14,11 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 {
 	using System;
 	using System.Collections.Generic;
-	using Xunit;
+    using System.Linq;
+    using Xunit;
 	using Registration.Database;
 	using Common;
+    using Registration.Events;
 
 	public class given_available_seats
 	{
@@ -49,9 +51,13 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 		}
 
 		[Fact]
-		public void when_reserving_more_seats_than_total_then_fails()
+		public void when_reserving_more_seats_than_total_then_rejects()
 		{
-			Assert.Throws<ArgumentOutOfRangeException>(() => sut.MakeReservation(Guid.NewGuid(), 11));
+            var id = Guid.NewGuid();
+            sut.MakeReservation(id, 11);
+
+            Assert.Equal(1, sut.Events.Count());
+            Assert.Equal(id, ((ReservationRejected)sut.Events.Single()).ReservationId);
 		}
 	}
 
@@ -88,9 +94,12 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 		}
 
 		[Fact]
-		public void when_reserving_more_seats_than_remaining_then_fails()
+		public void when_reserving_more_seats_than_remaining_then_rejects()
 		{
-			Assert.Throws<ArgumentOutOfRangeException>(() => sut.MakeReservation(Guid.NewGuid(), 5));
+            var id = Guid.NewGuid();
+            sut.MakeReservation(id, 5);
+
+            Assert.Equal(id, ((ReservationRejected)sut.Events.Last()).ReservationId);
 		}
 
 		[Fact]
