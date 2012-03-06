@@ -21,12 +21,12 @@ namespace Registration
 
     public class Order : IAggregateRoot, IEventPublisher
     {
-        public enum States
+        public static class States
         {
-            Created,
-            Booked,
-            Rejected,
-            Confirmed,
+            public const int Created = 0;
+            public const int Booked = 1;
+            public const int Rejected = 2;
+            public const int Confirmed = 3;
         }
 
         private List<IEvent> events = new List<IEvent>();
@@ -63,7 +63,7 @@ namespace Registration
 
         public virtual ObservableCollection<TicketOrderLine> Lines { get; private set; }
 
-        public virtual States State { get; private set; }
+        public virtual int State { get; private set; }
 
         public IEnumerable<IEvent> Events
         {

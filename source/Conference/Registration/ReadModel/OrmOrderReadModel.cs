@@ -36,8 +36,25 @@ namespace Registration.ReadModel
                     return null;
                 }
 
-                return new OrderDTO(order.Id, order.State.ToString());
+                return new OrderDTO(order.Id, GetStateDescription(order));
             }
+        }
+
+        private static string GetStateDescription(Order order)
+        {
+            switch (order.State)
+            {
+                case Order.States.Created:
+                    return "Created";
+                case Order.States.Booked:
+                    return "Booked";
+                case Order.States.Rejected:
+                    return "Rejected";
+                case Order.States.Confirmed:
+                    return "Confirmed";
+            }
+
+            return string.Empty;
         }
     }
 }
