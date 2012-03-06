@@ -10,20 +10,21 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.MessageHandlers
+namespace Registration.Handlers
 {
 	using Common;
 	using Registration.Commands;
 	using Registration.Events;
+	using System;
 
 	// TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
 	public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>, IEventHandler<ReservationRejected>, ICommandHandler<ExpireReservation>
 	{
-		private ISagaRepository repository;
+		private Func<ISagaRepository> repositoryFactory;
 
-		public RegistrationProcessSagaHandler(ISagaRepository repository)
+		public RegistrationProcessSagaHandler(Func<ISagaRepository> repositoryFactory)
 		{
-			this.repository = repository;
+			this.repositoryFactory = repositoryFactory;
 		}
 
 		public void Handle(OrderPlaced @event)
@@ -31,31 +32,47 @@ namespace Registration.MessageHandlers
 			var saga = new RegistrationProcessSaga();
 			saga.Handle(@event);
 
-			this.repository.Save(saga);
+			var repo = this.repositoryFactory.Invoke();
+			using (repo as IDisposable)
+			{
+				repo.Save(saga);
+			}
 		}
 
 		public void Handle(ReservationAccepted @event)
 		{
-			var saga = this.repository.Find<RegistrationProcessSaga>(@event.ReservationId);
-			saga.Handle(@event);
+			var repo = this.repositoryFactory.Invoke();
+			using (repo as IDisposable)
+			{
+				var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+				saga.Handle(@event);
 
-			this.repository.Save(saga);
+				repo.Save(saga);
+			}
 		}
 
 		public void Handle(ReservationRejected @event)
 		{
-			var saga = this.repository.Find<RegistrationProcessSaga>(@event.ReservationId);
-			saga.Handle(@event);
+			var repo = this.repositoryFactory.Invoke();
+			using (repo as IDisposable)
+			{
+				var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+				saga.Handle(@event);
 
-			this.repository.Save(saga);
+				repo.Save(saga);
+			}
 		}
 
 		public void Handle(ExpireReservation command)
 		{
-			var saga = this.repository.Find<RegistrationProcessSaga>(command.Id);
-			saga.Handle(command);
+			var repo = this.repositoryFactory.Invoke();
+			using (repo as IDisposable)
+			{
+				var saga = repo.Find<RegistrationProcessSaga>(command.Id);
+				saga.Handle(command);
 
-			this.repository.Save(saga);
+				repo.Save(saga);
+			}
 		}
 	}
 }
