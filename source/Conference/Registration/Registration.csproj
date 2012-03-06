@@ -57,6 +57,7 @@
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
     <Compile Include="Handlers\MemoryDelayCommandHandler.cs" />
+    <Compile Include="Handlers\RegistrationCommandHandler.cs" />
     <Compile Include="Handlers\RegistrationProcessSagaHandler.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />

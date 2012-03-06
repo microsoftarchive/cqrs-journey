@@ -19,14 +19,14 @@ namespace Conference.Web.Public
     using System.Web.Routing;
     using Common;
     using Registration.Database;
+    using Registration.Handlers;
     using Registration.ReadModel;
-	using Registration.Handlers;
 
     public class MvcApplication : System.Web.HttpApplication
     {
-		private static IDictionary<Type, object> services = new Dictionary<Type, object>();
-		
-		public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+        private static IDictionary<Type, object> services = new Dictionary<Type, object>();
+
+        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
         }
@@ -47,24 +47,26 @@ namespace Conference.Web.Public
         {
             var services = new Dictionary<Type, object>();
 
-			var commandBus = new MemoryCommandBus();
-			var eventBus = new MemoryEventBus();
+            var commandBus = new MemoryCommandBus();
+            var eventBus = new MemoryEventBus();
 
-			// Handlers
-			var registrationSaga = new RegistrationProcessSagaHandler(() => new OrmSagaRepository(commandBus));
+            // Handlers
+            var registrationSaga = new RegistrationProcessSagaHandler(() => new OrmSagaRepository(commandBus));
 
-			commandBus.Register(registrationSaga);
-			eventBus.Register(registrationSaga);
+            commandBus.Register(registrationSaga);
+            eventBus.Register(registrationSaga);
 
-			/// This will be replaced with an AzureDelayCommandHandler that will 
-			/// leverage azure service bus capabilities for sending delayed messages.
-			commandBus.Register(new MemoryDelayCommandHandler(commandBus));
+            commandBus.Register(new RegistrationCommandHandler(() => new OrmRepository(eventBus)));
+
+            /// This will be replaced with an AzureDelayCommandHandler that will 
+            /// leverage azure service bus capabilities for sending delayed messages.
+            commandBus.Register(new MemoryDelayCommandHandler(commandBus));
 
 
             services[typeof(ICommandBus)] = commandBus;
             services[typeof(IEventBus)] = eventBus;
             services[typeof(IOrderReadModel)] = new OrmOrderReadModel(() => new OrmRepository(eventBus));
-			services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
+            services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
 
             return services;
         }
