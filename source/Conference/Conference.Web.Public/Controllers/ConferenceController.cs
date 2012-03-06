@@ -13,27 +13,34 @@
 namespace Conference.Web.Public.Controllers
 {
     using System.Web.Mvc;
+    using Registration.ReadModel;
 
     public class ConferenceController : Controller
     {
-        public ActionResult Display(string conferenceId)
+        private IConferenceReadModel conferenceReadModel;
+
+        public ConferenceController()
+            : this(MvcApplication.GetService<IConferenceReadModel>())
+        { }
+
+        public ConferenceController(IConferenceReadModel conferenceReadModel)
         {
-            var conference = GetConference(conferenceId);
+            this.conferenceReadModel = conferenceReadModel;
+        }
+
+        public ActionResult Display(string conferenceCode)
+        {
+            var conference = this.GetConference(conferenceCode);
 
             return View(conference);
         }
 
-        private static Conference.Web.Public.Models.Conference GetConference(string conferenceId)
+        private Conference.Web.Public.Models.Conference GetConference(string conferenceCode)
         {
-            var conference = new Conference.Web.Public.Models.Conference();
+            var conferenceDTO = this.conferenceReadModel.FindByCode(conferenceCode);
 
-            conference.Id = conferenceId;
-            conference.Name = "P&P Symposium";
-            conference.Description = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sit amet ultrices erat. Aenean lacus mi, placerat a ullamcorper ornare, dapibus quis odio. Integer sed tempor purus. Quisque fermentum egestas lobortis. Vivamus nibh felis, sagittis et iaculis et, porta id diam. Aliquam erat volutpat. Nunc a lectus velit, id luctus massa. Maecenas feugiat lectus eu purus semper at tincidunt tortor tristique. Suspendisse adipiscing, nisl ac gravida tempor, tellus massa condimentum ipsum, eget tristique tortor tortor ut lorem. Nam ut ipsum mauris, a hendrerit felis. Sed fermentum orci eget purus pharetra pharetra. Curabitur elementum, eros eu cursus placerat, ante felis iaculis leo, et vehicula odio eros sit amet nisi. Nunc sagittis turpis in sem tincidunt quis malesuada nulla dignissim.
-
-Sed ac nibh mauris. Curabitur et purus odio, vitae iaculis augue. Donec scelerisque dolor sit amet purus volutpat in bibendum massa imperdiet. Fusce mattis sapien id sapien vehicula sodales. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Suspendisse sem tellus, rhoncus sed scelerisque eget, pellentesque in nibh. Mauris suscipit tristique mattis. Quisque consequat, velit tempor laoreet fringilla, nunc erat lacinia orci, in convallis lectus diam vitae augue. Maecenas rhoncus bibendum mi at malesuada. Quisque ut purus odio, a facilisis lectus. Nulla facilisis venenatis suscipit. Proin egestas lectus vel diam volutpat tempor.
-
-Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus, vel consectetur nulla quam et justo. Ut nec condimentum felis. Vivamus bibendum risus ut nibh scelerisque eget sodales purus tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non libero ante. Mauris felis dolor, aliquam vitae luctus vel, elementum in mauris. Donec a risus purus. Fusce sit amet lobortis velit. Nam lacinia sagittis fermentum. Nulla sapien erat, cursus a porta non, malesuada ut erat. Vivamus pharetra erat eu metus varius vel placerat nunc interdum. Sed tristique, risus eu sollicitudin aliquam, nibh purus rhoncus dolor, in elementum arcu orci eu lorem. Cras a diam mattis nisl laoreet tempus quis in nunc. Aliquam erat volutpat.";
+            var conference =
+                new Conference.Web.Public.Models.Conference { Code = conferenceDTO.Code, Name = conferenceDTO.Name, Description = conferenceDTO.Description };
 
             return conference;
         }

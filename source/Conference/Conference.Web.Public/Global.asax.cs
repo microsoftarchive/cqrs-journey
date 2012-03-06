@@ -36,9 +36,9 @@ namespace Conference.Web.Public
 
             Services = GetDefaultServices();
 
-			Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>());
-			Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>());
-		}
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>());
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>());
+        }
 
         public static IDictionary<Type, object> GetDefaultServices()
         {
@@ -48,6 +48,7 @@ namespace Conference.Web.Public
             services[typeof(IEventBus)] = CreateEventBus();
 
             services[typeof(IOrderReadModel)] = new OrmOrderReadModel(new OrmRepository());
+            services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
 
 
             return services;

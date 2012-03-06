@@ -10,14 +10,30 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Models
+namespace Registration.ReadModel
 {
-    public class Conference
+    using System;
+    using System.Collections.Generic;
+
+    public class ConferenceDTO
     {
-        public string Code { get; set; }
+        public ConferenceDTO(Guid id, string code, string name, string description, IEnumerable<ConferenceSeatDTO> seats)
+        {
+            this.Id = id;
+            this.Code = code;
+            this.Name = name;
+            this.Description = description;
+            this.Seats = seats;
+        }
 
-        public string Name { get; set; }
+        public Guid Id { get; private set; }
 
-        public string Description { get; set; }
+        public string Code { get; private set; }
+
+        public string Name { get; private set; }
+
+        public string Description { get; private set; }
+
+        public IEnumerable<ConferenceSeatDTO> Seats { get; private set; }
     }
 }

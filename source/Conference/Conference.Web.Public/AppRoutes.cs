@@ -26,22 +26,22 @@ namespace Conference.Web.Public
 
             routes.MapRoute(
                 "ViewConference",
-                "conference/{conferenceId}",
+                "conference/{conferenceCode}",
                 new { controller = "Conference", action = "Display" });
 
             routes.MapRoute(
                 "RegisterChooseSeats",
-                "conference/{conferenceId}/register",
+                "conference/{conferenceCode}/register",
                 new { controller = "Registration", action = "ChooseSeats" });
 
             routes.MapRoute(
                 "RegisterChoosePayment",
-                "conference/{conferenceId}/choosePayment",
+                "conference/{conferenceCode}/choosePayment",
                 new { controller = "Registration", action = "ChoosePayment" });
 
             routes.MapRoute(
                 "RegisterConfirmation",
-                "conference/{conferenceId}/confirmation",
+                "conference/{conferenceCode}/confirmation",
                 new { controller = "Registration", action = "ConfirmRegistration" });
         }
     }
