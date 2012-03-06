@@ -18,10 +18,10 @@ namespace Registration
     using System.Linq;
     using Common;
 
-	/// <summary>
-	/// Manages the availability of conference seats.
-	/// </summary>
-    public class ConferenceSeatsAvailability : IAggregateRoot
+    /// <summary>
+    /// Manages the availability of conference seats.
+    /// </summary>
+    public class ConferenceSeatsAvailability : IAggregateRoot, IEventPublisher
     {
         // ORM requirement
         protected ConferenceSeatsAvailability()
@@ -72,6 +72,11 @@ namespace Registration
 
             this.PendingReservations.Remove(reservation);
             this.RemainingSeats += reservation.Seats;
+        }
+
+        public IEnumerable<IEvent> Events
+        {
+            get { throw new NotImplementedException(); }
         }
     }
 }

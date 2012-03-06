@@ -42,7 +42,18 @@ namespace Registration.Handlers
 
         public void Handle(MarkOrderAsBooked command)
         {
-            throw new NotImplementedException();
+            var repository = this.repositoryFactory();
+
+            using (repository as IDisposable)
+            {
+                var order = repository.Find<Order>(command.OrderId);
+
+                if (order != null)
+                {
+                    order.MarkAsBooked();
+                    repository.Save(order);
+                }
+            }
         }
 
         public void Handle(ExpireSeatReservation command)

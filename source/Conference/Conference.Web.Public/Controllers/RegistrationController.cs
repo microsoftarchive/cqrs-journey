@@ -19,31 +19,24 @@ namespace Conference.Web.Public.Controllers
     using Conference.Web.Public.Models;
     using Registration.Commands;
     using Registration.ReadModel;
+    using System.Threading;
 
     public class RegistrationController : Controller
     {
+        private const int WaitTimeoutInSeconds = 5;
+
         private ICommandBus commandBus;
-        private object registrationReadService;
+        private IOrderReadModel orderReadModel;
 
         public RegistrationController()
-            : this(GetCommandBus(), GetRegistrationReadService())
+            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<IOrderReadModel>())
         {
         }
 
-        public RegistrationController(ICommandBus commandBus, object registrationReadService)
+        public RegistrationController(ICommandBus commandBus, IOrderReadModel orderReadModel)
         {
             this.commandBus = commandBus;
-            this.registrationReadService = registrationReadService;
-        }
-
-        private static ICommandBus GetCommandBus()
-        {
-            return MvcApplication.GetService<ICommandBus>();
-        }
-
-        private static IOrderReadModel GetRegistrationReadService()
-        {
-            return MvcApplication.GetService<IOrderReadModel>();
+            this.orderReadModel = orderReadModel;
         }
 
         [HttpGet]
@@ -70,9 +63,22 @@ namespace Conference.Web.Public.Controllers
 
             this.commandBus.Send(command);
 
-            // TODO: Wait until updated
+            var orderDTO = this.WaitUntilBooked(registration);
 
-            return View(registration);
+            if (orderDTO != null)
+            {
+                if (orderDTO.State == "Booked")
+                {
+                    return View(registration);
+                }
+                else if (orderDTO.State == "Rejected")
+                {
+                    return View("RegistrationRejected", registration);
+                }
+            }
+
+            return Content("Invalid registration");
+
         }
 
         [HttpPost]
@@ -116,6 +122,25 @@ namespace Conference.Web.Public.Controllers
             }
 
             return reservation;
+        }
+
+        private OrderDTO WaitUntilBooked(Registration registration)
+        {
+            var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
+
+            while (DateTime.Now < deadline)
+            {
+                var orderDTO = this.orderReadModel.Find(registration.Id);
+
+                if (orderDTO != null && orderDTO.State != "Created")
+                {
+                    return orderDTO;
+                }
+
+                Thread.Sleep(500);
+            }
+
+            return null;
         }
     }
 }

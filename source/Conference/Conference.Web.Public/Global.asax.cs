@@ -58,6 +58,8 @@ namespace Conference.Web.Public
 
             commandBus.Register(new RegistrationCommandHandler(() => new OrmRepository(eventBus)));
 
+            commandBus.Register(new ConferenceSeatsAvailabilityHandler(() => new OrmRepository(eventBus)));
+
             /// This will be replaced with an AzureDelayCommandHandler that will 
             /// leverage azure service bus capabilities for sending delayed messages.
             commandBus.Register(new MemoryDelayCommandHandler(commandBus));

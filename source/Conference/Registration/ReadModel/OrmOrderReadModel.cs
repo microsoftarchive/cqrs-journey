@@ -26,18 +26,18 @@ namespace Registration.ReadModel
 
         public OrderDTO Find(Guid id)
         {
-			var repo = this.repositoryFactory.Invoke();
-			using (repo as IDisposable)
-			{
-				var order = repo.Find<Order>(id);
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
+                var order = repo.Find<Order>(id);
 
-				if (order == null)
-				{
-					return null;
-				}
+                if (order == null)
+                {
+                    return null;
+                }
 
-				return new OrderDTO(order.Id, "ready");
-			}
+                return new OrderDTO(order.Id, order.State.ToString());
+            }
         }
     }
 }
