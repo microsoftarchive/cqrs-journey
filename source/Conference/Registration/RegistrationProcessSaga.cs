@@ -21,19 +21,19 @@ namespace Registration
 
     public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
     {
-        public enum SagaState
+        public static class SagaState
         {
-            NotStarted = 0,
-            AwaitingReservationConfirmation,
-            AwaitingPayment,
-            Completed = 0xFF,
+            public const int NotStarted = 0;
+            public const int AwaitingReservationConfirmation = 1;
+            public const int AwaitingPayment = 2;
+            public const int Completed = 0xFF;
         }
 
         private List<ICommand> commands = new List<ICommand>();
 
         public Guid Id { get; set; }
 
-        public SagaState State { get; set; }
+        public int State { get; set; }
 
         public IEnumerable<ICommand> Commands
         {
