@@ -21,6 +21,13 @@ namespace Registration
 
     public class Order : IAggregateRoot, IEventPublisher
     {
+        public enum States
+        {
+            Created,
+            Booked,
+            Confirmed
+        }
+
         private List<IEvent> events = new List<IEvent>();
 
         protected Order()
@@ -55,9 +62,19 @@ namespace Registration
 
         public IEnumerable<TicketOrderLine> Lines { get; private set; }
 
+        public States State { get; private set; }
+
         public IEnumerable<IEvent> Events
         {
             get { return this.events; }
+        }
+
+        public void MarkAsBooked()
+        {
+            if (this.State != States.Created)
+                throw new InvalidOperationException();
+
+            this.State = States.Booked;
         }
     }
 

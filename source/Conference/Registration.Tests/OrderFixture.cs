@@ -41,10 +41,18 @@ namespace Registration.Tests.OrderFixture
         }
 
         [Fact]
+        public void when_placing_order_then_state_is_created()
+        {
+            PlaceOrder();
+
+            Assert.Equal(OrderId, sut.Id);
+            Assert.Equal(Order.States.Created, sut.State);
+        }
+
+        [Fact]
         public void when_placing_order_then_raises_integration_event()
         {
-            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
-            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+            PlaceOrder();
 
             Assert.Single(sut.Events);
             Assert.Equal(OrderId, ((OrderPlaced)sut.Events.Single()).OrderId);
@@ -53,8 +61,7 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_placing_order_then_raises_integration_event_with_full_detauls()
         {
-            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
-            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+            PlaceOrder();
 
             var @event = (OrderPlaced)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
@@ -62,6 +69,46 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(UserId, @event.UserId);
             Assert.Equal(1, @event.Tickets.Count);
             Assert.Equal(5, @event.Tickets.ElementAt(0).Quantity);
+        }
+
+        private void PlaceOrder()
+        {
+            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+        }
+    }
+
+    public class given_placed_order
+    {
+        private static readonly Guid OrderId = Guid.NewGuid();
+        private static readonly Guid ConferenceId = Guid.NewGuid();
+        private static readonly string TicketTypeId = "testSeat";
+        private static readonly Guid UserId = Guid.NewGuid();
+
+        private Order sut;
+        private IPersistenceProvider sutProvider;
+
+        protected given_placed_order(IPersistenceProvider sutProvider)
+        {
+            this.sutProvider = sutProvider;
+
+            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+
+            this.sut = this.sutProvider.PersistReload(this.sut);
+        }
+
+        public given_placed_order()
+            : this(new NoPersistenceProvider())
+        {
+        }
+
+        [Fact]
+        public void when_marking_as_booked_then_changes_order_state()
+        {
+            this.sut.MarkAsBooked();
+
+            Assert.Equal(Order.States.Booked, this.sut.State);
         }
     }
 }
