@@ -46,6 +46,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ExpireReservation.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
     <Compile Include="Commands\MakeReservation.cs" />

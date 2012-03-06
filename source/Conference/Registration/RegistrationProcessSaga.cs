@@ -23,10 +23,10 @@ namespace Registration
     {
         public enum SagaState
         {
-            NotStarted,
+            NotStarted = 0,
             AwaitingReservationConfirmation,
             AwaitingPayment,
-            Completed, 
+            Completed = 0xFF, 
         }
 
         private List<ICommand> commands = new List<ICommand>();
@@ -66,6 +66,12 @@ namespace Registration
             {
                 this.State = SagaState.AwaitingPayment;
                 this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
+                this.commands.Add(
+                    new CommandMessage
+                        {
+                            EnqueueDelay = TimeSpan.FromMinutes(15),
+                            Command = new ExpireReservation { Id = message.ReservationId }
+                        });
             }
             else
             {
@@ -84,6 +90,17 @@ namespace Registration
             {
                 throw new InvalidOperationException();
             }
+        }
+
+        public void Handle(ExpireReservation message)
+        {
+            if (this.State == SagaState.AwaitingPayment)
+            {
+                this.State = SagaState.Completed;
+                this.commands.Add(new RejectOrder { OrderId = message.Id });
+            }
+
+            // else ignore the message as it is no longer relevant (but not invalid)
         }
     }
 }

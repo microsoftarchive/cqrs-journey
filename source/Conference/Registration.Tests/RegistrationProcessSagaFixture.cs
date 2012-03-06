@@ -14,6 +14,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 {
     using System;
     using System.Linq;
+    using Common;
     using Registration.Commands;
     using Registration.Events;
     using Xunit;
@@ -111,9 +112,19 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_updates_order_status()
         {
-            var command = (MarkOrderAsBooked)sut.Commands.Single();
+            var command = sut.Commands.OfType<MarkOrderAsBooked>().Single();
 
             Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_enqueues_expiration_message()
+        {
+            var message = sut.Commands.OfType<CommandMessage>().Single();
+
+            Assert.Equal(TimeSpan.FromMinutes(15), message.EnqueueDelay);
+            Assert.IsAssignableFrom<ExpireReservation>(message.Command);
+            Assert.Equal(sut.Id, message.Command.Id);
         }
 
         [Fact]
@@ -133,6 +144,46 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
                 ConferenceId = Guid.NewGuid(),
             };
             sut.Handle(reservationAccepted);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = (RejectOrder)sut.Commands.Single();
+
+            Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
+        }
+    }
+
+    public class given_saga_awaiting_payment
+    {
+        protected RegistrationProcessSaga sut;
+
+        public given_saga_awaiting_payment()
+        {
+            this.sut = new RegistrationProcessSaga
+            {
+                Id = Guid.NewGuid(),
+                State = RegistrationProcessSaga.SagaState.AwaitingPayment,
+            };
+        }
+    }
+
+    public class when_reservation_is_expired : given_saga_awaiting_payment
+    {
+        public when_reservation_is_expired()
+        {
+            var expireReservation = new ExpireReservation
+            {
+                Id = sut.Id,
+            };
+            sut.Handle(expireReservation);
         }
 
         [Fact]
