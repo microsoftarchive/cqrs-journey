@@ -27,7 +27,6 @@ namespace Registration
             AwaitingReservationConfirmation,
             AwaitingPayment,
             Completed, 
-			Deleted
         }
 
         private List<ICommand> commands = new List<ICommand>();
