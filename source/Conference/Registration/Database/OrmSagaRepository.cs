@@ -29,8 +29,12 @@ namespace Registration.Database
 		}
 
 		public OrmSagaRepository(string nameOrConnectionString)
-			// TODO: we need the actual handlers for the in-memory buses here!!!
 			: this(nameOrConnectionString, new MemoryCommandBus())
+		{
+		}
+
+		public OrmSagaRepository(ICommandBus commandBus)
+			: this("ConferenceRegistrationSagas", commandBus)
 		{
 		}
 

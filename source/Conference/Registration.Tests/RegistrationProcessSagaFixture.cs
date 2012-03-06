@@ -120,9 +120,9 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_enqueues_expiration_message()
         {
-            var message = sut.Commands.OfType<CommandMessage>().Single();
+            var message = sut.Commands.OfType<DelayCommand>().Single();
 
-            Assert.Equal(TimeSpan.FromMinutes(15), message.EnqueueDelay);
+            Assert.Equal(TimeSpan.FromMinutes(15), message.SendDelay);
             Assert.IsAssignableFrom<ExpireReservation>(message.Command);
             Assert.Equal(sut.Id, message.Command.Id);
         }

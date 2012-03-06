@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandMessage.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />

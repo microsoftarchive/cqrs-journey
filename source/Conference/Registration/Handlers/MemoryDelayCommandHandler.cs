@@ -10,35 +10,41 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.Common
+namespace Registration.Handlers
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
-	using Microsoft.ServiceBus;
-	using System.Runtime.Serialization.Json;
-	using Microsoft.ServiceBus.Messaging;
+	using Common;
+	using Registration.Commands;
+	using System.Threading.Tasks;
+	using System.Threading;
 
-	public class MessageBus
+	/// <summary>
+	/// Handles delayed commands in-memory, sending them to the bus 
+	/// after waiting for the specified time.
+	/// </summary>
+	/// <devdoc>
+	/// This will be replaced with an AzureDelayCommandHandler that will 
+	/// leverage azure service bus capabilities for sending delayed messages.
+	/// </devdoc>
+	public class MemoryDelayCommandHandler : ICommandHandler<DelayCommand>
 	{
-		private readonly TokenProvider tokenProvider;
-		private readonly Uri serviceUri;
-		private readonly MessageBusSettings settings;
+		private ICommandBus commandBus;
 
-		public MessageBus(MessageBusSettings settings)
+		public MemoryDelayCommandHandler(ICommandBus commandBus)
 		{
-			this.settings = settings;
-
-			this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
-			this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+			this.commandBus = commandBus;
 		}
 
-		public void Send<T>(T body)
+		public void Handle(DelayCommand command)
 		{
-			var serializer = new DataContractJsonSerializer(body.GetType());
-			// new BrokeredMessage().
-			// TODO: serialize, send, etc.
+			Task.Factory.StartNew(() =>
+			{
+				Thread.Sleep(command.SendDelay);
+				this.commandBus.Send(command);
+			});
 		}
 	}
 }

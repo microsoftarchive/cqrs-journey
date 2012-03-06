@@ -43,17 +43,6 @@ namespace Common
 
 			Task.Factory.StartNew(() =>
 			{
-                var envelope = command as CommandMessage;
-                if (envelope != null)
-                {
-                    if (envelope.EnqueueDelay > TimeSpan.Zero)
-                    {
-                        Thread.Sleep(envelope.EnqueueDelay);
-                    }
-
-                    command = envelope.Command;
-                }
-
 				var handlerType = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
 
 				foreach (dynamic handler in this.handlers

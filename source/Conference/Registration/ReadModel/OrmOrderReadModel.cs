@@ -17,23 +17,27 @@ namespace Registration.ReadModel
 
     public class OrmOrderReadModel : IOrderReadModel
     {
-        private IRepository repository;
+        private Func<IRepository> repositoryFactory;
 
-        public OrmOrderReadModel(IRepository repository)
+        public OrmOrderReadModel(Func<IRepository> repositoryFactory)
         {
-            this.repository = repository;
+            this.repositoryFactory = repositoryFactory;
         }
 
         public OrderDTO Find(Guid id)
         {
-            var order = this.repository.Find<Order>(id);
+			var repo = this.repositoryFactory.Invoke();
+			using (repo as IDisposable)
+			{
+				var order = repo.Find<Order>(id);
 
-            if (order == null)
-            {
-                return null;
-            }
+				if (order == null)
+				{
+					return null;
+				}
 
-            return new OrderDTO(order.Id, "ready");
+				return new OrderDTO(order.Id, "ready");
+			}
         }
     }
 }

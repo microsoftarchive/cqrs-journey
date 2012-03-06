@@ -46,6 +46,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\DelayCommand.cs" />
     <Compile Include="Commands\ExpireReservation.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
@@ -54,7 +55,8 @@
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
-    <Compile Include="MessageHandlers\RegistrationProcessSagaHandler.cs" />
+    <Compile Include="Handlers\MemoryDelayCommandHandler.cs" />
+    <Compile Include="Handlers\RegistrationProcessSagaHandler.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />
     <Compile Include="Database\OrmSagaRepository.cs" />

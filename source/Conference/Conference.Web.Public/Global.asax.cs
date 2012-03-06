@@ -20,10 +20,13 @@ namespace Conference.Web.Public
     using Common;
     using Registration.Database;
     using Registration.ReadModel;
+	using Registration.Handlers;
 
     public class MvcApplication : System.Web.HttpApplication
     {
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+		private static IDictionary<Type, object> services = new Dictionary<Type, object>();
+		
+		public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
         }
@@ -34,7 +37,7 @@ namespace Conference.Web.Public
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-            Services = GetDefaultServices();
+            services = GetDefaultServices();
 
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>());
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>());
@@ -44,39 +47,33 @@ namespace Conference.Web.Public
         {
             var services = new Dictionary<Type, object>();
 
-            services[typeof(ICommandBus)] = CreateCommandBus();
-            services[typeof(IEventBus)] = CreateEventBus();
+			var commandBus = new MemoryCommandBus();
+			var eventBus = new MemoryEventBus();
 
-            services[typeof(IOrderReadModel)] = new OrmOrderReadModel(new OrmRepository());
+			// Handlers
+			var registrationSaga = new RegistrationProcessSagaHandler(() => new OrmSagaRepository(commandBus));
             services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
 
+			commandBus.Register(registrationSaga);
+			eventBus.Register(registrationSaga);
+
+			/// This will be replaced with an AzureDelayCommandHandler that will 
+			/// leverage azure service bus capabilities for sending delayed messages.
+			commandBus.Register(new MemoryDelayCommandHandler(commandBus));
+
+
+            services[typeof(ICommandBus)] = commandBus;
+            services[typeof(IEventBus)] = eventBus;
+            services[typeof(IOrderReadModel)] = new OrmOrderReadModel(() => new OrmRepository(eventBus));
 
             return services;
         }
-
-        private static MemoryCommandBus CreateCommandBus()
-        {
-            // TODO add handlers
-            var handlers = new ICommandHandler[] { };
-
-            return new MemoryCommandBus(handlers);
-        }
-
-        private static MemoryEventBus CreateEventBus()
-        {
-            // TODO add handlers
-            var handlers = new IEventHandler[] { };
-
-            return new MemoryEventBus(handlers);
-        }
-
-        private static IDictionary<Type, object> Services = new Dictionary<Type, object>();
 
         public static T GetService<T>()
             where T : class
         {
             object service;
-            if (!Services.TryGetValue(typeof(T), out service))
+            if (!services.TryGetValue(typeof(T), out service))
             {
                 return null;
             }

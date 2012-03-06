@@ -20,6 +20,7 @@ namespace Registration.Tests
 	using Moq;
 	using Common;
 	using System.Threading;
+	using Registration.Commands;
 
 	public class MemoryCommandBusFixture
 	{
@@ -77,28 +78,6 @@ namespace Registration.Tests
 
 			Assert.Equal(4, called);
 		}
-
-        [Fact]
-        public void WhenSendingDelayedCommand_ThenInvokesCompatibleHandlerAfterThatPeriod()
-        {
-            var handler = new Mock<ICommandHandler<TestCommand>>();
-            var e = new ManualResetEventSlim();
-            handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
-                .Callback(() => e.Set());
-
-            var bus = new MemoryCommandBus(handler.Object);
-
-            bus.Send(
-                new CommandMessage
-                    {
-                        EnqueueDelay = TimeSpan.FromSeconds(2),
-                        Command = new TestCommand()
-                    });
-
-            Assert.False(e.Wait(1700));
-            Assert.True(e.Wait(500));
-            handler.Verify(x => x.Handle(It.IsAny<TestCommand>()));
-        }
 
 		public class TestCommand : ICommand
 		{

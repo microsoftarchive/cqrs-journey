@@ -10,35 +10,27 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.Common
+namespace Registration.Commands
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Text;
-	using Microsoft.ServiceBus;
-	using System.Runtime.Serialization.Json;
-	using Microsoft.ServiceBus.Messaging;
+	using Common;
 
-	public class MessageBus
+	/// <summary>
+	/// A command that delays sending a command to the bus.
+	/// </summary>
+	public class DelayCommand : ICommand
 	{
-		private readonly TokenProvider tokenProvider;
-		private readonly Uri serviceUri;
-		private readonly MessageBusSettings settings;
-
-		public MessageBus(MessageBusSettings settings)
+		public DelayCommand()
 		{
-			this.settings = settings;
-
-			this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
-			this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+			this.Id = Guid.NewGuid();
 		}
 
-		public void Send<T>(T body)
-		{
-			var serializer = new DataContractJsonSerializer(body.GetType());
-			// new BrokeredMessage().
-			// TODO: serialize, send, etc.
-		}
+		public Guid Id { get; set; }
+
+		public TimeSpan SendDelay { get; set; }
+		public ICommand Command { get; set; }
 	}
 }

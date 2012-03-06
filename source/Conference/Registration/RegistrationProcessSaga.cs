@@ -12,95 +12,95 @@
 
 namespace Registration
 {
-    using System;
-    using System.Linq;
-    using Registration.Commands;
-    using Common;
-    using System.Collections.Generic;
-    using Registration.Events;
+	using System;
+	using System.Linq;
+	using Registration.Commands;
+	using Common;
+	using System.Collections.Generic;
+	using Registration.Events;
 
-    public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
-    {
-        public enum SagaState
-        {
-            NotStarted = 0,
-            AwaitingReservationConfirmation,
-            AwaitingPayment,
-            Completed = 0xFF, 
-        }
+	public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
+	{
+		public enum SagaState
+		{
+			NotStarted = 0,
+			AwaitingReservationConfirmation,
+			AwaitingPayment,
+			Completed = 0xFF,
+		}
 
-        private List<ICommand> commands = new List<ICommand>();
+		private List<ICommand> commands = new List<ICommand>();
 
-        public Guid Id { get; set; }
+		public Guid Id { get; set; }
 
-        public SagaState State { get; set; }
+		public SagaState State { get; set; }
 
-        public IEnumerable<ICommand> Commands
-        {
-            get { return this.commands; }
-        }
+		public IEnumerable<ICommand> Commands
+		{
+			get { return this.commands; }
+		}
 
-        public void Handle(OrderPlaced message)
-        {
-            if (this.State == SagaState.NotStarted)
-            {
-                this.Id = message.OrderId;
-                this.State = SagaState.AwaitingReservationConfirmation;
-                this.commands.Add(
-                    new MakeReservation
-                    {
-                        Id = this.Id,
-                        ConferenceId = message.ConferenceId,
-                        AmountOfSeats = message.Tickets.Sum(x => x.Quantity)
-                    });
-            }
-            else
-            {
-               throw new InvalidOperationException(); 
-            }
-        }
+		public void Handle(OrderPlaced message)
+		{
+			if (this.State == SagaState.NotStarted)
+			{
+				this.Id = message.OrderId;
+				this.State = SagaState.AwaitingReservationConfirmation;
+				this.commands.Add(
+					new MakeReservation
+					{
+						Id = this.Id,
+						ConferenceId = message.ConferenceId,
+						AmountOfSeats = message.Tickets.Sum(x => x.Quantity)
+					});
+			}
+			else
+			{
+				throw new InvalidOperationException();
+			}
+		}
 
-        public void Handle(ReservationAccepted message)
-        {
-            if (this.State == SagaState.AwaitingReservationConfirmation)
-            {
-                this.State = SagaState.AwaitingPayment;
-                this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
-                this.commands.Add(
-                    new CommandMessage
-                        {
-                            EnqueueDelay = TimeSpan.FromMinutes(15),
-                            Command = new ExpireReservation { Id = message.ReservationId }
-                        });
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
+		public void Handle(ReservationAccepted message)
+		{
+			if (this.State == SagaState.AwaitingReservationConfirmation)
+			{
+				this.State = SagaState.AwaitingPayment;
+				this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
+				this.commands.Add(
+					new DelayCommand
+						{
+							SendDelay = TimeSpan.FromMinutes(15),
+							Command = new ExpireReservation { Id = message.ReservationId }
+						});
+			}
+			else
+			{
+				throw new InvalidOperationException();
+			}
+		}
 
-        public void Handle(ReservationRejected message)
-        {
-            if (this.State == SagaState.AwaitingReservationConfirmation)
-            {
-                this.State = SagaState.Completed;
-                this.commands.Add(new RejectOrder { OrderId = message.ReservationId });
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
+		public void Handle(ReservationRejected message)
+		{
+			if (this.State == SagaState.AwaitingReservationConfirmation)
+			{
+				this.State = SagaState.Completed;
+				this.commands.Add(new RejectOrder { OrderId = message.ReservationId });
+			}
+			else
+			{
+				throw new InvalidOperationException();
+			}
+		}
 
-        public void Handle(ExpireReservation message)
-        {
-            if (this.State == SagaState.AwaitingPayment)
-            {
-                this.State = SagaState.Completed;
-                this.commands.Add(new RejectOrder { OrderId = message.Id });
-            }
+		public void Handle(ExpireReservation message)
+		{
+			if (this.State == SagaState.AwaitingPayment)
+			{
+				this.State = SagaState.Completed;
+				this.commands.Add(new RejectOrder { OrderId = message.Id });
+			}
 
-            // else ignore the message as it is no longer relevant (but not invalid)
-        }
-    }
+			// else ignore the message as it is no longer relevant (but not invalid)
+		}
+	}
 }
