@@ -60,9 +60,66 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
 
         [Fact]
+        public void then_reservation_is_correlated_with_order_id()
+        {
+            var reservation = (MakeReservation)sut.Commands.Single();
+
+            Assert.Equal(orderPlaced.OrderId, reservation.Id);
+        }
+
+        [Fact]
+        public void then_saga_is_correlated_with_order_id()
+        {
+            var reservation = (MakeReservation)sut.Commands.Single();
+
+            Assert.Equal(orderPlaced.OrderId, sut.Id);
+        }
+
+        [Fact]
         public void then_transitions_to_awaiting_reservation_confirmation_state()
         {
             Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation, sut.State);
+        }
+    }
+
+    public class given_saga_awaiting_for_reservation_confirmation
+    {
+        protected RegistrationProcessSaga sut;
+
+        public given_saga_awaiting_for_reservation_confirmation()
+        {
+            this.sut = new RegistrationProcessSaga
+            {
+                Id = Guid.NewGuid(),
+                State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
+            };
+        }
+    }
+
+    public class when_reservation_confirmation_is_received : given_saga_awaiting_for_reservation_confirmation
+    {
+        public when_reservation_confirmation_is_received()
+        {
+            var reservationAccepted = new ReservationAccepted
+            {
+                ReservationId = sut.Id,
+                ConferenceId = Guid.NewGuid(),
+            };
+            sut.Handle(reservationAccepted);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = (MarkOrderAsBooked)sut.Commands.Single();
+
+            Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingPayment, sut.State);
         }
     }
 }

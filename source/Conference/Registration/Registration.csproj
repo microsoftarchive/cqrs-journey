@@ -46,9 +46,11 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\MarkOrderAsBooked.cs" />
     <Compile Include="Commands\MakeReservation.cs" />
     <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
     <Compile Include="Database\OrmRepository.cs" />
+    <Compile Include="Events\ReservationAccepted.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />
     <Compile Include="Database\OrmSagaRepository.cs" />

@@ -25,22 +25,32 @@ namespace Registration
         {
             NotStarted,
             AwaitingReservationConfirmation,
+            AwaitingPayment,
             Completed, 
 			Deleted
         }
 
         private List<ICommand> commands = new List<ICommand>();
 
-        public SagaState State { get; private set; }
+        public Guid Id { get; set; }
+
+        public SagaState State { get; set; }
+
+        public IEnumerable<ICommand> Commands
+        {
+            get { return this.commands; }
+        }
 
         public void Handle(OrderPlaced message)
         {
             if (this.State == SagaState.NotStarted)
             {
+                this.Id = message.OrderId;
                 this.State = SagaState.AwaitingReservationConfirmation;
                 this.commands.Add(
                     new MakeReservation
                     {
+                        Id = this.Id,
                         ConferenceId = message.ConferenceId,
                         AmountOfSeats = message.Tickets.Sum(x => x.Quantity)
                     });
@@ -51,11 +61,17 @@ namespace Registration
             }
         }
 
-		public Guid Id { get; private set; }
-
-        public IEnumerable<ICommand> Commands
+        public void Handle(ReservationAccepted message)
         {
-            get { return this.commands; }
+            if (this.State == SagaState.AwaitingReservationConfirmation)
+            {
+                this.State = SagaState.AwaitingPayment;
+                this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }
