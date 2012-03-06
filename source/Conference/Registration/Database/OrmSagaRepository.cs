@@ -39,6 +39,7 @@ namespace Registration.Database
 		}
 
 		public OrmSagaRepository(string nameOrConnectionString, ICommandBus commandBus)
+			: base(nameOrConnectionString)
 		{
 			this.commandBus = commandBus;
 		}

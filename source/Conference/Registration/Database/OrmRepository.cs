@@ -39,6 +39,7 @@ namespace Registration.Database
 		}
 
 		public OrmRepository(string nameOrConnectionString, IEventBus eventBus)
+			: base(nameOrConnectionString)
 		{
 			this.eventBus = eventBus;
 		}
