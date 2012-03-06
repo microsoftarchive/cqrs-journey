@@ -56,7 +56,7 @@ namespace Conference.Web.Public
         private static MemoryCommandBus CreateCommandBus()
         {
             // TODO add handlers
-            var handlers = new object[] { };
+            var handlers = new ICommandHandler[] { };
 
             return new MemoryCommandBus(handlers);
         }
@@ -64,7 +64,7 @@ namespace Conference.Web.Public
         private static MemoryEventBus CreateEventBus()
         {
             // TODO add handlers
-            var handlers = new object[] { };
+            var handlers = new IEventHandler[] { };
 
             return new MemoryEventBus(handlers);
         }
