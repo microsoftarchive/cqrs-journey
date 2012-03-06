@@ -14,7 +14,7 @@ namespace Registration
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Common;
     using Registration.Events;
@@ -40,14 +40,14 @@ namespace Registration
             this.Id = id;
             this.UserId = userId;
             this.ConferenceId = conferenceId;
-            this.Lines = lines;
+            this.Lines = new ObservableCollection<TicketOrderLine>(lines);
 
             // TODO: it feels awkward publishing an event with ALL the details for the order.
             // should we just do the following and let the saga handler populate all the info?
             // this.events.Add(new OrderPlaced { OrderId = this.Id });
             this.events.Add(
-                new OrderPlaced 
-                { 
+                new OrderPlaced
+                {
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
                     UserId = this.UserId,
@@ -55,15 +55,15 @@ namespace Registration
                 });
         }
 
-        public Guid Id { get; private set; }
+        public virtual Guid Id { get; private set; }
 
-        public Guid UserId { get; private set; }
+        public virtual Guid UserId { get; private set; }
 
-        public Guid ConferenceId { get; private set; }
+        public virtual Guid ConferenceId { get; private set; }
 
-        public IEnumerable<TicketOrderLine> Lines { get; private set; }
+        public virtual ObservableCollection<TicketOrderLine> Lines { get; private set; }
 
-        public States State { get; private set; }
+        public virtual States State { get; private set; }
 
         public IEnumerable<IEvent> Events
         {
@@ -87,11 +87,12 @@ namespace Registration
         }
     }
 
-    [ComplexType]
     public class TicketOrderLine
     {
         public TicketOrderLine(string ticketTypeId, int quantity)
         {
+            this.Id = Guid.NewGuid();
+
             this.TicketTypeId = ticketTypeId;
             this.Quantity = quantity;
         }
@@ -99,6 +100,8 @@ namespace Registration
         protected TicketOrderLine()
         {
         }
+
+        public Guid Id { get; private set; }
 
         public string TicketTypeId { get; private set; }
 

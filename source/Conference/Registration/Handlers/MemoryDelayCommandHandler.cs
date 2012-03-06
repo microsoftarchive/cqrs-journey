@@ -12,39 +12,35 @@
 
 namespace Registration.Handlers
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using Common;
-	using Registration.Commands;
-	using System.Threading.Tasks;
-	using System.Threading;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common;
+    using Registration.Commands;
 
-	/// <summary>
-	/// Handles delayed commands in-memory, sending them to the bus 
-	/// after waiting for the specified time.
-	/// </summary>
-	/// <devdoc>
-	/// This will be replaced with an AzureDelayCommandHandler that will 
-	/// leverage azure service bus capabilities for sending delayed messages.
-	/// </devdoc>
-	public class MemoryDelayCommandHandler : ICommandHandler<DelayCommand>
-	{
-		private ICommandBus commandBus;
+    /// <summary>
+    /// Handles delayed commands in-memory, sending them to the bus 
+    /// after waiting for the specified time.
+    /// </summary>
+    /// <devdoc>
+    /// This will be replaced with an AzureDelayCommandHandler that will 
+    /// leverage azure service bus capabilities for sending delayed messages.
+    /// </devdoc>
+    public class MemoryDelayCommandHandler : ICommandHandler<DelayCommand>
+    {
+        private ICommandBus commandBus;
 
-		public MemoryDelayCommandHandler(ICommandBus commandBus)
-		{
-			this.commandBus = commandBus;
-		}
+        public MemoryDelayCommandHandler(ICommandBus commandBus)
+        {
+            this.commandBus = commandBus;
+        }
 
-		public void Handle(DelayCommand command)
-		{
-			Task.Factory.StartNew(() =>
-			{
-				Thread.Sleep(command.SendDelay);
-				this.commandBus.Send(command);
-			});
-		}
-	}
+        public void Handle(DelayCommand command)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(command.SendDelay);
+                this.commandBus.Send(command);
+            });
+        }
+    }
 }

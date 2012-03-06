@@ -12,72 +12,68 @@
 
 namespace Registration.Database
 {
-	using System;
-	using System.Data.Entity;
-	using System.Data;
-	using Common;
-	using System.Linq;
-	using System.Transactions;
-using System.Data.Entity.Infrastructure;
-	using System.Collections;
-	using System.Collections.Generic;
+    using System;
+    using System.Data.Entity;
+    using System.Linq;
+    using System.Transactions;
+    using Common;
 
-	public class OrmSagaRepository : DbContext, ISagaRepository
-	{
-		private ICommandBus commandBus;
-		private EntityPersister persister;
+    public class OrmSagaRepository : DbContext, ISagaRepository
+    {
+        private ICommandBus commandBus;
+        private EntityPersister persister;
 
-		public OrmSagaRepository()
-			: this("ConferenceRegistrationSagas")
-		{
-		}
+        public OrmSagaRepository()
+            : this("ConferenceRegistrationSagas")
+        {
+        }
 
-		public OrmSagaRepository(string nameOrConnectionString)
-			: this(nameOrConnectionString, new MemoryCommandBus())
-		{
-		}
+        public OrmSagaRepository(string nameOrConnectionString)
+            : this(nameOrConnectionString, new MemoryCommandBus())
+        {
+        }
 
-		public OrmSagaRepository(ICommandBus commandBus)
-			: this("ConferenceRegistrationSagas", commandBus)
-		{
-		}
+        public OrmSagaRepository(ICommandBus commandBus)
+            : this("ConferenceRegistrationSagas", commandBus)
+        {
+        }
 
-		public OrmSagaRepository(string nameOrConnectionString, ICommandBus commandBus)
-			: base(nameOrConnectionString)
-		{
-			this.commandBus = commandBus;
-			this.persister = new EntityPersister(this);
-		}
+        public OrmSagaRepository(string nameOrConnectionString, ICommandBus commandBus)
+            : base(nameOrConnectionString)
+        {
+            this.commandBus = commandBus;
+            this.persister = new EntityPersister(this);
+        }
 
-		public T Find<T>(Guid id) where T : class, IAggregateRoot
-		{
-			return this.Set<T>().Find(id);
-		}
+        public T Find<T>(Guid id) where T : class, IAggregateRoot
+        {
+            return this.Set<T>().Find(id);
+        }
 
-		public IQueryable<T> Query<T>() where T : class, IAggregateRoot
-		{
-			return this.Set<T>();
-		}
+        public IQueryable<T> Query<T>() where T : class, IAggregateRoot
+        {
+            return this.Set<T>();
+        }
 
-		public void Save<T>(T aggregate) where T : class, IAggregateRoot
-		{
-			var entry = this.Entry(aggregate);
+        public void Save<T>(T aggregate) where T : class, IAggregateRoot
+        {
+            var entry = this.Entry(aggregate);
 
-			this.persister.Persist(aggregate);
+            this.persister.Persist(aggregate);
 
-			using (var scope = new TransactionScope())
-			{	
-				this.SaveChanges();
+            using (var scope = new TransactionScope())
+            {
+                this.SaveChanges();
 
-				var commandPublisher = aggregate as ICommandPublisher;
-				if (commandPublisher != null)
-				    this.commandBus.Send(commandPublisher.Commands);
+                var commandPublisher = aggregate as ICommandPublisher;
+                if (commandPublisher != null)
+                    this.commandBus.Send(commandPublisher.Commands);
 
-				scope.Complete();
-			}
-		}
+                scope.Complete();
+            }
+        }
 
-		// Define the available entity sets for the database.
-		public virtual DbSet<RegistrationProcessSaga> RegistrationProcesses { get; private set; }
-	}
+        // Define the available entity sets for the database.
+        public virtual DbSet<RegistrationProcessSaga> RegistrationProcesses { get; private set; }
+    }
 }

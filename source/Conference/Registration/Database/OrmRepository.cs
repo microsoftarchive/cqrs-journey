@@ -16,11 +16,11 @@ namespace Registration.Database
     using System.Data.Entity;
     using System.Data;
     using Common;
-	using System.Transactions;
+    using System.Transactions;
 
     public class OrmRepository : DbContext, IRepository
     {
-		private IEventBus eventBus;
+        private IEventBus eventBus;
         private EntityPersister persister;
 
         public OrmRepository()
@@ -28,23 +28,23 @@ namespace Registration.Database
         {
         }
 
-		public OrmRepository(string nameOrConnectionString)
-			// TODO: we need the actual handlers for the in-memory buses here!!!
-			: this(nameOrConnectionString, new MemoryEventBus())
-		{
-		}
+        public OrmRepository(string nameOrConnectionString)
+            // TODO: we need the actual handlers for the in-memory buses here!!!
+            : this(nameOrConnectionString, new MemoryEventBus())
+        {
+        }
 
-		public OrmRepository(IEventBus eventBus)
-			: this("ConferenceRegistration", eventBus)
-		{
-		}
+        public OrmRepository(IEventBus eventBus)
+            : this("ConferenceRegistration", eventBus)
+        {
+        }
 
-		public OrmRepository(string nameOrConnectionString, IEventBus eventBus)
-			: base(nameOrConnectionString)
-		{
-			this.eventBus = eventBus;
+        public OrmRepository(string nameOrConnectionString, IEventBus eventBus)
+            : base(nameOrConnectionString)
+        {
+            this.eventBus = eventBus;
             this.persister = new EntityPersister(this);
-		}
+        }
 
         public T Find<T>(Guid id) where T : class, IAggregateRoot
         {
@@ -57,19 +57,20 @@ namespace Registration.Database
 
             this.persister.Persist(aggregate);
 
-			using (var scope = new TransactionScope())
-			{
-				this.SaveChanges();
+            using (var scope = new TransactionScope())
+            {
+                this.SaveChanges();
 
-				var publisher = aggregate as IEventPublisher;
-				if (publisher != null)
-					this.eventBus.Publish(publisher.Events);
+                var publisher = aggregate as IEventPublisher;
+                if (publisher != null)
+                    this.eventBus.Publish(publisher.Events);
 
-				scope.Complete();
-			}
+                scope.Complete();
+            }
         }
 
         // Define the available entity sets for the database.
         public virtual DbSet<ConferenceSeatsAvailability> ConferenceSeats { get; private set; }
+        public virtual DbSet<Order> Orders { get; private set; }
     }
 }
