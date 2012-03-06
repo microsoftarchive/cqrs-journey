@@ -122,4 +122,31 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingPayment, sut.State);
         }
     }
+
+    public class when_reservation_is_rejected : given_saga_awaiting_for_reservation_confirmation
+    {
+        public when_reservation_is_rejected()
+        {
+            var reservationAccepted = new ReservationRejected
+            {
+                ReservationId = sut.Id,
+                ConferenceId = Guid.NewGuid(),
+            };
+            sut.Handle(reservationAccepted);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = (RejectOrder)sut.Commands.Single();
+
+            Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
+        }
+    }
 }

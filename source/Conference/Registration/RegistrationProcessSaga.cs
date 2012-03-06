@@ -72,5 +72,18 @@ namespace Registration
                 throw new InvalidOperationException();
             }
         }
+
+        public void Handle(ReservationRejected message)
+        {
+            if (this.State == SagaState.AwaitingReservationConfirmation)
+            {
+                this.State = SagaState.Completed;
+                this.commands.Add(new RejectOrder { OrderId = message.ReservationId });
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 }

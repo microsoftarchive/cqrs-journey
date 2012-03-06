@@ -16,7 +16,7 @@ namespace Registration.MessageHandlers
     using Registration.Events;
 
     // TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
-    public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>
+    public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>, IEventHandler<ReservationRejected>
     {
         private ISagaRepository repository;
 
@@ -34,6 +34,14 @@ namespace Registration.MessageHandlers
         }
 
         public void Handle(ReservationAccepted @event)
+        {
+            var saga = this.repository.Find<RegistrationProcessSaga>(@event.ReservationId);
+            saga.Handle(@event);
+
+            this.repository.Save(saga);
+        }
+
+        public void Handle(ReservationRejected @event)
         {
             var saga = this.repository.Find<RegistrationProcessSaga>(@event.ReservationId);
             saga.Handle(@event);

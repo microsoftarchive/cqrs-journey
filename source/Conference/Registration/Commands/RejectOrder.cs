@@ -10,15 +10,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.Commands
 {
-    using System;
     using Common;
+	using System;
 
-    public class ReservationAccepted : IEvent
+    public class RejectOrder : ICommand
     {
-        public Guid ConferenceId { get; set; }
+		public Guid Id { get; set; }
 
-        public Guid ReservationId { get; set; }
+        public Guid OrderId { get; set; }
     }
 }

@@ -25,7 +25,8 @@ namespace Registration
         {
             Created,
             Booked,
-            Confirmed
+            Rejected,
+            Confirmed,
         }
 
         private List<IEvent> events = new List<IEvent>();
@@ -75,6 +76,14 @@ namespace Registration
                 throw new InvalidOperationException();
 
             this.State = States.Booked;
+        }
+
+        public void Reject()
+        {
+            if (this.State != States.Created)
+                throw new InvalidOperationException();
+
+            this.State = States.Rejected;
         }
     }
 

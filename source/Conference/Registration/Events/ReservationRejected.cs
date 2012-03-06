@@ -15,7 +15,7 @@ namespace Registration.Events
     using System;
     using Common;
 
-    public class ReservationAccepted : IEvent
+    public class ReservationRejected : IEvent
     {
         public Guid ConferenceId { get; set; }
 

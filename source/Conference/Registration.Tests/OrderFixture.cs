@@ -110,5 +110,13 @@ namespace Registration.Tests.OrderFixture
 
             Assert.Equal(Order.States.Booked, this.sut.State);
         }
+
+        [Fact]
+        public void when_marking_as_rejected_then_changes_order_state()
+        {
+            this.sut.Reject();
+
+            Assert.Equal(Order.States.Rejected, this.sut.State);
+        }
     }
 }
