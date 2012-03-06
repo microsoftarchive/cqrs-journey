@@ -18,10 +18,14 @@ namespace Registration.Database
 	using Common;
 	using System.Linq;
 	using System.Transactions;
+using System.Data.Entity.Infrastructure;
+	using System.Collections;
+	using System.Collections.Generic;
 
 	public class OrmSagaRepository : DbContext, ISagaRepository
 	{
 		private ICommandBus commandBus;
+		private EntityPersister persister;
 
 		public OrmSagaRepository()
 			: this("ConferenceRegistrationSagas")
@@ -42,6 +46,7 @@ namespace Registration.Database
 			: base(nameOrConnectionString)
 		{
 			this.commandBus = commandBus;
+			this.persister = new EntityPersister(this);
 		}
 
 		public T Find<T>(Guid id) where T : class, IAggregateRoot
@@ -49,15 +54,16 @@ namespace Registration.Database
 			return this.Set<T>().Find(id);
 		}
 
+		public IQueryable<T> Query<T>() where T : class, IAggregateRoot
+		{
+			return this.Set<T>();
+		}
+
 		public void Save<T>(T aggregate) where T : class, IAggregateRoot
 		{
 			var entry = this.Entry(aggregate);
 
-			// Add if the object was not loaded from the repository.
-			if (entry.State == EntityState.Detached) this.Set<T>().Add(aggregate);
-
-			// Otherwise, do nothing as the ORM already tracks 
-			// attached entities that need to be saved (or not).
+			this.persister.Persist(aggregate);
 
 			using (var scope = new TransactionScope())
 			{	
@@ -69,11 +75,6 @@ namespace Registration.Database
 
 				scope.Complete();
 			}
-		}
-
-		public IQueryable<T> Query<T>() where T : class, IAggregateRoot
-		{
-			return this.Set<T>();
 		}
 
 		// Define the available entity sets for the database.

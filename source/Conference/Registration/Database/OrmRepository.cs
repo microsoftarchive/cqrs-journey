@@ -21,6 +21,7 @@ namespace Registration.Database
     public class OrmRepository : DbContext, IRepository
     {
 		private IEventBus eventBus;
+        private EntityPersister persister;
 
         public OrmRepository()
             : this("ConferenceRegistration")
@@ -42,6 +43,7 @@ namespace Registration.Database
 			: base(nameOrConnectionString)
 		{
 			this.eventBus = eventBus;
+            this.persister = new EntityPersister(this);
 		}
 
         public T Find<T>(Guid id) where T : class, IAggregateRoot
@@ -53,11 +55,7 @@ namespace Registration.Database
         {
             var entry = this.Entry(aggregate);
 
-            // Add if the object was not loaded from the repository.
-            if (entry.State == EntityState.Detached) this.Set<T>().Add(aggregate);
-
-            // Otherwise, do nothing as the ORM already tracks 
-            // attached entities that need to be saved (or not).
+            this.persister.Persist(aggregate);
 
 			using (var scope = new TransactionScope())
 			{

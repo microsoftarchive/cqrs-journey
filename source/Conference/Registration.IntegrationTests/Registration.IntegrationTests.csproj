@@ -50,12 +50,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceSeatsAvailabilityIntegration.cs" />
+    <Compile Include="EntityPersisterFixture.cs" />
     <Compile Include="OrmPersistenceProvider.cs" />
     <Compile Include="OrmRepositoryFixture.cs" />
     <Compile Include="OrmSagaRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Conference.licenseheader">
+      <Link>Conference.licenseheader</Link>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
