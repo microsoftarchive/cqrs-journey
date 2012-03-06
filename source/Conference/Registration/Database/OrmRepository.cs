@@ -14,9 +14,8 @@ namespace Registration.Database
 {
     using System;
     using System.Data.Entity;
-    using System.Data;
-    using Common;
     using System.Transactions;
+    using Common;
 
     public class OrmRepository : DbContext, IRepository
     {

@@ -29,7 +29,7 @@ Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus,
 
             return
                 new ConferenceDTO(
-                    Guid.NewGuid(),
+                    Guid.Empty,
                     code,
                     "P&P Symposium",
                     description,

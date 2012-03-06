@@ -53,8 +53,10 @@
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
+    <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\EntityPersister.cs" />
     <Compile Include="Database\OrmRepository.cs" />
+    <Compile Include="Database\OrmRepositoryInitializer.cs" />
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
     <Compile Include="Handlers\ConferenceSeatsAvailabilityHandler.cs" />
@@ -90,6 +92,7 @@
       <Name>Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

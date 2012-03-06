@@ -39,8 +39,8 @@ namespace Conference.Web.Public
 
             services = GetDefaultServices();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>());
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>());
+            Database.SetInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>()));
+            Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
         }
 
         public static IDictionary<Type, object> GetDefaultServices()
