@@ -18,7 +18,7 @@ namespace Registration.Handlers
 	using System;
 
 	// TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
-	public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>, IEventHandler<ReservationRejected>, ICommandHandler<ExpireReservation>
+	public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>, IEventHandler<ReservationRejected>, ICommandHandler<ExpireSeatReservation>
 	{
 		private Func<ISagaRepository> repositoryFactory;
 
@@ -63,7 +63,7 @@ namespace Registration.Handlers
 			}
 		}
 
-		public void Handle(ExpireReservation command)
+		public void Handle(ExpireSeatReservation command)
 		{
 			var repo = this.repositoryFactory.Invoke();
 			using (repo as IDisposable)

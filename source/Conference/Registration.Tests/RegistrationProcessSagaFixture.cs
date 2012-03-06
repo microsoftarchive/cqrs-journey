@@ -48,22 +48,22 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         public void then_locks_seats()
         {
             Assert.Equal(1, sut.Commands.Count());
-            Assert.IsAssignableFrom<MakeReservation>(sut.Commands.Single());
+            Assert.IsAssignableFrom<MakeSeatReservation>(sut.Commands.Single());
         }
 
         [Fact]
         public void then_reservation_is_requested_for_specific_conference()
         {
-            var reservation = (MakeReservation)sut.Commands.Single();
+            var reservation = (MakeSeatReservation)sut.Commands.Single();
 
             Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
-            Assert.Equal(2, reservation.AmountOfSeats);
+            Assert.Equal(2, reservation.NumberOfSeats);
         }
 
         [Fact]
         public void then_reservation_is_correlated_with_order_id()
         {
-            var reservation = (MakeReservation)sut.Commands.Single();
+            var reservation = (MakeSeatReservation)sut.Commands.Single();
 
             Assert.Equal(orderPlaced.OrderId, reservation.Id);
         }
@@ -71,7 +71,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_saga_is_correlated_with_order_id()
         {
-            var reservation = (MakeReservation)sut.Commands.Single();
+            var reservation = (MakeSeatReservation)sut.Commands.Single();
 
             Assert.Equal(orderPlaced.OrderId, sut.Id);
         }
@@ -123,7 +123,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var message = sut.Commands.OfType<DelayCommand>().Single();
 
             Assert.Equal(TimeSpan.FromMinutes(15), message.SendDelay);
-            Assert.IsAssignableFrom<ExpireReservation>(message.Command);
+            Assert.IsAssignableFrom<ExpireSeatReservation>(message.Command);
             Assert.Equal(sut.Id, message.Command.Id);
         }
 
@@ -179,7 +179,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     {
         public when_reservation_is_expired()
         {
-            var expireReservation = new ExpireReservation
+            var expireReservation = new ExpireSeatReservation
             {
                 Id = sut.Id,
             };

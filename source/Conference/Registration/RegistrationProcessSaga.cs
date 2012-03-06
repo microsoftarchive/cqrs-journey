@@ -47,11 +47,11 @@ namespace Registration
 				this.Id = message.OrderId;
 				this.State = SagaState.AwaitingReservationConfirmation;
 				this.commands.Add(
-					new MakeReservation
+					new MakeSeatReservation
 					{
 						Id = this.Id,
 						ConferenceId = message.ConferenceId,
-						AmountOfSeats = message.Tickets.Sum(x => x.Quantity)
+						NumberOfSeats = message.Tickets.Sum(x => x.Quantity)
 					});
 			}
 			else
@@ -70,7 +70,7 @@ namespace Registration
 					new DelayCommand
 						{
 							SendDelay = TimeSpan.FromMinutes(15),
-							Command = new ExpireReservation { Id = message.ReservationId }
+							Command = new ExpireSeatReservation { Id = message.ReservationId }
 						});
 			}
 			else
@@ -92,7 +92,7 @@ namespace Registration
 			}
 		}
 
-		public void Handle(ExpireReservation message)
+		public void Handle(ExpireSeatReservation message)
 		{
 			if (this.State == SagaState.AwaitingPayment)
 			{

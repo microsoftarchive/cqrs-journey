@@ -13,11 +13,18 @@
 namespace Registration.Commands
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+    using Common;
 
-    public class CommitSeatReservation
+    public class CommitSeatReservation : ICommand
     {
+        public CommitSeatReservation()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; private set; }
+
+        public Guid ConferenceId { get; set; }
+        public Guid ReservationId { get; set; }
     }
 }

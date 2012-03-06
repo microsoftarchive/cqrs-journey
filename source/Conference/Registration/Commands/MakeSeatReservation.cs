@@ -12,15 +12,20 @@
 
 namespace Registration.Commands
 {
+    using System;
     using Common;
-	using System;
 
-    public class MakeReservation : ICommand
+    public class MakeSeatReservation : ICommand
     {
-		public Guid Id { get; set; }
+        public MakeSeatReservation()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; set; }
 
         public Guid ConferenceId { get; set; }
-
-        public int AmountOfSeats { get; set; }
+        public Guid ReservationId { get; set; }
+        public int NumberOfSeats { get; set; }
     }
 }

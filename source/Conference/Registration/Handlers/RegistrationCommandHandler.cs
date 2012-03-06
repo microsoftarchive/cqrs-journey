@@ -17,7 +17,7 @@ namespace Registration.Handlers
     using Common;
     using Registration.Commands;
 
-    public class RegistrationCommandHandler : ICommandHandler<RegisterToConference>, ICommandHandler<MarkOrderAsBooked>, ICommandHandler<ExpireReservation>
+    public class RegistrationCommandHandler : ICommandHandler<RegisterToConference>, ICommandHandler<MarkOrderAsBooked>, ICommandHandler<ExpireSeatReservation>
     {
         private Func<IRepository> repositoryFactory;
 
@@ -45,7 +45,7 @@ namespace Registration.Handlers
             throw new NotImplementedException();
         }
 
-        public void Handle(ExpireReservation command)
+        public void Handle(ExpireSeatReservation command)
         {
             throw new NotImplementedException();
         }

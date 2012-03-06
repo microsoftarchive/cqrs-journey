@@ -12,11 +12,19 @@
 
 namespace Registration.Commands
 {
+    using System;
     using Common;
-	using System;
 
-    public class ExpireReservation : ICommand
+    public class ExpireSeatReservation : ICommand
     {
-		public Guid Id { get; set; }
+        public ExpireSeatReservation()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; set; }
+
+        public Guid ConferenceId { get; set; }
+        public Guid ReservationId { get; set; }
     }
 }
