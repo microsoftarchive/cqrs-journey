@@ -20,6 +20,7 @@ namespace Registration.Handlers
 	// TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
 	public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>, IEventHandler<ReservationRejected>, ICommandHandler<ExpireSeatReservation>
 	{
+        private object lockObject = new object();
 		private Func<ISagaRepository> repositoryFactory;
 
 		public RegistrationProcessSagaHandler(Func<ISagaRepository> repositoryFactory)
@@ -35,7 +36,10 @@ namespace Registration.Handlers
 			var repo = this.repositoryFactory.Invoke();
 			using (repo as IDisposable)
 			{
-				repo.Save(saga);
+                lock (lockObject)
+                {
+                    repo.Save(saga);
+                }
 			}
 		}
 
@@ -44,10 +48,13 @@ namespace Registration.Handlers
 			var repo = this.repositoryFactory.Invoke();
 			using (repo as IDisposable)
 			{
-				var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
-				saga.Handle(@event);
+                lock (lockObject)
+                {
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+                    saga.Handle(@event);
 
-				repo.Save(saga);
+                    repo.Save(saga);
+                }
 			}
 		}
 
@@ -56,10 +63,13 @@ namespace Registration.Handlers
 			var repo = this.repositoryFactory.Invoke();
 			using (repo as IDisposable)
 			{
-				var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
-				saga.Handle(@event);
+                lock (lockObject)
+                {
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+                    saga.Handle(@event);
 
-				repo.Save(saga);
+                    repo.Save(saga);
+                }
 			}
 		}
 
@@ -68,10 +78,13 @@ namespace Registration.Handlers
 			var repo = this.repositoryFactory.Invoke();
 			using (repo as IDisposable)
 			{
-				var saga = repo.Find<RegistrationProcessSaga>(command.Id);
-				saga.Handle(command);
+                lock (lockObject)
+                {
+                    var saga = repo.Find<RegistrationProcessSaga>(command.Id);
+                    saga.Handle(command);
 
-				repo.Save(saga);
+                    repo.Save(saga);
+                }
 			}
 		}
 	}
