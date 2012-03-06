@@ -31,9 +31,12 @@ namespace Registration.Database
             // Create views, seed reference data, etc.
 
             // TODO: remove hardcoded seats availability.
-            var availability = new ConferenceSeatsAvailability(Guid.Empty);
-            availability.AddSeats(50);
-            context.Save(availability);
+            if (context.Set<ConferenceSeatsAvailability>().Find(Guid.Empty) == null)
+            {
+                var availability = new ConferenceSeatsAvailability(Guid.Empty);
+                availability.AddSeats(50);
+                context.Save(availability);
+            }
 
             context.SaveChanges();
         }
