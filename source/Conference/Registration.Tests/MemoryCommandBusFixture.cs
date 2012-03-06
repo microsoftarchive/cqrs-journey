@@ -27,20 +27,17 @@ namespace Registration.Tests
 		public void WhenSendingCommand_ThenInvokesCompatibleHandler()
 		{
 			var handler = new Mock<ICommandHandler<TestCommand>>();
-			var called = false;
+			var e = new ManualResetEventSlim();
 			handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
-				.Callback(() => called = true);
+				.Callback(() => e.Set());
 
 			var bus = new MemoryCommandBus(handler.Object);
 
 			bus.Send(new TestCommand());
 
-			while (!called)
-			{
-				Thread.Sleep(10);
-			}
+			e.Wait(1000);
 
-			Assert.True(called);
+			handler.Verify(x => x.Handle(It.IsAny<TestCommand>()));
 		}
 
 		[Fact]

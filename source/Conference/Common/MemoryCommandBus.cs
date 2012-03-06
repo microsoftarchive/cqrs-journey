@@ -23,12 +23,17 @@ namespace Common
 	/// </summary>
 	public class MemoryCommandBus : ICommandBus
 	{
-		private object[] handlers;
+		private List<ICommandHandler> handlers = new List<ICommandHandler>();
 		private List<ICommand> commands = new List<ICommand>();
 
-		public MemoryCommandBus(params object[] handlers)
+		public MemoryCommandBus(params ICommandHandler[] handlers)
 		{
-			this.handlers = handlers;
+			this.handlers.AddRange(handlers);
+		}
+
+		public void Register(ICommandHandler handler)
+		{
+			this.handlers.Add(handler);
 		}
 
 		public void Send(ICommand command)

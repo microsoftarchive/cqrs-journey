@@ -20,12 +20,17 @@ namespace Common
 
 	public class MemoryEventBus : IEventBus
 	{
-		private object[] handlers;
+		private List<IEventHandler> handlers = new List<IEventHandler>();
 		private List<IEvent> events = new List<IEvent>();
 
-		public MemoryEventBus(params object[] handlers)
+		public MemoryEventBus(params IEventHandler[] handlers)
 		{
-			this.handlers = handlers;
+			this.handlers.AddRange(handlers);
+		}
+
+		public void Register(IEventHandler handler)
+		{
+			this.handlers.Add(handler);
 		}
 
 		public void Publish(IEvent @event)

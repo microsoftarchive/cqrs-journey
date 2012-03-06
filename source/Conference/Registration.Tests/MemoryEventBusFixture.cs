@@ -27,20 +27,17 @@ namespace Registration.Tests
 		public void WhenPublishingEvent_ThenInvokesCompatibleHandler()
 		{
 			var handler = new Mock<IEventHandler<TestEvent>>();
-			var called = false;
+			var e = new ManualResetEventSlim();
 			handler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
-				.Callback(() => called = true);
+				.Callback(() => e.Set());
 
 			var bus = new MemoryEventBus(handler.Object);
 
 			bus.Publish(new TestEvent());
 
-			while (!called)
-			{
-				Thread.Sleep(10);
-			}
+			e.Wait(1000);
 
-			Assert.True(called);
+			handler.Verify(x => x.Handle(It.IsAny<TestEvent>()));
 		}
 
 		[Fact]
