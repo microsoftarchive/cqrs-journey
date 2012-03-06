@@ -12,8 +12,11 @@
 
 namespace Common
 {
-    public interface IEventBus
+	using System.Collections.Generic;
+	
+	public interface IEventBus
     {
         void Publish(IEvent @event);
+		void Publish(IEnumerable<IEvent> events);
     }
 }

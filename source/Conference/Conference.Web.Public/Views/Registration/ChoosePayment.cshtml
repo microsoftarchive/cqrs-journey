@@ -1,0 +1,56 @@
+﻿@model Conference.Web.Public.Models.Registration
+@{
+    ViewBag.Title = "ChoosePayment";
+}
+<h2>
+    ChoosePayment</h2>
+<div id="tickets">
+    <table width="100%">
+        <tr>
+            <th align="left">
+                Seat type
+            </th>
+            <th align="right">
+                Price
+            </th>
+            <th align="right">
+                Quantity
+            </th>
+            <th align="right">
+                Total
+            </th>
+        </tr>
+        @for (var i = 0; i < this.Model.Seats.Count; i++)
+        { 
+            <tr>
+                <td align="left">@Html.DisplayFor(model => model.Seats[i].SeatDescription)
+                </td>
+                <td align="right">@Html.DisplayFor(model => model.Seats[i].Price)
+                </td>
+                <td align="right">@Html.DisplayFor(model => model.Seats[i].Quantity)
+                </td>
+                <td align="right">@Html.DisplayFor(model => model.Seats[i].Total)
+                </td>
+            </tr>
+        }
+        <tr>
+            <td colspan="3" align="right">
+                Total
+            </td>
+            <td align="right">@Html.DisplayFor(model => model.Total)
+            </td>
+        </tr>
+    </table>
+</div>
+@using (Html.BeginForm("ConfirmRegistration", "Registration"))
+{
+    @Html.HiddenFor(model => model.Id)
+    <div>
+        <div class="editor-label">
+            @Html.LabelForModel("Payment type")
+        </div>
+        <p>
+            <input type="submit" value="Pay" />
+        </p>
+    </div>
+}

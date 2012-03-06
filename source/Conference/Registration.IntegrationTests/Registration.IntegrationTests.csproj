@@ -35,6 +35,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="Moq, Version=4.0.10827.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -47,10 +50,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceSeatsAvailabilityIntegration.cs" />
+    <Compile Include="OrmSagaRepositoryInitializerFixture.cs" />
+    <Compile Include="EntityPersisterFixture.cs" />
     <Compile Include="OrmPersistenceProvider.cs" />
+    <Compile Include="OrmRepositoryFixture.cs" />
+    <Compile Include="OrmRepositoryInitializerFixture.cs" />
+    <Compile Include="OrmSagaRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Conference.licenseheader">
+      <Link>Conference.licenseheader</Link>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>

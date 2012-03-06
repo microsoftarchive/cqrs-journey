@@ -10,23 +10,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+namespace Registration.ReadModel
 {
-    using System.Collections.Generic;
-    using Common;
+    using System;
 
-    public class FakeBus : ICommandBus
+    public interface IOrderReadModel
     {
-        private readonly List<ICommand> sentCommands = new List<ICommand>();
-
-        public List<ICommand> SentCommands
-        {
-            get { return this.sentCommands; }
-        }
-
-        public void Send(ICommand command)
-        {
-            this.sentCommands.Add(command);
-        }
+        OrderDTO Find(Guid id);
     }
 }

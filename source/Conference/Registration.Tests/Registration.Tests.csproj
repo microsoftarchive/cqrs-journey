@@ -39,6 +39,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core">
@@ -55,17 +59,19 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FakeBus.cs" />
-    <Compile Include="OrmRepositoryFixture.cs" />
+    <Compile Include="MemoryEventBusFixture.cs" />
+    <Compile Include="MemoryCommandBusFixture.cs" />
+    <Compile Include="OrderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConferenceSeatsAvailabilityFixture.cs" />
     <Compile Include="RegistrationProcessSagaFixture.cs" />
     <Compile Include="IPersistenceProvider.cs" />
+    <Compile Include="SagaRepoFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Core</Name>
+      <Name>Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
@@ -77,8 +83,11 @@
       <Link>Conference.licenseheader</Link>
     </None>
     <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

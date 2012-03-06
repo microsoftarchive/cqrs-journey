@@ -14,14 +14,35 @@ namespace Registration.Database
 {
     using System;
     using System.Data.Entity;
-    using System.Data;
+    using System.Transactions;
     using Common;
 
     public class OrmRepository : DbContext, IRepository
     {
+        private IEventBus eventBus;
+        private EntityPersister persister;
+
         public OrmRepository()
-            : base("ConferenceRegistration")
+            : this("ConferenceRegistration")
         {
+        }
+
+        public OrmRepository(string nameOrConnectionString)
+            // TODO: we need the actual handlers for the in-memory buses here!!!
+            : this(nameOrConnectionString, new MemoryEventBus())
+        {
+        }
+
+        public OrmRepository(IEventBus eventBus)
+            : this("ConferenceRegistration", eventBus)
+        {
+        }
+
+        public OrmRepository(string nameOrConnectionString, IEventBus eventBus)
+            : base(nameOrConnectionString)
+        {
+            this.eventBus = eventBus;
+            this.persister = new EntityPersister(this);
         }
 
         public T Find<T>(Guid id) where T : class, IAggregateRoot
@@ -33,16 +54,22 @@ namespace Registration.Database
         {
             var entry = this.Entry(aggregate);
 
-            // Add if the object was not loaded from the repository.
-            if (entry.State == EntityState.Detached) this.Set<T>().Add(aggregate);
+            this.persister.Persist(aggregate);
 
-            // Otherwise, do nothing as the ORM already tracks 
-            // attached entities that need to be saved (or not).
+            using (var scope = new TransactionScope())
+            {
+                this.SaveChanges();
 
-            this.SaveChanges();
+                var publisher = aggregate as IEventPublisher;
+                if (publisher != null)
+                    this.eventBus.Publish(publisher.Events);
+
+                scope.Complete();
+            }
         }
 
         // Define the available entity sets for the database.
         public virtual DbSet<ConferenceSeatsAvailability> ConferenceSeats { get; private set; }
+        public virtual DbSet<Order> Orders { get; private set; }
     }
 }
