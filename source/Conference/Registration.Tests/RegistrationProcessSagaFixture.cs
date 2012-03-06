@@ -13,40 +13,191 @@
 namespace Registration.Tests.RegistrationProcessSagaFixture
 {
     using System;
+    using System.Linq;
+    using Common;
     using Registration.Commands;
+    using Registration.Events;
     using Xunit;
 
     public class given_uninitialized_saga
     {
         protected RegistrationProcessSaga sut;
-        protected FakeBus bus;
 
         public given_uninitialized_saga()
         {
-            this.bus = new FakeBus();
-            this.sut = new RegistrationProcessSaga(this.bus);
+            this.sut = new RegistrationProcessSaga();
         }
     }
 
-    public class when_registering : given_uninitialized_saga
+    public class when_order_is_placed : given_uninitialized_saga
     {
-        public when_registering()
+        private OrderPlaced orderPlaced;
+
+        public when_order_is_placed()
         {
-            var registerCommand = new RegisterToConference { ConferenceId = Guid.NewGuid(), NumberOfSeats = 1 };
-            sut.Handle(registerCommand);
+            this.orderPlaced = new OrderPlaced
+            {
+                OrderId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
+                Tickets = new[] { new OrderPlaced.Ticket { TicketTypeId = "testSeat", Quantity = 2 } }
+            };
+            sut.Handle(orderPlaced);
         }
 
         [Fact]
         public void then_locks_seats()
         {
-            Assert.Equal(1, bus.SentCommands.Count);
-            Assert.IsAssignableFrom<MakeReservation>(bus.SentCommands[0]);
+            Assert.Equal(1, sut.Commands.Count());
+            Assert.IsAssignableFrom<MakeSeatReservation>(sut.Commands.Single());
+        }
+
+        [Fact]
+        public void then_reservation_is_requested_for_specific_conference()
+        {
+            var reservation = (MakeSeatReservation)sut.Commands.Single();
+
+            Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
+            Assert.Equal(2, reservation.NumberOfSeats);
+        }
+
+        [Fact]
+        public void then_reservation_is_correlated_with_order_id()
+        {
+            var reservation = (MakeSeatReservation)sut.Commands.Single();
+
+            Assert.Equal(orderPlaced.OrderId, reservation.Id);
+        }
+
+        [Fact]
+        public void then_saga_is_correlated_with_order_id()
+        {
+            var reservation = (MakeSeatReservation)sut.Commands.Single();
+
+            Assert.Equal(orderPlaced.OrderId, sut.Id);
         }
 
         [Fact]
         public void then_transitions_to_awaiting_reservation_confirmation_state()
         {
             Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation, sut.State);
+        }
+    }
+
+    public class given_saga_awaiting_for_reservation_confirmation
+    {
+        protected RegistrationProcessSaga sut;
+
+        public given_saga_awaiting_for_reservation_confirmation()
+        {
+            this.sut = new RegistrationProcessSaga
+            {
+                Id = Guid.NewGuid(),
+                State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
+            };
+        }
+    }
+
+    public class when_reservation_confirmation_is_received : given_saga_awaiting_for_reservation_confirmation
+    {
+        public when_reservation_confirmation_is_received()
+        {
+            var reservationAccepted = new ReservationAccepted
+            {
+                ReservationId = sut.Id,
+                ConferenceId = Guid.NewGuid(),
+            };
+            sut.Handle(reservationAccepted);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = sut.Commands.OfType<MarkOrderAsBooked>().Single();
+
+            Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_enqueues_expiration_message()
+        {
+            var message = sut.Commands.OfType<DelayCommand>().Single();
+
+            Assert.Equal(TimeSpan.FromMinutes(15), message.SendDelay);
+            Assert.IsAssignableFrom<ExpireSeatReservation>(message.Command);
+            Assert.Equal(sut.Id, message.Command.Id);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingPayment, sut.State);
+        }
+    }
+
+    public class when_reservation_is_rejected : given_saga_awaiting_for_reservation_confirmation
+    {
+        public when_reservation_is_rejected()
+        {
+            var reservationAccepted = new ReservationRejected
+            {
+                ReservationId = sut.Id,
+                ConferenceId = Guid.NewGuid(),
+            };
+            sut.Handle(reservationAccepted);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = (RejectOrder)sut.Commands.Single();
+
+            Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
+        }
+    }
+
+    public class given_saga_awaiting_payment
+    {
+        protected RegistrationProcessSaga sut;
+
+        public given_saga_awaiting_payment()
+        {
+            this.sut = new RegistrationProcessSaga
+            {
+                Id = Guid.NewGuid(),
+                State = RegistrationProcessSaga.SagaState.AwaitingPayment,
+            };
+        }
+    }
+
+    public class when_reservation_is_expired : given_saga_awaiting_payment
+    {
+        public when_reservation_is_expired()
+        {
+            var expireReservation = new ExpireSeatReservation
+            {
+                Id = sut.Id,
+            };
+            sut.Handle(expireReservation);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = (RejectOrder)sut.Commands.Single();
+
+            Assert.Equal(sut.Id, command.OrderId);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
         }
     }
 }

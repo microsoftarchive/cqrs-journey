@@ -12,7 +12,13 @@
 
 namespace Common
 {
-    public interface ICommand
+	using System;
+	
+	public interface ICommand
     {
+		/// <summary>
+		/// Gets the command identifier.
+		/// </summary>
+		Guid Id { get; }
     }
 }

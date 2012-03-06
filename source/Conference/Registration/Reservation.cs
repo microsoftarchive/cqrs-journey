@@ -15,7 +15,6 @@ namespace Registration
     using System;
     using System.ComponentModel.DataAnnotations;
 
-    [ComplexType]
     public class Reservation
     {
         public Reservation(Guid id, int seats)

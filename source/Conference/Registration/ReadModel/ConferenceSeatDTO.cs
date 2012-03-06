@@ -10,11 +10,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.ReadModel
 {
-    using Common;
+    using System;
 
-    public class MakeReservation : ICommand
+    public class ConferenceSeatDTO
     {
+        public ConferenceSeatDTO(Guid id, string description, double price)
+        {
+            this.Id = id;
+            this.Description = description;
+            this.Price = price;
+        }
+
+        public Guid Id { get; private set; }
+
+        public string Description { get; private set; }
+
+        public double Price { get; private set; }
     }
 }
