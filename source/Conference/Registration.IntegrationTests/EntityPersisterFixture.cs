@@ -37,7 +37,7 @@ namespace Registration.IntegrationTests
 
             using (var context = new TestOrm())
             {
-                var order = new Order(new Item(), new Item());
+                var order = new Order(new Item(new Product()), new Item(new Product()));
                 context.Save(order);
             }
 
@@ -46,6 +46,8 @@ namespace Registration.IntegrationTests
                 var order = context.Query<Order>().First();
 
                 Assert.Equal(2, order.Items.Count);
+                Assert.NotNull(order.Items[0].Product);
+                Assert.NotNull(order.Items[1].Product);
             }
 
         }
@@ -93,18 +95,32 @@ namespace Registration.IntegrationTests
                 }
             }
 
-            public virtual Guid Id { get; set; }
+            public virtual Guid Id { get; private set; }
             public virtual ObservableCollection<Item> Items { get; private set; }
         }
 
         public class Item
         {
-            public Item()
+            protected Item() { }
+
+            public Item(Product product)
+            {
+                this.Id = Guid.NewGuid();
+                this.Product = product;
+            }
+
+            public virtual Guid Id { get; private set; }
+            public virtual Product Product { get; private set; }
+        }
+
+        public class Product
+        {
+            public Product()
             {
                 this.Id = Guid.NewGuid();
             }
 
-            public Guid Id { get; set; }
+            public virtual Guid Id { get; set; }
         }
     }
 }
