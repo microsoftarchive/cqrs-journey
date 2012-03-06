@@ -52,7 +52,6 @@ namespace Conference.Web.Public
 
 			// Handlers
 			var registrationSaga = new RegistrationProcessSagaHandler(() => new OrmSagaRepository(commandBus));
-            services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
 
 			commandBus.Register(registrationSaga);
 			eventBus.Register(registrationSaga);
@@ -65,6 +64,7 @@ namespace Conference.Web.Public
             services[typeof(ICommandBus)] = commandBus;
             services[typeof(IEventBus)] = eventBus;
             services[typeof(IOrderReadModel)] = new OrmOrderReadModel(() => new OrmRepository(eventBus));
+			services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
 
             return services;
         }
