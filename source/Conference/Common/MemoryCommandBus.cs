@@ -12,11 +12,12 @@
 
 namespace Common
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using System.Threading.Tasks;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
 
 	/// <summary>
 	/// Sample in-memory command bus that is asynchronous.
@@ -42,6 +43,17 @@ namespace Common
 
 			Task.Factory.StartNew(() =>
 			{
+                var envelope = command as CommandMessage;
+                if (envelope != null)
+                {
+                    if (envelope.EnqueueDelay > TimeSpan.Zero)
+                    {
+                        Thread.Sleep(envelope.EnqueueDelay);
+                    }
+
+                    command = envelope.Command;
+                }
+
 				var handlerType = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
 
 				foreach (dynamic handler in this.handlers
