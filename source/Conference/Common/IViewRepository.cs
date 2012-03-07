@@ -10,29 +10,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Common
 {
-    using System.Data.Entity;
+    using System;
     using System.Linq;
-    using Registration.Database;
-    using Xunit;
 
-    public class OrmRepositoryInitializerFixture
+    /// <summary>
+    /// A repository for views.
+    /// </summary>
+    public interface IViewRepository
     {
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
-        {
-            var initializer = new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>());
-
-            using (var context = new OrmRepository("TestOrmRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
-
-            using (var context = new OrmRepository("TestOrmRepository"))
-            {
-                Assert.Equal(1, context.Set<ConferenceSeatsAvailability>().Count());
-            }
-        }
+        T Find<T>(Guid id) where T : class;
+        IQueryable<T> Query<T>() where T : class;
     }
 }

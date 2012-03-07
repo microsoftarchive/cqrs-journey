@@ -73,9 +73,9 @@
     <Compile Include="ReadModel\ConferenceReadModel.cs" />
     <Compile Include="ReadModel\ConferenceSeatDTO.cs" />
     <Compile Include="ReadModel\IConferenceReadModel.cs" />
-    <Compile Include="ReadModel\IOrderReadModel.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
-    <Compile Include="ReadModel\OrmOrderReadModel.cs" />
+    <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
+    <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
   </ItemGroup>

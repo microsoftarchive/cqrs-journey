@@ -10,28 +10,38 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Registration.Database
 {
     using System.Data.Entity;
     using System.Linq;
-    using Registration.Database;
-    using Xunit;
 
-    public class OrmRepositoryInitializerFixture
+    public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmRepository>
     {
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        // NOTE: we initialize the same OrmRepository for both because we happen to 
+        // persist the views in the same database. This is not required and could be 
+        // a separate one if we weren't using SQL Views to drive them.
+        private IDatabaseInitializer<OrmRepository> innerInitializer;
+
+        public OrmViewRepositoryInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
         {
-            var initializer = new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>());
+            this.innerInitializer = innerInitializer;
+        }
 
-            using (var context = new OrmRepository("TestOrmRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
+        public void InitializeDatabase(OrmRepository context)
+        {
+            this.innerInitializer.InitializeDatabase(context);
 
-            using (var context = new OrmRepository("TestOrmRepository"))
+            if (!context.Database.SqlQuery<string>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[OrdersView]')").Any())
             {
-                Assert.Equal(1, context.Set<ConferenceSeatsAvailability>().Count());
+                context.Database.ExecuteSqlCommand(@"
+CREATE VIEW [dbo].[OrdersView]
+AS
+SELECT     
+    dbo.Orders.Id AS OrderId, 
+    dbo.Orders.State as StateValue
+FROM dbo.Orders");
+
+                context.SaveChanges();
             }
         }
     }

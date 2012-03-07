@@ -14,29 +14,29 @@ namespace Conference.Web.Public.Controllers
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
     using Registration.Commands;
     using Registration.ReadModel;
-    using System.Threading;
 
     public class RegistrationController : Controller
     {
         private const int WaitTimeoutInSeconds = 5;
 
         private ICommandBus commandBus;
-        private IOrderReadModel orderReadModel;
+        private Func<IViewRepository> repositoryFactory;
 
         public RegistrationController()
-            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<IOrderReadModel>())
+            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<Func<IViewRepository>>())
         {
         }
 
-        public RegistrationController(ICommandBus commandBus, IOrderReadModel orderReadModel)
+        public RegistrationController(ICommandBus commandBus, Func<IViewRepository> repositoryFactory)
         {
             this.commandBus = commandBus;
-            this.orderReadModel = orderReadModel;
+            this.repositoryFactory = repositoryFactory;
         }
 
         [HttpGet]
@@ -130,11 +130,15 @@ namespace Conference.Web.Public.Controllers
 
             while (DateTime.Now < deadline)
             {
-                var orderDTO = this.orderReadModel.Find(registration.Id);
-
-                if (orderDTO != null && orderDTO.State != "Created")
+                var repo = this.repositoryFactory();
+                using (repo as IDisposable)
                 {
-                    return orderDTO;
+                    var orderDTO = repo.Find<OrderDTO>(registration.Id);
+
+                    if (orderDTO != null && orderDTO.State != "Created")
+                    {
+                        return orderDTO;
+                    }
                 }
 
                 Thread.Sleep(500);

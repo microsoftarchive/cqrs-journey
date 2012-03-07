@@ -28,7 +28,6 @@ namespace Registration.Database
         }
 
         public OrmRepository(string nameOrConnectionString)
-            // TODO: we need the actual handlers for the in-memory buses here!!!
             : this(nameOrConnectionString, new MemoryEventBus())
         {
         }

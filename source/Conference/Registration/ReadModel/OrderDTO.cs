@@ -13,17 +13,34 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
 
     public class OrderDTO
     {
-        public OrderDTO(Guid id, string state)
+        protected OrderDTO() { }
+
+        [Key]
+        public Guid OrderId { get; private set; }
+        public int StateValue { get; private set; }
+
+        public string State
         {
-            this.Id = id;
-            this.State = state;
+            get
+            {
+                switch (this.StateValue)
+                {
+                    case Order.States.Created:
+                        return "Created";
+                    case Order.States.Booked:
+                        return "Booked";
+                    case Order.States.Rejected:
+                        return "Rejected";
+                    case Order.States.Confirmed:
+                        return "Confirmed";
+                }
+
+                return string.Empty;
+            }
         }
-
-        public Guid Id { get; private set; }
-
-        public string State { get; private set; }
     }
 }

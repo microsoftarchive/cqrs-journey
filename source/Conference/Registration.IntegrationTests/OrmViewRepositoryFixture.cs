@@ -12,27 +12,49 @@
 
 namespace Registration.IntegrationTests
 {
+    using System;
     using System.Data.Entity;
-    using System.Linq;
     using Registration.Database;
+    using Registration.ReadModel;
     using Xunit;
 
-    public class OrmRepositoryInitializerFixture
+    public class OrmViewRepositoryFixture
     {
         [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        public void WhenReadingViewDTO_ThenSucceedsIfAggregateExists()
         {
-            var initializer = new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>());
+            Database.SetInitializer<OrmRepository>(
+                new OrmViewRepositoryInitializer(
+                    new OrmRepositoryInitializer(
+                        new DropCreateDatabaseAlways<OrmRepository>())));
+            Database.SetInitializer<OrmViewRepository>(null);
 
             using (var context = new OrmRepository("TestOrmRepository"))
             {
-                initializer.InitializeDatabase(context);
+                if (context.Database.Exists())
+                    context.Database.Delete();
+
+                context.Database.Initialize(true);
             }
+
+            var orderId = Guid.NewGuid();
 
             using (var context = new OrmRepository("TestOrmRepository"))
             {
-                Assert.Equal(1, context.Set<ConferenceSeatsAvailability>().Count());
+                var order = new Order(orderId, Guid.NewGuid(), Guid.NewGuid(), new[] { new TicketOrderLine("PUBLIC", 5) });
+                order.MarkAsBooked();
+                context.Save(order);
             }
+
+            using (var viewContext = new OrmViewRepository("TestOrmRepository"))
+            {
+                var dto = viewContext.Find<OrderDTO>(orderId);
+
+                Assert.NotNull(dto);
+                Assert.Equal("Booked", dto.State);
+            }
+
         }
+
     }
 }
