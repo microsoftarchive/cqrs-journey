@@ -18,10 +18,10 @@ namespace Conference.Web.Public
 
         protected override IController GetControllerInstance(RequestContext requestContext, Type controllerType)
         {
-            IEnumerable<object> consturctorArguments = controllerType
+            IEnumerable<object> constructorArguments = controllerType
                 .GetModestConstructor().GetParameters().Select(pi => pi.ParameterType).Select(GetService);
 
-            return (IController)Activator.CreateInstance(controllerType, consturctorArguments.ToArray());
+            return (IController)Activator.CreateInstance(controllerType, constructorArguments.ToArray());
         }
 
         private object GetService(Type serviceType)
