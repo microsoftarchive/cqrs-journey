@@ -12,5 +12,5 @@ _ReSharper.*
 *.resharper
 TestResults
 packages
-NuGet.exe
+build/temp
 .nuget
