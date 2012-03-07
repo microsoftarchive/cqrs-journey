@@ -73,11 +73,11 @@ namespace Conference.Web.Public.Controllers
                 }
                 else if (orderDTO.State == "Rejected")
                 {
-                    return View("RegistrationRejected", registration);
+                    return View("ReservationRejected", registration);
                 }
             }
 
-            return Content("Invalid registration");
+            return View("ReservationUnknown", registration);
 
         }
 

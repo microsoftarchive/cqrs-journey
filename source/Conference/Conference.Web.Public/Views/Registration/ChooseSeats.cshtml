@@ -1,6 +1,6 @@
 ﻿@model Conference.Web.Public.Models.Registration
 @{
-    ViewBag.Title = "ChooseSeats";
+    ViewBag.Title = "Registration for " + Model.ConferenceName;
 }
 <h2>
     Choose seats</h2>
@@ -27,7 +27,7 @@
                     </td>
                     <td align="right">@Html.DisplayFor(model => model.Seats[i].Price)
                     </td>
-                    <td align="right">@Html.EditorFor(model => model.Seats[i].Quantity)
+                    <td align="right">@Html.DropDownListFor(model => model.Seats[i].Quantity, new SelectList(Enumerable.Range(0, 20)))
                         @Html.HiddenFor(model => model.Seats[i].SeatId)
                     </td>
                 </tr>

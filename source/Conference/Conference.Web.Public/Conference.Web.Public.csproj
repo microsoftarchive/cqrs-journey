@@ -97,6 +97,8 @@
     <Content Include="Views\Registration\ChooseSeats.cshtml" />
     <Content Include="Views\Registration\ChoosePayment.cshtml" />
     <Content Include="Views\Registration\RegistrationConfirmed.cshtml" />
+    <Content Include="Views\Registration\ReservationUnknown.cshtml" />
+    <Content Include="Views\Registration\ReservationRejected.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

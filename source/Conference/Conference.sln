@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common", "Azure\Azure
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Web.Public", "Conference.Web.Public\Conference.Web.Public.csproj", "{32E3E4D7-D887-4BE1-A84F-130BF80533D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Web.Public.Tests", "Conference.Web.Public.Tests\Conference.Web.Public.Tests.csproj", "{354FEDBD-DDAD-4242-8D39-7373001480CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,16 @@ Global
 		{32E3E4D7-D887-4BE1-A84F-130BF80533D0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{32E3E4D7-D887-4BE1-A84F-130BF80533D0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{32E3E4D7-D887-4BE1-A84F-130BF80533D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{354FEDBD-DDAD-4242-8D39-7373001480CC}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

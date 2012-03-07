@@ -17,7 +17,11 @@ namespace Registration.Handlers
     using Common;
     using Registration.Commands;
 
-    public class RegistrationCommandHandler : ICommandHandler<RegisterToConference>, ICommandHandler<MarkOrderAsBooked>, ICommandHandler<ExpireSeatReservation>
+    public class RegistrationCommandHandler
+        : ICommandHandler<RegisterToConference>,
+        ICommandHandler<MarkOrderAsBooked>,
+        ICommandHandler<RejectOrder>,
+        ICommandHandler<ExpireSeatReservation>
     {
         private Func<IRepository> repositoryFactory;
 
@@ -51,6 +55,22 @@ namespace Registration.Handlers
                 if (order != null)
                 {
                     order.MarkAsBooked();
+                    repository.Save(order);
+                }
+            }
+        }
+
+        public void Handle(RejectOrder command)
+        {
+            var repository = this.repositoryFactory();
+
+            using (repository as IDisposable)
+            {
+                var order = repository.Find<Order>(command.OrderId);
+
+                if (order != null)
+                {
+                    order.Reject();
                     repository.Save(order);
                 }
             }
