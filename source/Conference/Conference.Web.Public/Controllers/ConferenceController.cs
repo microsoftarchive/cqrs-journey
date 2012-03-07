@@ -19,10 +19,6 @@ namespace Conference.Web.Public.Controllers
     {
         private IConferenceReadModel conferenceReadModel;
 
-        public ConferenceController()
-            : this(MvcApplication.GetService<IConferenceReadModel>())
-        { }
-
         public ConferenceController(IConferenceReadModel conferenceReadModel)
         {
             this.conferenceReadModel = conferenceReadModel;

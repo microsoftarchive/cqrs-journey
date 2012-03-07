@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppRoutes.cs" />
+    <Compile Include="CompositionRoot.cs" />
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />

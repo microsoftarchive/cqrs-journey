@@ -28,11 +28,6 @@ namespace Conference.Web.Public.Controllers
         private ICommandBus commandBus;
         private IOrderReadModel orderReadModel;
 
-        public RegistrationController()
-            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<IOrderReadModel>())
-        {
-        }
-
         public RegistrationController(ICommandBus commandBus, IOrderReadModel orderReadModel)
         {
             this.commandBus = commandBus;
