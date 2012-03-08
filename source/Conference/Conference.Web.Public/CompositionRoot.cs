@@ -41,7 +41,7 @@ namespace Conference.Web.Public
         internal static ConstructorInfo GetModestConstructor(this Type type)
         {
             return (from ci in type.GetConstructors(
-                     BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Instance)
+                     BindingFlags.Public | BindingFlags.Instance)
                     orderby ci.GetParameters().Length ascending
                     select ci).First();
         }
