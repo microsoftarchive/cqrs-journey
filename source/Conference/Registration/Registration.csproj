@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommitSeatReservation.cs" />
-    <Compile Include="Commands\DelayCommand.cs" />
     <Compile Include="Commands\ExpireSeatReservation.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
@@ -60,7 +59,6 @@
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
     <Compile Include="Handlers\ConferenceSeatsAvailabilityHandler.cs" />
-    <Compile Include="Handlers\MemoryDelayCommandHandler.cs" />
     <Compile Include="Handlers\RegistrationCommandHandler.cs" />
     <Compile Include="Handlers\RegistrationProcessSagaHandler.cs" />
     <Compile Include="Order.cs" />

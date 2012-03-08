@@ -29,13 +29,13 @@ namespace Registration
             public const int Completed = 0xFF;
         }
 
-        private List<ICommand> commands = new List<ICommand>();
+        private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
         public Guid Id { get; set; }
 
         public int State { get; set; }
 
-        public IEnumerable<ICommand> Commands
+        public IEnumerable<Envelope<ICommand>> Commands
         {
             get { return this.commands; }
         }
@@ -68,11 +68,10 @@ namespace Registration
                 this.State = SagaState.AwaitingPayment;
                 this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
                 this.commands.Add(
-                    new DelayCommand
-                        {
-                            SendDelay = TimeSpan.FromMinutes(15),
-                            Command = new ExpireSeatReservation { Id = message.ReservationId }
-                        });
+                    new Envelope<ICommand>(new ExpireSeatReservation { Id = message.ReservationId })
+                    {
+                        Delay = TimeSpan.FromMinutes(15),
+                    });
             }
             else
             {

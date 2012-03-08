@@ -12,11 +12,11 @@
 
 namespace Common
 {
-	using System.Collections.Generic;
-	
-	public interface ICommandBus
+    using System.Collections.Generic;
+
+    public interface ICommandBus
     {
-        void Send(ICommand command);
-		void Send(IEnumerable<ICommand> commands);
+        void Send(Envelope<ICommand> command);
+        void Send(IEnumerable<Envelope<ICommand>> commands);
     }
 }

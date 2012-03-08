@@ -10,27 +10,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Common
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using Common;
+    using System.Collections.Generic;
+    using System.Linq;
 
-	/// <summary>
-	/// A command that delays sending a command to the bus.
-	/// </summary>
-	public class DelayCommand : ICommand
-	{
-		public DelayCommand()
-		{
-			this.Id = Guid.NewGuid();
-		}
+    /// <summary>
+    /// Provides usability overloads for <see cref="ICommandBus"/>
+    /// </summary>
+    public static class CommandBusExtensions
+    {
+        public static void Send(this ICommandBus bus, ICommand command)
+        {
+            bus.Send(new Envelope<ICommand>(command));
+        }
 
-		public Guid Id { get; set; }
-
-		public TimeSpan SendDelay { get; set; }
-		public ICommand Command { get; set; }
-	}
+        public static void Send(this ICommandBus bus, IEnumerable<ICommand> commands)
+        {
+            bus.Send(commands.Select(x => new Envelope<ICommand>(x)));
+        }
+    }
 }

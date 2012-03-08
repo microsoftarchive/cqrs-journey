@@ -76,11 +76,6 @@ namespace Conference.Web.Public
 
             commandBus.Register(new ConferenceSeatsAvailabilityHandler(ormFactory));
 
-            /// This will be replaced with an AzureDelayCommandHandler that will 
-            /// leverage azure service bus capabilities for sending delayed messages.
-            commandBus.Register(new MemoryDelayCommandHandler(commandBus));
-
-
             services[typeof(ICommandBus)] = commandBus;
             services[typeof(IEventBus)] = eventBus;
             services[typeof(Func<IRepository>)] = ormFactory;

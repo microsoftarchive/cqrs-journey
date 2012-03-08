@@ -14,7 +14,6 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 {
     using System;
     using System.Linq;
-    using Common;
     using Registration.Commands;
     using Registration.Events;
     using Xunit;
@@ -48,13 +47,13 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         public void then_locks_seats()
         {
             Assert.Equal(1, sut.Commands.Count());
-            Assert.IsAssignableFrom<MakeSeatReservation>(sut.Commands.Single());
+            Assert.IsAssignableFrom<MakeSeatReservation>(sut.Commands.Select(x => x.Body).Single());
         }
 
         [Fact]
         public void then_reservation_is_requested_for_specific_conference()
         {
-            var reservation = (MakeSeatReservation)sut.Commands.Single();
+            var reservation = (MakeSeatReservation)sut.Commands.Select(x => x.Body).Single();
 
             Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
             Assert.Equal(2, reservation.NumberOfSeats);
@@ -63,7 +62,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_reservation_is_correlated_with_order_id()
         {
-            var reservation = (MakeSeatReservation)sut.Commands.Single();
+            var reservation = (MakeSeatReservation)sut.Commands.Select(x => x.Body).Single();
 
             Assert.Equal(orderPlaced.OrderId, reservation.Id);
         }
@@ -71,7 +70,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_saga_is_correlated_with_order_id()
         {
-            var reservation = (MakeSeatReservation)sut.Commands.Single();
+            var reservation = (MakeSeatReservation)sut.Commands.Select(x => x.Body).Single();
 
             Assert.Equal(orderPlaced.OrderId, sut.Id);
         }
@@ -112,7 +111,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_updates_order_status()
         {
-            var command = sut.Commands.OfType<MarkOrderAsBooked>().Single();
+            var command = sut.Commands.Select(x => x.Body).OfType<MarkOrderAsBooked>().Single();
 
             Assert.Equal(sut.Id, command.OrderId);
         }
@@ -120,11 +119,11 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_enqueues_expiration_message()
         {
-            var message = sut.Commands.OfType<DelayCommand>().Single();
+            var message = sut.Commands.Single(x => x.Body is ExpireSeatReservation);
 
-            Assert.Equal(TimeSpan.FromMinutes(15), message.SendDelay);
-            Assert.IsAssignableFrom<ExpireSeatReservation>(message.Command);
-            Assert.Equal(sut.Id, message.Command.Id);
+            Assert.Equal(TimeSpan.FromMinutes(15), message.Delay);
+            Assert.IsAssignableFrom<ExpireSeatReservation>(message.Body);
+            Assert.Equal(sut.Id, message.Body.Id);
         }
 
         [Fact]
@@ -149,7 +148,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_updates_order_status()
         {
-            var command = (RejectOrder)sut.Commands.Single();
+            var command = (RejectOrder)sut.Commands.Select(x => x.Body).Single();
 
             Assert.Equal(sut.Id, command.OrderId);
         }
@@ -189,7 +188,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_updates_order_status()
         {
-            var command = (RejectOrder)sut.Commands.Single();
+            var command = (RejectOrder)sut.Commands.Select(x => x.Body).Single();
 
             Assert.Equal(sut.Id, command.OrderId);
         }
