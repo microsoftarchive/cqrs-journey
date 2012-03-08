@@ -12,126 +12,127 @@
 
 namespace Registration.Tests
 {
-	using System;
-	using Registration.Database;
-	using Xunit;
-	using Common;
-	using System.Collections.Generic;
-	using System.Data.Entity;
-	using Moq;
+    using System;
+    using System.Collections.Generic;
+    using System.Data.Entity;
+    using System.Linq;
+    using Common;
+    using Moq;
+    using Registration.Database;
+    using Xunit;
 
-	public class OrmSagaRepositoryFixture
-	{
-		public OrmSagaRepositoryFixture()
-		{
-			using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
-			{
-				if (context.Database.Exists()) context.Database.Delete();
+    public class OrmSagaRepositoryFixture
+    {
+        public OrmSagaRepositoryFixture()
+        {
+            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            {
+                if (context.Database.Exists()) context.Database.Delete();
 
-				context.Database.Create();
-			}
-		}
+                context.Database.Create();
+            }
+        }
 
-		[Fact]
-		public void WhenSavingEntity_ThenCanRetrieveIt()
-		{
-			var id = Guid.NewGuid();
+        [Fact]
+        public void WhenSavingEntity_ThenCanRetrieveIt()
+        {
+            var id = Guid.NewGuid();
 
-			using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
-			{
-				var conference = new OrmTestSaga(id);
-				context.Save(conference);
-			}
+            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            {
+                var conference = new OrmTestSaga(id);
+                context.Save(conference);
+            }
 
-			using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
-			{
-				var conference = context.Find<OrmTestSaga>(id);
+            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            {
+                var conference = context.Find<OrmTestSaga>(id);
 
-				Assert.NotNull(conference);
-			}
-		}
+                Assert.NotNull(conference);
+            }
+        }
 
-		[Fact]
-		public void WhenSavingEntityTwice_ThenCanReloadIt()
-		{
-			var id = Guid.NewGuid();
+        [Fact]
+        public void WhenSavingEntityTwice_ThenCanReloadIt()
+        {
+            var id = Guid.NewGuid();
 
-			using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
-			{
-				var conference = new OrmTestSaga(id);
-				context.Save(conference);
-			}
+            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            {
+                var conference = new OrmTestSaga(id);
+                context.Save(conference);
+            }
 
-			using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
-			{
-				var conference = context.Find<OrmTestSaga>(id);
-				conference.Title = "CQRS Journey";
+            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            {
+                var conference = context.Find<OrmTestSaga>(id);
+                conference.Title = "CQRS Journey";
 
-				context.Save(conference);
+                context.Save(conference);
 
-				context.Entry(conference).Reload();
+                context.Entry(conference).Reload();
 
-				Assert.Equal("CQRS Journey", conference.Title);
-			}
-		}
+                Assert.Equal("CQRS Journey", conference.Title);
+            }
+        }
 
-		[Fact]
-		public void WhenEntityExposesEvent_ThenRepositoryPublishesIt()
-		{
-			var bus = new Mock<ICommandBus>();
-			var commands = new List<ICommand>();
+        [Fact]
+        public void WhenEntityExposesEvent_ThenRepositoryPublishesIt()
+        {
+            var bus = new Mock<ICommandBus>();
+            var commands = new List<ICommand>();
 
-			bus.Setup(x => x.Send(It.IsAny<IEnumerable<ICommand>>()))
-				.Callback<IEnumerable<ICommand>>(x => commands.AddRange(x));
+            bus.Setup(x => x.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))
+                .Callback<IEnumerable<Envelope<ICommand>>>(x => commands.AddRange(x.Select(e => e.Body)));
 
-			var command = new TestCommand();
+            var command = new TestCommand();
 
-			using (var context = new TestOrmSagaRepository(bus.Object))
-			{
-				var aggregate = new OrmTestSaga(Guid.NewGuid());
-				aggregate.AddCommand(command);
-				context.Save(aggregate);
-			}
+            using (var context = new TestOrmSagaRepository(bus.Object))
+            {
+                var aggregate = new OrmTestSaga(Guid.NewGuid());
+                aggregate.AddCommand(command);
+                context.Save(aggregate);
+            }
 
-			Assert.Equal(1, commands.Count);
-			Assert.True(commands.Contains(command));
-		}
+            Assert.Equal(1, commands.Count);
+            Assert.True(commands.Contains(command));
+        }
 
-		public class TestOrmSagaRepository : OrmSagaRepository
-		{
-			public TestOrmSagaRepository(ICommandBus commandBus)
-				: base("TestOrmSagaRepository", commandBus)
-			{
-			}
+        public class TestOrmSagaRepository : OrmSagaRepository
+        {
+            public TestOrmSagaRepository(ICommandBus commandBus)
+                : base("TestOrmSagaRepository", commandBus)
+            {
+            }
 
-			public DbSet<OrmTestSaga> TestSagas { get; set; }
-		}
+            public DbSet<OrmTestSaga> TestSagas { get; set; }
+        }
 
-		public class TestCommand : ICommand
-		{
-			public Guid Id { get; set; }
-		}
-	}
+        public class TestCommand : ICommand
+        {
+            public Guid Id { get; set; }
+        }
+    }
 
-	public class OrmTestSaga : IAggregateRoot, ICommandPublisher
-	{
-		private List<ICommand> commands = new List<ICommand>();
+    public class OrmTestSaga : IAggregateRoot, ICommandPublisher
+    {
+        private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
-		protected OrmTestSaga() { }
+        protected OrmTestSaga() { }
 
-		public OrmTestSaga(Guid id)
-		{
-			this.Id = id;
-		}
+        public OrmTestSaga(Guid id)
+        {
+            this.Id = id;
+        }
 
-		public Guid Id { get; set; }
-		public string Title { get; set; }
+        public Guid Id { get; set; }
+        public string Title { get; set; }
 
-		public void AddCommand(ICommand command)
-		{
-			this.commands.Add(command);
-		}
+        public void AddCommand(ICommand command)
+        {
+            this.commands.Add(Envelope.Create(command));
+        }
 
-		public IEnumerable<ICommand> Commands { get { return this.commands; } }
-	}
+        public IEnumerable<Envelope<ICommand>> Commands { get { return this.commands; } }
+    }
 }

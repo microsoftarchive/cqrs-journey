@@ -23,6 +23,7 @@ namespace Registration.ReadModel
         public Guid OrderId { get; private set; }
         public int StateValue { get; private set; }
 
+        // TODO: make enum
         public string State
         {
             get
