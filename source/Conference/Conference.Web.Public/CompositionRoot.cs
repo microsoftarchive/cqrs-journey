@@ -13,13 +13,18 @@ namespace Conference.Web.Public
 
         public CompositionRoot(IDictionary<Type, object> services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException("services");
+            }
+
             this.services = services;
         }
 
         protected override IController GetControllerInstance(RequestContext requestContext, Type controllerType)
         {
             IEnumerable<object> constructorArguments = controllerType
-                .GetModestConstructor().GetParameters().Select(pi => pi.ParameterType).Select(GetService);
+                .GetModestConstructor().GetParameters().Select(pi => pi.ParameterType).Select(this.GetService);
 
             return (IController)Activator.CreateInstance(controllerType, constructorArguments.ToArray());
         }
@@ -27,7 +32,7 @@ namespace Conference.Web.Public
         private object GetService(Type serviceType)
         {
             object instance;
-            if (!services.TryGetValue(serviceType, out instance))
+            if (!this.services.TryGetValue(serviceType, out instance))
             {
                 return null;
             }
