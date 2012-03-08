@@ -24,7 +24,7 @@ namespace Registration.Tests.OrderFixture
     {
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
-        private static readonly string TicketTypeId = "testSeat";
+        private static readonly Guid TicketTypeId = Guid.NewGuid();
         private static readonly Guid UserId = Guid.NewGuid();
 
         private Order sut;
@@ -82,7 +82,7 @@ namespace Registration.Tests.OrderFixture
     {
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
-        private static readonly string TicketTypeId = "testSeat";
+        private static readonly Guid TicketTypeId = Guid.NewGuid();
         private static readonly Guid UserId = Guid.NewGuid();
 
         private Order sut;

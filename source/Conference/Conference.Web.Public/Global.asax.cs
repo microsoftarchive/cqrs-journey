@@ -82,9 +82,6 @@ namespace Conference.Web.Public
             services[typeof(Func<ISagaRepository>)] = sagaOrmFactory;
             services[typeof(Func<IViewRepository>)] = viewOrmFactory;
 
-            // TODO: remove
-            services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
-
             return services;
         }
 

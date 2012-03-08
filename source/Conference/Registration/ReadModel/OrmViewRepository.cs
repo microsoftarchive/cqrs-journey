@@ -41,6 +41,9 @@ namespace Registration.ReadModel
 
             // Make the name of the views match exactly the name of the corresponding property.
             modelBuilder.Entity<OrderDTO>().ToTable("OrdersView");
+            modelBuilder.Entity<ConferenceDTO>().ToTable("ConferencesView");
+            modelBuilder.Entity<ConferenceDTO>().HasMany(c => c.Seats).WithRequired().Map(c => c.MapKey("ConferencesView_Id"));
+            modelBuilder.Entity<ConferenceSeatDTO>().ToTable("ConferenceSeatsView");
         }
 
         public T Find<T>(Guid id) where T : class

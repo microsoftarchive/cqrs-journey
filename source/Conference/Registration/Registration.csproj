@@ -68,9 +68,7 @@
     <Compile Include="ConferenceSeatsAvailability.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
     <Compile Include="ReadModel\ConferenceDTO.cs" />
-    <Compile Include="ReadModel\ConferenceReadModel.cs" />
     <Compile Include="ReadModel\ConferenceSeatDTO.cs" />
-    <Compile Include="ReadModel\IConferenceReadModel.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
     <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
     <Compile Include="ReadModel\OrmViewRepository.cs" />

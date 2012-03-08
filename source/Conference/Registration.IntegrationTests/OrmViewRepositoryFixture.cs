@@ -41,7 +41,7 @@ namespace Registration.IntegrationTests
 
             using (var context = new OrmRepository("TestOrmRepository"))
             {
-                var order = new Order(orderId, Guid.NewGuid(), Guid.NewGuid(), new[] { new TicketOrderLine("PUBLIC", 5) });
+                var order = new Order(orderId, Guid.NewGuid(), Guid.NewGuid(), new[] { new TicketOrderLine(Guid.NewGuid(), 5) });
                 order.MarkAsBooked();
                 context.Save(order);
             }

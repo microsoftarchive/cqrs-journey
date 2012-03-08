@@ -17,6 +17,13 @@ namespace Registration.ReadModel
 
     public class OrderDTO
     {
+        public OrderDTO(Guid orderId, int stateValue)
+            : this()
+        {
+            this.OrderId = orderId;
+            this.StateValue = stateValue;
+        }
+
         protected OrderDTO() { }
 
         [Key]

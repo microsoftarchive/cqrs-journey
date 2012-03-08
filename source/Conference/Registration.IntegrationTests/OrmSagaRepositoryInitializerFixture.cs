@@ -23,7 +23,7 @@ namespace Registration.IntegrationTests
         {
             var initializer = new OrmSagaRepositoryInitializer(new DropCreateDatabaseAlways<OrmSagaRepository>());
 
-            using (var context = new OrmSagaRepository())
+            using (var context = new OrmSagaRepository("TestOrmSagaRepository"))
             {
                 initializer.InitializeDatabase(context);
             }

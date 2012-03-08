@@ -40,18 +40,18 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult ChooseSeats(string conferenceName)
+        public ActionResult ChooseSeats(string conferenceCode)
         {
-            var registration = CreateRegistration(conferenceName);
+            var registration = CreateRegistration(conferenceCode);
             registration.Id = Guid.NewGuid();
 
             return View(registration);
         }
 
         [HttpPost]
-        public ActionResult ChoosePayment(string conferenceName, Registration contentModel)
+        public ActionResult ChoosePayment(string conferenceCode, Registration contentModel)
         {
-            var registration = UpdateRegistration(conferenceName, contentModel);
+            var registration = UpdateRegistration(conferenceCode, contentModel);
 
             var command =
                 new RegisterToConference
@@ -82,7 +82,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult ConfirmRegistration(string conferenceName, Registration contentModel)
+        public ActionResult ConfirmRegistration(string conferenceCode, Registration contentModel)
         {
             var registration = contentModel;
 
@@ -98,21 +98,28 @@ namespace Conference.Web.Public.Controllers
             return View("RegistrationConfirmed");
         }
 
-        private Registration CreateRegistration(string conferenceName)
+        private Registration CreateRegistration(string conferenceCode)
         {
+            var conference =
+                this.repositoryFactory().Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
+
+            // TODO check null case
+
             var registration =
                 new Registration
                 {
-                    ConferenceName = conferenceName,
-                    Seats = { new Seat { SeatId = "testSeat", SeatDescription = "Test seat", Price = 100f } }
+                    ConferenceId = conference.Id,
+                    ConferenceCode = conference.Code,
+                    ConferenceName = conference.Name,
+                    Seats = conference.Seats.Select(s => new Seat { SeatId = s.Id, SeatDescription = s.Description, Price = s.Price }).ToList()
                 };
 
             return registration;
         }
 
-        private Registration UpdateRegistration(string conferenceName, Registration contentModel)
+        private Registration UpdateRegistration(string conferenceCode, Registration contentModel)
         {
-            var reservation = this.CreateRegistration(conferenceName);
+            var reservation = this.CreateRegistration(conferenceCode);
             reservation.Id = contentModel.Id;
 
             for (int i = 0; i < reservation.Seats.Count; i++)
