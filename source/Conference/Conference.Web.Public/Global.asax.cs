@@ -10,6 +10,9 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System.Linq;
+using System.Reflection;
+
 namespace Conference.Web.Public
 {
     using System;
@@ -41,6 +44,8 @@ namespace Conference.Web.Public
 
             Database.SetInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>()));
             Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
+
+            ControllerBuilder.Current.SetControllerFactory(new CompositionRoot(services));
         }
 
         public static IDictionary<Type, object> GetDefaultServices()
@@ -71,18 +76,6 @@ namespace Conference.Web.Public
             services[typeof(IConferenceReadModel)] = new ConferenceReadModel();
 
             return services;
-        }
-
-        public static T GetService<T>()
-            where T : class
-        {
-            object service;
-            if (!services.TryGetValue(typeof(T), out service))
-            {
-                return null;
-            }
-
-            return service as T;
         }
     }
 }
