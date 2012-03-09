@@ -21,7 +21,6 @@ namespace Registration.Database
     public class OrmSagaRepository : DbContext, ISagaRepository
     {
         private ICommandBus commandBus;
-        private EntityPersister persister;
 
         public OrmSagaRepository()
             : this("ConferenceRegistrationSagas")
@@ -42,7 +41,6 @@ namespace Registration.Database
             : base(nameOrConnectionString)
         {
             this.commandBus = commandBus;
-            this.persister = new EntityPersister(this);
         }
 
         public T Find<T>(Guid id) where T : class, IAggregateRoot
@@ -59,7 +57,8 @@ namespace Registration.Database
         {
             var entry = this.Entry(aggregate);
 
-            this.persister.Persist(aggregate);
+            if (entry.State == System.Data.EntityState.Detached)
+                this.Set<T>().Add(aggregate);
 
             using (var scope = new TransactionScope())
             {

@@ -20,7 +20,6 @@ namespace Registration.Database
     public class OrmRepository : DbContext, IRepository
     {
         private IEventBus eventBus;
-        private EntityPersister persister;
 
         public OrmRepository()
             : this("ConferenceRegistration")
@@ -41,7 +40,6 @@ namespace Registration.Database
             : base(nameOrConnectionString)
         {
             this.eventBus = eventBus;
-            this.persister = new EntityPersister(this);
         }
 
         public T Find<T>(Guid id) where T : class, IAggregateRoot
@@ -53,7 +51,8 @@ namespace Registration.Database
         {
             var entry = this.Entry(aggregate);
 
-            this.persister.Persist(aggregate);
+            if (entry.State == System.Data.EntityState.Detached)
+                this.Set<T>().Add(aggregate);
 
             using (var scope = new TransactionScope())
             {

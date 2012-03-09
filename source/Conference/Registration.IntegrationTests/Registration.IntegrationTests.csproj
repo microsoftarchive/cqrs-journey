@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="ConferenceSeatsAvailabilityIntegration.cs" />
     <Compile Include="OrmSagaRepositoryInitializerFixture.cs" />
-    <Compile Include="EntityPersisterFixture.cs" />
+    <Compile Include="OrmPersistenceFixture.cs" />
     <Compile Include="OrmPersistenceProvider.cs" />
     <Compile Include="OrmRepositoryFixture.cs" />
     <Compile Include="OrmRepositoryInitializerFixture.cs" />

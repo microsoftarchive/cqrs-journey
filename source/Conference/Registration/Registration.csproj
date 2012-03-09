@@ -54,7 +54,6 @@
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
-    <Compile Include="Database\EntityPersister.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
     <Compile Include="Events\ReservationRejected.cs" />
