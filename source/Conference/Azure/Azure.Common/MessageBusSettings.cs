@@ -10,36 +10,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.Common
+namespace Azure
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
+    public class MessageBusSettings
+    {
+        public MessageBusSettings()
+        {
+            this.Topic = string.Empty;
 
-	public class MessageBusSettings
-	{
-		public MessageBusSettings()
-		{
-			this.Topic = string.Empty;
-			this.Subscription = string.Empty;
+            this.ServiceUriScheme = string.Empty;
+            this.ServiceNamespace = string.Empty;
+            this.ServicePath = string.Empty;
 
-			this.ServiceUriScheme = string.Empty;
-			this.ServiceNamespace = string.Empty;
-			this.ServicePath = string.Empty;
+            this.TokenIssuer = string.Empty;
+            this.TokenAccessKey = string.Empty;
+        }
 
-			this.TokenIssuer = string.Empty;
-			this.TokenAccessKey = string.Empty;
-		}
+        public string ServiceUriScheme { get; set; }
+        public string ServiceNamespace { get; set; }
+        public string ServicePath { get; set; }
 
-		public string Topic { get; set; }
-		public string Subscription { get; set; }
+        public string TokenIssuer { get; set; }
+        public string TokenAccessKey { get; set; }
 
-		public string ServiceUriScheme { get; set; }
-		public string ServiceNamespace { get; set; }
-		public string ServicePath { get; set; }
-
-		public string TokenIssuer { get; set; }
-		public string TokenAccessKey { get; set; }
-	}
+        public string Topic { get; set; }
+    }
 }
