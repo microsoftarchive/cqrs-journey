@@ -20,8 +20,7 @@ namespace Registration.Handlers
     public class RegistrationCommandHandler
         : ICommandHandler<RegisterToConference>,
         ICommandHandler<MarkOrderAsBooked>,
-        ICommandHandler<RejectOrder>,
-        ICommandHandler<ExpireSeatReservation>
+        ICommandHandler<RejectOrder>
     {
         private Func<IRepository> repositoryFactory;
 
@@ -74,11 +73,6 @@ namespace Registration.Handlers
                     repository.Save(order);
                 }
             }
-        }
-
-        public void Handle(ExpireSeatReservation command)
-        {
-            throw new NotImplementedException();
         }
     }
 }

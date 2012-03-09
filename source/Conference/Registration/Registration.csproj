@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommitSeatReservation.cs" />
+    <Compile Include="Commands\CancelSeatReservation.cs" />
     <Compile Include="Commands\ExpireSeatReservation.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
