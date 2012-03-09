@@ -10,12 +10,26 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
+$scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path 
+$solutionFolder = Join-Path $scriptPath 'source\Conference'
+
+$packageFiles = Get-Item "$solutionFolder\**\packages.config"
+
+# get all the packages to install
+$packages = @()
+$packageFiles | ForEach-Object { 
+    $xml = new-object "System.Xml.XmlDocument"
+    $xml.Load($_.FullName)
+    $xml | Select-Xml -XPath '//packages/package' | 
+        Foreach { $packages += " - "+ $_.Node.id + " v" + $_.Node.version }
+}
+$packages = $packages | select -uniq
+$packages = [system.string]::Join("`r`n", $packages)
+
+# prompt to continue
 $caption = "DOWLOADING NUGET PACKAGE DEPENDENCIES";
 $message = "You are about to automatically download the following NuGet package dependencies required to build the sample application:
- - EntityFramework.4.3.1
- - Moq.4.0.10827
- - xunit.1.9.0.1566
- - SpecFlow.1.8.1
+" + $packages + "
  
 Microsoft grants you no rights for third party software.  You are responsible for and must locate and read the license terms for each of the above packages. The owners of the above packages are solely responsible for their content and behavior. Microsoft gives no express warranties, guarantees or conditions.
 Do you want to proceed?";
@@ -30,8 +44,7 @@ switch ($answer){
     1 { exit; break }
 } 
 
-$scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path 
-
+# copy NuGet.exe bootstrapper to a temp folder if it's not there (this is to avoid distributing hte full version of NuGet, and avoiding source control issues with updates).
 $nuget = Join-Path $scriptPath 'build\temp\NuGet.exe'
 $nugetExists = Test-Path $nuget
 
@@ -43,11 +56,9 @@ if ($nugetExists -eq 0)
 	copy $nugetOriginal -Destination $nuget -Force
 }
 
-$solutionFolder = Join-Path $scriptPath 'source\Conference'
-
-# TODO: List all dependencies and prompt to continue
 pushd $solutionFolder
 
-Get-Item **\packages.config | ForEach-Object { & $nuget install $_.FullName -o packages }
+# install the packages
+$packageFiles | ForEach-Object { & $nuget install $_.FullName -o packages }
 
 popd
