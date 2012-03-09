@@ -18,12 +18,12 @@ $packageFiles = Get-Item "$solutionFolder\**\packages.config"
 # get all the packages to install
 $packages = @()
 $packageFiles | ForEach-Object { 
-    $xml = new-object "System.Xml.XmlDocument"
+    $xml = New-Object "System.Xml.XmlDocument"
     $xml.Load($_.FullName)
     $xml | Select-Xml -XPath '//packages/package' | 
         Foreach { $packages += " - "+ $_.Node.id + " v" + $_.Node.version }
 }
-$packages = $packages | select -uniq
+$packages = $packages | Select -uniq
 $packages = [system.string]::Join("`r`n", $packages)
 
 # prompt to continue
@@ -34,8 +34,8 @@ $message = "You are about to automatically download the following NuGet package 
 Microsoft grants you no rights for third party software.  You are responsible for and must locate and read the license terms for each of the above packages. The owners of the above packages are solely responsible for their content and behavior. Microsoft gives no express warranties, guarantees or conditions.
 Do you want to proceed?";
 
-$yes = new-Object System.Management.Automation.Host.ChoiceDescription "&Yes","I agree to download the NuGet packages dependencies.";
-$no = new-Object System.Management.Automation.Host.ChoiceDescription "&No","I do not agree to download the NuGet packages dependencies.";
+$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes","I agree to download the NuGet packages dependencies.";
+$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No","I do not agree to download the NuGet packages dependencies.";
 $choices = [System.Management.Automation.Host.ChoiceDescription[]]($yes,$no);
 $answer = $host.ui.PromptForChoice($caption,$message,$choices,1) 
 
@@ -44,7 +44,7 @@ switch ($answer){
     1 { exit; break }
 } 
 
-# copy NuGet.exe bootstrapper to a temp folder if it's not there (this is to avoid distributing hte full version of NuGet, and avoiding source control issues with updates).
+# copy NuGet.exe bootstrapper to a temp folder if it's not there (this is to avoid distributing the full version of NuGet, and avoiding source control issues with updates).
 $nuget = Join-Path $scriptPath 'build\temp\NuGet.exe'
 $nugetExists = Test-Path $nuget
 
@@ -53,7 +53,7 @@ if ($nugetExists -eq 0)
 	$tempFolder = Join-Path $scriptPath 'build\temp\'
 	mkdir $tempFolder -Force > $null
 	$nugetOriginal = Join-Path $scriptPath 'build\NuGet.exe'
-	copy $nugetOriginal -Destination $nuget -Force
+	Copy-Item $nugetOriginal -Destination $nuget -Force
 }
 
 pushd $solutionFolder
