@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure
+namespace Azure.Messaging
 {
     using System;
     using System.IO;
@@ -19,13 +19,13 @@ namespace Azure
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
-    public class MessageSender
+    public class Sender
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly BusSettings settings;
 
-        public MessageSender(BusSettings settings)
+        public Sender(BusSettings settings)
         {
             this.settings = settings;
 

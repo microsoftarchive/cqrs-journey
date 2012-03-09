@@ -15,6 +15,7 @@ namespace Azure.Tests
     using System;
     using Common;
     using Xunit;
+    using Azure.Messaging;
 
     public class GivenAMessageSender
     {
@@ -23,7 +24,7 @@ namespace Azure.Tests
         {
 
 
-            var sender = new MessageSender(new BusSettings
+            var sender = new Sender(new BusSettings
             {
                 ServiceNamespace = "danielkzu",
                 ServiceUriScheme = "sb",

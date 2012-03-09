@@ -46,7 +46,7 @@
     <Compile Include="CommandProcessor.cs" />
     <Compile Include="MessageReceiver.cs" />
     <Compile Include="BusSettings.cs" />
-    <Compile Include="MessageSender.cs" />
+    <Compile Include="Messaging\Sender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

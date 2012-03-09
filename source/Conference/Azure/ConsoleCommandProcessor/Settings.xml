@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<MessageBusSettings>
+<BusSettings>
     <ServiceUriScheme>sb</ServiceUriScheme>
     <ServiceNamespace>danielkzu</ServiceNamespace>
     <ServicePath></ServicePath>
     <TokenIssuer>owner</TokenIssuer>
     <TokenAccessKey></TokenAccessKey>
     <Topic>commands</Topic>
-</MessageBusSettings>
+</BusSettings>
