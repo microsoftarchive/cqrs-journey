@@ -23,25 +23,40 @@ namespace Azure
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly MessageBusSettings settings;
+        private readonly BusSettings settings;
 
-        public MessageSender(MessageBusSettings settings)
+        public MessageSender(BusSettings settings)
         {
             this.settings = settings;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+
+            try
+            {
+                new NamespaceManager(this.serviceUri, this.tokenProvider)
+                    .CreateTopic(
+                        new TopicDescription(settings.Topic)
+                        {
+                            RequiresDuplicateDetection = true,
+                            DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30)
+                        });
+            }
+            catch (MessagingEntityAlreadyExistsException)
+            { }
         }
 
         public void Send<T>(Envelope<T> message)
         {
             var serializer = new DataContractJsonSerializer(message.GetType());
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
-            var commandSender = factory.CreateMessageSender(this.settings.Topic);
+            var sender = factory.CreateMessageSender(this.settings.Topic);
 
-            var brokeredMessage = new BrokeredMessage(Serialize(message));
+            var brokeredMessage = new BrokeredMessage(Serialize(message.Body));
             brokeredMessage.Properties["Type"] = message.GetType().FullName;
-            commandSender.Send(brokeredMessage);
+            brokeredMessage.Properties["Assembly"] = Path.GetFileNameWithoutExtension(message.GetType().Assembly.ManifestModule.FullyQualifiedName);
+
+            sender.Send(brokeredMessage);
         }
 
         private static string Serialize(object payload)

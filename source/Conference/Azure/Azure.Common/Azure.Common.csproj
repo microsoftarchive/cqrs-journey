@@ -42,8 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandBus.cs" />
+    <Compile Include="CommandProcessor.cs" />
     <Compile Include="MessageReceiver.cs" />
-    <Compile Include="MessageBusSettings.cs" />
+    <Compile Include="BusSettings.cs" />
     <Compile Include="MessageSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

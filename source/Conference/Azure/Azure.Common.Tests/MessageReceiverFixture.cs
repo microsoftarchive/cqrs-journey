@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Azure.Common.Tests
+namespace Azure.Tests
 {
     using Xunit;
 
@@ -13,8 +13,6 @@ namespace Azure.Common.Tests
         [Fact]
         public void WhenWritingSettings_ThenCanReload()
         {
-            //new System.Xaml.XamlReader
-
         }
     }
 }

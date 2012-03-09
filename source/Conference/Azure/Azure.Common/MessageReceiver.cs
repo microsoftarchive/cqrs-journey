@@ -13,47 +13,76 @@
 namespace Azure
 {
     using System;
-    using System.IO;
-    using System.Runtime.Serialization.Json;
     using System.Threading;
-    using Common;
+    using System.Threading.Tasks;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
+    using Azure = Microsoft.ServiceBus.Messaging;
 
     public class MessageReceiver
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly MessageBusSettings settings;
+        private readonly BusSettings settings;
+        private CancellationTokenSource cancellationSource;
+        private Azure.MessageReceiver messageReceiver;
 
-        public MessageReceiver(MessageBusSettings settings, CancellationToken cancellationToken)
+        public MessageReceiver(BusSettings settings)
         {
             this.settings = settings;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+
+            var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
+            this.messageReceiver = messagingFactory.CreateMessageReceiver(@"Commands/subscriptions/All");
         }
 
-        public void Send<T>(Envelope<T> message)
+        public void Start()
         {
-            var serializer = new DataContractJsonSerializer(message.GetType());
-            var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
-            var commandSender = factory.CreateMessageSender(this.settings.Topic);
+            if (this.cancellationSource != null)
+                throw new InvalidOperationException();
 
-            var brokeredMessage = new BrokeredMessage(Serialize(message));
-            brokeredMessage.Properties["Type"] = message.GetType().FullName;
-            commandSender.Send(brokeredMessage);
+            this.cancellationSource = new CancellationTokenSource();
+
+            Task.Factory.StartNew(() =>
+                {
+                    while (true)
+                    {
+                        var message = this.messageReceiver.Receive();
+
+                        if (message == null)
+                        {
+                            Thread.Sleep(500);
+                            continue;
+                        }
+
+                        try
+                        {
+                            var type = (string)message.Properties["Type"];
+                            var payloadString = message.GetBody<string>();
+
+                            // var payload = (T)Deserialize(payloadString);
+
+                            message.Complete();
+                        }
+                        catch (Exception e)
+                        {
+                            message.Abandon();
+                            throw e;
+                        }
+                    }
+                },
+                this.cancellationSource.Token);
         }
 
-        private static string Serialize(object payload)
+        public void Stop()
         {
-            var serializer = new DataContractJsonSerializer(payload.GetType());
-            using (var stream = new MemoryStream())
-            {
-                serializer.WriteObject(stream, payload);
+            if (this.cancellationSource == null)
+                throw new InvalidOperationException();
 
-                return Convert.ToBase64String(stream.ToArray());
-            }
+            this.cancellationSource.Cancel();
+            this.cancellationSource = null;
         }
     }
 }
