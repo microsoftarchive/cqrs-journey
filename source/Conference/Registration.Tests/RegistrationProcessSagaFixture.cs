@@ -176,19 +176,31 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 
     public class when_reservation_is_expired : given_saga_awaiting_payment
     {
+        protected Guid ConferenceId = Guid.NewGuid();
+
         public when_reservation_is_expired()
         {
             var expireReservation = new ExpireReservation
             {
                 Id = sut.Id,
+                ConferenceId = ConferenceId
             };
             sut.Handle(expireReservation);
         }
 
         [Fact]
+        public void then_cancels_seat_reservation()
+        {
+            var command = sut.Commands.Select(x => x.Body).OfType<CancelSeatReservation>().Single();
+
+            Assert.Equal(sut.Id, command.ReservationId);
+            Assert.Equal(ConferenceId, command.ConferenceId);
+        }
+
+        [Fact]
         public void then_updates_order_status()
         {
-            var command = (RejectOrder)sut.Commands.Select(x => x.Body).Single();
+            var command = sut.Commands.Select(x => x.Body).OfType<RejectOrder>().Single();
 
             Assert.Equal(sut.Id, command.OrderId);
         }

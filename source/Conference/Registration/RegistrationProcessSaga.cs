@@ -97,6 +97,7 @@ namespace Registration
             if (this.State == SagaState.AwaitingPayment)
             {
                 this.State = SagaState.Completed;
+                this.commands.Add(new CancelSeatReservation { ReservationId = message.Id, ConferenceId = message.ConferenceId });
                 this.commands.Add(new RejectOrder { OrderId = message.Id });
             }
 
