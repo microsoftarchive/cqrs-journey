@@ -46,17 +46,27 @@ namespace Azure.Messaging
             { }
         }
 
+        /// <summary>
+        /// Asynchronously sends the specified message.
+        /// </summary>
         public void Send<T>(Envelope<T> message)
         {
-            var serializer = new DataContractJsonSerializer(message.GetType());
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
-            var sender = factory.CreateMessageSender(this.settings.Topic);
+            var client = factory.CreateTopicClient(this.settings.Topic);
 
             var brokeredMessage = new BrokeredMessage(Serialize(message.Body));
             brokeredMessage.Properties["Type"] = message.GetType().FullName;
             brokeredMessage.Properties["Assembly"] = Path.GetFileNameWithoutExtension(message.GetType().Assembly.ManifestModule.FullyQualifiedName);
 
-            sender.Send(brokeredMessage);
+            // Always send async.
+            client.BeginSend(brokeredMessage, new AsyncCallback(this.OnSendCompleted), client);
+        }
+
+        private void OnSendCompleted(IAsyncResult result)
+        {
+            var client = (TopicClient)result.AsyncState;
+
+            client.EndSend(result);
         }
 
         private static string Serialize(object payload)

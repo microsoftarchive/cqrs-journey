@@ -13,19 +13,33 @@
 namespace Azure
 {
     using System.Collections.Generic;
+    using Azure.Messaging;
     using Common;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// A command bus that sends commands to a service bus queue.
     /// </summary>
     public class CommandBus : ICommandBus
     {
+        private Sender sender;
+
+        public CommandBus(BusSettings settings)
+        {
+            this.sender = new Sender(settings);
+        }
+
         public void Send(Envelope<ICommand> command)
         {
+            this.sender.Send(command);
         }
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
+            // TODO: batch/transactional sending?
+            foreach (var command in commands)
+            {
+                this.Send(command);
+            }
         }
     }
 }

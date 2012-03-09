@@ -27,6 +27,8 @@ namespace Azure
         private CancellationTokenSource cancellationSource;
         private Azure.MessageReceiver messageReceiver;
 
+
+
         public MessageReceiver(BusSettings settings)
         {
             this.settings = settings;

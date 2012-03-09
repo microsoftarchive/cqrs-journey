@@ -23,7 +23,7 @@ namespace Azure.Tests
         public void WhenReceivingCommand_ThenCanCallHandlers()
         {
             var processor = new CommandProcessor();
-            var bus = new CommandBus();
+            var bus = new CommandBus(new BusSettings());
 
             var e = new ManualResetEvent(false);
             var handler = new FooCommandHandler(e);

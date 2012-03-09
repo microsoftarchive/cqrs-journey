@@ -13,17 +13,15 @@
 namespace Azure.Tests
 {
     using System;
+    using Azure.Messaging;
     using Common;
     using Xunit;
-    using Azure.Messaging;
 
     public class GivenAMessageSender
     {
         [Fact]
         public void WhenSendingMessage_ThenSucceeds()
         {
-
-
             var sender = new Sender(new BusSettings
             {
                 ServiceNamespace = "danielkzu",
