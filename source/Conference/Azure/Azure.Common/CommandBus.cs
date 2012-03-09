@@ -21,11 +21,11 @@ namespace Azure
     /// </summary>
     public class CommandBus : ICommandBus
     {
-        private Sender sender;
+        private TopicSender sender;
 
         public CommandBus(BusSettings settings)
         {
-            this.sender = new Sender(settings);
+            this.sender = new TopicSender(settings);
         }
 
         public void Send(Envelope<ICommand> command)

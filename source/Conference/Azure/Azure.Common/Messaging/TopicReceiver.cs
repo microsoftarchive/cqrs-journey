@@ -17,19 +17,16 @@ namespace Azure
     using System.Threading.Tasks;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
-    using Azure = Microsoft.ServiceBus.Messaging;
 
-    public class MessageReceiver
+    public class Receiver
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly BusSettings settings;
         private CancellationTokenSource cancellationSource;
-        private Azure.MessageReceiver messageReceiver;
+        private MessageReceiver messageReceiver;
 
-
-
-        public MessageReceiver(BusSettings settings)
+        public Receiver(BusSettings settings)
         {
             this.settings = settings;
 

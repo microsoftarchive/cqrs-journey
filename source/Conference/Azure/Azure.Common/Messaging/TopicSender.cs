@@ -19,13 +19,13 @@ namespace Azure.Messaging
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
-    public class Sender
+    public class TopicSender
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly BusSettings settings;
 
-        public Sender(BusSettings settings)
+        public TopicSender(BusSettings settings)
         {
             this.settings = settings;
 
