@@ -18,7 +18,7 @@ namespace Azure
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
-    public class Receiver
+    public class TopicReceiver
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
@@ -26,7 +26,7 @@ namespace Azure
         private CancellationTokenSource cancellationSource;
         private MessageReceiver messageReceiver;
 
-        public Receiver(BusSettings settings)
+        public TopicReceiver(BusSettings settings)
         {
             this.settings = settings;
 
