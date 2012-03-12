@@ -12,29 +12,109 @@
 
 namespace Azure
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using Azure.Messaging;
     using Common;
+    using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
     /// Processes incoming messages from the bus and routes them to the appropriate 
     /// handlers.
     /// </summary>
-    public class CommandProcessor
+    public class CommandProcessor : IListener, IDisposable
     {
-        public CommandProcessor()
-        {
+        private List<ICommandHandler> handlers = new List<ICommandHandler>();
+        private IMessageReceiver receiver;
+        private ISerializer serializer;
 
+        public CommandProcessor(IMessageReceiver receiver, ISerializer serializer)
+        {
+            this.receiver = receiver;
+            this.serializer = serializer;
+
+            this.receiver.MessageReceived += this.OnMessageReceived;
         }
 
-        public void RegisterHandler(ICommandHandler commandHandler)
+        public void Register(ICommandHandler commandHandler)
         {
+            this.handlers.Add(commandHandler);
         }
 
         public void Start()
         {
+            this.receiver.Start();
         }
 
         public void Stop()
         {
+            this.receiver.Stop();
         }
+
+        public void Dispose()
+        {
+            var disposable = this.receiver as IDisposable;
+            if (disposable != null)
+                disposable.Dispose();
+        }
+
+        private void OnMessageReceived(object sender, BrokeredMessageEventArgs args)
+        {
+            // Grab type information from message properties.
+
+            object typeValue = null;
+            object assemblyValue = null;
+
+            if (args.Message.Properties.TryGetValue("Type", out typeValue) &&
+                args.Message.Properties.TryGetValue("Assembly", out assemblyValue))
+            {
+                var typeName = (string)args.Message.Properties["Type"];
+                var assemblyName = (string)args.Message.Properties["Assembly"];
+
+                var type = Type.GetType(typeName);
+
+                if (type != null)
+                {
+                    ReadMessage(args.Message, type);
+                    return;
+                }
+
+                var assembly = Assembly.LoadWithPartialName(assemblyName);
+                if (assembly != null)
+                {
+                    type = assembly.GetType(typeName);
+                    if (type != null)
+                    {
+                        ReadMessage(args.Message, type);
+                        return;
+                    }
+                }
+            }
+
+            // TODO: if we got here, it's 'cause we couldn't read the type.
+            // Should we throw? Log? Ignore?
+            args.Message.Async(args.Message.BeginAbandon, args.Message.EndAbandon);
+        }
+
+        private void ReadMessage(BrokeredMessage message, Type commandType)
+        {
+            using (var stream = message.GetBody<Stream>())
+            {
+                var command = this.serializer.Deserialize(stream, commandType);
+                var handlerType = typeof(ICommandHandler<>).MakeGenericType(commandType);
+
+                foreach (dynamic handler in this.handlers
+                    .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+                {
+                    handler.Handle((dynamic)command);
+                }
+            }
+
+            message.Async(message.BeginComplete, message.EndComplete);
+        }
+
     }
 }

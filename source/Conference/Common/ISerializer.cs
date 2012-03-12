@@ -10,34 +10,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.Tests
+namespace Common
 {
     using System;
-    using Azure.Messaging;
-    using Common;
-    using Xunit;
+    using System.IO;
 
-    public class GivenAMessageSender
+    /// <summary>
+    /// Interface for serializers that can read/write an object graph to a stream.
+    /// </summary>
+    public interface ISerializer
     {
-        [Fact]
-        public void WhenSendingMessage_ThenSucceeds()
-        {
-            var sender = new Sender(new BusSettings
-            {
-                ServiceNamespace = "danielkzu",
-                ServiceUriScheme = "sb",
-                TokenIssuer = "owner",
-                TokenAccessKey = "4q2LqEP9HTlLqGvyhiGxZ0DJGjYEUPfC/zstbSeopuI=",
-                Topic = "Commands",
-            });
+        /// <summary>
+        /// Serializes an object graph to a stream.
+        /// </summary>
+        void Serialize(Stream stream, object graph);
 
-            sender.Send(Envelope.Create(new Command { Id = Guid.NewGuid(), Title = "DoSomething" }));
-        }
-
-        public class Command
-        {
-            public Guid Id { get; set; }
-            public string Title { get; set; }
-        }
+        /// <summary>
+        /// Deserializes an object graph of the given <paramref name="objectType"/> 
+        /// from the specified stream.
+        /// </summary>
+        object Deserialize(Stream stream, Type objectType);
     }
 }

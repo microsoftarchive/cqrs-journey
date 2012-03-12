@@ -42,10 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncExtensions.cs" />
+    <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="CommandProcessor.cs" />
+    <Compile Include="IListener.cs" />
+    <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
+    <Compile Include="Messaging\IMessageReceiver.cs" />
+    <Compile Include="Messaging\IMessageSender.cs" />
     <Compile Include="Messaging\SubscriptionReceiver.cs" />
-    <Compile Include="BusSettings.cs" />
+    <Compile Include="Messaging\MessagingSettings.cs" />
     <Compile Include="Messaging\TopicSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

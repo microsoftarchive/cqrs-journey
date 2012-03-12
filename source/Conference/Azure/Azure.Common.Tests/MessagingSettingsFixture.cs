@@ -10,39 +10,31 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure
+namespace Azure.Tests
 {
     using System.Xml;
-    using System.Xml.Serialization;
+    using Azure.Messaging;
+    using Xunit;
 
-    public class BusSettings
+    public class given_a_messaging_settings_file
     {
-        private static readonly XmlSerializer serializer = new XmlSerializer(typeof(BusSettings));
-
-        public static BusSettings Read(XmlReader reader)
+        [Fact]
+        public void when_read_from_file_then_succeeds()
         {
-            return (BusSettings)serializer.Deserialize(reader);
+            var settings = MessagingSettings.Read("Settings.xml");
+
+            Assert.NotNull(settings);
         }
 
-        public BusSettings()
+        [Fact]
+        public void when_read_from_reader_then_succeeds()
         {
-            this.Topic = string.Empty;
+            using (var reader = XmlReader.Create("Settings.xml"))
+            {
+                var settings = MessagingSettings.Read(reader);
 
-            this.ServiceUriScheme = string.Empty;
-            this.ServiceNamespace = string.Empty;
-            this.ServicePath = string.Empty;
-
-            this.TokenIssuer = string.Empty;
-            this.TokenAccessKey = string.Empty;
+                Assert.NotNull(settings);
+            }
         }
-
-        public string ServiceUriScheme { get; set; }
-        public string ServiceNamespace { get; set; }
-        public string ServicePath { get; set; }
-
-        public string TokenIssuer { get; set; }
-        public string TokenAccessKey { get; set; }
-
-        public string Topic { get; set; }
     }
 }

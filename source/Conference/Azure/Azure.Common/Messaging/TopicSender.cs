@@ -13,21 +13,28 @@
 namespace Azure.Messaging
 {
     using System;
-    using System.IO;
-    using System.Runtime.Serialization.Json;
-    using Common;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
-    public class TopicSender
+    /// <summary>
+    /// Implements an asynchronous sender of messages to an Azure 
+    /// service bus topic.
+    /// </summary>
+    public class TopicSender : IMessageSender
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly BusSettings settings;
+        private readonly MessagingSettings settings;
+        private string topic;
 
-        public TopicSender(BusSettings settings)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TopicSender"/> class, 
+        /// automatically creating the given topic if it does not exist.
+        /// </summary>
+        public TopicSender(MessagingSettings settings, string topic)
         {
             this.settings = settings;
+            this.topic = topic;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -36,7 +43,7 @@ namespace Azure.Messaging
             {
                 new NamespaceManager(this.serviceUri, this.tokenProvider)
                     .CreateTopic(
-                        new TopicDescription(settings.Topic)
+                        new TopicDescription(topic)
                         {
                             RequiresDuplicateDetection = true,
                             DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30)
@@ -49,35 +56,13 @@ namespace Azure.Messaging
         /// <summary>
         /// Asynchronously sends the specified message.
         /// </summary>
-        public void Send<T>(Envelope<T> message)
+        public void Send(BrokeredMessage message)
         {
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
-            var client = factory.CreateTopicClient(this.settings.Topic);
-
-            var brokeredMessage = new BrokeredMessage(Serialize(message.Body));
-            brokeredMessage.Properties["Type"] = message.GetType().FullName;
-            brokeredMessage.Properties["Assembly"] = Path.GetFileNameWithoutExtension(message.GetType().Assembly.ManifestModule.FullyQualifiedName);
+            var client = factory.CreateTopicClient(this.topic);
 
             // Always send async.
-            client.BeginSend(brokeredMessage, new AsyncCallback(this.OnSendCompleted), client);
-        }
-
-        private void OnSendCompleted(IAsyncResult result)
-        {
-            var client = (TopicClient)result.AsyncState;
-
-            client.EndSend(result);
-        }
-
-        private static string Serialize(object payload)
-        {
-            var serializer = new DataContractJsonSerializer(payload.GetType());
-            using (var stream = new MemoryStream())
-            {
-                serializer.WriteObject(stream, payload);
-
-                return Convert.ToBase64String(stream.ToArray());
-            }
+            client.Async(message, client.BeginSend, client.EndSend);
         }
     }
 }

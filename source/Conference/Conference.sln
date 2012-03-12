@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Web.Public.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common.Tests", "Azure\Azure.Common.Tests\Azure.Common.Tests.csproj", "{60AF76A9-0891-400F-8F87-A5978D3F3744}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common.IntegrationTests", "Azure\Azure.Common.IntegrationTests\Azure.Common.IntegrationTests.csproj", "{85C85861-B89C-44E8-94DB-90B5751B3781}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +128,16 @@ Global
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|x86.ActiveCfg = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,5 +146,6 @@ Global
 		{6FAD54FF-F1C8-47CD-8D98-860DF88D6A2C} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
 		{56A53790-2571-4EA6-8742-2FA00E893B21} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
 		{60AF76A9-0891-400F-8F87-A5978D3F3744} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
+		{85C85861-B89C-44E8-94DB-90B5751B3781} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
 	EndGlobalSection
 EndGlobal

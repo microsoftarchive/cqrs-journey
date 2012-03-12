@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure
+namespace Azure.Messaging
 {
     using System;
     using System.Threading;
@@ -18,70 +18,114 @@ namespace Azure
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
-    public class TopicReceiver
+    /// <summary>
+    /// Implements an asynchronous receiver of messages from an Azure 
+    /// service bus topic subscription.
+    /// </summary>
+    public class SubscriptionReceiver : IMessageReceiver, IDisposable
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly BusSettings settings;
+        private readonly MessagingSettings settings;
         private CancellationTokenSource cancellationSource;
-        private MessageReceiver messageReceiver;
+        private SubscriptionClient client;
+        private string subscription;
 
-        public TopicReceiver(BusSettings settings)
+        /// <summary>
+        /// Event raised whenever a message is received.
+        /// </summary>
+        public event EventHandler<BrokeredMessageEventArgs> MessageReceived = (sender, args) => { };
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
+        /// automatically creating the topic and subscription if they don't exist.
+        /// </summary>
+        public SubscriptionReceiver(MessagingSettings settings, string topic, string subscription)
         {
             this.settings = settings;
+            this.subscription = subscription;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
-            this.messageReceiver = messagingFactory.CreateMessageReceiver(@"Commands/subscriptions/All");
+            this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
+
+            var manager = new NamespaceManager(this.serviceUri, this.tokenProvider);
+
+            try
+            {
+                manager.CreateTopic(
+                    new TopicDescription(topic)
+                    {
+                        RequiresDuplicateDetection = true,
+                        DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30)
+                    });
+            }
+            catch (MessagingEntityAlreadyExistsException)
+            { }
+
+            try
+            {
+                manager.CreateSubscription(topic, subscription);
+            }
+            catch (MessagingEntityAlreadyExistsException)
+            { }
         }
 
+        /// <summary>
+        /// Starts the listener.
+        /// </summary>
         public void Start()
         {
             if (this.cancellationSource != null)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Already started");
 
             this.cancellationSource = new CancellationTokenSource();
 
-            Task.Factory.StartNew(() =>
-                {
-                    while (true)
-                    {
-                        var message = this.messageReceiver.Receive();
-
-                        if (message == null)
-                        {
-                            Thread.Sleep(500);
-                            continue;
-                        }
-
-                        try
-                        {
-                            var type = (string)message.Properties["Type"];
-                            var payloadString = message.GetBody<string>();
-
-                            // var payload = (T)Deserialize(payloadString);
-
-                            message.Complete();
-                        }
-                        catch (Exception e)
-                        {
-                            message.Abandon();
-                            throw e;
-                        }
-                    }
-                },
-                this.cancellationSource.Token);
+            Task.Factory.StartNew(this.ReceiveMessages, this.cancellationSource.Token);
         }
 
+        /// <summary>
+        /// Stops the listener.
+        /// </summary>
         public void Stop()
         {
             if (this.cancellationSource == null)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Not started");
 
             this.cancellationSource.Cancel();
+            this.cancellationSource.Dispose();
             this.cancellationSource = null;
         }
+
+        /// <summary>
+        /// Stops the listener if it was started previously.
+        /// </summary>
+        public void Dispose()
+        {
+            if (this.cancellationSource != null)
+                Stop();
+        }
+
+        /// <summary>
+        /// Receives the messages in an endless loop.
+        /// </summary>
+        private void ReceiveMessages()
+        {
+            while (true)
+            {
+                var message = this.client.Receive();
+
+                if (message == null)
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
+
+                this.MessageReceived(this, new BrokeredMessageEventArgs(message));
+            }
+        }
+
     }
 }

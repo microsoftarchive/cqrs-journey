@@ -55,6 +55,7 @@
     <Compile Include="IEventPublisher.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
+    <Compile Include="ISerializer.cs" />
     <Compile Include="IViewRepository.cs" />
     <Compile Include="MemoryCommandBus.cs" />
     <Compile Include="MemoryEventBus.cs" />
