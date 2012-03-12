@@ -30,6 +30,7 @@ namespace Azure.Messaging
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
         private string subscription;
+        private bool disposed;
 
         /// <summary>
         /// Event raised whenever a message is received.
@@ -78,6 +79,7 @@ namespace Azure.Messaging
         /// </summary>
         public void Start()
         {
+            ThrowIfDisposed();
             if (this.cancellationSource != null)
                 throw new InvalidOperationException("Already started");
 
@@ -91,6 +93,7 @@ namespace Azure.Messaging
         /// </summary>
         public void Stop()
         {
+            ThrowIfDisposed();
             if (this.cancellationSource == null)
                 throw new InvalidOperationException("Not started");
 
@@ -99,13 +102,39 @@ namespace Azure.Messaging
             this.cancellationSource = null;
         }
 
+
         /// <summary>
         /// Stops the listener if it was started previously.
         /// </summary>
         public void Dispose()
         {
-            if (this.cancellationSource != null)
-                Stop();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    if (this.cancellationSource != null)
+                        Stop();
+                }
+
+                this.disposed = true;
+            }
+        }
+
+        ~SubscriptionReceiver()
+        {
+            Dispose(false);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (this.disposed)
+                throw new ObjectDisposedException("MessageProcessor");
         }
 
         /// <summary>

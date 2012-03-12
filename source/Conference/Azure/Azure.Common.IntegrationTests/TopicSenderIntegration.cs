@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.IntegrationTests
+namespace Azure.IntegrationTests.TopicSenderIntegration
 {
     using System;
     using System.IO;

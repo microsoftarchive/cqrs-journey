@@ -10,7 +10,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.IntegrationTests.CommandProcessingIntegration
+namespace Azure.IntegrationTests.EventBusIntegration
 {
     using System;
     using System.Threading;
@@ -19,16 +19,16 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
     using Common;
     using Xunit;
 
-    public class given_an_azure_command_bus : given_a_topic_and_subscription
+    public class given_an_azure_event_bus : given_a_topic_and_subscription
     {
         [Fact]
-        public void when_receiving_command_then_calls_handler()
+        public void when_receiving_event_then_calls_handler()
         {
-            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
 
             var e = new ManualResetEvent(false);
-            var handler = new FooCommandHandler(e);
+            var handler = new FooEventHandler(e);
 
             processor.Register(handler);
 
@@ -36,7 +36,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
 
             try
             {
-                bus.Send(new FooCommand());
+                bus.Publish(new FooEvent());
 
                 e.WaitOne(5000);
 
@@ -49,14 +49,14 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         }
 
         [Fact]
-        public void when_receiving_not_registered_command_then_ignores()
+        public void when_receiving_not_registered_event_then_ignores()
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
-            var processor = new CommandProcessor(receiver, new BinarySerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var processor = new EventProcessor(receiver, new BinarySerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
 
             var e = new ManualResetEvent(false);
-            var handler = new FooCommandHandler(e);
+            var handler = new FooEventHandler(e);
 
             receiver.MessageReceived += (sender, args) => e.Set();
 
@@ -66,7 +66,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
 
             try
             {
-                bus.Send(new BarCommand());
+                bus.Publish(new BarEvent());
 
                 e.WaitOne(5000);
                 // Give the other event handler some time.
@@ -81,16 +81,16 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         }
 
         [Fact]
-        public void when_sending_multiple_commands_then_calls_all_handlers()
+        public void when_sending_multiple_events_then_calls_all_handlers()
         {
-            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
 
             var fooEvent = new ManualResetEvent(false);
-            var fooHandler = new FooCommandHandler(fooEvent);
+            var fooHandler = new FooEventHandler(fooEvent);
 
             var barEvent = new ManualResetEvent(false);
-            var barHandler = new BarCommandHandler(barEvent);
+            var barHandler = new BarEventHandler(barEvent);
 
             processor.Register(fooHandler);
             processor.Register(barHandler);
@@ -99,7 +99,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
 
             try
             {
-                bus.Send(new ICommand[] { new FooCommand(), new BarCommand() });
+                bus.Publish(new IEvent[] { new FooEvent(), new BarEvent() });
 
                 fooEvent.WaitOne(5000);
                 barEvent.WaitOne(5000);
@@ -114,9 +114,9 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         }
 
         [Serializable]
-        public class FooCommand : ICommand
+        public class FooEvent : IEvent
         {
-            public FooCommand()
+            public FooEvent()
             {
                 this.Id = Guid.NewGuid();
             }
@@ -124,25 +124,25 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         }
 
         [Serializable]
-        public class BarCommand : ICommand
+        public class BarEvent : IEvent
         {
-            public BarCommand()
+            public BarEvent()
             {
                 this.Id = Guid.NewGuid();
             }
             public Guid Id { get; set; }
         }
 
-        public class FooCommandHandler : ICommandHandler<FooCommand>
+        public class FooEventHandler : IEventHandler<FooEvent>
         {
             private ManualResetEvent e;
 
-            public FooCommandHandler(ManualResetEvent e)
+            public FooEventHandler(ManualResetEvent e)
             {
                 this.e = e;
             }
 
-            public void Handle(FooCommand command)
+            public void Handle(FooEvent command)
             {
                 this.Called = true;
                 e.Set();
@@ -151,16 +151,16 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             public bool Called { get; set; }
         }
 
-        public class BarCommandHandler : ICommandHandler<BarCommand>
+        public class BarEventHandler : IEventHandler<BarEvent>
         {
             private ManualResetEvent e;
 
-            public BarCommandHandler(ManualResetEvent e)
+            public BarEventHandler(ManualResetEvent e)
             {
                 this.e = e;
             }
 
-            public void Handle(BarCommand command)
+            public void Handle(BarEvent command)
             {
                 this.Called = true;
                 e.Set();

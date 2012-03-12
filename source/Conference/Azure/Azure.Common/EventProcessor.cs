@@ -10,35 +10,41 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.Tests
+namespace Azure
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Azure.Messaging;
     using Common;
-    using Moq;
-    using Xunit;
 
-    public class CommandProcessorFixture
+    /// <summary>
+    /// Processes incoming events from the bus and routes them to the appropriate 
+    /// handlers.
+    /// </summary>
+    public class EventProcessor : MessageProcessor
     {
-        [Fact]
-        public void when_disposing_processor_then_disposes_receiver_if_disposable()
+        private List<IEventHandler> handlers = new List<IEventHandler>();
+
+        public EventProcessor(IMessageReceiver receiver, ISerializer serializer)
+            : base(receiver, serializer)
         {
-            var receiver = new Mock<IMessageReceiver>();
-            var disposable = receiver.As<IDisposable>();
-
-            var processor = new CommandProcessor(receiver.Object, Mock.Of<ISerializer>());
-
-            processor.Dispose();
-
-            disposable.Verify(x => x.Dispose());
         }
 
-        [Fact]
-        public void when_disposing_processor_then_no_op_if_receiver_not_disposable()
+        public void Register(IEventHandler eventHandler)
         {
-            var processor = new CommandProcessor(Mock.Of<IMessageReceiver>(), Mock.Of<ISerializer>());
+            this.handlers.Add(eventHandler);
+        }
 
-            processor.Dispose();
+        protected override void ProcessMessage(object payload, Type payloadType)
+        {
+            var handlerType = typeof(IEventHandler<>).MakeGenericType(payloadType);
+
+            foreach (dynamic handler in this.handlers
+                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+            {
+                handler.Handle((dynamic)payload);
+            }
         }
     }
 }

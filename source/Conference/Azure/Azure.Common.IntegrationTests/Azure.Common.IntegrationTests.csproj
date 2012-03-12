@@ -49,12 +49,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseMessagingIntegration.cs" />
+    <Compile Include="EventProcessingIntegration.cs" />
+    <Compile Include="MessageProcessorIntegration.cs" />
     <Compile Include="MessagingSettingsExtensions.cs" />
     <Compile Include="CommandProcessingIntegration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendReceiveIntegration.cs" />
     <Compile Include="SubscriptionReceiverIntegration.cs" />
-    <Compile Include="TopicSenderFixture.cs" />
+    <Compile Include="TopicSenderIntegration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\ConsoleCommandProcessor\Settings.xml">
