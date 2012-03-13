@@ -47,20 +47,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommitSeatReservation.cs" />
-    <Compile Include="Commands\DelayCommand.cs" />
-    <Compile Include="Commands\ExpireSeatReservation.cs" />
+    <Compile Include="Commands\CancelSeatReservation.cs" />
+    <Compile Include="Commands\ExpireReservation.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
-    <Compile Include="Database\EntityPersister.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
+    <Compile Include="Events\PaymentReceived.cs" />
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
     <Compile Include="Handlers\ConferenceSeatsAvailabilityHandler.cs" />
-    <Compile Include="Handlers\MemoryDelayCommandHandler.cs" />
     <Compile Include="Handlers\RegistrationCommandHandler.cs" />
     <Compile Include="Handlers\RegistrationProcessSagaHandler.cs" />
     <Compile Include="Order.cs" />
@@ -70,12 +69,11 @@
     <Compile Include="ConferenceSeatsAvailability.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
     <Compile Include="ReadModel\ConferenceDTO.cs" />
-    <Compile Include="ReadModel\ConferenceReadModel.cs" />
     <Compile Include="ReadModel\ConferenceSeatDTO.cs" />
-    <Compile Include="ReadModel\IConferenceReadModel.cs" />
-    <Compile Include="ReadModel\IOrderReadModel.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
-    <Compile Include="ReadModel\OrmOrderReadModel.cs" />
+    <Compile Include="ReadModel\OrderLineDTO.cs" />
+    <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
+    <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
   </ItemGroup>

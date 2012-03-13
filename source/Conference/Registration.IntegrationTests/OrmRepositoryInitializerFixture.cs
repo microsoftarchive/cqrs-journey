@@ -24,12 +24,12 @@ namespace Registration.IntegrationTests
         {
             var initializer = new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>());
 
-            using (var context = new OrmRepository())
+            using (var context = new OrmRepository("TestOrmRepository"))
             {
                 initializer.InitializeDatabase(context);
             }
 
-            using (var context = new OrmRepository())
+            using (var context = new OrmRepository("TestOrmRepository"))
             {
                 Assert.Equal(1, context.Set<ConferenceSeatsAvailability>().Count());
             }

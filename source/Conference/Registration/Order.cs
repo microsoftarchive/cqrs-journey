@@ -89,7 +89,7 @@ namespace Registration
 
     public class TicketOrderLine
     {
-        public TicketOrderLine(string ticketTypeId, int quantity)
+        public TicketOrderLine(Guid ticketTypeId, int quantity)
         {
             this.Id = Guid.NewGuid();
 
@@ -103,7 +103,7 @@ namespace Registration
 
         public Guid Id { get; private set; }
 
-        public string TicketTypeId { get; private set; }
+        public Guid TicketTypeId { get; private set; }
 
         public int Quantity { get; private set; }
     }

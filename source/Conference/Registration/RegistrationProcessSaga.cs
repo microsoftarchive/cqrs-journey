@@ -29,13 +29,13 @@ namespace Registration
             public const int Completed = 0xFF;
         }
 
-        private List<ICommand> commands = new List<ICommand>();
+        private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
         public Guid Id { get; set; }
 
         public int State { get; set; }
 
-        public IEnumerable<ICommand> Commands
+        public IEnumerable<Envelope<ICommand>> Commands
         {
             get { return this.commands; }
         }
@@ -68,11 +68,10 @@ namespace Registration
                 this.State = SagaState.AwaitingPayment;
                 this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
                 this.commands.Add(
-                    new DelayCommand
-                        {
-                            SendDelay = TimeSpan.FromMinutes(15),
-                            Command = new ExpireSeatReservation { Id = message.ReservationId }
-                        });
+                    new Envelope<ICommand>(new ExpireReservation { Id = message.ReservationId, ConferenceId = message.ConferenceId })
+                    {
+                        Delay = TimeSpan.FromMinutes(15),
+                    });
             }
             else
             {
@@ -93,15 +92,29 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireSeatReservation message)
+        public void Handle(ExpireReservation message)
         {
             if (this.State == SagaState.AwaitingPayment)
             {
                 this.State = SagaState.Completed;
+                this.commands.Add(new CancelSeatReservation { ReservationId = message.Id, ConferenceId = message.ConferenceId });
                 this.commands.Add(new RejectOrder { OrderId = message.Id });
             }
 
             // else ignore the message as it is no longer relevant (but not invalid)
+        }
+
+        public void Handle(PaymentReceived message)
+        {
+            if (this.State == SagaState.AwaitingReservationConfirmation)
+            {
+                this.State = SagaState.Completed;
+                this.commands.Add(new CommitSeatReservation { ReservationId = message.OrderId, ConferenceId = message.ConferenceId });
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

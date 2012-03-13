@@ -13,6 +13,7 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
 
     public class ConferenceSeatDTO
     {
@@ -23,10 +24,15 @@ namespace Registration.ReadModel
             this.Price = price;
         }
 
-        public Guid Id { get; private set; }
+        protected ConferenceSeatDTO()
+        {
+        }
 
-        public string Description { get; private set; }
+        [Key]
+        public virtual Guid Id { get; private set; }
 
-        public double Price { get; private set; }
+        public virtual string Description { get; private set; }
+
+        public virtual double Price { get; private set; }
     }
 }

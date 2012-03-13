@@ -1,0 +1,8 @@
+﻿@{
+    ViewBag.Title = "Display";
+}
+<h2>
+    Payment confirmation</h2>
+@Html.ActionLink("Accept", "AcceptPayment", new { conferenceCode = (string)TempData["conferenceCode"], registrationId = (Guid)TempData["registrationId"] })
+<br />
+@Html.ActionLink("Reject", "RejectPayment", new { conferenceCode = (string)TempData["conferenceCode"], registrationId = (Guid)TempData["registrationId"] })

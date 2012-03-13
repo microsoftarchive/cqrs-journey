@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandBusExtensions.cs" />
+    <Compile Include="Envelope.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />
@@ -53,6 +55,8 @@
     <Compile Include="IEventPublisher.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
+    <Compile Include="ISerializer.cs" />
+    <Compile Include="IViewRepository.cs" />
     <Compile Include="MemoryCommandBus.cs" />
     <Compile Include="MemoryEventBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

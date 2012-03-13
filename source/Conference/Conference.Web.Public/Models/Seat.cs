@@ -12,9 +12,11 @@
 
 namespace Conference.Web.Public.Models
 {
+    using System;
+
     public class Seat
     {
-        public string SeatId { get; set; }
+        public Guid SeatId { get; set; }
 
         public string SeatDescription { get; set; }
 

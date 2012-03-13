@@ -15,55 +15,59 @@ namespace Common
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
 
-	/// <summary>
-	/// Sample in-memory command bus that is asynchronous.
-	/// </summary>
-	public class MemoryCommandBus : ICommandBus
-	{
-		private List<ICommandHandler> handlers = new List<ICommandHandler>();
-		private List<ICommand> commands = new List<ICommand>();
+    /// <summary>
+    /// Sample in-memory command bus that is asynchronous.
+    /// </summary>
+    public class MemoryCommandBus : ICommandBus
+    {
+        private List<ICommandHandler> handlers = new List<ICommandHandler>();
+        private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
-		public MemoryCommandBus(params ICommandHandler[] handlers)
-		{
-			this.handlers.AddRange(handlers);
-		}
+        public MemoryCommandBus(params ICommandHandler[] handlers)
+        {
+            this.handlers.AddRange(handlers);
+        }
 
-		public void Register(ICommandHandler handler)
-		{
-			this.handlers.Add(handler);
-		}
+        public void Register(ICommandHandler handler)
+        {
+            this.handlers.Add(handler);
+        }
 
-		public void Send(ICommand command)
-		{
-			this.commands.Add(command);
+        public void Send(Envelope<ICommand> command)
+        {
+            this.commands.Add(command);
 
-			Task.Factory.StartNew(() =>
-			{
-				var handlerType = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
+            Task.Factory.StartNew(() =>
+            {
+                if (command.Delay > TimeSpan.Zero)
+                {
+                    Thread.Sleep(command.Delay);
+                }
 
-				foreach (dynamic handler in this.handlers
-					.Where(x => handlerType.IsAssignableFrom(x.GetType())))
-				{
-					handler.Handle((dynamic)command);
-				}
-			});
-		}
+                var handlerType = typeof(ICommandHandler<>).MakeGenericType(command.Body.GetType());
 
-		public void Send(IEnumerable<ICommand> commands)
-		{
-			foreach (var command in commands)
-			{
-				this.Send(command);
-			}
-		}
+                foreach (dynamic handler in this.handlers
+                    .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+                {
+                    handler.Handle((dynamic)command.Body);
+                }
+            });
+        }
 
-		public IEnumerable<ICommand> Commands
-		{
-			get { return this.commands; }
-		}
-	}
+        public void Send(IEnumerable<Envelope<ICommand>> commands)
+        {
+            foreach (var command in commands)
+            {
+                this.Send(command);
+            }
+        }
+
+        public IEnumerable<Envelope<ICommand>> Commands
+        {
+            get { return this.commands; }
+        }
+    }
 }

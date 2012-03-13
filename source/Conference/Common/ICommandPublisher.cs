@@ -12,16 +12,13 @@
 
 namespace Common
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
+    using System.Collections.Generic;
 
-	/// <summary>
-	/// Interface implemented by sagas that publish commands to the command bus.
-	/// </summary>
-	public interface ICommandPublisher
-	{
-		IEnumerable<ICommand> Commands { get; }
-	}
+    /// <summary>
+    /// Interface implemented by sagas that publish commands to the command bus.
+    /// </summary>
+    public interface ICommandPublisher
+    {
+        IEnumerable<Envelope<ICommand>> Commands { get; }
+    }
 }

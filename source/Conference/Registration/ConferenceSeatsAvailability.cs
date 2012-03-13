@@ -76,7 +76,7 @@ namespace Registration
             this.PendingReservations.Remove(reservation);
         }
 
-        public void ExpireReservation(Guid reservationId)
+        public void CancelReservation(Guid reservationId)
         {
             var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
             if (reservation == null) throw new KeyNotFoundException();

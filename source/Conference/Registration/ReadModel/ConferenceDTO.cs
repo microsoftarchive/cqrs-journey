@@ -14,6 +14,8 @@ namespace Registration.ReadModel
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
     public class ConferenceDTO
     {
@@ -23,17 +25,23 @@ namespace Registration.ReadModel
             this.Code = code;
             this.Name = name;
             this.Description = description;
-            this.Seats = seats;
+            this.Seats = new ObservableCollection<ConferenceSeatDTO>(seats);
         }
 
-        public Guid Id { get; private set; }
+        protected ConferenceDTO()
+        {
+            this.Seats = new ObservableCollection<ConferenceSeatDTO>();
+        }
 
-        public string Code { get; private set; }
+        [Key]
+        public virtual Guid Id { get; private set; }
 
-        public string Name { get; private set; }
+        public virtual string Code { get; private set; }
 
-        public string Description { get; private set; }
+        public virtual string Name { get; private set; }
 
-        public IEnumerable<ConferenceSeatDTO> Seats { get; private set; }
+        public virtual string Description { get; private set; }
+
+        public virtual ObservableCollection<ConferenceSeatDTO> Seats { get; private set; }
     }
 }
