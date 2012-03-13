@@ -25,21 +25,36 @@ namespace Azure
     {
         private List<ICommandHandler> handlers = new List<ICommandHandler>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandProcessor"/> class.
+        /// </summary>
+        /// <param name="receiver">The receiver to use. If the receiver is <see cref="IDisposable"/>, it will be disposed when the processor is 
+        /// disposed.</param>
+        /// <param name="serializer">The serializer to use for the message body.</param>
         public CommandProcessor(IMessageReceiver receiver, ISerializer serializer)
             : base(receiver, serializer)
         {
         }
 
+        /// <summary>
+        /// Registers the specified command handler.
+        /// </summary>
         public void Register(ICommandHandler commandHandler)
         {
             this.handlers.Add(commandHandler);
         }
 
+        /// <summary>
+        /// Processes the message by calling the registered handler.
+        /// </summary>
         protected override void ProcessMessage(object payload)
         {
             var handlerType = typeof(ICommandHandler<>).MakeGenericType(payload.GetType());
 
-            // TODO: throw if more than one handler here?
+            // TODO: throw if more than one handler here? This would never assure us 
+            // that there aren't duplicate handlers in multiple processes, so it's kinda 
+            // pointless here. Also, what are we supposed to do if we throw? DeadLetter 
+            // the message? Kill the process? TBD.
             foreach (dynamic handler in this.handlers
                 .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {

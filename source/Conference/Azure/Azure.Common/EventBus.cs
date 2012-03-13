@@ -31,6 +31,9 @@ namespace Azure
         /// <summary>
         /// Initializes a new instance of the <see cref="EventBus"/> class.
         /// </summary>
+        /// <param name="receiver">The receiver to use. If the receiver is <see cref="IDisposable"/>, it will be disposed when the processor is 
+        /// disposed.</param>
+        /// <param name="serializer">The serializer to use for the message body.</param>
         public EventBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
         {
             this.sender = sender;
