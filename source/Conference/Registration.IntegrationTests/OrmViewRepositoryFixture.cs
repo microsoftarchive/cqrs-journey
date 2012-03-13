@@ -38,10 +38,11 @@ namespace Registration.IntegrationTests
             }
 
             var orderId = Guid.NewGuid();
+            var ticketTypeId = Guid.NewGuid();
 
             using (var context = new OrmRepository("TestOrmRepository"))
             {
-                var order = new Order(orderId, Guid.NewGuid(), Guid.NewGuid(), new[] { new TicketOrderLine(Guid.NewGuid(), 5) });
+                var order = new Order(orderId, Guid.NewGuid(), Guid.NewGuid(), new[] { new TicketOrderLine(ticketTypeId, 5) });
                 order.MarkAsBooked();
                 context.Save(order);
             }
@@ -52,9 +53,10 @@ namespace Registration.IntegrationTests
 
                 Assert.NotNull(dto);
                 Assert.Equal("Booked", dto.State);
+                Assert.Equal(1, dto.Lines.Count);
+                Assert.Equal(ticketTypeId, dto.Lines[0].SeatTypeId);
+                Assert.Equal(5, dto.Lines[0].Quantity);
             }
-
         }
-
     }
 }

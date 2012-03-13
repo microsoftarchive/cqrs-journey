@@ -31,30 +31,6 @@ namespace Conference.Web.Public
             filters.Add(new HandleErrorAttribute());
         }
 
-        protected void Application_Start()
-        {
-            RegisterGlobalFilters(GlobalFilters.Filters);
-            RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            AppRoutes.RegisterRoutes(RouteTable.Routes);
-
-            services = GetDefaultServices();
-
-            Database.SetInitializer(new OrmViewRepositoryInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>())));
-            Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
-            // Views repository is currently the same as the domain DB. No initializer needed.
-            Database.SetInitializer<OrmViewRepository>(null);
-
-            using (var context = new OrmRepository())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = new OrmSagaRepository())
-            {
-                context.Database.Initialize(true);
-            }
-        }
-
         public static IDictionary<Type, object> GetDefaultServices()
         {
             var services = new Dictionary<Type, object>();
@@ -95,6 +71,31 @@ namespace Conference.Web.Public
             }
 
             return service as T;
+        }
+
+        protected void Application_Start()
+        {
+            RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            AppRoutes.RegisterRoutes(RouteTable.Routes);
+
+            services = GetDefaultServices();
+
+            Database.SetInitializer(new OrmViewRepositoryInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>())));
+            Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
+            
+            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<OrmViewRepository>(null);
+
+            using (var context = new OrmRepository())
+            {
+                context.Database.Initialize(true);
+            }
+
+            using (var context = new OrmSagaRepository())
+            {
+                context.Database.Initialize(true);
+            }
         }
     }
 }

@@ -42,7 +42,7 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult StartRegistration(string conferenceCode)
         {
-            var registration = CreateRegistration(conferenceCode);
+            var registration = this.CreateRegistration(conferenceCode);
             registration.Id = Guid.NewGuid();
 
             return View(registration);
@@ -51,7 +51,7 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult StartRegistration(string conferenceCode, Registration contentModel)
         {
-            var registration = UpdateRegistration(conferenceCode, contentModel);
+            var registration = this.UpdateRegistration(conferenceCode, contentModel);
 
             var command =
                 new RegisterToConference
@@ -119,7 +119,7 @@ namespace Conference.Web.Public.Controllers
             var conference =
                 this.repositoryFactory().Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
 
-            // TODO check null case
+            //// TODO check null case
 
             var registration =
                 new Registration

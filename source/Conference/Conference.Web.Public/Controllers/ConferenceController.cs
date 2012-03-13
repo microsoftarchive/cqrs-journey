@@ -25,7 +25,8 @@ namespace Conference.Web.Public.Controllers
 
         public ConferenceController()
             : this(MvcApplication.GetService<Func<IViewRepository>>())
-        { }
+        {
+        }
 
         public ConferenceController(Func<IViewRepository> repositoryFactory)
         {

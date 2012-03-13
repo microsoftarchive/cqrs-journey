@@ -10,11 +10,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Web.Mvc;
-
 namespace Conference.Web.Public.Controllers
 {
+    using System;
+    using System.Web.Mvc;
+
     public class PaymentController : Controller
     {
         public ActionResult Display(string conferenceCode, Guid registrationId)
