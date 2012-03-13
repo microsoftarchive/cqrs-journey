@@ -12,7 +12,6 @@
 
 namespace Azure
 {
-
     /// <summary>
     /// Abstracts the Start/Stop behavior of a listener component.
     /// </summary>
