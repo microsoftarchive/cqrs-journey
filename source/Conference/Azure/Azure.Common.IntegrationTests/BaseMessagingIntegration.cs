@@ -13,7 +13,9 @@
 namespace Azure.IntegrationTests
 {
     using System;
+    using System.IO;
     using Azure.Messaging;
+    using Xunit;
 
     /// <summary>
     /// Base class for messaging integration tests.
@@ -22,6 +24,13 @@ namespace Azure.IntegrationTests
     {
         public given_messaging_settings()
         {
+            var baseDir = @"..\..\..\ConsoleCommandProcessor";
+            var templateFile = new FileInfo(Path.Combine(baseDir, "Settings.Template.xml")).FullName;
+            var settingsFile = new FileInfo(Path.Combine(baseDir, "Settings.xml")).FullName;
+            Assert.True(File.Exists("Settings.xml"), string.Format(
+                "Please rename {0} to {1} and replace the placeholders with your Azure credentials. Then rebuild and re-run the tests.",
+                templateFile, settingsFile));
+
             this.Settings = MessagingSettings.Read("Settings.xml");
         }
 

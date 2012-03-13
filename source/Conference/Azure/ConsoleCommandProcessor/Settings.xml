@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<MessagingSettings>
-    <ServiceUriScheme>sb</ServiceUriScheme>
-    <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
-    <ServicePath></ServicePath>
-    <TokenIssuer>owner</TokenIssuer>
-    <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
-</MessagingSettings>
