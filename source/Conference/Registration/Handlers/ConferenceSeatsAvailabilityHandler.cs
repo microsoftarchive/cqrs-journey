@@ -21,7 +21,7 @@ namespace Registration.Handlers
     /// </summary>
     public class ConferenceSeatsAvailabilityHandler :
         ICommandHandler<MakeSeatReservation>,
-        ICommandHandler<ExpireSeatReservation>,
+        ICommandHandler<CancelSeatReservation>,
         ICommandHandler<CommitSeatReservation>
     {
         private Func<IRepository> repositoryFactory;
@@ -46,7 +46,7 @@ namespace Registration.Handlers
             }
         }
 
-        public void Handle(ExpireSeatReservation command)
+        public void Handle(CancelSeatReservation command)
         {
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
@@ -54,7 +54,7 @@ namespace Registration.Handlers
                 var availability = repo.Find<ConferenceSeatsAvailability>(command.ConferenceId);
                 if (availability != null)
                 {
-                    availability.ExpireReservation(command.ReservationId);
+                    availability.CancelReservation(command.ReservationId);
                     repo.Save(availability);
                 }
                 // TODO: what if there's no aggregate? how do we tell the saga?

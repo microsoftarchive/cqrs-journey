@@ -12,20 +12,25 @@
 
 namespace Conference.Web.Public.Controllers
 {
+    using System;
+    using System.Linq;
     using System.Web.Mvc;
+    using Common;
+
     using Registration.ReadModel;
 
     public class ConferenceController : Controller
     {
-        private IConferenceReadModel conferenceReadModel;
+        private Func<IViewRepository> repositoryFactory;
 
         public ConferenceController()
-            : this(MvcApplication.GetService<IConferenceReadModel>())
-        { }
-
-        public ConferenceController(IConferenceReadModel conferenceReadModel)
+            : this(MvcApplication.GetService<Func<IViewRepository>>())
         {
-            this.conferenceReadModel = conferenceReadModel;
+        }
+
+        public ConferenceController(Func<IViewRepository> repositoryFactory)
+        {
+            this.repositoryFactory = repositoryFactory;
         }
 
         public ActionResult Display(string conferenceCode)
@@ -37,7 +42,7 @@ namespace Conference.Web.Public.Controllers
 
         private Conference.Web.Public.Models.Conference GetConference(string conferenceCode)
         {
-            var conferenceDTO = this.conferenceReadModel.FindByCode(conferenceCode);
+            var conferenceDTO = this.repositoryFactory().Query<ConferenceDTO>().First(c => c.Code == conferenceCode);
 
             var conference =
                 new Conference.Web.Public.Models.Conference { Code = conferenceDTO.Code, Name = conferenceDTO.Name, Description = conferenceDTO.Description };

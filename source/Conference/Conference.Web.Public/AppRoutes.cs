@@ -30,19 +30,39 @@ namespace Conference.Web.Public
                 new { controller = "Conference", action = "Display" });
 
             routes.MapRoute(
-                "RegisterChooseSeats",
+                "RegisterStart",
                 "conference/{conferenceCode}/register",
-                new { controller = "Registration", action = "ChooseSeats" });
+                new { controller = "Registration", action = "StartRegistration" });
 
             routes.MapRoute(
                 "RegisterChoosePayment",
-                "conference/{conferenceCode}/choosePayment",
-                new { controller = "Registration", action = "ChoosePayment" });
+                "conference/{conferenceCode}/payment",
+                new { controller = "Registration", action = "SpecifyPaymentDetails" });
+
+            routes.MapRoute(
+                "RegisterTransactionCompleted",
+                "conference/{conferenceCode}/completed",
+                new { controller = "Registration", action = "TransactionCompleted" });
 
             routes.MapRoute(
                 "RegisterConfirmation",
                 "conference/{conferenceCode}/confirmation",
-                new { controller = "Registration", action = "ConfirmRegistration" });
+                new { controller = "Registration", action = "ThankYou" });
+
+            routes.MapRoute(
+                "PaymentDisplay",
+                "payment",
+                new { controller = "Payment", action = "Display" });
+
+            routes.MapRoute(
+                "PaymentAccept",
+                "payment-accept",
+                new { controller = "Payment", action = "AcceptPayment" });
+
+            routes.MapRoute(
+                "PaymentReject",
+                "payment-reject",
+                new { controller = "Payment", action = "RejectPayment" });
         }
     }
 }

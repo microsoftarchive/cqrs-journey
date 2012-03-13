@@ -8,7 +8,7 @@
     <ProjectGuid>{56A53790-2571-4EA6-8742-2FA00E893B21}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Azure.Common</RootNamespace>
+    <RootNamespace>Azure</RootNamespace>
     <AssemblyName>Azure.Common</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -42,14 +42,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MessageBusSettings.cs" />
-    <Compile Include="MessageBus.cs" />
+    <Compile Include="AsyncExtensions.cs" />
+    <Compile Include="BinarySerializer.cs" />
+    <Compile Include="CommandBus.cs" />
+    <Compile Include="CommandProcessor.cs" />
+    <Compile Include="MetadataProvider.cs" />
+    <Compile Include="EventBus.cs" />
+    <Compile Include="EventProcessor.cs" />
+    <Compile Include="IMetadataProvider.cs" />
+    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
+    <Compile Include="Messaging\IMessageReceiver.cs" />
+    <Compile Include="Messaging\IMessageSender.cs" />
+    <Compile Include="Messaging\SubscriptionReceiver.cs" />
+    <Compile Include="Messaging\MessagingSettings.cs" />
+    <Compile Include="Messaging\TopicSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Conference.licenseheader">
       <Link>Conference.licenseheader</Link>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.csproj">
+      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

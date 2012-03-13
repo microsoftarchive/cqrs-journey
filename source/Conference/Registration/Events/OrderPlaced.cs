@@ -20,7 +20,7 @@ namespace Registration.Events
     {
         public class Ticket
         {
-            public string TicketTypeId { get; set; }
+            public Guid TicketTypeId { get; set; }
 
             public int Quantity { get; set; }
         }

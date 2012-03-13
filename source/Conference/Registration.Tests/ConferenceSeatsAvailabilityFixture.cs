@@ -103,18 +103,18 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 		}
 
 		[Fact]
-		public void when_expiring_a_reservation_then_seats_become_available()
+		public void when_cancelling_a_reservation_then_seats_become_available()
 		{
-			this.sut.ExpireReservation(ReservationId);
+			this.sut.CancelReservation(ReservationId);
 			this.sut = this.sutProvider.PersistReload(this.sut);
 
 			Assert.Equal(10, sut.RemainingSeats);
 		}
 
 		[Fact]
-		public void when_expiring_an_inexistant_reservation_then_fails()
+        public void when_cancelling_an_inexistant_reservation_then_fails()
 		{
-			Assert.Throws<KeyNotFoundException>(() => sut.ExpireReservation(Guid.NewGuid()));
+			Assert.Throws<KeyNotFoundException>(() => sut.CancelReservation(Guid.NewGuid()));
 		}
 
 		[Fact]
@@ -140,7 +140,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 			this.sut.CommitReservation(ReservationId);
 			this.sut = this.sutProvider.PersistReload(this.sut);
 
-			Assert.Throws<KeyNotFoundException>(() => sut.ExpireReservation(ReservationId));
+			Assert.Throws<KeyNotFoundException>(() => sut.CancelReservation(ReservationId));
 		}
 	}
 }

@@ -26,6 +26,8 @@ namespace Conference.Web.Public.Models
 
         public Guid ConferenceId { get; set; }
 
+        public string ConferenceCode { get; set; }
+
         public string ConferenceName { get; set; }
 
         public IList<Seat> Seats { get; set; }
