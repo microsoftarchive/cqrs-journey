@@ -103,5 +103,18 @@ namespace Registration
 
             // else ignore the message as it is no longer relevant (but not invalid)
         }
+
+        public void Handle(PaymentReceived message)
+        {
+            if (this.State == SagaState.AwaitingReservationConfirmation)
+            {
+                this.State = SagaState.Completed;
+                this.commands.Add(new CommitSeatReservation { ReservationId = message.OrderId, ConferenceId = message.ConferenceId });
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 }

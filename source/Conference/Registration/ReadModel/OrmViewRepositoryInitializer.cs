@@ -33,7 +33,7 @@ namespace Registration.Database
         {
             this.innerInitializer.InitializeDatabase(context);
 
-            if (!context.Database.SqlQuery<string>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[OrdersView]')").Any())
+            if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[OrdersView]')").Any())
             {
                 context.Database.ExecuteSqlCommand(@"
 CREATE VIEW [dbo].[OrdersView]
@@ -42,9 +42,19 @@ SELECT
     dbo.Orders.Id AS OrderId, 
     dbo.Orders.State as StateValue
 FROM dbo.Orders");
+
+                context.Database.ExecuteSqlCommand(@"
+CREATE VIEW [dbo].[OrderLinesView]
+AS
+SELECT     
+    dbo.TicketOrderLines.Id AS OrderLineId, 
+    dbo.TicketOrderLines.Order_Id AS OrdersView_Id, 
+    dbo.TicketOrderLines.TicketTypeId as SeatTypeId,
+    dbo.TicketOrderLines.Quantity as Quantity
+FROM dbo.TicketOrderLines");
             }
 
-            if (!context.Database.SqlQuery<string>("SELECT object_id FROM sys.tables WHERE object_id = OBJECT_ID(N'[dbo].[ConferencesView]')").Any())
+            if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.tables WHERE object_id = OBJECT_ID(N'[dbo].[ConferencesView]')").Any())
             {
                 context.Database.ExecuteSqlCommand(@"
 CREATE TABLE [dbo].[ConferencesView]

@@ -12,57 +12,47 @@
 
 namespace Registration.Handlers
 {
-	using Common;
-	using Registration.Commands;
-	using Registration.Events;
-	using System;
+    using Common;
+    using Registration.Commands;
+    using Registration.Events;
+    using System;
 
-	// TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
-	public class RegistrationProcessSagaHandler : IEventHandler<OrderPlaced>, IEventHandler<ReservationAccepted>, IEventHandler<ReservationRejected>, ICommandHandler<ExpireReservation>
-	{
+    // TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
+    public class RegistrationProcessSagaHandler : 
+        IEventHandler<OrderPlaced>, 
+        IEventHandler<PaymentReceived>,
+        IEventHandler<ReservationAccepted>, 
+        IEventHandler<ReservationRejected>, 
+        ICommandHandler<ExpireReservation>
+    {
         private object lockObject = new object();
-		private Func<ISagaRepository> repositoryFactory;
+        private Func<ISagaRepository> repositoryFactory;
 
-		public RegistrationProcessSagaHandler(Func<ISagaRepository> repositoryFactory)
-		{
-			this.repositoryFactory = repositoryFactory;
-		}
+        public RegistrationProcessSagaHandler(Func<ISagaRepository> repositoryFactory)
+        {
+            this.repositoryFactory = repositoryFactory;
+        }
 
-		public void Handle(OrderPlaced @event)
-		{
-			var saga = new RegistrationProcessSaga();
-			saga.Handle(@event);
+        public void Handle(OrderPlaced @event)
+        {
+            var saga = new RegistrationProcessSaga();
+            saga.Handle(@event);
 
-			var repo = this.repositoryFactory.Invoke();
-			using (repo as IDisposable)
-			{
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
                 lock (lockObject)
                 {
                     repo.Save(saga);
                 }
-			}
-		}
+            }
+        }
 
-		public void Handle(ReservationAccepted @event)
-		{
-			var repo = this.repositoryFactory.Invoke();
-			using (repo as IDisposable)
-			{
-                lock (lockObject)
-                {
-                    var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
-                    saga.Handle(@event);
-
-                    repo.Save(saga);
-                }
-			}
-		}
-
-		public void Handle(ReservationRejected @event)
-		{
-			var repo = this.repositoryFactory.Invoke();
-			using (repo as IDisposable)
-			{
+        public void Handle(ReservationAccepted @event)
+        {
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
                 lock (lockObject)
                 {
                     var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
@@ -70,14 +60,29 @@ namespace Registration.Handlers
 
                     repo.Save(saga);
                 }
-			}
-		}
+            }
+        }
 
-		public void Handle(ExpireReservation command)
-		{
-			var repo = this.repositoryFactory.Invoke();
-			using (repo as IDisposable)
-			{
+        public void Handle(ReservationRejected @event)
+        {
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
+                lock (lockObject)
+                {
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+                    saga.Handle(@event);
+
+                    repo.Save(saga);
+                }
+            }
+        }
+
+        public void Handle(ExpireReservation command)
+        {
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
                 lock (lockObject)
                 {
                     var saga = repo.Find<RegistrationProcessSaga>(command.Id);
@@ -85,7 +90,22 @@ namespace Registration.Handlers
 
                     repo.Save(saga);
                 }
-			}
-		}
-	}
+            }
+        }
+
+        public void Handle(PaymentReceived @event)
+        {
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
+                lock (lockObject)
+                {
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.OrderId);
+                    saga.Handle(@event);
+
+                    repo.Save(saga);
+                }
+            }
+        }
+    }
 }

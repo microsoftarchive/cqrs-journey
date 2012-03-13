@@ -13,48 +13,26 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
-    public class OrderDTO
+    public class OrderLineDTO
     {
-        public OrderDTO(Guid orderId, int stateValue)
-            : this()
+        public OrderLineDTO(Guid id, Guid seatTypeId, int quantity)
         {
-            this.OrderId = orderId;
-            this.StateValue = stateValue;
-            this.Lines = new ObservableCollection<OrderLineDTO>();
+            this.OrderLineId = id;
+            this.SeatTypeId = seatTypeId;
+            this.Quantity = quantity;
         }
 
-        protected OrderDTO()
+        protected OrderLineDTO()
         {
-            this.Lines = new ObservableCollection<OrderLineDTO>();
         }
 
         [Key]
-        public Guid OrderId { get; private set; }
-        public int StateValue { get; private set; }
-        public virtual ObservableCollection<OrderLineDTO> Lines { get; private set; }
+        public Guid OrderLineId { get; private set; }
 
-        // TODO: make enum
-        public string State
-        {
-            get
-            {
-                switch (this.StateValue)
-                {
-                    case Order.States.Created:
-                        return "Created";
-                    case Order.States.Booked:
-                        return "Booked";
-                    case Order.States.Rejected:
-                        return "Rejected";
-                    case Order.States.Confirmed:
-                        return "Confirmed";
-                }
+        public Guid SeatTypeId { get; private set; }
 
-                return string.Empty;
-            }
-        }
+        public int Quantity { get; private set; }
     }
 }

@@ -40,7 +40,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult ChooseSeats(string conferenceCode)
+        public ActionResult StartRegistration(string conferenceCode)
         {
             var registration = CreateRegistration(conferenceCode);
             registration.Id = Guid.NewGuid();
@@ -49,7 +49,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult ChoosePayment(string conferenceCode, Registration contentModel)
+        public ActionResult StartRegistration(string conferenceCode, Registration contentModel)
         {
             var registration = UpdateRegistration(conferenceCode, contentModel);
 
@@ -69,7 +69,7 @@ namespace Conference.Web.Public.Controllers
             {
                 if (orderDTO.State == "Booked")
                 {
-                    return View(registration);
+                    return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, registrationId = registration.Id });
                 }
                 else if (orderDTO.State == "Rejected")
                 {
@@ -78,24 +78,40 @@ namespace Conference.Web.Public.Controllers
             }
 
             return View("ReservationUnknown", registration);
+        }
 
+        [HttpGet]
+        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid registrationId)
+        {
+            var orderDTO = this.repositoryFactory().Find<OrderDTO>(registrationId);
+            var registration = this.UpdateRegistration(conferenceCode, orderDTO);
+
+            return View(registration);
         }
 
         [HttpPost]
-        public ActionResult ConfirmRegistration(string conferenceCode, Registration contentModel)
+        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid registrationId, PaymentDetails paymentDetails)
         {
-            var registration = contentModel;
+            return RedirectToAction("Display", "Payment", new { conferenceCode = conferenceCode, registrationId = registrationId });
+        }
 
-            var command =
-                new SetRegistrationPaymentDetails
-                {
-                    RegistrationId = registration.Id,
-                    PaymentInformation = "payment"
-                };
+        [HttpGet]
+        public ActionResult TransactionCompleted(string conferenceCode, Guid registrationId, string transactionResult)
+        {
+            if (transactionResult == "accepted")
+            {
+                return RedirectToAction("ThankYou", new { conferenceCode = conferenceCode, registrationId = registrationId });
+            }
+            else
+            {
+                return RedirectToAction("Display", "Conference", new { conferenceCode = conferenceCode });
+            }
+        }
 
-            this.commandBus.Send(command);
-
-            return View("RegistrationConfirmed");
+        [HttpGet]
+        public ActionResult ThankYou(string conferenceCode, Guid registrationId)
+        {
+            return View();
         }
 
         private Registration CreateRegistration(string conferenceCode)
@@ -126,6 +142,20 @@ namespace Conference.Web.Public.Controllers
             {
                 var quantity = contentModel.Seats[i].Quantity;
                 reservation.Seats[i].Quantity = quantity;
+            }
+
+            return reservation;
+        }
+
+        private Registration UpdateRegistration(string conferenceCode, OrderDTO orderDTO)
+        {
+            var reservation = this.CreateRegistration(conferenceCode);
+            reservation.Id = orderDTO.OrderId;
+
+            foreach (var line in orderDTO.Lines)
+            {
+                var seat = reservation.Seats.FirstOrDefault(s => s.SeatId == line.SeatTypeId);
+                seat.Quantity = line.Quantity;
             }
 
             return reservation;

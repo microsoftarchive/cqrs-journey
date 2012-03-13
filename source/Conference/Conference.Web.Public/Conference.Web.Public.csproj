@@ -70,11 +70,13 @@
     <Compile Include="AppRoutes.cs" />
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
+    <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Conference.cs" />
+    <Compile Include="Models\PaymentDetails.cs" />
     <Compile Include="Models\PaymentInfomation.cs" />
     <Compile Include="Models\Registration.cs" />
     <Compile Include="Models\Seat.cs" />
@@ -99,11 +101,12 @@
     <None Include="..\Conference.licenseheader">
       <Link>Conference.licenseheader</Link>
     </None>
-    <Content Include="Views\Registration\ChooseSeats.cshtml" />
-    <Content Include="Views\Registration\ChoosePayment.cshtml" />
-    <Content Include="Views\Registration\RegistrationConfirmed.cshtml" />
     <Content Include="Views\Registration\ReservationUnknown.cshtml" />
     <Content Include="Views\Registration\ReservationRejected.cshtml" />
+    <Content Include="Views\Registration\StartRegistration.cshtml" />
+    <Content Include="Views\Registration\SpecifyPaymentDetails.cshtml" />
+    <Content Include="Views\Registration\ThankYou.cshtml" />
+    <Content Include="Views\Payment\Display.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
