@@ -26,9 +26,6 @@ namespace Azure.Tests
             var receiver = new Mock<IMessageReceiver>();
             var disposable = receiver.As<IDisposable>();
 
-            var disposed = false;
-            disposable.Setup(x => x.Dispose()).Callback(() => disposed = true);
-
             var processor = new CommandProcessor(receiver.Object, Mock.Of<ISerializer>());
 
             processor.Dispose();

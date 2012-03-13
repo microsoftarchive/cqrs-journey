@@ -13,6 +13,7 @@
 namespace Azure.Messaging
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
@@ -61,8 +62,19 @@ namespace Azure.Messaging
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
             var client = factory.CreateTopicClient(this.topic);
 
+            // TODO: what about retries? Watch-out for message reuse. Need to recreate it before retry.
             // Always send async.
             client.Async(message, client.BeginSend, client.EndSend);
         }
+
+        public void Send(IEnumerable<BrokeredMessage> messages)
+        {
+            // TODO: batch/transactional sending? Is it just wrapping with a TransactionScope?
+            foreach (var message in messages)
+            {
+                this.Send(message);
+            }
+        }
+
     }
 }

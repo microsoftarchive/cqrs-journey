@@ -10,28 +10,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.IntegrationTests.SendReceiveIntegration
+namespace Azure.IntegrationTests.TopicSenderIntegration
 {
     using System;
     using System.IO;
-    using System.Runtime.Serialization;
-    using System.Threading;
     using System.Xml.Serialization;
     using Azure.Messaging;
     using Microsoft.ServiceBus.Messaging;
     using Xunit;
 
-    /// <summary>
-    /// Tests the send/receive behavior.
-    /// </summary>
-    public class given_a_sender_and_receiver : IDisposable
+    public class given_a_topic_sender : IDisposable
     {
         private static readonly XmlSerializer serializer = new XmlSerializer(typeof(MessagingSettings));
         private MessagingSettings settings;
         private string topic = Guid.NewGuid().ToString();
-        private string subscription = Guid.NewGuid().ToString();
 
-        public given_a_sender_and_receiver()
+        public given_a_topic_sender()
         {
             using (var file = File.OpenRead("Settings.xml"))
             {
@@ -41,47 +35,23 @@ namespace Azure.IntegrationTests.SendReceiveIntegration
 
         public void Dispose()
         {
-            this.settings.TryDeleteSubscription(this.topic, this.subscription);
             this.settings.TryDeleteTopic(this.topic);
         }
 
         [Fact]
-        public void when_sending_message_then_can_receive_it()
+        public void when_sending_message_then_succeeds()
         {
             var sender = new TopicSender(this.settings, this.topic);
-            var receiver = new SubscriptionReceiver(this.settings, this.topic, this.subscription);
-            var signal = new ManualResetEvent(false);
 
-            var message = default(BrokeredMessage);
-
-            receiver.MessageReceived += (o, e) =>
-            {
-                message = e.Message;
-                signal.Set();
-            };
-
-            receiver.Start();
-
-            var data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
-            sender.Send(new BrokeredMessage(data));
-
-            signal.WaitOne(5000);
-
-            Assert.NotNull(message);
-
-            var received = message.GetBody<Data>();
-
-            Assert.Equal(data.Id, received.Id);
-            Assert.Equal(data.Title, received.Title);
+            sender.Send(new BrokeredMessage(Guid.NewGuid()));
         }
-    }
 
-    [DataContract]
-    public class Data
-    {
-        [DataMember]
-        public Guid Id { get; set; }
-        [DataMember]
-        public string Title { get; set; }
+        [Fact]
+        public void when_sending_message_batch_then_succeeds()
+        {
+            var sender = new TopicSender(this.settings, this.topic);
+
+            sender.Send(new[] { new BrokeredMessage(Guid.NewGuid()), new BrokeredMessage(Guid.NewGuid()) });
+        }
     }
 }

@@ -10,23 +10,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Azure.Tests
 {
-    using System.IO;
+    using Xunit;
 
-    /// <summary>
-    /// Interface for serializers that can read/write an object graph to a stream.
-    /// </summary>
-    public interface ISerializer
+    public class given_a_metadata_provider
     {
-        /// <summary>
-        /// Serializes an object graph to a stream.
-        /// </summary>
-        void Serialize(Stream stream, object graph);
+        [Fact]
+        public void when_getting_metadata_then_returns_type_name()
+        {
+            var provider = new MetadataProvider();
+            var typeName = typeof(given_a_metadata_provider).FullName;
 
-        /// <summary>
-        /// Deserializes an object graph from the specified stream.
-        /// </summary>
-        object Deserialize(Stream stream);
+            var metadata = provider.GetMetadata(this);
+
+            Assert.Contains(typeName, metadata.Values);
+            Assert.Contains("Type", metadata.Keys);
+        }
     }
 }

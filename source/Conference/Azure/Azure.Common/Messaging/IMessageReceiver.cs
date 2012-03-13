@@ -18,11 +18,21 @@ namespace Azure.Messaging
     /// Abstracts the behavior of a receiving component that raises 
     /// an event for every received event.
     /// </summary>
-    public interface IMessageReceiver : IListener
+    public interface IMessageReceiver
     {
         /// <summary>
         /// Event raised whenever a message is received.
         /// </summary>
         event EventHandler<BrokeredMessageEventArgs> MessageReceived;
+
+        /// <summary>
+        /// Starts the listener.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Stops the listener.
+        /// </summary>
+        void Stop();
     }
 }

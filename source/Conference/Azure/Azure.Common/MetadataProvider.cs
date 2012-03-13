@@ -1,4 +1,4 @@
-﻿// ==============================================================================================================
+// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
@@ -12,20 +12,29 @@
 
 namespace Azure
 {
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Abstracts the Start/Stop behavior of a listener component.
+    /// Extracts metadata about a payload so that it's placed in the 
+    /// message envelope.
     /// </summary>
-    public interface IListener
+    public class MetadataProvider : IMetadataProvider
     {
         /// <summary>
-        /// Starts the listener.
+        /// Gets metadata associated with the payload, which can be
+        /// used by processors to filter and selectively subscribe to
+        /// messages.
         /// </summary>
-        void Start();
+        public virtual IDictionary<string, object> GetMetadata(object payload)
+        {
+            var metadata = new Dictionary<string, object>();
+            metadata["Type"] = payload.GetType().FullName;
 
-        /// <summary>
-        /// Stops the listener.
-        /// </summary>
-        void Stop();
+            // NOTE: here we may add an "Area" or "Subsystem" or 
+            // whatever via .NET custom attributes on the payload 
+            // type.
+
+            return metadata;
+        }
     }
 }

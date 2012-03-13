@@ -10,40 +10,40 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.IntegrationTests
+namespace Azure
 {
-    using System;
-    using System.IO;
-    using System.Xml.Serialization;
+    using System.Collections.Generic;
+    using System.Linq;
     using Azure.Messaging;
-    using Microsoft.ServiceBus.Messaging;
-    using Xunit;
+    using Common;
 
-    public class given_a_topic_sender : IDisposable
+    /// <summary>
+    /// Processes incoming events from the bus and routes them to the appropriate 
+    /// handlers.
+    /// </summary>
+    public class EventProcessor : MessageProcessor
     {
-        private static readonly XmlSerializer serializer = new XmlSerializer(typeof(MessagingSettings));
-        private MessagingSettings settings;
-        private string topic = Guid.NewGuid().ToString();
+        private List<IEventHandler> handlers = new List<IEventHandler>();
 
-        public given_a_topic_sender()
+        public EventProcessor(IMessageReceiver receiver, ISerializer serializer)
+            : base(receiver, serializer)
         {
-            using (var file = File.OpenRead("Settings.xml"))
+        }
+
+        public void Register(IEventHandler eventHandler)
+        {
+            this.handlers.Add(eventHandler);
+        }
+
+        protected override void ProcessMessage(object payload)
+        {
+            var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
+
+            foreach (dynamic handler in this.handlers
+                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {
-                this.settings = (MessagingSettings)serializer.Deserialize(file);
+                handler.Handle((dynamic)payload);
             }
-        }
-
-        public void Dispose()
-        {
-            this.settings.TryDeleteTopic(this.topic);
-        }
-
-        [Fact]
-        public void when_sending_message_then_succeeds()
-        {
-            var sender = new TopicSender(this.settings, this.topic);
-
-            sender.Send(new BrokeredMessage(Guid.NewGuid()));
         }
     }
 }

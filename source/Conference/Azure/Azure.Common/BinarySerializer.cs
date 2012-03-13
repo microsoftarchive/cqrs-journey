@@ -1,4 +1,4 @@
-// ==============================================================================================================
+﻿// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
@@ -34,7 +34,7 @@ namespace Azure
         /// Deserializes an object graph of the given <paramref name="objectType"/>
         /// from the specified stream.
         /// </summary>
-        public object Deserialize(Stream stream, Type objectType)
+        public object Deserialize(Stream stream)
         {
             return new BinaryFormatter().Deserialize(stream);
         }

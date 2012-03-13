@@ -50,7 +50,9 @@
   <ItemGroup>
     <Compile Include="BinarySerializerFixture.cs" />
     <Compile Include="CommandProcessorFixture.cs" />
+    <Compile Include="MessageProcessorFixture.cs" />
     <Compile Include="MessagingSettingsFixture.cs" />
+    <Compile Include="MetadataProviderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

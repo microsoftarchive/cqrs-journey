@@ -16,3 +16,5 @@ NuGet.exe
 .nuget
 UpgradeLog*.XML
 _UpgradeReport_Files
+/source/Conference/Azure/ConsoleCommandProcessor/Settings.ignored.xml
+/source/Conference/Azure/ConsoleCommandProcessor/Settings.ignore.xml

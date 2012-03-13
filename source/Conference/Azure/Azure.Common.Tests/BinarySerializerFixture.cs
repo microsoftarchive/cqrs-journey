@@ -34,7 +34,7 @@ namespace Azure.Tests
 
                 stream.Position = 0;
 
-                var deserialized = (Command)adapter.Deserialize(stream, typeof(Command));
+                var deserialized = (Command)adapter.Deserialize(stream);
 
                 Assert.Equal(command.Id, deserialized.Id);
                 Assert.Equal(command.Title, deserialized.Title);

@@ -1,4 +1,4 @@
-﻿// ==============================================================================================================
+// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
@@ -12,108 +12,54 @@
 
 namespace Azure
 {
-    using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Reflection;
     using Azure.Messaging;
     using Common;
-    using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
-    /// Processes incoming messages from the bus and routes them to the appropriate 
+    /// Processes incoming commands from the bus and routes them to the appropriate 
     /// handlers.
     /// </summary>
-    public class CommandProcessor : IListener, IDisposable
+    public class CommandProcessor : MessageProcessor
     {
         private List<ICommandHandler> handlers = new List<ICommandHandler>();
-        private IMessageReceiver receiver;
-        private ISerializer serializer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandProcessor"/> class.
+        /// </summary>
+        /// <param name="receiver">The receiver to use. If the receiver is <see cref="IDisposable"/>, it will be disposed when the processor is 
+        /// disposed.</param>
+        /// <param name="serializer">The serializer to use for the message body.</param>
         public CommandProcessor(IMessageReceiver receiver, ISerializer serializer)
+            : base(receiver, serializer)
         {
-            this.receiver = receiver;
-            this.serializer = serializer;
-
-            this.receiver.MessageReceived += this.OnMessageReceived;
         }
 
+        /// <summary>
+        /// Registers the specified command handler.
+        /// </summary>
         public void Register(ICommandHandler commandHandler)
         {
             this.handlers.Add(commandHandler);
         }
 
-        public void Start()
+        /// <summary>
+        /// Processes the message by calling the registered handler.
+        /// </summary>
+        protected override void ProcessMessage(object payload)
         {
-            this.receiver.Start();
-        }
+            var handlerType = typeof(ICommandHandler<>).MakeGenericType(payload.GetType());
 
-        public void Stop()
-        {
-            this.receiver.Stop();
-        }
-
-        public void Dispose()
-        {
-            var disposable = this.receiver as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
-        }
-
-        private void OnMessageReceived(object sender, BrokeredMessageEventArgs args)
-        {
-            // Grab type information from message properties.
-
-            object typeValue = null;
-            object assemblyValue = null;
-
-            if (args.Message.Properties.TryGetValue("Type", out typeValue) &&
-                args.Message.Properties.TryGetValue("Assembly", out assemblyValue))
+            // TODO: throw if more than one handler here? This would never assure us 
+            // that there aren't duplicate handlers in multiple processes, so it's kinda 
+            // pointless here. Also, what are we supposed to do if we throw? DeadLetter 
+            // the message? Kill the process? TBD.
+            foreach (dynamic handler in this.handlers
+                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {
-                var typeName = (string)args.Message.Properties["Type"];
-                var assemblyName = (string)args.Message.Properties["Assembly"];
-
-                var type = Type.GetType(typeName);
-
-                if (type != null)
-                {
-                    ReadMessage(args.Message, type);
-                    return;
-                }
-
-                var assembly = Assembly.LoadWithPartialName(assemblyName);
-                if (assembly != null)
-                {
-                    type = assembly.GetType(typeName);
-                    if (type != null)
-                    {
-                        ReadMessage(args.Message, type);
-                        return;
-                    }
-                }
+                handler.Handle((dynamic)payload);
             }
-
-            // TODO: if we got here, it's 'cause we couldn't read the type.
-            // Should we throw? Log? Ignore?
-            args.Message.Async(args.Message.BeginAbandon, args.Message.EndAbandon);
-        }
-
-        private void ReadMessage(BrokeredMessage message, Type commandType)
-        {
-            using (var stream = message.GetBody<Stream>())
-            {
-                var command = this.serializer.Deserialize(stream, commandType);
-                var handlerType = typeof(ICommandHandler<>).MakeGenericType(commandType);
-
-                foreach (dynamic handler in this.handlers
-                    .Where(x => handlerType.IsAssignableFrom(x.GetType())))
-                {
-                    handler.Handle((dynamic)command);
-                }
-            }
-
-            message.Async(message.BeginComplete, message.EndComplete);
         }
 
     }
