@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <MessagingSettings>
     <ServiceUriScheme>sb</ServiceUriScheme>
-    <ServiceNamespace>danielkzu</ServiceNamespace>
+    <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
     <ServicePath></ServicePath>
     <TokenIssuer>owner</TokenIssuer>
-    <TokenAccessKey>4q2LqEP9HTlLqGvyhiGxZ0DJGjYEUPfC/zstbSeopuI=</TokenAccessKey>
+    <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
 </MessagingSettings>
