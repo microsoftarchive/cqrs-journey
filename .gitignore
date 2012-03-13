@@ -12,7 +12,7 @@ _ReSharper.*
 *.resharper
 TestResults
 packages
-NuGet.exe
+build/temp
 .nuget
 UpgradeLog*.XML
 _UpgradeReport_Files
