@@ -12,7 +12,6 @@
 
 namespace Azure
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Azure.Messaging;
@@ -36,9 +35,9 @@ namespace Azure
             this.handlers.Add(eventHandler);
         }
 
-        protected override void ProcessMessage(object payload, Type payloadType)
+        protected override void ProcessMessage(object payload)
         {
-            var handlerType = typeof(IEventHandler<>).MakeGenericType(payloadType);
+            var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
 
             foreach (dynamic handler in this.handlers
                 .Where(x => handlerType.IsAssignableFrom(x.GetType())))

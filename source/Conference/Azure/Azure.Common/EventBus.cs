@@ -14,6 +14,7 @@ namespace Azure
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Azure.Messaging;
     using Common;
     using Microsoft.ServiceBus.Messaging;
@@ -24,41 +25,51 @@ namespace Azure
     public class EventBus : IEventBus
     {
         private IMessageSender sender;
+        private IMetadataProvider metadata;
         private ISerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventBus"/> class.
         /// </summary>
-        public EventBus(IMessageSender sender, ISerializer serializer)
+        public EventBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
         {
             this.sender = sender;
+            this.metadata = metadata;
             this.serializer = serializer;
         }
 
         /// <summary>
-        /// Sends the specified command.
+        /// Sends the specified event.
         /// </summary>
         public void Publish(IEvent @event)
+        {
+            var message = BuildMessage(@event);
+
+            this.sender.Send(message);
+        }
+
+        /// <summary>
+        /// Publishes the specified events.
+        /// </summary>
+        public void Publish(IEnumerable<IEvent> events)
+        {
+            this.sender.Send(events.Select(e => BuildMessage(e)));
+        }
+
+        private BrokeredMessage BuildMessage(IEvent @event)
         {
             var stream = new MemoryStream();
             this.serializer.Serialize(stream, @event);
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);
-            message.Properties["Type"] = @event.GetType().FullName;
-            // TODO: should we use Path.GetFileNameWithoutExtension(message.GetType().Assembly.ManifestModule.FullyQualifiedName) instead? (partial trust?)
-            message.Properties["Assembly"] = @event.GetType().Assembly.GetName().Name;
 
-            this.sender.Send(message);
-        }
-
-        public void Publish(IEnumerable<IEvent> events)
-        {
-            // TODO: batch/transactional sending? Is it just wrapping with a TransactionScope?
-            foreach (var @event in events)
+            foreach (var pair in this.metadata.GetMetadata(@event))
             {
-                this.Publish(@event);
+                message.Properties[pair.Key] = pair.Value;
             }
+
+            return message;
         }
     }
 }

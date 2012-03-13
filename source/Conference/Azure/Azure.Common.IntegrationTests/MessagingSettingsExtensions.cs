@@ -14,12 +14,22 @@ namespace Azure
 {
     using Azure.Messaging;
     using Microsoft.ServiceBus;
+    using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
     /// Admin helpers for tests.
     /// </summary>
     public static class BusSettingsExtensions
     {
+        public static MessageReceiver CreateMessageReceiver(this MessagingSettings settings, string topic, string subscription)
+        {
+            var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
+            var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+            var messagingFactory = MessagingFactory.Create(serviceUri, tokenProvider);
+
+            return messagingFactory.CreateMessageReceiver(SubscriptionClient.FormatDeadLetterPath(topic, subscription));
+        }
+
         public static void CreateTopic(this MessagingSettings settings, string topic)
         {
             new NamespaceManager(

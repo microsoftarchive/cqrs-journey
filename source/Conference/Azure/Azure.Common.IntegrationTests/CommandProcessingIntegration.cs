@@ -25,7 +25,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         public void when_receiving_command_then_calls_handler()
         {
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
             var e = new ManualResetEvent(false);
             var handler = new FooCommandHandler(e);
@@ -53,7 +53,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
             var processor = new CommandProcessor(receiver, new BinarySerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
             var e = new ManualResetEvent(false);
             var handler = new FooCommandHandler(e);
@@ -84,7 +84,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         public void when_sending_multiple_commands_then_calls_all_handlers()
         {
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
             var fooEvent = new ManualResetEvent(false);
             var fooHandler = new FooCommandHandler(fooEvent);

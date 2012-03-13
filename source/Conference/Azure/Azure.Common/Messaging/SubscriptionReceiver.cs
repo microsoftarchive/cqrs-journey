@@ -85,7 +85,7 @@ namespace Azure.Messaging
 
             this.cancellationSource = new CancellationTokenSource();
 
-            Task.Factory.StartNew(this.ReceiveMessages, this.cancellationSource.Token);
+            Task.Factory.StartNew(this.ReceiveMessages, this.cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Azure.Messaging
         {
             while (true)
             {
-                var message = this.client.Receive();
+                var message = this.client.Receive(TimeSpan.Zero);
 
                 if (message == null)
                 {

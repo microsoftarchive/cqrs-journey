@@ -46,9 +46,10 @@
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="CommandProcessor.cs" />
+    <Compile Include="MetadataProvider.cs" />
     <Compile Include="EventBus.cs" />
     <Compile Include="EventProcessor.cs" />
-    <Compile Include="IListener.cs" />
+    <Compile Include="IMetadataProvider.cs" />
     <Compile Include="MessageProcessor.cs" />
     <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
     <Compile Include="Messaging\IMessageReceiver.cs" />

@@ -12,31 +12,19 @@
 
 namespace Azure
 {
-    using System;
-    using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using Common;
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Serializes using a binary formatter.
+    /// Extracts metadata about a payload so that it's placed in the 
+    /// message envelope.
     /// </summary>
-    public class BinarySerializer : ISerializer
+    public interface IMetadataProvider
     {
         /// <summary>
-        /// Serializes an object graph to a stream.
+        /// Gets metadata associated with the payload, which can be 
+        /// used by processors to filter and selectively subscribe to 
+        /// messages.
         /// </summary>
-        public void Serialize(Stream stream, object graph)
-        {
-            new BinaryFormatter().Serialize(stream, graph);
-        }
-
-        /// <summary>
-        /// Deserializes an object graph of the given <paramref name="objectType"/>
-        /// from the specified stream.
-        /// </summary>
-        public object Deserialize(Stream stream)
-        {
-            return new BinaryFormatter().Deserialize(stream);
-        }
+        IDictionary<string, object> GetMetadata(object payload);
     }
 }

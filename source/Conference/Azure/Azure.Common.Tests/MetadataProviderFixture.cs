@@ -10,21 +10,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure
+namespace Azure.Tests
 {
-    /// <summary>
-    /// Abstracts the Start/Stop behavior of a listener component.
-    /// </summary>
-    public interface IListener
-    {
-        /// <summary>
-        /// Starts the listener.
-        /// </summary>
-        void Start();
+    using Xunit;
 
-        /// <summary>
-        /// Stops the listener.
-        /// </summary>
-        void Stop();
+    public class given_a_metadata_provider
+    {
+        [Fact]
+        public void when_getting_metadata_then_returns_type_name()
+        {
+            var provider = new MetadataProvider();
+            var typeName = typeof(given_a_metadata_provider).FullName;
+
+            var metadata = provider.GetMetadata(this);
+
+            Assert.Contains(typeName, metadata.Values);
+            Assert.Contains("Type", metadata.Keys);
+        }
     }
 }

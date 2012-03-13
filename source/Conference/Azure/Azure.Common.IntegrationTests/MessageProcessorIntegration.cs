@@ -18,12 +18,14 @@ namespace Azure.IntegrationTests.MessageProcessorIntegration
     using Azure.Messaging;
     using Common;
     using Microsoft.ServiceBus.Messaging;
+    using Moq;
+    using Moq.Protected;
     using Xunit;
 
     public class given_a_processor : given_a_topic_and_subscription
     {
         [Fact]
-        public void when_type_can_not_be_loaded_then_abandons_message()
+        public void when_message_receivedthen_calls_process_message()
         {
             var waiter = new ManualResetEventSlim();
             var sender = new TopicSender(this.Settings, this.Topic);
@@ -37,67 +39,46 @@ namespace Azure.IntegrationTests.MessageProcessorIntegration
             var stream = new MemoryStream();
             new BinarySerializer().Serialize(stream, "Foo");
             stream.Position = 0;
-            var message = new BrokeredMessage(stream, true);
-            message.Properties["Type"] = "foo";
-            message.Properties["Assembly"] = "bar";
-            sender.Send(message);
+            sender.Send(new BrokeredMessage(stream, true));
 
             waiter.Wait(5000);
 
-            Assert.Null(processor.Payload);
-            Assert.Null(processor.PayloadType);
+            Assert.NotNull(processor.Payload);
         }
 
         [Fact]
-        public void when_type_can_be_loaded_from_name_then_calls_process_message()
+        public void when_processing_throws_then_sends_message_to_dead_letter()
         {
             var waiter = new ManualResetEventSlim();
             var sender = new TopicSender(this.Settings, this.Topic);
-            var processor = new FakeProcessor(
-                waiter,
-                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription),
-                new BinarySerializer());
+            var processor = new Mock<MessageProcessor>(
+                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer()) { CallBase = true };
 
-            processor.Start();
+            processor.Protected()
+                .Setup("ProcessMessage", ItExpr.IsAny<object>())
+                .Callback(() =>
+                {
+                    waiter.Set();
+                    throw new ArgumentException();
+                });
+
+            processor.Object.Start();
 
             var stream = new MemoryStream();
             new BinarySerializer().Serialize(stream, "Foo");
             stream.Position = 0;
-            var message = new BrokeredMessage(stream, true);
-            message.Properties["Type"] = typeof(string).FullName;
-            message.Properties["Assembly"] = typeof(string).Assembly.GetName().Name;
-            sender.Send(message);
+            sender.Send(new BrokeredMessage(stream, true));
 
             waiter.Wait(5000);
 
-            Assert.NotNull(processor.Payload);
-            Assert.Equal(typeof(string), processor.PayloadType);
-        }
+            var deadReceiver = this.Settings.CreateMessageReceiver(this.Topic, this.Subscription);
 
-        [Fact]
-        public void when_type_can_be_loaded_from_assembly_then_calls_process_message()
-        {
-            var waiter = new ManualResetEventSlim();
-            var sender = new TopicSender(this.Settings, this.Topic);
-            var processor = new FakeProcessor(
-                waiter,
-                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription),
-                new BinarySerializer());
+            var deadMessage = deadReceiver.Receive(TimeSpan.FromSeconds(5));
 
-            processor.Start();
+            Assert.NotNull(deadMessage);
+            var data = new BinarySerializer().Deserialize(deadMessage.GetBody<Stream>());
 
-            var stream = new MemoryStream();
-            new BinarySerializer().Serialize(stream, new Data());
-            stream.Position = 0;
-            var message = new BrokeredMessage(stream, true);
-            message.Properties["Type"] = typeof(Data).FullName;
-            message.Properties["Assembly"] = typeof(Data).Assembly.GetName().Name;
-            sender.Send(message);
-
-            waiter.Wait(5000);
-
-            Assert.NotNull(processor.Payload);
-            Assert.Equal(typeof(Data), processor.PayloadType);
+            Assert.Equal("Foo", (string)data);
         }
     }
 
@@ -111,16 +92,14 @@ namespace Azure.IntegrationTests.MessageProcessorIntegration
             this.waiter = waiter;
         }
 
-        protected override void ProcessMessage(object payload, Type payloadType)
+        protected override void ProcessMessage(object payload)
         {
             this.Payload = payload;
-            this.PayloadType = payloadType;
 
             this.waiter.Set();
         }
 
         public object Payload { get; private set; }
-        public Type PayloadType { get; private set; }
     }
 
     [Serializable]

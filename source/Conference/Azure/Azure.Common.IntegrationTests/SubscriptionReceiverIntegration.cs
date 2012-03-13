@@ -37,26 +37,12 @@ namespace Azure.IntegrationTests.SubscriptionReceiverIntegration
         }
     }
 
-    public class given_existing_subscription : given_messaging_settings, IDisposable
+    public class given_existing_subscription : given_a_topic_and_subscription, IDisposable
     {
-        private string topic = Guid.NewGuid().ToString();
-        private string subscription = Guid.NewGuid().ToString();
-
-        public given_existing_subscription()
-        {
-            this.Settings.CreateSubscription(topic, subscription);
-        }
-
-        public void Dispose()
-        {
-            this.Settings.TryDeleteSubscription(topic, subscription);
-            this.Settings.TryDeleteTopic(topic);
-        }
-
         [Fact]
         public void when_receiver_created_then_ignores_error_on_recreating_subscription()
         {
-            new SubscriptionReceiver(this.Settings, this.topic, Guid.NewGuid().ToString());
+            new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
         }
     }
 

@@ -14,6 +14,7 @@ namespace Azure
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using Azure.Messaging;
     using Common;
     using Microsoft.ServiceBus.Messaging;
@@ -24,14 +25,16 @@ namespace Azure
     public class CommandBus : ICommandBus
     {
         private IMessageSender sender;
+        private IMetadataProvider metadata;
         private ISerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandBus"/> class.
         /// </summary>
-        public CommandBus(IMessageSender sender, ISerializer serializer)
+        public CommandBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
         {
             this.sender = sender;
+            this.metadata = metadata;
             this.serializer = serializer;
         }
 
@@ -40,25 +43,30 @@ namespace Azure
         /// </summary>
         public void Send(Envelope<ICommand> command)
         {
-            var stream = new MemoryStream();
-            this.serializer.Serialize(stream, command.Body);
-            stream.Position = 0;
-
-            var message = new BrokeredMessage(stream, true);
-            message.Properties["Type"] = command.Body.GetType().FullName;
-            // TODO: should we use Path.GetFileNameWithoutExtension(message.GetType().Assembly.ManifestModule.FullyQualifiedName) instead? (partial trust?)
-            message.Properties["Assembly"] = command.Body.GetType().Assembly.GetName().Name;
+            var message = BuildMessage(command);
 
             this.sender.Send(message);
         }
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
-            // TODO: batch/transactional sending? Is it just wrapping with a TransactionScope?
-            foreach (var command in commands)
+            this.sender.Send(commands.Select(command => BuildMessage(command)));
+        }
+
+        private BrokeredMessage BuildMessage(Envelope<ICommand> command)
+        {
+            var stream = new MemoryStream();
+            this.serializer.Serialize(stream, command.Body);
+            stream.Position = 0;
+
+            var message = new BrokeredMessage(stream, true);
+
+            foreach (var pair in this.metadata.GetMetadata(command.Body))
             {
-                this.Send(command);
+                message.Properties[pair.Key] = pair.Value;
             }
+
+            return message;
         }
     }
 }

@@ -12,7 +12,6 @@
 
 namespace Common
 {
-    using System;
     using System.IO;
 
     /// <summary>
@@ -26,9 +25,8 @@ namespace Common
         void Serialize(Stream stream, object graph);
 
         /// <summary>
-        /// Deserializes an object graph of the given <paramref name="objectType"/> 
-        /// from the specified stream.
+        /// Deserializes an object graph from the specified stream.
         /// </summary>
-        object Deserialize(Stream stream, Type objectType);
+        object Deserialize(Stream stream);
     }
 }

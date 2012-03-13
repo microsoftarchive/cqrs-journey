@@ -45,5 +45,13 @@ namespace Azure.IntegrationTests.TopicSenderIntegration
 
             sender.Send(new BrokeredMessage(Guid.NewGuid()));
         }
+
+        [Fact]
+        public void when_sending_message_batch_then_succeeds()
+        {
+            var sender = new TopicSender(this.settings, this.topic);
+
+            sender.Send(new[] { new BrokeredMessage(Guid.NewGuid()), new BrokeredMessage(Guid.NewGuid()) });
+        }
     }
 }

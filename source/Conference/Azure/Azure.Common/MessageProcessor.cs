@@ -14,16 +14,14 @@ namespace Azure
 {
     using System;
     using System.IO;
-    using System.Reflection;
     using Azure.Messaging;
     using Common;
-    using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
     /// incoming messages from a receiver.
     /// </summary>
-    public abstract class MessageProcessor : IListener, IDisposable
+    public abstract class MessageProcessor : IDisposable
     {
         private bool disposed;
         private bool started = false;
@@ -76,7 +74,7 @@ namespace Azure
             GC.SuppressFinalize(this);
         }
 
-        protected abstract void ProcessMessage(object payload, Type payloadType);
+        protected abstract void ProcessMessage(object payload);
 
         /// <summary>
         /// Disposes the resources used by the processor.
@@ -106,52 +104,26 @@ namespace Azure
 
         private void OnMessageReceived(object sender, BrokeredMessageEventArgs args)
         {
-            // Grab type information from message properties.
+            // NOTE: type information does not belong here. It's a responsibility 
+            // of the serializer to be self-contained and put any information it 
+            // might need for rehytration.
+            var message = args.Message;
 
-            object typeValue = null;
-            object assemblyValue = null;
-
-            if (args.Message.Properties.TryGetValue("Type", out typeValue) &&
-                args.Message.Properties.TryGetValue("Assembly", out assemblyValue))
-            {
-                var typeName = (string)args.Message.Properties["Type"];
-                var assemblyName = (string)args.Message.Properties["Assembly"];
-
-                var type = Type.GetType(typeName);
-
-                if (type != null)
-                {
-                    this.ProcessMessage(args.Message, type);
-                    return;
-                }
-
-                var assembly = Assembly.LoadWithPartialName(assemblyName);
-                if (assembly != null)
-                {
-                    type = assembly.GetType(typeName);
-                    if (type != null)
-                    {
-                        this.ProcessMessage(args.Message, type);
-                        return;
-                    }
-                }
-            }
-
-            // TODO: if we got here, it's 'cause we couldn't read the type.
-            // Should we throw? Log? Ignore?
-            args.Message.Async(args.Message.BeginAbandon, args.Message.EndAbandon);
-        }
-
-        private void ProcessMessage(BrokeredMessage message, Type messageType)
-        {
             using (var stream = message.GetBody<Stream>())
             {
-                var payload = this.serializer.Deserialize(stream, messageType);
+                var payload = this.serializer.Deserialize(stream);
                 // TODO: error handling if handlers fail?
-                ProcessMessage(payload, messageType);
+                try
+                {
+                    ProcessMessage(payload);
+                    message.Async(message.BeginComplete, message.EndComplete);
+                }
+                catch (Exception)
+                {
+                    // TODO: retries, retry count, Abandon vs DeadLetter?
+                    args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
+                }
             }
-
-            message.Async(message.BeginComplete, message.EndComplete);
         }
 
         private void ThrowIfDisposed()

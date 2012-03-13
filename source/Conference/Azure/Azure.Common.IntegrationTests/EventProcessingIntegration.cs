@@ -25,7 +25,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
         public void when_receiving_event_then_calls_handler()
         {
             var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
             var e = new ManualResetEvent(false);
             var handler = new FooEventHandler(e);
@@ -53,7 +53,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
             var processor = new EventProcessor(receiver, new BinarySerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
             var e = new ManualResetEvent(false);
             var handler = new FooEventHandler(e);
@@ -84,7 +84,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
         public void when_sending_multiple_events_then_calls_all_handlers()
         {
             var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new BinarySerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
             var fooEvent = new ManualResetEvent(false);
             var fooHandler = new FooEventHandler(fooEvent);

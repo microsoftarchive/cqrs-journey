@@ -12,6 +12,7 @@
 
 namespace Azure.Messaging
 {
+    using System.Collections.Generic;
     using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
@@ -23,5 +24,10 @@ namespace Azure.Messaging
         /// Sends the specified message.
         /// </summary>
         void Send(BrokeredMessage message);
+
+        /// <summary>
+        /// Sends a batch of messages.
+        /// </summary>
+        void Send(IEnumerable<BrokeredMessage> messages);
     }
 }

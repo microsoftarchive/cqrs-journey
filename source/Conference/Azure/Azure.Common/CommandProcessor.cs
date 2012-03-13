@@ -12,7 +12,6 @@
 
 namespace Azure
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Azure.Messaging;
@@ -36,9 +35,9 @@ namespace Azure
             this.handlers.Add(commandHandler);
         }
 
-        protected override void ProcessMessage(object payload, Type payloadType)
+        protected override void ProcessMessage(object payload)
         {
-            var handlerType = typeof(ICommandHandler<>).MakeGenericType(payloadType);
+            var handlerType = typeof(ICommandHandler<>).MakeGenericType(payload.GetType());
 
             // TODO: throw if more than one handler here?
             foreach (dynamic handler in this.handlers
