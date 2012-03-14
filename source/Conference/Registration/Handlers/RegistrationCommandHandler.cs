@@ -36,7 +36,7 @@ namespace Registration.Handlers
 
             using (repository as IDisposable)
             {
-                var tickets = command.Tickets.Select(t => new TicketOrderLine(t.TicketTypeId, t.Quantity)).ToList();
+                var tickets = command.Tickets.Select(t => new OrderItem(t.TicketTypeId, t.Quantity)).ToList();
 
                 var order = new Order(command.RegistrationId, Guid.NewGuid(), command.ConferenceId, tickets);
 

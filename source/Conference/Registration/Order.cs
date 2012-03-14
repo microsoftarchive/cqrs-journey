@@ -36,12 +36,12 @@ namespace Registration
         {
         }
 
-        public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<TicketOrderLine> lines)
+        public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> items)
         {
             this.Id = id;
             this.UserId = userId;
             this.ConferenceId = conferenceId;
-            this.Lines = new ObservableCollection<TicketOrderLine>(lines);
+            this.Items = new ObservableCollection<OrderItem>(items);
 
             // TODO: it feels awkward publishing an event with ALL the details for the order.
             // should we just do the following and let the saga handler populate all the info?
@@ -52,7 +52,7 @@ namespace Registration
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
                     UserId = this.UserId,
-                    Tickets = this.Lines.Select(x => new OrderPlaced.Ticket { TicketTypeId = x.TicketTypeId, Quantity = x.Quantity }).ToArray()
+                    Tickets = this.Items.Select(x => new OrderPlaced.Ticket { TicketTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToArray()
                 });
         }
 
@@ -62,7 +62,7 @@ namespace Registration
 
         public virtual Guid ConferenceId { get; private set; }
 
-        public virtual ObservableCollection<TicketOrderLine> Lines { get; private set; }
+        public virtual ObservableCollection<OrderItem> Items { get; private set; }
 
         public virtual int State { get; private set; }
 
@@ -86,26 +86,5 @@ namespace Registration
 
             this.State = States.Rejected;
         }
-    }
-
-    public class TicketOrderLine
-    {
-        public TicketOrderLine(Guid ticketTypeId, int quantity)
-        {
-            this.Id = Guid.NewGuid();
-
-            this.TicketTypeId = ticketTypeId;
-            this.Quantity = quantity;
-        }
-
-        protected TicketOrderLine()
-        {
-        }
-
-        public Guid Id { get; private set; }
-
-        public Guid TicketTypeId { get; private set; }
-
-        public int Quantity { get; private set; }
     }
 }
