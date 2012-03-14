@@ -28,7 +28,7 @@ $packages = $packages | Select -uniq
 $packages = [system.string]::Join("`r`n", $packages)
 
 # prompt to continue
-$caption = "DOWLOADING NUGET PACKAGE DEPENDENCIES";
+$caption = "DOWNLOADING NUGET PACKAGE DEPENDENCIES";
 $message = "You are about to automatically download the following NuGet package dependencies required to build the sample application:
 " + $packages + "
  
