@@ -73,7 +73,7 @@ namespace Registration.Tests.OrderFixture
 
         private void PlaceOrder()
         {
-            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            var lines = new[] { new OrderItem(TicketTypeId, 5) };
             this.sut = new Order(OrderId, UserId, ConferenceId, lines);
         }
     }
@@ -92,7 +92,7 @@ namespace Registration.Tests.OrderFixture
         {
             this.sutProvider = sutProvider;
 
-            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            var lines = new[] { new OrderItem(TicketTypeId, 5) };
             this.sut = new Order(OrderId, UserId, ConferenceId, lines);
 
             this.sut = this.sutProvider.PersistReload(this.sut);

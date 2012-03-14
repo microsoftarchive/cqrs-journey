@@ -10,26 +10,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
 
-    public class OrderItemDTO
+    public class OrderItem
     {
-        public OrderItemDTO(Guid id, Guid seatTypeId, int quantity)
+        public OrderItem(Guid seatTypeId, int quantity)
         {
-            this.OrderItemId = id;
+            this.Id = Guid.NewGuid();
+
             this.SeatTypeId = seatTypeId;
             this.Quantity = quantity;
         }
 
-        protected OrderItemDTO()
+        protected OrderItem()
         {
         }
 
-        [Key]
-        public Guid OrderItemId { get; private set; }
+        public Guid Id { get; private set; }
 
         public Guid SeatTypeId { get; private set; }
 

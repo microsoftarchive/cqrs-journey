@@ -23,18 +23,18 @@ namespace Registration.ReadModel
         {
             this.OrderId = orderId;
             this.StateValue = stateValue;
-            this.Lines = new ObservableCollection<OrderLineDTO>();
+            this.Lines = new ObservableCollection<OrderItemDTO>();
         }
 
         protected OrderDTO()
         {
-            this.Lines = new ObservableCollection<OrderLineDTO>();
+            this.Lines = new ObservableCollection<OrderItemDTO>();
         }
 
         [Key]
         public Guid OrderId { get; private set; }
         public int StateValue { get; private set; }
-        public virtual ObservableCollection<OrderLineDTO> Lines { get; private set; }
+        public virtual ObservableCollection<OrderItemDTO> Lines { get; private set; }
 
         // TODO: make enum
         public string State

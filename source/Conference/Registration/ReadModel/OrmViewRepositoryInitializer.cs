@@ -44,14 +44,14 @@ SELECT
 FROM dbo.Orders");
 
                 context.Database.ExecuteSqlCommand(@"
-CREATE VIEW [dbo].[OrderLinesView]
+CREATE VIEW [dbo].[OrderItemsView]
 AS
 SELECT     
-    dbo.TicketOrderLines.Id AS OrderLineId, 
-    dbo.TicketOrderLines.Order_Id AS OrdersView_Id, 
-    dbo.TicketOrderLines.TicketTypeId as SeatTypeId,
-    dbo.TicketOrderLines.Quantity as Quantity
-FROM dbo.TicketOrderLines");
+    dbo.OrderItems.Id AS OrderItemId, 
+    dbo.OrderItems.Order_Id AS OrdersView_Id, 
+    dbo.OrderItems.SeatTypeId as SeatTypeId,
+    dbo.OrderItems.Quantity as Quantity
+FROM dbo.OrderItems");
             }
 
             if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.tables WHERE object_id = OBJECT_ID(N'[dbo].[ConferencesView]')").Any())
