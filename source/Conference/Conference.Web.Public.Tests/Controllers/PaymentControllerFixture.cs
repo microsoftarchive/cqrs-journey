@@ -31,10 +31,10 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
         public void when_displaying_then_returns_view()
         {
             // Arrange
-            var registrationId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
 
             // Act
-            var result = this.sut.Display("conference", registrationId) as ViewResult;
+            var result = this.sut.Display("conference", orderId) as ViewResult;
 
             // Assert
             Assert.NotNull(result);
@@ -45,10 +45,10 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
         public void when_accepting_payment_then_returs_redirect()
         {
             // Arrange
-            var registrationId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
 
             // Act
-            var result = this.sut.AcceptPayment("conference", registrationId) as RedirectToRouteResult;
+            var result = this.sut.AcceptPayment("conference", orderId) as RedirectToRouteResult;
 
             // Assert
             Assert.NotNull(result);
@@ -56,7 +56,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
             Assert.Equal("Registration", result.RouteValues["controller"]);
             Assert.Equal("TransactionCompleted", result.RouteValues["action"]);
             Assert.Equal("conference", result.RouteValues["conferenceCode"]);
-            Assert.Equal(registrationId, result.RouteValues["registrationId"]);
+            Assert.Equal(orderId, result.RouteValues["orderId"]);
             Assert.Equal("accepted", result.RouteValues["transactionResult"]);
         }
 
@@ -64,10 +64,10 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
         public void when_rejecting_payment_then_returs_redirect()
         {
             // Arrange
-            var registrationId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
 
             // Act
-            var result = this.sut.RejectPayment("conference", registrationId) as RedirectToRouteResult;
+            var result = this.sut.RejectPayment("conference", orderId) as RedirectToRouteResult;
 
             // Assert
             Assert.NotNull(result);
@@ -75,7 +75,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
             Assert.Equal("Registration", result.RouteValues["controller"]);
             Assert.Equal("TransactionCompleted", result.RouteValues["action"]);
             Assert.Equal("conference", result.RouteValues["conferenceCode"]);
-            Assert.Equal(registrationId, result.RouteValues["registrationId"]);
+            Assert.Equal(orderId, result.RouteValues["orderId"]);
             Assert.Equal("rejected", result.RouteValues["transactionResult"]);
         }
     }

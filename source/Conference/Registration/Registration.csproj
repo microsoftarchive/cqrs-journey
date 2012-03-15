@@ -48,11 +48,11 @@
   <ItemGroup>
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
-    <Compile Include="Commands\ExpireReservation.cs" />
+    <Compile Include="Commands\ExpireSeatReservation.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
-    <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
+    <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="ConferenceSeatsAvailability.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
     <Compile Include="ReadModel\ConferenceDTO.cs" />
-    <Compile Include="ReadModel\ConferenceSeatDTO.cs" />
+    <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
     <Compile Include="ReadModel\OrderLineDTO.cs" />
     <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
