@@ -16,11 +16,11 @@ namespace Registration.Commands
     using System;
     using Common;
 
-    public class SetRegistrationPaymentDetails : ICommand
+    public class SetOrderPaymentDetails : ICommand
     {
         public Guid Id { get; private set; }
 
-        public Guid RegistrationId { get; set; }
+        public Guid OrderId { get; set; }
 
         public string PaymentInformation { get; set; }
     }
