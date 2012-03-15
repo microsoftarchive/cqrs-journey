@@ -14,20 +14,25 @@
 namespace Conference.Web.Public.Models
 {
     using System;
+    using System.Collections.Generic;
 
-    public class Seat
+    public class OrderViewModel
     {
-        public Guid SeatId { get; set; }
-
-        public string SeatDescription { get; set; }
-
-        public double Price { get; set; }
-
-        public int Quantity { get; set; }
-
-        public double Total
+        public OrderViewModel()
         {
-            get { return this.Price * this.Quantity; }
+            this.Items = new List<OrderItemViewModel>();
         }
+
+        public Guid Id { get; set; }
+
+        public Guid ConferenceId { get; set; }
+
+        public string ConferenceCode { get; set; }
+
+        public string ConferenceName { get; set; }
+
+        public IList<OrderItemViewModel> Items { get; set; }
+
+        public double Total { get; set; }
     }
 }
