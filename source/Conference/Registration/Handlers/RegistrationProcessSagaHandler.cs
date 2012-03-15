@@ -24,7 +24,7 @@ namespace Registration.Handlers
         IEventHandler<PaymentReceived>,
         IEventHandler<ReservationAccepted>, 
         IEventHandler<ReservationRejected>, 
-        ICommandHandler<ExpireSeatReservation>
+        ICommandHandler<ExpireOrder>
     {
         private object lockObject = new object();
         private Func<ISagaRepository> repositoryFactory;
@@ -79,7 +79,7 @@ namespace Registration.Handlers
             }
         }
 
-        public void Handle(ExpireSeatReservation command)
+        public void Handle(ExpireOrder command)
         {
             var repo = this.repositoryFactory.Invoke();
             using (repo as IDisposable)

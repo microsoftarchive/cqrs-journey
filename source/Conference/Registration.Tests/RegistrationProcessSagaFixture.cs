@@ -120,10 +120,10 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_enqueues_expiration_message()
         {
-            var message = sut.Commands.Single(x => x.Body is ExpireSeatReservation);
+            var message = sut.Commands.Single(x => x.Body is ExpireOrder);
 
             Assert.Equal(TimeSpan.FromMinutes(15), message.Delay);
-            Assert.IsAssignableFrom<ExpireSeatReservation>(message.Body);
+            Assert.IsAssignableFrom<ExpireOrder>(message.Body);
             Assert.Equal(sut.Id, message.Body.Id);
         }
 
@@ -181,7 +181,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 
         public when_reservation_is_expired()
         {
-            var expireReservation = new ExpireSeatReservation
+            var expireReservation = new ExpireOrder
             {
                 Id = sut.Id,
                 ConferenceId = ConferenceId

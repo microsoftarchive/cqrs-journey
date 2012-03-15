@@ -25,13 +25,13 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 	{
 		private static readonly Guid TicketTypeId = Guid.NewGuid();
 
-		private ConferenceSeatsAvailability sut;
+		private SeatsAvailability sut;
 		private IPersistenceProvider sutProvider;
 
 		protected given_available_seats(IPersistenceProvider sutProvider)
 		{
 			this.sutProvider = sutProvider;
-			this.sut = new ConferenceSeatsAvailability(TicketTypeId);
+			this.sut = new SeatsAvailability(TicketTypeId);
 			this.sut.AddSeats(10);
 
 			this.sut = this.sutProvider.PersistReload(this.sut);
@@ -67,13 +67,13 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 		private static readonly Guid TicketTypeId = Guid.NewGuid();
 		private static readonly Guid ReservationId = Guid.NewGuid();
 
-		private ConferenceSeatsAvailability sut;
+		private SeatsAvailability sut;
 		private IPersistenceProvider sutProvider;
 
 		protected given_some_avilable_seats_and_some_taken(IPersistenceProvider sutProvider)
 		{
 			this.sutProvider = sutProvider;
-			this.sut = new ConferenceSeatsAvailability(TicketTypeId);
+			this.sut = new SeatsAvailability(TicketTypeId);
 			this.sut.AddSeats(10);
 			this.sut.MakeReservation(ReservationId, 6);
 
