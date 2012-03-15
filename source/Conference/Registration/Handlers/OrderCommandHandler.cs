@@ -17,14 +17,14 @@ namespace Registration.Handlers
     using Common;
     using Registration.Commands;
 
-    public class RegistrationCommandHandler
-        : ICommandHandler<RegisterToConference>,
+    public class OrderCommandHandler :
+        ICommandHandler<RegisterToConference>,
         ICommandHandler<MarkOrderAsBooked>,
         ICommandHandler<RejectOrder>
     {
         private Func<IRepository> repositoryFactory;
 
-        public RegistrationCommandHandler(Func<IRepository> repositoryFactory)
+        public OrderCommandHandler(Func<IRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }

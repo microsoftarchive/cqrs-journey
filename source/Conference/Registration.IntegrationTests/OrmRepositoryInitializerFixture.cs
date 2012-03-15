@@ -31,7 +31,7 @@ namespace Registration.IntegrationTests
 
             using (var context = new OrmRepository("TestOrmRepository"))
             {
-                Assert.Equal(1, context.Set<ConferenceSeatsAvailability>().Count());
+                Assert.Equal(1, context.Set<SeatsAvailability>().Count());
             }
         }
     }

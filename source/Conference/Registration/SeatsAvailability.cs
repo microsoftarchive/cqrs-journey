@@ -22,19 +22,19 @@ namespace Registration
     /// <summary>
     /// Manages the availability of conference seats.
     /// </summary>
-    public class ConferenceSeatsAvailability : IAggregateRoot, IEventPublisher
+    public class SeatsAvailability : IAggregateRoot, IEventPublisher
     {
         private List<IEvent> events = new List<IEvent>();
 
-        // ORM requirement
-        protected ConferenceSeatsAvailability()
+        public SeatsAvailability(Guid id)
         {
+            this.Id = id;
             this.PendingReservations = new ObservableCollection<Reservation>();
         }
 
-        public ConferenceSeatsAvailability(Guid id)
+        // ORM requirement
+        protected SeatsAvailability()
         {
-            this.Id = id;
             this.PendingReservations = new ObservableCollection<Reservation>();
         }
 

@@ -48,9 +48,9 @@ namespace Conference.Web.Public
             commandBus.Register(registrationSaga);
             eventBus.Register(registrationSaga);
 
-            commandBus.Register(new RegistrationCommandHandler(ormFactory));
+            commandBus.Register(new OrderCommandHandler(ormFactory));
 
-            commandBus.Register(new ConferenceSeatsAvailabilityHandler(ormFactory));
+            commandBus.Register(new SeatsAvailabilityHandler(ormFactory));
 
             services[typeof(ICommandBus)] = commandBus;
             services[typeof(IEventBus)] = eventBus;
