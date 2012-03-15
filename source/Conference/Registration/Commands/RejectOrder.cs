@@ -12,12 +12,12 @@
 
 namespace Registration.Commands
 {
+    using System;
     using Common;
-	using System;
 
     public class RejectOrder : ICommand
     {
-		public Guid Id { get; set; }
+        public Guid Id { get; set; }
 
         public Guid OrderId { get; set; }
     }

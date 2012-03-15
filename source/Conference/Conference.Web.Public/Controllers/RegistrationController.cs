@@ -56,9 +56,9 @@ namespace Conference.Web.Public.Controllers
             var command =
                 new RegisterToConference
                 {
-                    RegistrationId = viewModel.Id,
+                    OrderId = viewModel.Id,
                     ConferenceId = viewModel.ConferenceId,
-                    Tickets = viewModel.Items.Select(x => new RegisterToConference.Ticket { TicketTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToList()
+                    Seats = viewModel.Items.Select(x => new RegisterToConference.Seat { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToList()
                 };
 
             this.commandBus.Send(command);

@@ -68,7 +68,7 @@ namespace Registration
                 this.State = SagaState.AwaitingPayment;
                 this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
                 this.commands.Add(
-                    new Envelope<ICommand>(new ExpireReservation { Id = message.ReservationId, ConferenceId = message.ConferenceId })
+                    new Envelope<ICommand>(new ExpireSeatReservation { Id = message.ReservationId, ConferenceId = message.ConferenceId })
                     {
                         Delay = TimeSpan.FromMinutes(15),
                     });
@@ -92,7 +92,7 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireReservation message)
+        public void Handle(ExpireSeatReservation message)
         {
             if (this.State == SagaState.AwaitingPayment)
             {

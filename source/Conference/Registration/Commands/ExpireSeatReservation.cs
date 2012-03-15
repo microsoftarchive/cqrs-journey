@@ -15,9 +15,9 @@ namespace Registration.Commands
     using System;
     using Common;
 
-    public class ExpireReservation : ICommand
+    public class ExpireSeatReservation : ICommand
     {
-        public ExpireReservation()
+        public ExpireSeatReservation()
         {
             this.Id = Guid.NewGuid();
         }

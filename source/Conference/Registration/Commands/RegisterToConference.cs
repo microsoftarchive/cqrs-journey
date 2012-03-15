@@ -18,19 +18,19 @@ namespace Registration.Commands
 
     public class RegisterToConference : ICommand
     {
-        public class Ticket
+        public class Seat
         {
-            public Guid TicketTypeId { get; set; }
+            public Guid SeatTypeId { get; set; }
 
             public int Quantity { get; set; }
         }
 
         public Guid Id { get; private set; }
 
-        public Guid RegistrationId { get; set; }
+        public Guid OrderId { get; set; }
 
         public Guid ConferenceId { get; set; }
 
-        public ICollection<Ticket> Tickets { get; set; }
+        public ICollection<Seat> Seats { get; set; }
     }
 }

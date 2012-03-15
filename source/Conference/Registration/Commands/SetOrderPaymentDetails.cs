@@ -10,29 +10,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Commands
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
+    using Common;
 
-    public class ConferenceSeatDTO
+    public class SetOrderPaymentDetails : ICommand
     {
-        public ConferenceSeatDTO(Guid id, string description, double price)
-        {
-            this.Id = id;
-            this.Description = description;
-            this.Price = price;
-        }
+        public Guid Id { get; private set; }
 
-        protected ConferenceSeatDTO()
-        {
-        }
+        public Guid OrderId { get; set; }
 
-        [Key]
-        public virtual Guid Id { get; private set; }
-
-        public virtual string Description { get; private set; }
-
-        public virtual double Price { get; private set; }
+        public string PaymentInformation { get; set; }
     }
 }
