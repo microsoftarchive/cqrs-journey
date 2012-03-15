@@ -14,11 +14,11 @@ namespace Conference.Web.Public.Models
 {
     using System;
 
-    public class Seat
+    public class OrderItemViewModel
     {
-        public Guid SeatId { get; set; }
+        public Guid SeatTypeId { get; set; }
 
-        public string SeatDescription { get; set; }
+        public string SeatTypeDescription { get; set; }
 
         public double Price { get; set; }
 

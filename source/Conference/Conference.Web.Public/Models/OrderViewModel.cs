@@ -15,11 +15,11 @@ namespace Conference.Web.Public.Models
     using System;
     using System.Collections.Generic;
 
-    public class Registration
+    public class OrderViewModel
     {
-        public Registration()
+        public OrderViewModel()
         {
-            this.Seats = new List<Seat>();
+            this.Items = new List<OrderItemViewModel>();
         }
 
         public Guid Id { get; set; }
@@ -30,7 +30,7 @@ namespace Conference.Web.Public.Models
 
         public string ConferenceName { get; set; }
 
-        public IList<Seat> Seats { get; set; }
+        public IList<OrderItemViewModel> Items { get; set; }
 
         public double Total { get; set; }
     }

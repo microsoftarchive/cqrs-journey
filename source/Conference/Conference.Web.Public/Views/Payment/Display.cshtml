@@ -3,6 +3,6 @@
 }
 <h2>
     Payment confirmation</h2>
-@Html.ActionLink("Accept", "AcceptPayment", new { conferenceCode = (string)TempData["conferenceCode"], registrationId = (Guid)TempData["registrationId"] })
+@Html.ActionLink("Accept", "AcceptPayment", new { conferenceCode = (string)TempData["conferenceCode"], orderId = (Guid)TempData["orderId"] })
 <br />
-@Html.ActionLink("Reject", "RejectPayment", new { conferenceCode = (string)TempData["conferenceCode"], registrationId = (Guid)TempData["registrationId"] })
+@Html.ActionLink("Reject", "RejectPayment", new { conferenceCode = (string)TempData["conferenceCode"], orderId = (Guid)TempData["orderId"] })

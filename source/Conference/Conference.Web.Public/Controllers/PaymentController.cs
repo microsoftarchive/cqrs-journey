@@ -17,15 +17,15 @@ namespace Conference.Web.Public.Controllers
 
     public class PaymentController : Controller
     {
-        public ActionResult Display(string conferenceCode, Guid registrationId)
+        public ActionResult Display(string conferenceCode, Guid orderId)
         {
             this.TempData["conferenceCode"] = conferenceCode;
-            this.TempData["registrationId"] = registrationId;
+            this.TempData["orderId"] = orderId;
 
             return View();
         }
 
-        public ActionResult AcceptPayment(string conferenceCode, Guid registrationId)
+        public ActionResult AcceptPayment(string conferenceCode, Guid orderId)
         {
             return RedirectToAction(
                 "TransactionCompleted",
@@ -33,12 +33,12 @@ namespace Conference.Web.Public.Controllers
                 new
                 {
                     conferenceCode = conferenceCode,
-                    registrationId = registrationId,
+                    orderId = orderId,
                     transactionResult = "accepted"
                 });
         }
 
-        public ActionResult RejectPayment(string conferenceCode, Guid registrationId)
+        public ActionResult RejectPayment(string conferenceCode, Guid orderId)
         {
             return RedirectToAction(
                 "TransactionCompleted",
@@ -46,7 +46,7 @@ namespace Conference.Web.Public.Controllers
                 new
                 {
                     conferenceCode = conferenceCode,
-                    registrationId = registrationId,
+                    orderId = orderId,
                     transactionResult = "rejected"
                 });
         }
