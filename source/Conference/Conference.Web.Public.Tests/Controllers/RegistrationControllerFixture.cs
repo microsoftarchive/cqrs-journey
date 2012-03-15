@@ -59,12 +59,12 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Assert.NotNull(result);
             Assert.Equal("", result.ViewName);
 
-            var resultRegistration = result.Model as global::Conference.Web.Public.Models.Registration;
+            var resultRegistration = result.Model as global::Conference.Web.Public.Models.OrderViewModel;
             Assert.NotNull(resultRegistration);
             Assert.Equal("conference", resultRegistration.ConferenceCode);
             Assert.Equal("Test Conference", resultRegistration.ConferenceName);
-            Assert.Equal(1, resultRegistration.Seats.Count);
-            Assert.Equal("Test Seat", resultRegistration.Seats[0].SeatDescription);
+            Assert.Equal(1, resultRegistration.Items.Count);
+            Assert.Equal("Test Seat", resultRegistration.Items[0].SeatTypeDescription);
         }
 
         [Fact]
@@ -87,11 +87,11 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 .Returns(new OrderDTO(registrationId, Order.States.Booked));
 
             var registration =
-                new global::Conference.Web.Public.Models.Registration
+                new global::Conference.Web.Public.Models.OrderViewModel
                 {
                     Id = registrationId,
                     ConferenceCode = "conference",
-                    Seats = new[] { new Seat { Quantity = 10, SeatId = seatId } }
+                    Items = new[] { new OrderItemViewModel { Quantity = 10, SeatTypeId = seatId } }
                 };
 
             // Act

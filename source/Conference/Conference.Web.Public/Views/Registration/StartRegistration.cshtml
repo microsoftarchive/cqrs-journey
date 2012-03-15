@@ -1,4 +1,4 @@
-﻿@model Conference.Web.Public.Models.Registration
+﻿@model Conference.Web.Public.Models.OrderViewModel
 @{
     ViewBag.Title = "Registration for " + Model.ConferenceName;
 }
@@ -20,15 +20,15 @@
                     Quantity
                 </th>
             </tr>
-            @for (var i = 0; i < this.Model.Seats.Count; i++)
+            @for (var i = 0; i < this.Model.Items.Count; i++)
             { 
                 <tr>
-                    <td align="left">@Html.DisplayFor(model => model.Seats[i].SeatDescription)
+                    <td align="left">@Html.DisplayFor(model => model.Items[i].SeatTypeDescription)
                     </td>
-                    <td align="right">@Html.DisplayFor(model => model.Seats[i].Price)
+                    <td align="right">@Html.DisplayFor(model => model.Items[i].Price)
                     </td>
-                    <td align="right">@Html.DropDownListFor(model => model.Seats[i].Quantity, new SelectList(Enumerable.Range(0, 20)))
-                        @Html.HiddenFor(model => model.Seats[i].SeatId)
+                    <td align="right">@Html.DropDownListFor(model => model.Items[i].Quantity, new SelectList(Enumerable.Range(0, 20)))
+                        @Html.HiddenFor(model => model.Items[i].SeatTypeId)
                     </td>
                 </tr>
             }
