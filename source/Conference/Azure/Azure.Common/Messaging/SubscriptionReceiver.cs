@@ -145,7 +145,9 @@ namespace Azure.Messaging
         {
             while (true)
             {
-                var message = this.client.Receive(TimeSpan.Zero);
+                // TODO: check cancellation token!
+                // Long polling here?
+                var message = this.client.Receive(TimeSpan.FromSeconds(10));
 
                 if (message == null)
                 {

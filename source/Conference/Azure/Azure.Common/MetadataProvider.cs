@@ -29,7 +29,7 @@ namespace Azure
         public virtual IDictionary<string, object> GetMetadata(object payload)
         {
             var metadata = new Dictionary<string, object>();
-            metadata["Type"] = payload.GetType().FullName;
+            metadata["Kind"] = payload.GetType().FullName;
 
             // NOTE: here we may add an "Area" or "Subsystem" or 
             // whatever via .NET custom attributes on the payload 
