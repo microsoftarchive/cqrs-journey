@@ -17,6 +17,10 @@ namespace ConsoleCommandProcessor
     {
         static void Main(string[] args)
         {
+            // TODO: get handlers somehow (assembly scanning?)
+            // Build up the command processor and register all 
+            // handlers with it, load Azure settings and start
+            // listening.
         }
     }
 }

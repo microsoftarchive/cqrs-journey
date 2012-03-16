@@ -26,7 +26,7 @@ namespace Azure.Tests
             var metadata = provider.GetMetadata(this);
 
             Assert.Contains(typeName, metadata.Values);
-            Assert.Contains("Type", metadata.Keys);
+            Assert.Contains("Kind", metadata.Keys);
         }
     }
 }

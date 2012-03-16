@@ -7,7 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registration.Tests", "Regis
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A5323007-38D6-4578-A811-2C0BB55002BD}"
 	ProjectSection(SolutionItems) = preProject
-		Conference.licenseheader = Conference.licenseheader
 		install-packages.ps1 = install-packages.ps1
 	EndProjectSection
 EndProject
