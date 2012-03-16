@@ -24,6 +24,8 @@ namespace Azure
     /// </summary>
     public class EventProcessor : MessageProcessor
     {
+        // A simpler list just works. We don't care about two handlers for the same event 
+        // type, etc.
         private List<IEventHandler> handlers = new List<IEventHandler>();
 
         public EventProcessor(IMessageReceiver receiver, ISerializer serializer)

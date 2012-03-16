@@ -41,5 +41,23 @@ namespace Azure.Tests
 
             processor.Dispose();
         }
+
+        [Fact]
+        public void when_handler_already_registered_for_command_then_throws()
+        {
+            var processor = new CommandProcessor(Mock.Of<IMessageReceiver>(), Mock.Of<ISerializer>());
+            var handler1 = Mock.Of<ICommandHandler<FooCommand>>();
+            var handler2 = Mock.Of<ICommandHandler<FooCommand>>();
+
+            processor.Register(handler1);
+
+            Assert.Throws<ArgumentException>(() => processor.Register(handler2));
+        }
+
+        public class FooCommand : ICommand
+        {
+            public Guid Id { get; set; }
+        }
+
     }
 }

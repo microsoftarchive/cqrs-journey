@@ -13,6 +13,7 @@
 
 namespace Azure
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Azure.Messaging;
@@ -24,7 +25,7 @@ namespace Azure
     /// </summary>
     public class CommandProcessor : MessageProcessor
     {
-        private List<ICommandHandler> handlers = new List<ICommandHandler>();
+        private Dictionary<Type, ICommandHandler> handlers = new Dictionary<Type, ICommandHandler>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandProcessor"/> class.
@@ -42,7 +43,21 @@ namespace Azure
         /// </summary>
         public void Register(ICommandHandler commandHandler)
         {
-            this.handlers.Add(commandHandler);
+            var genericHandler = typeof(ICommandHandler<>);
+            var supportedCommandTypes = commandHandler.GetType()
+                .GetInterfaces()
+                .Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == genericHandler)
+                .Select(iface => iface.GetGenericArguments()[0])
+                .ToList();
+
+            if (handlers.Keys.Any(registeredType => supportedCommandTypes.Contains(registeredType)))
+                throw new ArgumentException("The command handled by the received handler already has a registered handler.");
+
+            // Register this handler for each of he handled types.
+            foreach (var commandType in supportedCommandTypes)
+            {
+                this.handlers.Add(commandType, commandHandler);
+            }
         }
 
         /// <summary>
@@ -50,18 +65,13 @@ namespace Azure
         /// </summary>
         protected override void ProcessMessage(object payload)
         {
-            var handlerType = typeof(ICommandHandler<>).MakeGenericType(payload.GetType());
+            var commandType = payload.GetType();
+            ICommandHandler handler = null;
 
-            // TODO: throw if more than one handler here? This would never assure us 
-            // that there aren't duplicate handlers in multiple processes, so it's kinda 
-            // pointless here. Also, what are we supposed to do if we throw? DeadLetter 
-            // the message? Kill the process? TBD.
-            foreach (dynamic handler in this.handlers
-                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+            if (this.handlers.TryGetValue(commandType, out handler))
             {
-                handler.Handle((dynamic)payload);
+                ((dynamic)handler).Handle((dynamic)payload);
             }
         }
-
     }
 }

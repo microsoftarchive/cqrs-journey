@@ -117,11 +117,13 @@ namespace Azure
                 try
                 {
                     ProcessMessage(payload);
+                    // TODO: exception between these two?
                     message.Async(message.BeginComplete, message.EndComplete);
                 }
                 catch (Exception)
                 {
                     // TODO: retries, retry count, Abandon vs DeadLetter?
+                    // Just: if (args.Message.DeliveryCount > 5) ?
                     args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
                 }
             }
