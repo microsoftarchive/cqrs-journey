@@ -50,6 +50,37 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
         }
 
         [Fact]
+        public void when_same_handler_handles_multiple_commands_then_gets_called_for_all()
+        {
+            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
+
+            var fooWaiter = new ManualResetEvent(false);
+            var barWaiter = new ManualResetEvent(false);
+            var handler = new MultipleHandler(fooWaiter, barWaiter);
+
+            processor.Register(handler);
+
+            processor.Start();
+
+            try
+            {
+                bus.Send(new FooCommand());
+                bus.Send(new BarCommand());
+
+                fooWaiter.WaitOne(5000);
+                barWaiter.WaitOne(5000);
+
+                Assert.True(handler.HandledFooCommand);
+                Assert.True(handler.HandledBarCommand);
+            }
+            finally
+            {
+                processor.Stop();
+            }
+        }
+
+        [Fact]
         public void when_receiving_not_registered_command_then_ignores()
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
@@ -132,6 +163,33 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
                 this.Id = Guid.NewGuid();
             }
             public Guid Id { get; set; }
+        }
+
+        public class MultipleHandler : ICommandHandler<FooCommand>, ICommandHandler<BarCommand>
+        {
+            private ManualResetEvent fooWaiter;
+            private ManualResetEvent barWaiter;
+
+            public MultipleHandler(ManualResetEvent fooWaiter, ManualResetEvent barWaiter)
+            {
+                this.fooWaiter = fooWaiter;
+                this.barWaiter = barWaiter;
+            }
+
+            public bool HandledBarCommand { get; private set; }
+            public bool HandledFooCommand { get; private set; }
+
+            public void Handle(BarCommand command)
+            {
+                this.HandledBarCommand = true;
+                this.barWaiter.Set();
+            }
+
+            public void Handle(FooCommand command)
+            {
+                this.HandledFooCommand = true;
+                this.fooWaiter.Set();
+            }
         }
 
         public class FooCommandHandler : ICommandHandler<FooCommand>
