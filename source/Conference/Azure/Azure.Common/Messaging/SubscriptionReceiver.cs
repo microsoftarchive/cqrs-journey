@@ -143,19 +143,19 @@ namespace Azure.Messaging
         /// </summary>
         private void ReceiveMessages()
         {
-            while (true)
+            while (!this.cancellationSource.IsCancellationRequested)
             {
-                // TODO: check cancellation token!
                 // Long polling here?
                 var message = this.client.Receive(TimeSpan.FromSeconds(10));
 
                 if (message == null)
                 {
-                    Thread.Sleep(10);
+                    Thread.Sleep(100);
                     continue;
                 }
 
-                this.MessageReceived(this, new BrokeredMessageEventArgs(message));
+                if (!this.cancellationSource.IsCancellationRequested)
+                    this.MessageReceived(this, new BrokeredMessageEventArgs(message));
             }
         }
 
