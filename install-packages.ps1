@@ -14,7 +14,7 @@
 $scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path 
 $solutionFolder = Join-Path $scriptPath 'source\Conference'
 
-$packageFiles = Get-Item "$solutionFolder\**\packages.config"
+$packageFiles = Get-ChildItem "$solutionFolder\**\packages.config" -Recurse
 
 # get all the packages to install
 $packages = @()
