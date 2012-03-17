@@ -11,6 +11,10 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
+param (
+    [switch] $autoAcceptTerms
+)
+
 $scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path 
 $solutionFolder = Join-Path $scriptPath 'source\Conference'
 
@@ -29,21 +33,31 @@ $packages = [system.string]::Join("`r`n", $packages)
 
 # prompt to continue
 $caption = "DOWNLOADING NUGET PACKAGE DEPENDENCIES";
-$message = "You are about to automatically download the following NuGet package dependencies required to build the sample application:
+$packageInformation = "You are about to automatically download the following NuGet package dependencies required to build the sample application:
 " + $packages + "
  
 Microsoft grants you no rights for third party software.  You are responsible for and must locate and read the license terms for each of the above packages. The owners of the above packages are solely responsible for their content and behavior. Microsoft gives no express warranties, guarantees or conditions.
-Do you want to proceed?";
+";
 
-$yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes","I agree to download the NuGet packages dependencies.";
-$no = New-Object System.Management.Automation.Host.ChoiceDescription "&No","I do not agree to download the NuGet packages dependencies.";
-$choices = [System.Management.Automation.Host.ChoiceDescription[]]($yes,$no);
-$answer = $host.ui.PromptForChoice($caption,$message,$choices,1) 
+if ($autoAcceptTerms)
+{
+    Write-Host $caption
+    Write-Host $packageInformation
+}
+else
+{
+    $message = $packageInformation + "Do you want to proceed?";
 
-switch ($answer){
-    0 { break }
-    1 { exit; break }
-} 
+    $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes","I agree to download the NuGet packages dependencies.";
+    $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No","I do not agree to download the NuGet packages dependencies.";
+    $choices = [System.Management.Automation.Host.ChoiceDescription[]]($yes,$no);
+    $answer = $host.ui.PromptForChoice($caption,$message,$choices,1) 
+
+    switch ($answer){
+        0 { break }
+        1 { exit; break }
+    } 
+}
 
 # copy NuGet.exe bootstrapper to a temp folder if it's not there (this is to avoid distributing the full version of NuGet, and avoiding source control issues with updates).
 $nuget = Join-Path $scriptPath 'build\temp\NuGet.exe'
