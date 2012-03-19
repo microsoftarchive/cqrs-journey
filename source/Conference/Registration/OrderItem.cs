@@ -2,8 +2,7 @@
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
-// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
-// http://cqrsjourney.github.com/contributors/members
+// Copyright (c) Microsoft Corporation and contributors http://cqrsjourney.github.com/contributors/members
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
 // with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 // Unless required by applicable law or agreed to in writing, software distributed under the License is 
@@ -11,29 +10,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
 
-    public class ConferenceSeatDTO
+    public class OrderItem
     {
-        public ConferenceSeatDTO(Guid id, string description, double price)
+        public OrderItem(Guid seatTypeId, int quantity)
         {
-            this.Id = id;
-            this.Description = description;
-            this.Price = price;
+            this.Id = Guid.NewGuid();
+
+            this.SeatTypeId = seatTypeId;
+            this.Quantity = quantity;
         }
 
-        protected ConferenceSeatDTO()
+        protected OrderItem()
         {
         }
 
-        [Key]
-        public virtual Guid Id { get; private set; }
+        public Guid Id { get; private set; }
 
-        public virtual string Description { get; private set; }
+        public Guid SeatTypeId { get; private set; }
 
-        public virtual double Price { get; private set; }
+        public int Quantity { get; private set; }
     }
 }

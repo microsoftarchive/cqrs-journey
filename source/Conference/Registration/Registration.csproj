@@ -48,34 +48,35 @@
   <ItemGroup>
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
-    <Compile Include="Commands\ExpireReservation.cs" />
+    <Compile Include="Commands\ExpireOrder.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkOrderAsBooked.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
-    <Compile Include="Commands\SetRegistrationPaymentDetails.cs" />
+    <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
     <Compile Include="Events\PaymentReceived.cs" />
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
-    <Compile Include="Handlers\ConferenceSeatsAvailabilityHandler.cs" />
-    <Compile Include="Handlers\RegistrationCommandHandler.cs" />
+    <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\RegistrationProcessSagaHandler.cs" />
+    <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />
     <Compile Include="Database\OrmSagaRepository.cs" />
+    <Compile Include="OrderItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ConferenceSeatsAvailability.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
     <Compile Include="ReadModel\ConferenceDTO.cs" />
-    <Compile Include="ReadModel\ConferenceSeatDTO.cs" />
+    <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
     <Compile Include="ReadModel\OrderLineDTO.cs" />
     <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
     <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
+    <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Conference.licenseheader">

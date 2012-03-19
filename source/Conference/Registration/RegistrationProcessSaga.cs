@@ -53,7 +53,7 @@ namespace Registration
                         Id = this.Id,
                         ConferenceId = message.ConferenceId,
                         ReservationId = message.OrderId,
-                        NumberOfSeats = message.Tickets.Sum(x => x.Quantity)
+                        NumberOfSeats = message.Items.Sum(x => x.Quantity)
                     });
             }
             else
@@ -69,7 +69,7 @@ namespace Registration
                 this.State = SagaState.AwaitingPayment;
                 this.commands.Add(new MarkOrderAsBooked { OrderId = message.ReservationId });
                 this.commands.Add(
-                    new Envelope<ICommand>(new ExpireReservation { Id = message.ReservationId, ConferenceId = message.ConferenceId })
+                    new Envelope<ICommand>(new ExpireOrder { Id = message.ReservationId, ConferenceId = message.ConferenceId })
                     {
                         Delay = TimeSpan.FromMinutes(15),
                     });
@@ -93,7 +93,7 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireReservation message)
+        public void Handle(ExpireOrder message)
         {
             if (this.State == SagaState.AwaitingPayment)
             {

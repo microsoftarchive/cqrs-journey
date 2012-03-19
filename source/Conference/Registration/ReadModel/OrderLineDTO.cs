@@ -16,21 +16,21 @@ namespace Registration.ReadModel
     using System;
     using System.ComponentModel.DataAnnotations;
 
-    public class OrderLineDTO
+    public class OrderItemDTO
     {
-        public OrderLineDTO(Guid id, Guid seatTypeId, int quantity)
+        public OrderItemDTO(Guid id, Guid seatTypeId, int quantity)
         {
-            this.OrderLineId = id;
+            this.OrderItemId = id;
             this.SeatTypeId = seatTypeId;
             this.Quantity = quantity;
         }
 
-        protected OrderLineDTO()
+        protected OrderItemDTO()
         {
         }
 
         [Key]
-        public Guid OrderLineId { get; private set; }
+        public Guid OrderItemId { get; private set; }
 
         public Guid SeatTypeId { get; private set; }
 
