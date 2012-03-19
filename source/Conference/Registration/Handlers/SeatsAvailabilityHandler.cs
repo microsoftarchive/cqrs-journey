@@ -20,14 +20,14 @@ namespace Registration.Handlers
     /// <summary>
     /// Handles commands issued to the seats availability aggregate.
     /// </summary>
-    public class ConferenceSeatsAvailabilityHandler :
+    public class SeatsAvailabilityHandler :
         ICommandHandler<MakeSeatReservation>,
         ICommandHandler<CancelSeatReservation>,
         ICommandHandler<CommitSeatReservation>
     {
         private Func<IRepository> repositoryFactory;
 
-        public ConferenceSeatsAvailabilityHandler(Func<IRepository> repositoryFactory)
+        public SeatsAvailabilityHandler(Func<IRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
@@ -37,7 +37,7 @@ namespace Registration.Handlers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var availability = repo.Find<ConferenceSeatsAvailability>(command.ConferenceId);
+                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
                 if (availability != null)
                 {
                     availability.MakeReservation(command.ReservationId, command.NumberOfSeats);
@@ -52,7 +52,7 @@ namespace Registration.Handlers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var availability = repo.Find<ConferenceSeatsAvailability>(command.ConferenceId);
+                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
                 if (availability != null)
                 {
                     availability.CancelReservation(command.ReservationId);
@@ -67,7 +67,7 @@ namespace Registration.Handlers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var availability = repo.Find<ConferenceSeatsAvailability>(command.ConferenceId);
+                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
                 if (availability != null)
                 {
                     availability.CommitReservation(command.ReservationId);

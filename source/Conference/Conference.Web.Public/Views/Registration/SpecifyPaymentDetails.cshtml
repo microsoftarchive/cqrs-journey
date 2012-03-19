@@ -1,4 +1,4 @@
-﻿@model Conference.Web.Public.Models.Registration
+﻿@model Conference.Web.Public.Models.OrderViewModel
 @{
     ViewBag.Title = "Registration for " + Model.ConferenceName;
 }
@@ -20,16 +20,16 @@
                 Total
             </th>
         </tr>
-        @for (var i = 0; i < this.Model.Seats.Count; i++)
+        @for (var i = 0; i < this.Model.Items.Count; i++)
         { 
             <tr>
-                <td align="left">@Html.DisplayFor(model => model.Seats[i].SeatDescription)
+                <td align="left">@Html.DisplayFor(model => model.Items[i].SeatTypeDescription)
                 </td>
-                <td align="right">@Html.DisplayFor(model => model.Seats[i].Price)
+                <td align="right">@Html.DisplayFor(model => model.Items[i].Price)
                 </td>
-                <td align="right">@Html.DisplayFor(model => model.Seats[i].Quantity)
+                <td align="right">@Html.DisplayFor(model => model.Items[i].Quantity)
                 </td>
-                <td align="right">@Html.DisplayFor(model => model.Seats[i].Total)
+                <td align="right">@Html.DisplayFor(model => model.Items[i].Total)
                 </td>
             </tr>
         }

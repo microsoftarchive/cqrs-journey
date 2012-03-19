@@ -68,13 +68,13 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(ConferenceId, @event.ConferenceId);
             Assert.Equal(UserId, @event.UserId);
-            Assert.Equal(1, @event.Tickets.Count);
-            Assert.Equal(5, @event.Tickets.ElementAt(0).Quantity);
+            Assert.Equal(1, @event.Items.Count);
+            Assert.Equal(5, @event.Items.ElementAt(0).Quantity);
         }
 
         private void PlaceOrder()
         {
-            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            var lines = new[] { new OrderItem(TicketTypeId, 5) };
             this.sut = new Order(OrderId, UserId, ConferenceId, lines);
         }
     }
@@ -93,7 +93,7 @@ namespace Registration.Tests.OrderFixture
         {
             this.sutProvider = sutProvider;
 
-            var lines = new[] { new TicketOrderLine(TicketTypeId, 5) };
+            var lines = new[] { new OrderItem(TicketTypeId, 5) };
             this.sut = new Order(OrderId, UserId, ConferenceId, lines);
 
             this.sut = this.sutProvider.PersistReload(this.sut);

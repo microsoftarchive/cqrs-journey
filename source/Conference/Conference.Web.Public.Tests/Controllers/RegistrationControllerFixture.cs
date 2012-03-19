@@ -45,7 +45,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var conferenceId = Guid.NewGuid();
             var seatId = Guid.NewGuid();
             var conferenceDTO =
-                new ConferenceDTO(conferenceId, "conference", "Test Conference", "", new[] { new ConferenceSeatDTO(seatId, "Test Seat", 10d) });
+                new ConferenceDTO(conferenceId, "conference", "Test Conference", "", new[] { new ConferenceSeatTypeDTO(seatId, "Test Seat", 10d) });
 
             // Arrange
             Mock.Get<IViewRepository>(this.viewRepository)
@@ -59,39 +59,39 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Assert.NotNull(result);
             Assert.Equal("", result.ViewName);
 
-            var resultRegistration = result.Model as global::Conference.Web.Public.Models.Registration;
+            var resultRegistration = result.Model as global::Conference.Web.Public.Models.OrderViewModel;
             Assert.NotNull(resultRegistration);
             Assert.Equal("conference", resultRegistration.ConferenceCode);
             Assert.Equal("Test Conference", resultRegistration.ConferenceName);
-            Assert.Equal(1, resultRegistration.Seats.Count);
-            Assert.Equal("Test Seat", resultRegistration.Seats[0].SeatDescription);
+            Assert.Equal(1, resultRegistration.Items.Count);
+            Assert.Equal("Test Seat", resultRegistration.Items[0].SeatTypeDescription);
         }
 
         [Fact]
         public void when_specifying_seats_for_a_valid_registration_then_places_registration_and_redirects_to_action()
         {
             var conferenceId = Guid.NewGuid();
-            var seatId = Guid.NewGuid();
+            var seatTypeId = Guid.NewGuid();
             var conferenceDTO =
-                new ConferenceDTO(conferenceId, "conference", "Test Conference", "", new[] { new ConferenceSeatDTO(seatId, "Test Seat", 10d) });
+                new ConferenceDTO(conferenceId, "conference", "Test Conference", "", new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) });
 
             // Arrange
             Mock.Get<IViewRepository>(this.viewRepository)
                 .Setup(r => r.Query<ConferenceDTO>())
                 .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
 
-            var registrationId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
 
             Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Find<OrderDTO>(registrationId))
-                .Returns(new OrderDTO(registrationId, Order.States.Booked));
+                .Setup(r => r.Find<OrderDTO>(orderId))
+                .Returns(new OrderDTO(orderId, Order.States.Booked));
 
             var registration =
-                new global::Conference.Web.Public.Models.Registration
+                new global::Conference.Web.Public.Models.OrderViewModel
                 {
-                    Id = registrationId,
+                    Id = orderId,
                     ConferenceCode = "conference",
-                    Seats = new[] { new Seat { Quantity = 10, SeatId = seatId } }
+                    Items = new[] { new OrderItemViewModel { Quantity = 10, SeatTypeId = seatTypeId } }
                 };
 
             // Act
@@ -102,17 +102,17 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Assert.Equal(null, result.RouteValues["controller"]);
             Assert.Equal("SpecifyPaymentDetails", result.RouteValues["action"]);
             Assert.Equal("conference", result.RouteValues["conferenceCode"]);
-            Assert.Equal(registrationId, result.RouteValues["registrationId"]);
+            Assert.Equal(orderId, result.RouteValues["orderId"]);
 
             Mock.Get<ICommandBus>(this.bus)
                 .Verify(
                     b =>
                         b.Send(It.Is<Envelope<ICommand>>(e =>
                             ((RegisterToConference)e.Body).ConferenceId == conferenceId
-                                && ((RegisterToConference)e.Body).RegistrationId == registrationId
-                                && ((RegisterToConference)e.Body).Tickets.Count == 1
-                                && ((RegisterToConference)e.Body).Tickets.ElementAt(0).Quantity == 10
-                                && ((RegisterToConference)e.Body).Tickets.ElementAt(0).TicketTypeId == seatId)),
+                                && ((RegisterToConference)e.Body).OrderId == orderId
+                                && ((RegisterToConference)e.Body).Seats.Count == 1
+                                && ((RegisterToConference)e.Body).Seats.ElementAt(0).Quantity == 10
+                                && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatTypeId == seatTypeId)),
                     Times.Once());
         }
 
@@ -129,16 +129,16 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         //        .Setup(r => r.Query<ConferenceDTO>())
         //        .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
 
-        //    var registrationId = Guid.NewGuid();
+        //    var orderId = Guid.NewGuid();
 
         //    Mock.Get<IViewRepository>(this.viewRepository)
-        //        .Setup(r => r.Find<OrderDTO>(registrationId))
-        //        .Returns(new OrderDTO(registrationId, Order.States.Rejected));
+        //        .Setup(r => r.Find<OrderDTO>(orderId))
+        //        .Returns(new OrderDTO(orderId, Order.States.Rejected));
 
         //    var registration =
         //        new global::Conference.Web.Public.Models.Registration
         //        {
-        //            Id = registrationId,
+        //            Id = orderId,
         //            ConferenceCode = "conference",
         //            Seats = new[] { new Seat { Quantity = 10, SeatId = seatId } }
         //        };
@@ -157,12 +157,12 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         //    var conferenceId = Guid.NewGuid();
         //    var seatId = Guid.NewGuid();
 
-        //    var registrationId = Guid.NewGuid();
+        //    var orderId = Guid.NewGuid();
 
         //    var registration =
         //        new global::Conference.Web.Public.Models.Registration
         //        {
-        //            Id = registrationId,
+        //            Id = orderId,
         //            ConferenceCode = "conference",
         //            Seats = new[] { new Seat { Quantity = 10, SeatId = seatId } }
         //        };

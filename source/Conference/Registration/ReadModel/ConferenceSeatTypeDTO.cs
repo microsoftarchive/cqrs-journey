@@ -11,21 +11,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.ReadModel
 {
     using System;
-    using Common;
+    using System.ComponentModel.DataAnnotations;
 
-    public class ExpireReservation : ICommand
+    public class ConferenceSeatTypeDTO
     {
-        public ExpireReservation()
+        public ConferenceSeatTypeDTO(Guid id, string description, double price)
         {
-            this.Id = Guid.NewGuid();
+            this.Id = id;
+            this.Description = description;
+            this.Price = price;
         }
 
-        public Guid Id { get; set; }
+        protected ConferenceSeatTypeDTO()
+        {
+        }
 
-        public Guid ConferenceId { get; set; }
-        public Guid ReservationId { get; set; }
+        [Key]
+        public virtual Guid Id { get; private set; }
+
+        public virtual string Description { get; private set; }
+
+        public virtual double Price { get; private set; }
     }
 }
