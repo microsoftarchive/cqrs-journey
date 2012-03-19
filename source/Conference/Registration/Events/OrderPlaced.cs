@@ -19,9 +19,9 @@ namespace Registration.Events
 
     public class OrderPlaced : IEvent
     {
-        public class Ticket
+        public class OrderItem
         {
-            public Guid TicketTypeId { get; set; }
+            public Guid SeatTypeId { get; set; }
 
             public int Quantity { get; set; }
         }
@@ -34,6 +34,6 @@ namespace Registration.Events
 
         public Guid UserId { get; set; }
 
-        public ICollection<Ticket> Tickets { get; set; }
+        public ICollection<OrderPlaced.OrderItem> Items { get; set; }
     }
 }

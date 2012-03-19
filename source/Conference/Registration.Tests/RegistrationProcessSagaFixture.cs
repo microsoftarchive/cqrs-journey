@@ -39,7 +39,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = Guid.NewGuid(),
                 ConferenceId = Guid.NewGuid(),
-                Tickets = new[] { new OrderPlaced.Ticket { TicketTypeId = Guid.NewGuid(), Quantity = 2 } }
+                Items = new[] { new OrderPlaced.OrderItem { SeatTypeId = Guid.NewGuid(), Quantity = 2 } }
             };
             sut.Handle(orderPlaced);
         }
