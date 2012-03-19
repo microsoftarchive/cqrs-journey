@@ -43,65 +43,69 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult StartRegistration(string conferenceCode)
         {
-            var registration = this.CreateRegistration(conferenceCode);
-            registration.Id = Guid.NewGuid();
+            var viewModel = this.CreateViewModel(conferenceCode);
+            viewModel.Id = Guid.NewGuid();
 
-            return View(registration);
+            return View(viewModel);
         }
 
         [HttpPost]
-        public ActionResult StartRegistration(string conferenceCode, Registration contentModel)
+        public ActionResult StartRegistration(string conferenceCode, OrderViewModel contentModel)
         {
-            var registration = this.UpdateRegistration(conferenceCode, contentModel);
+            var viewModel = this.UpdateViewModel(conferenceCode, contentModel);
 
             var command =
                 new RegisterToConference
                 {
-                    RegistrationId = registration.Id,
-                    ConferenceId = registration.ConferenceId,
-                    Tickets = registration.Seats.Select(x => new RegisterToConference.Ticket { TicketTypeId = x.SeatId, Quantity = x.Quantity }).ToList()
+                    OrderId = viewModel.Id,
+                    ConferenceId = viewModel.ConferenceId,
+                    Seats = viewModel.Items.Select(x => new RegisterToConference.Seat { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToList()
                 };
 
             this.commandBus.Send(command);
 
-            var orderDTO = this.WaitUntilBooked(registration);
+            var orderDTO = this.WaitUntilUpdated(viewModel.Id);
 
             if (orderDTO != null)
             {
                 if (orderDTO.State == "Booked")
                 {
-                    return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, registrationId = registration.Id });
+                    return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
                 }
                 else if (orderDTO.State == "Rejected")
                 {
-                    return View("ReservationRejected", registration);
+                    return View("ReservationRejected", viewModel);
                 }
             }
 
-            return View("ReservationUnknown", registration);
+            return View("ReservationUnknown", viewModel);
         }
 
         [HttpGet]
-        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid registrationId)
+        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId)
         {
-            var orderDTO = this.repositoryFactory().Find<OrderDTO>(registrationId);
-            var registration = this.UpdateRegistration(conferenceCode, orderDTO);
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var orderDTO = repo.Find<OrderDTO>(orderId);
+                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
-            return View(registration);
+                return View(viewModel);
+            }
         }
 
         [HttpPost]
-        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid registrationId, PaymentDetails paymentDetails)
+        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId, PaymentDetails paymentDetails)
         {
-            return RedirectToAction("Display", "Payment", new { conferenceCode = conferenceCode, registrationId = registrationId });
+            return RedirectToAction("Display", "Payment", new { conferenceCode = conferenceCode, orderId = orderId });
         }
 
         [HttpGet]
-        public ActionResult TransactionCompleted(string conferenceCode, Guid registrationId, string transactionResult)
+        public ActionResult TransactionCompleted(string conferenceCode, Guid orderId, string transactionResult)
         {
             if (transactionResult == "accepted")
             {
-                return RedirectToAction("ThankYou", new { conferenceCode = conferenceCode, registrationId = registrationId });
+                return RedirectToAction("ThankYou", new { conferenceCode = conferenceCode, orderId = orderId });
             }
             else
             {
@@ -110,59 +114,67 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult ThankYou(string conferenceCode, Guid registrationId)
+        public ActionResult ThankYou(string conferenceCode, Guid orderId)
         {
             return View();
         }
 
-        private Registration CreateRegistration(string conferenceCode)
+        private OrderViewModel CreateViewModel(string conferenceCode)
         {
-            var conference =
-                this.repositoryFactory().Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
+            var repo = this.repositoryFactory();
 
-            //// TODO check null case
-
-            var registration =
-                new Registration
-                {
-                    ConferenceId = conference.Id,
-                    ConferenceCode = conference.Code,
-                    ConferenceName = conference.Name,
-                    Seats = conference.Seats.Select(s => new Seat { SeatId = s.Id, SeatDescription = s.Description, Price = s.Price }).ToList()
-                };
-
-            return registration;
-        }
-
-        private Registration UpdateRegistration(string conferenceCode, Registration contentModel)
-        {
-            var reservation = this.CreateRegistration(conferenceCode);
-            reservation.Id = contentModel.Id;
-
-            for (int i = 0; i < reservation.Seats.Count; i++)
+            using (repo as IDisposable)
             {
-                var quantity = contentModel.Seats[i].Quantity;
-                reservation.Seats[i].Quantity = quantity;
-            }
+                var conference = repo.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
 
-            return reservation;
+                //// TODO check null case
+
+                var viewModel =
+                    new OrderViewModel
+                    {
+                        ConferenceId = conference.Id,
+                        ConferenceCode = conference.Code,
+                        ConferenceName = conference.Name,
+                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
+                    };
+
+                return viewModel;
+            }
         }
 
-        private Registration UpdateRegistration(string conferenceCode, OrderDTO orderDTO)
+        private OrderViewModel CreateViewModel(string conferenceCode, OrderDTO orderDTO)
         {
-            var reservation = this.CreateRegistration(conferenceCode);
-            reservation.Id = orderDTO.OrderId;
+            var viewModel = this.CreateViewModel(conferenceCode);
+            viewModel.Id = orderDTO.OrderId;
+
+            // TODO check DTO matches view model
 
             foreach (var line in orderDTO.Lines)
             {
-                var seat = reservation.Seats.FirstOrDefault(s => s.SeatId == line.SeatTypeId);
+                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatTypeId);
                 seat.Quantity = line.Quantity;
             }
 
-            return reservation;
+            return viewModel;
         }
 
-        private OrderDTO WaitUntilBooked(Registration registration)
+        private OrderViewModel UpdateViewModel(string conferenceCode, OrderViewModel incomingModel)
+        {
+            var viewModel = this.CreateViewModel(conferenceCode);
+            viewModel.Id = incomingModel.Id;
+
+            // TODO check incoming matches view model
+
+            for (int i = 0; i < viewModel.Items.Count; i++)
+            {
+                var quantity = incomingModel.Items[i].Quantity;
+                viewModel.Items[i].Quantity = quantity;
+            }
+
+            return viewModel;
+        }
+
+        private OrderDTO WaitUntilUpdated(Guid orderId)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 
@@ -171,7 +183,7 @@ namespace Conference.Web.Public.Controllers
                 var repo = this.repositoryFactory();
                 using (repo as IDisposable)
                 {
-                    var orderDTO = repo.Find<OrderDTO>(registration.Id);
+                    var orderDTO = repo.Find<OrderDTO>(orderId);
 
                     if (orderDTO != null && orderDTO.State != "Created")
                     {

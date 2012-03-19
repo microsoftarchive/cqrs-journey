@@ -11,29 +11,21 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.Commands
 {
     using System;
-    using System.Collections.Generic;
     using Common;
 
-    public class OrderPlaced : IEvent
+    public class ExpireOrder : ICommand
     {
-        public class OrderItem
+        public ExpireOrder()
         {
-            public Guid SeatTypeId { get; set; }
-
-            public int Quantity { get; set; }
+            this.Id = Guid.NewGuid();
         }
 
-        public Guid OrderId { get; set; }
+        public Guid Id { get; set; }
 
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
         public Guid ConferenceId { get; set; }
-
-        public Guid UserId { get; set; }
-
-        public ICollection<OrderPlaced.OrderItem> Items { get; set; }
+        public Guid OrderId { get; set; }
     }
 }
