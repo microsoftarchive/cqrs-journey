@@ -178,10 +178,10 @@ namespace Conference.Web.Public.Controllers
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
+            while (DateTime.Now < deadline)
             {
-                while (DateTime.Now < deadline)
+                var repo = this.repositoryFactory();
+                using (repo as IDisposable)
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
@@ -189,9 +189,9 @@ namespace Conference.Web.Public.Controllers
                     {
                         return orderDTO;
                     }
-
-                    Thread.Sleep(500);
                 }
+
+                Thread.Sleep(500);
             }
 
             return null;
