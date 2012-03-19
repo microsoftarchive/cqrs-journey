@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xunit>
+  <assemblies>
+    <assembly filename="..\source\Conference\Registration.Tests\bin\Debug\Registration.Tests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Conference\Conference.Web.Public.Tests\bin\Debug\Conference.Web.Public.Tests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Conference\Registration.IntegrationTests\bin\Debug\Registration.IntegrationTests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Conference\Azure\Azure.Common.IntegrationTests\bin\Debug\Azure.IntegrationTests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Conference\Azure\Azure.Common.Tests\bin\Debug\Azure.Tests.dll" shadow-copy="true" />
+  </assemblies>
+</xunit>
