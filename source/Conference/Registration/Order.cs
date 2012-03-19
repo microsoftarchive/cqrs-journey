@@ -52,7 +52,7 @@ namespace Registration
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
                     UserId = this.UserId,
-                    Tickets = this.Items.Select(x => new OrderPlaced.Ticket { TicketTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToArray()
+                    Items = this.Items.Select(x => new OrderPlaced.OrderItem { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToArray()
                 });
         }
 

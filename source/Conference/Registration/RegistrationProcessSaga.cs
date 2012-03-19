@@ -53,7 +53,7 @@ namespace Registration
                         Id = this.Id,
                         ConferenceId = message.ConferenceId,
                         ReservationId = message.OrderId,
-                        NumberOfSeats = message.Tickets.Sum(x => x.Quantity)
+                        NumberOfSeats = message.Items.Sum(x => x.Quantity)
                     });
             }
             else

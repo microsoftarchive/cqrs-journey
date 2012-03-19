@@ -84,10 +84,14 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId)
         {
-            var orderDTO = this.repositoryFactory().Find<OrderDTO>(orderId);
-            var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var orderDTO = repo.Find<OrderDTO>(orderId);
+                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
-            return View(viewModel);
+                return View(viewModel);
+            }
         }
 
         [HttpPost]
@@ -117,20 +121,25 @@ namespace Conference.Web.Public.Controllers
 
         private OrderViewModel CreateViewModel(string conferenceCode)
         {
-            var conference = this.repositoryFactory().Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
+            var repo = this.repositoryFactory();
 
-            //// TODO check null case
+            using (repo as IDisposable)
+            {
+                var conference = repo.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
 
-            var viewModel =
-                new OrderViewModel
-                {
-                    ConferenceId = conference.Id,
-                    ConferenceCode = conference.Code,
-                    ConferenceName = conference.Name,
-                    Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
-                };
+                //// TODO check null case
 
-            return viewModel;
+                var viewModel =
+                    new OrderViewModel
+                    {
+                        ConferenceId = conference.Id,
+                        ConferenceCode = conference.Code,
+                        ConferenceName = conference.Name,
+                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
+                    };
+
+                return viewModel;
+            }
         }
 
         private OrderViewModel CreateViewModel(string conferenceCode, OrderDTO orderDTO)
@@ -138,37 +147,41 @@ namespace Conference.Web.Public.Controllers
             var viewModel = this.CreateViewModel(conferenceCode);
             viewModel.Id = orderDTO.OrderId;
 
+            // TODO check DTO matches view model
+
             foreach (var line in orderDTO.Lines)
             {
-                var seat = viewModel.Items.FirstOrDefault(s => s.SeatTypeId == line.SeatTypeId);
+                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatTypeId);
                 seat.Quantity = line.Quantity;
             }
 
             return viewModel;
         }
 
-        private OrderViewModel UpdateViewModel(string conferenceCode, OrderViewModel viewModel)
+        private OrderViewModel UpdateViewModel(string conferenceCode, OrderViewModel incomingModel)
         {
-            var reservation = this.CreateViewModel(conferenceCode);
-            reservation.Id = viewModel.Id;
+            var viewModel = this.CreateViewModel(conferenceCode);
+            viewModel.Id = incomingModel.Id;
 
-            for (int i = 0; i < reservation.Items.Count; i++)
+            // TODO check incoming matches view model
+
+            for (int i = 0; i < viewModel.Items.Count; i++)
             {
-                var quantity = viewModel.Items[i].Quantity;
-                reservation.Items[i].Quantity = quantity;
+                var quantity = incomingModel.Items[i].Quantity;
+                viewModel.Items[i].Quantity = quantity;
             }
 
-            return reservation;
+            return viewModel;
         }
 
         private OrderDTO WaitUntilUpdated(Guid orderId)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 
-            while (DateTime.Now < deadline)
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
             {
-                var repo = this.repositoryFactory();
-                using (repo as IDisposable)
+                while (DateTime.Now < deadline)
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
@@ -176,9 +189,9 @@ namespace Conference.Web.Public.Controllers
                     {
                         return orderDTO;
                     }
-                }
 
-                Thread.Sleep(500);
+                    Thread.Sleep(500);
+                }
             }
 
             return null;

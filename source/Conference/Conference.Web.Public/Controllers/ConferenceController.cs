@@ -43,12 +43,16 @@ namespace Conference.Web.Public.Controllers
 
         private Conference.Web.Public.Models.Conference GetConference(string conferenceCode)
         {
-            var conferenceDTO = this.repositoryFactory().Query<ConferenceDTO>().First(c => c.Code == conferenceCode);
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var conferenceDTO = repo.Query<ConferenceDTO>().First(c => c.Code == conferenceCode);
 
-            var conference =
-                new Conference.Web.Public.Models.Conference { Code = conferenceDTO.Code, Name = conferenceDTO.Name, Description = conferenceDTO.Description };
+                var conference =
+                    new Conference.Web.Public.Models.Conference { Code = conferenceDTO.Code, Name = conferenceDTO.Name, Description = conferenceDTO.Description };
 
-            return conference;
+                return conference;
+            }
         }
     }
 }
