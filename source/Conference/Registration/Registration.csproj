@@ -60,7 +60,7 @@
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
-    <Compile Include="Handlers\RegistrationProcessSagaHandler.cs" />
+    <Compile Include="RegistrationProcessSagaRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />

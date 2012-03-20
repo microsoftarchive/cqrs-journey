@@ -44,7 +44,7 @@ namespace Conference.Web.Public
             Func<IViewRepository> viewOrmFactory = () => new OrmViewRepository();
 
             // Handlers
-            var registrationSaga = new RegistrationProcessSagaHandler(sagaOrmFactory);
+            var registrationSaga = new RegistrationProcessSagaRouter(sagaOrmFactory);
 
             commandBus.Register(registrationSaga);
             eventBus.Register(registrationSaga);
