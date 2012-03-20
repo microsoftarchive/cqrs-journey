@@ -25,6 +25,7 @@ namespace Conference.Web.Public.Controllers
     public class RegistrationController : Controller
     {
         private const int WaitTimeoutInSeconds = 5;
+        private static readonly long EpochTicks = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
 
         private ICommandBus commandBus;
         private Func<IViewRepository> repositoryFactory;
@@ -168,7 +169,8 @@ namespace Conference.Web.Public.Controllers
                         ConferenceId = conference.Id,
                         ConferenceCode = conference.Code,
                         ConferenceName = conference.Name,
-                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
+                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList(),
+                        ExpirationDateUTCMilliseconds = ((DateTime.UtcNow.Ticks - EpochTicks) / 10000) + 15 * 60 * 1000
                     };
 
                 return viewModel;

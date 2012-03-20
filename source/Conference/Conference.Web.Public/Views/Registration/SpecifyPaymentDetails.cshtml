@@ -2,8 +2,17 @@
 @{
     ViewBag.Title = "Registration for " + Model.ConferenceName;
 }
+@section Head
+{
+<script src="/Scripts/Conference.js" type="text/javascript"></script>
+}
 <h2>
     Choose Payment</h2>
+<div id="countdown">
+    <div id="countdown_time" />
+    <div id="countdown_warning">
+        Complete the registration before the count down expires.</div>
+</div>
 <div id="tickets">
     <table width="100%">
         <tr>
@@ -54,3 +63,8 @@
         </p>
     </div>
 }
+<script type="text/javascript">
+    $(document).ready(function () {
+        Conference.StartTimer(new Date(@Model.ExpirationDateUTCMilliseconds), 'countdown_time');
+    });
+</script>

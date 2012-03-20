@@ -34,5 +34,7 @@ namespace Conference.Web.Public.Models
         public IList<OrderItemViewModel> Items { get; set; }
 
         public double Total { get; set; }
+
+        public long ExpirationDateUTCMilliseconds { get; set; }
     }
 }
