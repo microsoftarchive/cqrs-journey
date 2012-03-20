@@ -19,6 +19,7 @@ namespace Conference.Web.Public
     using System.Web.Mvc;
     using System.Web.Routing;
     using Common;
+    using Registration;
     using Registration.Database;
     using Registration.Handlers;
     using Registration.ReadModel;
@@ -44,7 +45,7 @@ namespace Conference.Web.Public
             Func<IViewRepository> viewOrmFactory = () => new OrmViewRepository();
 
             // Handlers
-            var registrationSaga = new RegistrationProcessSagaHandler(sagaOrmFactory);
+            var registrationSaga = new RegistrationProcessSagaRouter(sagaOrmFactory);
 
             commandBus.Register(registrationSaga);
             eventBus.Register(registrationSaga);
@@ -84,7 +85,7 @@ namespace Conference.Web.Public
 
             Database.SetInitializer(new OrmViewRepositoryInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>())));
             Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
-            
+
             // Views repository is currently the same as the domain DB. No initializer needed.
             Database.SetInitializer<OrmViewRepository>(null);
 

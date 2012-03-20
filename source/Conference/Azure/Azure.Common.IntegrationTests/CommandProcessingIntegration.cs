@@ -28,7 +28,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
             var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var e = new ManualResetEvent(false);
+            var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
 
             processor.Register(handler);
@@ -39,7 +39,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             {
                 bus.Send(new FooCommand());
 
-                e.WaitOne(5000);
+                e.Wait();
 
                 Assert.True(handler.Called);
             }
@@ -55,8 +55,8 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
             var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var fooWaiter = new ManualResetEvent(false);
-            var barWaiter = new ManualResetEvent(false);
+            var fooWaiter = new ManualResetEventSlim();
+            var barWaiter = new ManualResetEventSlim();
             var handler = new MultipleHandler(fooWaiter, barWaiter);
 
             processor.Register(handler);
@@ -68,8 +68,8 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
                 bus.Send(new FooCommand());
                 bus.Send(new BarCommand());
 
-                fooWaiter.WaitOne(5000);
-                barWaiter.WaitOne(5000);
+                fooWaiter.Wait();
+                barWaiter.Wait();
 
                 Assert.True(handler.HandledFooCommand);
                 Assert.True(handler.HandledBarCommand);
@@ -87,7 +87,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             var processor = new CommandProcessor(receiver, new BinarySerializer());
             var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var e = new ManualResetEvent(false);
+            var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
 
             receiver.MessageReceived += (sender, args) => e.Set();
@@ -100,7 +100,7 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             {
                 bus.Send(new BarCommand());
 
-                e.WaitOne(5000);
+                e.Wait();
                 // Give the other event handler some time.
                 Thread.Sleep(100);
 
@@ -118,10 +118,10 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
             var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var fooEvent = new ManualResetEvent(false);
+            var fooEvent = new ManualResetEventSlim();
             var fooHandler = new FooCommandHandler(fooEvent);
 
-            var barEvent = new ManualResetEvent(false);
+            var barEvent = new ManualResetEventSlim();
             var barHandler = new BarCommandHandler(barEvent);
 
             processor.Register(fooHandler);
@@ -133,8 +133,8 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             {
                 bus.Send(new ICommand[] { new FooCommand(), new BarCommand() });
 
-                fooEvent.WaitOne(5000);
-                barEvent.WaitOne(5000);
+                fooEvent.Wait();
+                barEvent.Wait();
 
                 Assert.True(fooHandler.Called);
                 Assert.True(barHandler.Called);
@@ -167,10 +167,10 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
 
         public class MultipleHandler : ICommandHandler<FooCommand>, ICommandHandler<BarCommand>
         {
-            private ManualResetEvent fooWaiter;
-            private ManualResetEvent barWaiter;
+            private ManualResetEventSlim fooWaiter;
+            private ManualResetEventSlim barWaiter;
 
-            public MultipleHandler(ManualResetEvent fooWaiter, ManualResetEvent barWaiter)
+            public MultipleHandler(ManualResetEventSlim fooWaiter, ManualResetEventSlim barWaiter)
             {
                 this.fooWaiter = fooWaiter;
                 this.barWaiter = barWaiter;
@@ -194,9 +194,9 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
 
         public class FooCommandHandler : ICommandHandler<FooCommand>
         {
-            private ManualResetEvent e;
+            private ManualResetEventSlim e;
 
-            public FooCommandHandler(ManualResetEvent e)
+            public FooCommandHandler(ManualResetEventSlim e)
             {
                 this.e = e;
             }
@@ -212,9 +212,9 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
 
         public class BarCommandHandler : ICommandHandler<BarCommand>
         {
-            private ManualResetEvent e;
+            private ManualResetEventSlim e;
 
-            public BarCommandHandler(ManualResetEvent e)
+            public BarCommandHandler(ManualResetEventSlim e)
             {
                 this.e = e;
             }

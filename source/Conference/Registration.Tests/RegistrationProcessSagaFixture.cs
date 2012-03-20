@@ -61,22 +61,6 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
 
         [Fact]
-        public void then_reservation_is_correlated_with_order_id()
-        {
-            var reservation = (MakeSeatReservation)sut.Commands.Select(x => x.Body).Single();
-
-            Assert.Equal(orderPlaced.OrderId, reservation.Id);
-        }
-
-        [Fact]
-        public void then_saga_is_correlated_with_order_id()
-        {
-            var reservation = (MakeSeatReservation)sut.Commands.Select(x => x.Body).Single();
-
-            Assert.Equal(orderPlaced.OrderId, sut.Id);
-        }
-
-        [Fact]
         public void then_transitions_to_awaiting_reservation_confirmation_state()
         {
             Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation, sut.State);
@@ -86,25 +70,37 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     public class given_saga_awaiting_for_reservation_confirmation
     {
         protected RegistrationProcessSaga sut;
+        protected Guid orderId;
+        protected Guid conferenceId;
 
         public given_saga_awaiting_for_reservation_confirmation()
         {
-            this.sut = new RegistrationProcessSaga
+            this.sut = new RegistrationProcessSaga();
+            this.orderId = Guid.NewGuid();
+            this.conferenceId = Guid.NewGuid();
+
+            this.sut.Handle(new OrderPlaced
             {
-                Id = Guid.NewGuid(),
-                State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
-            };
+                OrderId = this.orderId,
+                ConferenceId = this.conferenceId,
+                Items = new[] { new OrderPlaced.OrderItem { SeatTypeId = Guid.NewGuid(), Quantity = 2 } }
+            });
         }
     }
 
     public class when_reservation_confirmation_is_received : given_saga_awaiting_for_reservation_confirmation
     {
+        private Guid reservationId;
+
         public when_reservation_confirmation_is_received()
         {
+            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
+            this.reservationId = makeReservationCommand.ReservationId;
+
             var reservationAccepted = new ReservationAccepted
             {
-                ReservationId = sut.Id,
-                ConferenceId = Guid.NewGuid(),
+                ReservationId = makeReservationCommand.ReservationId,
+                ConferenceId = makeReservationCommand.ConferenceId,
             };
             sut.Handle(reservationAccepted);
         }
@@ -114,7 +110,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         {
             var command = sut.Commands.Select(x => x.Body).OfType<MarkOrderAsBooked>().Single();
 
-            Assert.Equal(sut.Id, command.OrderId);
+            Assert.Equal(this.orderId, command.OrderId);
         }
 
         [Fact]
@@ -123,8 +119,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var message = sut.Commands.Single(x => x.Body is ExpireOrder);
 
             Assert.Equal(TimeSpan.FromMinutes(15), message.Delay);
-            Assert.IsAssignableFrom<ExpireOrder>(message.Body);
-            Assert.Equal(sut.Id, message.Body.Id);
+            Assert.Equal(this.orderId, ((ExpireOrder)message.Body).OrderId);
         }
 
         [Fact]
@@ -136,12 +131,17 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 
     public class when_reservation_is_rejected : given_saga_awaiting_for_reservation_confirmation
     {
+        private Guid reservationId;
+
         public when_reservation_is_rejected()
         {
+            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
+            this.reservationId = makeReservationCommand.ReservationId;
+
             var reservationAccepted = new ReservationRejected
             {
-                ReservationId = sut.Id,
-                ConferenceId = Guid.NewGuid(),
+                ReservationId = this.reservationId,
+                ConferenceId = this.conferenceId,
             };
             sut.Handle(reservationAccepted);
         }
@@ -149,9 +149,9 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_updates_order_status()
         {
-            var command = (RejectOrder)sut.Commands.Select(x => x.Body).Single();
+            var command = sut.Commands.Select(x => x.Body).OfType<RejectOrder>().Single();
 
-            Assert.Equal(sut.Id, command.OrderId);
+            Assert.Equal(this.orderId, command.OrderId);
         }
 
         [Fact]
@@ -164,29 +164,43 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     public class given_saga_awaiting_payment
     {
         protected RegistrationProcessSaga sut;
+        protected Guid orderId;
+        protected Guid conferenceId;
+        protected Guid reservationId;
 
         public given_saga_awaiting_payment()
         {
-            this.sut = new RegistrationProcessSaga
+            this.sut = new RegistrationProcessSaga();
+            this.orderId = Guid.NewGuid();
+            this.conferenceId = Guid.NewGuid();
+
+            this.sut.Handle(new OrderPlaced
             {
-                Id = Guid.NewGuid(),
-                State = RegistrationProcessSaga.SagaState.AwaitingPayment,
-            };
+                OrderId = this.orderId,
+                ConferenceId = this.conferenceId,
+                Items = new[] { new OrderPlaced.OrderItem { SeatTypeId = Guid.NewGuid(), Quantity = 2 } }
+            });
+
+            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
+            this.reservationId = makeReservationCommand.ReservationId;
+
+            this.sut.Handle(new ReservationAccepted
+            {
+                ReservationId = makeReservationCommand.ReservationId,
+                ConferenceId = makeReservationCommand.ConferenceId,
+            });
         }
     }
 
     public class when_reservation_is_expired : given_saga_awaiting_payment
     {
-        protected Guid ConferenceId = Guid.NewGuid();
-
         public when_reservation_is_expired()
         {
-            var expireReservation = new ExpireOrder
+            sut.Handle(new ExpireOrder
             {
-                Id = sut.Id,
-                ConferenceId = ConferenceId
-            };
-            sut.Handle(expireReservation);
+                ConferenceId = this.conferenceId,
+                OrderId = this.orderId,
+            });
         }
 
         [Fact]
@@ -194,8 +208,8 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         {
             var command = sut.Commands.Select(x => x.Body).OfType<CancelSeatReservation>().Single();
 
-            Assert.Equal(sut.Id, command.ReservationId);
-            Assert.Equal(ConferenceId, command.ConferenceId);
+            Assert.Equal(this.reservationId, command.ReservationId);
+            Assert.Equal(this.conferenceId, command.ConferenceId);
         }
 
         [Fact]
@@ -203,7 +217,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         {
             var command = sut.Commands.Select(x => x.Body).OfType<RejectOrder>().Single();
 
-            Assert.Equal(sut.Id, command.OrderId);
+            Assert.Equal(this.orderId, command.OrderId);
         }
 
         [Fact]
