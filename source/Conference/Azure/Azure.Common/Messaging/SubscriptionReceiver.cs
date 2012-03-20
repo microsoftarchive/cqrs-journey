@@ -86,7 +86,7 @@ namespace Azure.Messaging
 
             this.cancellationSource = new CancellationTokenSource();
 
-            Task.Factory.StartNew(this.ReceiveMessages, this.cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+            Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
         }
 
         /// <summary>
@@ -141,9 +141,9 @@ namespace Azure.Messaging
         /// <summary>
         /// Receives the messages in an endless loop.
         /// </summary>
-        private void ReceiveMessages()
+        private void ReceiveMessages(CancellationToken cancellationToken)
         {
-            while (!this.cancellationSource.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 // Long polling here?
                 var message = this.client.Receive(TimeSpan.FromSeconds(10));
@@ -154,7 +154,7 @@ namespace Azure.Messaging
                     continue;
                 }
 
-                if (!this.cancellationSource.IsCancellationRequested)
+                if (!cancellationToken.IsCancellationRequested)
                     this.MessageReceived(this, new BrokeredMessageEventArgs(message));
             }
         }
