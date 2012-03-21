@@ -1,0 +1,18 @@
+﻿@model Conference.Web.Public.Models.OrderViewModel
+@{
+    ViewBag.Title = "Registration for " + Model.ConferenceName;
+}
+<h2>
+    Registrant Information</h2>
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(model => model.Id)
+    <div class="fieldset">
+        <div class="editor-label">First Name: </div><div class="editor-field">@Html.TextBox("FirstName")</div>
+        <div class="editor-label">First Name: </div><div class="editor-field">@Html.TextBox("FirstName")</div>
+        <div class="editor-label">First Name: </div><div class="editor-field">@Html.TextBox("FirstName")</div>
+        <p>
+            <input type="submit" value="Next" />
+        </p>
+    </div>
+}

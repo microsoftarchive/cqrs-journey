@@ -38,6 +38,9 @@ namespace Conference.Web.Public.Controllers
         {
             var conference = this.GetConference(conferenceCode);
 
+            // Reply with 404 if not found?
+            //if (conference == null)
+
             return View(conference);
         }
 
@@ -46,12 +49,15 @@ namespace Conference.Web.Public.Controllers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var conferenceDTO = repo.Query<ConferenceDTO>().First(c => c.Code == conferenceCode);
-
-                var conference =
-                    new Conference.Web.Public.Models.Conference { Code = conferenceDTO.Code, Name = conferenceDTO.Name, Description = conferenceDTO.Description };
-
-                return conference;
+                return repo.Query<ConferenceDTO>()
+                    .Where(dto => dto.Code == conferenceCode)
+                    .Select(dto => new Conference.Web.Public.Models.Conference
+                    {
+                        Code = dto.Code,
+                        Name = dto.Name,
+                        Description = dto.Description
+                    })
+                    .FirstOrDefault();
             }
         }
     }

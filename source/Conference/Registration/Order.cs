@@ -16,18 +16,19 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using Common;
     using Registration.Events;
 
     public class Order : IAggregateRoot, IEventPublisher
     {
-        public static class States
+        public enum States
         {
-            public const int Created = 0;
-            public const int Booked = 1;
-            public const int Rejected = 2;
-            public const int Confirmed = 3;
+            Created = 0,
+            Booked = 1,
+            Rejected = 2,
+            Confirmed = 3,
         }
 
         private List<IEvent> events = new List<IEvent>();
@@ -64,7 +65,13 @@ namespace Registration
 
         public virtual ObservableCollection<OrderItem> Items { get; private set; }
 
-        public int State { get; private set; }
+        public int StateValue { get; private set; }
+        [NotMapped]
+        public States State
+        {
+            get { return (States)this.StateValue; }
+            internal set { this.StateValue = (int)value; }
+        }
 
         public IEnumerable<IEvent> Events
         {

@@ -76,6 +76,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Conference.cs" />
+    <Compile Include="Models\RegistrantDetails.cs" />
     <Compile Include="Models\OrderItemViewModel.cs" />
     <Compile Include="Models\OrderViewModel.cs" />
     <Compile Include="Models\PaymentDetails.cs" />
@@ -107,6 +108,7 @@
     <Content Include="Views\Registration\SpecifyPaymentDetails.cshtml" />
     <Content Include="Views\Registration\ThankYou.cshtml" />
     <Content Include="Views\Payment\Display.cshtml" />
+    <Content Include="Views\Registration\SpecifyRegistrantDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

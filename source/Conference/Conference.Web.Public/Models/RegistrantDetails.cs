@@ -11,37 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Conference.Web.Public.Models
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
-
-    public class OrderDTO
+    public class RegistrantDetails
     {
-        public OrderDTO(Guid orderId, Order.States state)
-            : this()
-        {
-            this.OrderId = orderId;
-            this.State = state;
-            this.Lines = new ObservableCollection<OrderItemDTO>();
-        }
-
-        protected OrderDTO()
-        {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
-        }
-
-        [Key]
-        public Guid OrderId { get; private set; }
-        public virtual ObservableCollection<OrderItemDTO> Lines { get; private set; }
-        public int StateValue { get; private set; }
-
-        // TODO: make enum
-        public Order.States State
-        {
-            get { return (Order.States)this.StateValue; }
-            private set { this.StateValue = (int)value; }
-        }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -68,17 +68,43 @@ namespace Conference.Web.Public.Controllers
 
             if (orderDTO != null)
             {
-                if (orderDTO.State == "Booked")
+                if (orderDTO.State == Registration.Order.States.Booked)
                 {
                     return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
                 }
-                else if (orderDTO.State == "Rejected")
+                else if (orderDTO.State == Registration.Order.States.Rejected)
                 {
                     return View("ReservationRejected", viewModel);
                 }
             }
 
             return View("ReservationUnknown", viewModel);
+        }
+
+        [HttpGet]
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId)
+        {
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var orderDTO = repo.Find<OrderDTO>(orderId);
+                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+
+                return View(viewModel);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, RegistrantDetails registrantDetails)
+        {
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var orderDTO = repo.Find<OrderDTO>(orderId);
+                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+
+                return View(viewModel);
+            }
         }
 
         [HttpGet]
@@ -185,7 +211,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
-                    if (orderDTO != null && orderDTO.State != "Created")
+                    if (orderDTO != null && orderDTO.State != Registration.Order.States.Created)
                     {
                         return orderDTO;
                     }

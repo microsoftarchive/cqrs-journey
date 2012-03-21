@@ -41,7 +41,7 @@ CREATE VIEW [dbo].[OrdersView]
 AS
 SELECT     
     dbo.Orders.Id AS OrderId, 
-    dbo.Orders.State as StateValue
+    dbo.Orders.StateValue as StateValue
 FROM dbo.Orders");
 
                 context.Database.ExecuteSqlCommand(@"

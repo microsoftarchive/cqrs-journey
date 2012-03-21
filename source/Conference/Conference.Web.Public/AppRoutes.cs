@@ -27,27 +27,27 @@ namespace Conference.Web.Public
 
             routes.MapRoute(
                 "ViewConference",
-                "conference/{conferenceCode}",
+                "{conferenceCode}",
                 new { controller = "Conference", action = "Display" });
 
             routes.MapRoute(
                 "RegisterStart",
-                "conference/{conferenceCode}/register",
+                "{conferenceCode}/register",
                 new { controller = "Registration", action = "StartRegistration" });
 
             routes.MapRoute(
                 "RegisterChoosePayment",
-                "conference/{conferenceCode}/payment",
+                "{conferenceCode}/payment",
                 new { controller = "Registration", action = "SpecifyPaymentDetails" });
 
             routes.MapRoute(
                 "RegisterTransactionCompleted",
-                "conference/{conferenceCode}/completed",
+                "{conferenceCode}/completed",
                 new { controller = "Registration", action = "TransactionCompleted" });
 
             routes.MapRoute(
                 "RegisterConfirmation",
-                "conference/{conferenceCode}/confirmation",
+                "{conferenceCode}/confirmation",
                 new { controller = "Registration", action = "ThankYou" });
 
             routes.MapRoute(
