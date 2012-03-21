@@ -80,6 +80,7 @@
     <Compile Include="Models\OrderViewModel.cs" />
     <Compile Include="Models\PaymentDetails.cs" />
     <Compile Include="Models\PaymentInfomation.cs" />
+    <Compile Include="OrmViewRepositoryProxy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
