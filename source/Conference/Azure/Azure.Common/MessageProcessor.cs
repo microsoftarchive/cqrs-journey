@@ -28,6 +28,7 @@ namespace Azure
         private bool started = false;
         private IMessageReceiver receiver;
         private ISerializer serializer;
+        private object lockObject = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageProcessor"/> class.
@@ -44,12 +45,15 @@ namespace Azure
         public virtual void Start()
         {
             ThrowIfDisposed();
-            if (this.started)
-                throw new InvalidOperationException("Already started");
-
-            this.receiver.MessageReceived += OnMessageReceived;
-            this.receiver.Start();
-            this.started = true;
+            lock (this.lockObject)
+            {
+                if (!this.started)
+                {
+                    this.receiver.MessageReceived += OnMessageReceived;
+                    this.receiver.Start();
+                    this.started = true;
+                }
+            }
         }
 
         /// <summary>
@@ -57,13 +61,15 @@ namespace Azure
         /// </summary>
         public virtual void Stop()
         {
-            ThrowIfDisposed();
-            if (!this.started)
-                throw new InvalidOperationException("Not started");
-
-            this.receiver.Stop();
-            this.receiver.MessageReceived -= OnMessageReceived;
-            this.started = false;
+            lock (this.lockObject)
+            {
+                if (this.started)
+                {
+                    this.receiver.Stop();
+                    this.receiver.MessageReceived -= OnMessageReceived;
+                    this.started = false;
+                }
+            }
         }
 
         /// <summary>
@@ -86,15 +92,14 @@ namespace Azure
             {
                 if (disposing)
                 {
-                    if (this.started)
-                        this.Stop();
+                    this.Stop();
+                    this.disposed = true;
 
-                    var disposable = this.receiver as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
+                    using (this.receiver as IDisposable)
+                    {
+                        // Dispose receiver if it's disposable.
+                    }
                 }
-
-                this.disposed = true;
             }
         }
 

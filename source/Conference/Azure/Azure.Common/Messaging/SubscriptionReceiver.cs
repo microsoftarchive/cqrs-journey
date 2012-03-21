@@ -31,7 +31,7 @@ namespace Azure.Messaging
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
         private string subscription;
-        private bool disposed;
+        private object lockObject = new object();
 
         /// <summary>
         /// Event raised whenever a message is received.
@@ -80,13 +80,11 @@ namespace Azure.Messaging
         /// </summary>
         public void Start()
         {
-            ThrowIfDisposed();
-            if (this.cancellationSource != null)
-                throw new InvalidOperationException("Already started");
-
-            this.cancellationSource = new CancellationTokenSource();
-
-            Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+            lock (this.lockObject)
+            {
+                this.cancellationSource = new CancellationTokenSource();
+                Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+            }
         }
 
         /// <summary>
@@ -94,13 +92,17 @@ namespace Azure.Messaging
         /// </summary>
         public void Stop()
         {
-            ThrowIfDisposed();
-            if (this.cancellationSource == null)
-                throw new InvalidOperationException("Not started");
-
-            this.cancellationSource.Cancel();
-            this.cancellationSource.Dispose();
-            this.cancellationSource = null;
+            lock (this.lockObject)
+            {
+                using (this.cancellationSource)
+                {
+                    if (this.cancellationSource != null)
+                    {
+                        this.cancellationSource.Cancel();
+                        this.cancellationSource = null;
+                    }
+                }
+            }
         }
 
 
@@ -115,27 +117,12 @@ namespace Azure.Messaging
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    if (this.cancellationSource != null)
-                        Stop();
-                }
-
-                this.disposed = true;
-            }
+            this.Stop();
         }
 
         ~SubscriptionReceiver()
         {
             Dispose(false);
-        }
-
-        private void ThrowIfDisposed()
-        {
-            if (this.disposed)
-                throw new ObjectDisposedException("MessageProcessor");
         }
 
         /// <summary>
