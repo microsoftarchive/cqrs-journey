@@ -97,7 +97,7 @@ namespace Registration
 
         public void Reject()
         {
-            if (this.State != States.Created)
+            if (this.State != States.Created && this.State != States.Booked)
                 throw new InvalidOperationException();
 
             this.State = States.Rejected;

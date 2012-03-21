@@ -115,4 +115,39 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(Order.States.Rejected, this.sut.State);
         }
     }
+
+    public class given_booked_order
+    {
+        private static readonly Guid OrderId = Guid.NewGuid();
+        private static readonly Guid ConferenceId = Guid.NewGuid();
+        private static readonly Guid TicketTypeId = Guid.NewGuid();
+        private static readonly Guid UserId = Guid.NewGuid();
+
+        private Order sut;
+        private IPersistenceProvider sutProvider;
+
+        protected given_booked_order(IPersistenceProvider sutProvider)
+        {
+            this.sutProvider = sutProvider;
+
+            var lines = new[] { new OrderItem(TicketTypeId, 5) };
+            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+            this.sut.MarkAsBooked();
+
+            this.sut = this.sutProvider.PersistReload(this.sut);
+        }
+
+        public given_booked_order()
+            : this(new NoPersistenceProvider())
+        {
+        }
+
+        [Fact]
+        public void when_marking_as_rejected_then_changes_order_state()
+        {
+            this.sut.Reject();
+
+            Assert.Equal(Order.States.Rejected, this.sut.State);
+        }
+    }
 }
