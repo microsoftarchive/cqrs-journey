@@ -27,17 +27,17 @@ namespace Conference.Web.Public.Controllers
         private const int WaitTimeoutInSeconds = 5;
 
         private ICommandBus commandBus;
-        private Func<IViewRepository> repositoryFactory;
+        private readonly IViewRepository repository;
 
         public RegistrationController()
-            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<Func<IViewRepository>>())
+            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<IViewRepository>())
         {
         }
 
-        public RegistrationController(ICommandBus commandBus, Func<IViewRepository> repositoryFactory)
+        public RegistrationController(ICommandBus commandBus, IViewRepository repository)
         {
             this.commandBus = commandBus;
-            this.repositoryFactory = repositoryFactory;
+            this.repository = repository;
         }
 
         [HttpGet]
@@ -84,14 +84,10 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                var orderDTO = repo.Find<OrderDTO>(orderId);
-                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+            var orderDTO = this.repository.Find<OrderDTO>(orderId);
+            var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
-                return View(viewModel);
-            }
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -121,25 +117,20 @@ namespace Conference.Web.Public.Controllers
 
         private OrderViewModel CreateViewModel(string conferenceCode)
         {
-            var repo = this.repositoryFactory();
+            var conference = this.repository.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
 
-            using (repo as IDisposable)
-            {
-                var conference = repo.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
+            //// TODO check null case
 
-                //// TODO check null case
+            var viewModel =
+                new OrderViewModel
+                {
+                    ConferenceId = conference.Id,
+                    ConferenceCode = conference.Code,
+                    ConferenceName = conference.Name,
+                    Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
+                };
 
-                var viewModel =
-                    new OrderViewModel
-                    {
-                        ConferenceId = conference.Id,
-                        ConferenceCode = conference.Code,
-                        ConferenceName = conference.Name,
-                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
-                    };
-
-                return viewModel;
-            }
+            return viewModel;
         }
 
         private OrderViewModel CreateViewModel(string conferenceCode, OrderDTO orderDTO)
@@ -180,15 +171,11 @@ namespace Conference.Web.Public.Controllers
 
             while (DateTime.Now < deadline)
             {
-                var repo = this.repositoryFactory();
-                using (repo as IDisposable)
-                {
-                    var orderDTO = repo.Find<OrderDTO>(orderId);
+                var orderDTO = this.repository.Find<OrderDTO>(orderId);
 
-                    if (orderDTO != null && orderDTO.State != "Created")
-                    {
-                        return orderDTO;
-                    }
+                if (orderDTO != null && orderDTO.State != "Created")
+                {
+                    return orderDTO;
                 }
 
                 Thread.Sleep(500);
