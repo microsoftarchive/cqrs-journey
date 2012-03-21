@@ -36,7 +36,7 @@ namespace Registration.Tests
 
 			bus.Publish(new TestEvent());
 
-			e.Wait(1000);
+			e.Wait(3000);
 
 			handler.Verify(x => x.Handle(It.IsAny<TestEvent>()));
 		}
@@ -55,7 +55,7 @@ namespace Registration.Tests
 
 			bus.Publish(new TestEvent());
 
-			e.Wait(1000);
+			e.Wait(3000);
 
 			incompatibleHandler.Verify(x => x.Handle(It.IsAny<FooEvent>()), Times.Never());
 		}
@@ -68,13 +68,13 @@ namespace Registration.Tests
 			
 			var called = 0;
 			handler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
-				.Callback(() => { if (called++ == 4) e.Set(); });
+				.Callback(() => { if (Interlocked.Increment(ref called) == 4) e.Set(); });
 
 			var bus = new MemoryEventBus(handler.Object);
 
 			bus.Publish(new [] { new TestEvent(), new TestEvent(), new TestEvent(), new TestEvent() });
 
-			e.Wait(1000);
+			e.Wait(10000);
 
 			Assert.Equal(4, called);
 		}
