@@ -50,21 +50,21 @@ namespace Azure.IntegrationTests.SubscriptionReceiverIntegration
     public class given_a_receiver : given_a_topic_and_subscription
     {
         [Fact]
-        public void when_starting_twice_then_throws()
+        public void when_starting_twice_then_ignores_second_request()
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
 
             receiver.Start();
 
-            Assert.Throws<InvalidOperationException>(() => receiver.Start());
+            receiver.Start();
         }
 
         [Fact]
-        public void when_stopping_without_starting_then_throws()
+        public void when_stopping_without_starting_then_ignores_request()
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
 
-            Assert.Throws<InvalidOperationException>(() => receiver.Stop());
+            receiver.Stop();
         }
 
         [Fact]

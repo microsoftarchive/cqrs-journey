@@ -50,23 +50,24 @@ namespace Azure.IntegrationTests.SendReceiveIntegration
         public void when_sending_message_then_can_receive_it()
         {
             var sender = new TopicSender(this.settings, this.topic);
-            var receiver = new SubscriptionReceiver(this.settings, this.topic, this.subscription);
-            var signal = new ManualResetEventSlim();
-
-            var message = default(BrokeredMessage);
-
-            receiver.MessageReceived += (o, e) =>
-            {
-                message = e.Message;
-                signal.Set();
-            };
-
-            receiver.Start();
-
+            BrokeredMessage message = null;
             var data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
-            sender.Send(new BrokeredMessage(data));
+            using (var receiver = new SubscriptionReceiver(this.settings, this.topic, this.subscription))
+            {
+                var signal = new ManualResetEventSlim();
 
-            signal.Wait();
+                receiver.MessageReceived += (o, e) =>
+                {
+                    message = e.Message;
+                    signal.Set();
+                };
+
+                receiver.Start();
+
+                sender.Send(new BrokeredMessage(data));
+
+                signal.Wait();
+            }
 
             Assert.NotNull(message);
 
