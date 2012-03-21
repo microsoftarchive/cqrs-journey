@@ -22,7 +22,7 @@ namespace Azure.Tests
         [Fact]
         public void when_read_from_file_then_succeeds()
         {
-            var settings = MessagingSettings.Read("Settings.xml");
+            var settings = MessagingSettings.Read("Settings.Template.xml");
 
             Assert.NotNull(settings);
         }
@@ -30,7 +30,7 @@ namespace Azure.Tests
         [Fact]
         public void when_read_from_reader_then_succeeds()
         {
-            using (var reader = XmlReader.Create("Settings.xml"))
+            using (var reader = XmlReader.Create("Settings.Template.xml"))
             {
                 var settings = MessagingSettings.Read(reader);
 
