@@ -28,7 +28,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
             var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
             var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var e = new ManualResetEvent(false);
+            var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
 
             processor.Register(handler);
@@ -39,7 +39,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
             {
                 bus.Publish(new FooEvent());
 
-                e.WaitOne(5000);
+                e.Wait();
 
                 Assert.True(handler.Called);
             }
@@ -56,7 +56,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
             var processor = new EventProcessor(receiver, new BinarySerializer());
             var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var e = new ManualResetEvent(false);
+            var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
 
             receiver.MessageReceived += (sender, args) => e.Set();
@@ -69,7 +69,7 @@ namespace Azure.IntegrationTests.EventBusIntegration
             {
                 bus.Publish(new BarEvent());
 
-                e.WaitOne(5000);
+                e.Wait();
                 // Give the other event handler some time.
                 Thread.Sleep(100);
 
@@ -87,10 +87,10 @@ namespace Azure.IntegrationTests.EventBusIntegration
             var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
             var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
 
-            var fooEvent = new ManualResetEvent(false);
+            var fooEvent = new ManualResetEventSlim();
             var fooHandler = new FooEventHandler(fooEvent);
 
-            var barEvent = new ManualResetEvent(false);
+            var barEvent = new ManualResetEventSlim();
             var barHandler = new BarEventHandler(barEvent);
 
             processor.Register(fooHandler);
@@ -102,8 +102,8 @@ namespace Azure.IntegrationTests.EventBusIntegration
             {
                 bus.Publish(new IEvent[] { new FooEvent(), new BarEvent() });
 
-                fooEvent.WaitOne(5000);
-                barEvent.WaitOne(5000);
+                fooEvent.Wait();
+                barEvent.Wait();
 
                 Assert.True(fooHandler.Called);
                 Assert.True(barHandler.Called);
@@ -136,9 +136,9 @@ namespace Azure.IntegrationTests.EventBusIntegration
 
         public class FooEventHandler : IEventHandler<FooEvent>
         {
-            private ManualResetEvent e;
+            private ManualResetEventSlim e;
 
-            public FooEventHandler(ManualResetEvent e)
+            public FooEventHandler(ManualResetEventSlim e)
             {
                 this.e = e;
             }
@@ -154,9 +154,9 @@ namespace Azure.IntegrationTests.EventBusIntegration
 
         public class BarEventHandler : IEventHandler<BarEvent>
         {
-            private ManualResetEvent e;
+            private ManualResetEventSlim e;
 
-            public BarEventHandler(ManualResetEvent e)
+            public BarEventHandler(ManualResetEventSlim e)
             {
                 this.e = e;
             }

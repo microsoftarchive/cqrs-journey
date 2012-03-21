@@ -51,7 +51,7 @@ namespace Azure.IntegrationTests.SendReceiveIntegration
         {
             var sender = new TopicSender(this.settings, this.topic);
             var receiver = new SubscriptionReceiver(this.settings, this.topic, this.subscription);
-            var signal = new ManualResetEvent(false);
+            var signal = new ManualResetEventSlim();
 
             var message = default(BrokeredMessage);
 
@@ -66,7 +66,7 @@ namespace Azure.IntegrationTests.SendReceiveIntegration
             var data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
             sender.Send(new BrokeredMessage(data));
 
-            signal.WaitOne(5000);
+            signal.Wait();
 
             Assert.NotNull(message);
 
