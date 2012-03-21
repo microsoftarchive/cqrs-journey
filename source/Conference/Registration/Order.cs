@@ -56,15 +56,15 @@ namespace Registration
                 });
         }
 
-        public virtual Guid Id { get; private set; }
+        public Guid Id { get; private set; }
 
-        public virtual Guid UserId { get; private set; }
+        public Guid UserId { get; private set; }
 
-        public virtual Guid ConferenceId { get; private set; }
+        public Guid ConferenceId { get; private set; }
 
         public virtual ObservableCollection<OrderItem> Items { get; private set; }
 
-        public virtual int State { get; private set; }
+        public int State { get; private set; }
 
         public IEnumerable<IEvent> Events
         {

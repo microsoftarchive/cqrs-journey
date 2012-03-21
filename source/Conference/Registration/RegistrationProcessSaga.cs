@@ -22,13 +22,12 @@ namespace Registration
 
     public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
     {
-        public static class SagaState
+        public enum SagaState
         {
-            public const int NotStarted = 0;
-            public const int AwaitingReservationConfirmation = 1;
-            public const int AwaitingUserInformation = 2;
-            public const int AwaitingPayment = 3;
-            public const int Completed = 0xFF;
+            NotStarted = 0,
+            AwaitingReservationConfirmation = 1,
+            AwaitingPayment = 2,
+            Completed = 0xFF,
         }
 
         private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
@@ -39,9 +38,15 @@ namespace Registration
         }
 
         public Guid Id { get; private set; }
-        public int State { get; private set; }
-        public Guid OrderId { get; private set; }
-        public Guid ReservationId { get; private set; }
+        public int StateValue { get; private set; }
+        public Guid OrderId { get; internal set; }
+        public Guid ReservationId { get; internal set; }
+
+        public SagaState State
+        {
+            get { return (SagaState)this.StateValue; }
+            internal set { this.StateValue = (int)value; }
+        }
 
         public IEnumerable<Envelope<ICommand>> Commands
         {

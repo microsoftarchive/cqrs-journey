@@ -11,16 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Registration.Handlers
 {
     using System;
-    using System.Linq;
     using Common;
     using Registration.Commands;
     using Registration.Events;
 
     // TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
-    public class RegistrationProcessSagaRouter :
+    public class RegistrationProcessSagaHandler :
         IEventHandler<OrderPlaced>,
         IEventHandler<PaymentReceived>,
         IEventHandler<ReservationAccepted>,
@@ -30,7 +29,7 @@ namespace Registration
         private object lockObject = new object();
         private Func<ISagaRepository> repositoryFactory;
 
-        public RegistrationProcessSagaRouter(Func<ISagaRepository> repositoryFactory)
+        public RegistrationProcessSagaHandler(Func<ISagaRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
@@ -57,13 +56,10 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId);
-                    if (saga != null)
-                    {
-                        saga.Handle(@event);
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+                    saga.Handle(@event);
 
-                        repo.Save(saga);
-                    }
+                    repo.Save(saga);
                 }
             }
         }
@@ -75,13 +71,10 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId);
-                    if (saga != null)
-                    {
-                        saga.Handle(@event);
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.ReservationId);
+                    saga.Handle(@event);
 
-                        repo.Save(saga);
-                    }
+                    repo.Save(saga);
                 }
             }
         }
@@ -93,13 +86,10 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == command.OrderId);
-                    if (saga != null)
-                    {
-                        saga.Handle(command);
+                    var saga = repo.Find<RegistrationProcessSaga>(command.Id);
+                    saga.Handle(command);
 
-                        repo.Save(saga);
-                    }
+                    repo.Save(saga);
                 }
             }
         }
@@ -111,13 +101,10 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == @event.OrderId);
-                    if (saga != null)
-                    {
-                        saga.Handle(@event);
+                    var saga = repo.Find<RegistrationProcessSaga>(@event.OrderId);
+                    saga.Handle(@event);
 
-                        repo.Save(saga);
-                    }
+                    repo.Save(saga);
                 }
             }
         }
