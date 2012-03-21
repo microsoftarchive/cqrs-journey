@@ -66,6 +66,7 @@
     <Compile Include="ConferenceSeatsAvailabilityFixture.cs" />
     <Compile Include="RegistrationProcessSagaFixture.cs" />
     <Compile Include="IPersistenceProvider.cs" />
+    <Compile Include="RegistrationProcessSagaRouterFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

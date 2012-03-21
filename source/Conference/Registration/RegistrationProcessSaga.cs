@@ -26,8 +26,7 @@ namespace Registration
         {
             NotStarted = 0,
             AwaitingReservationConfirmation = 1,
-            AwaitingUserInfo = 2,
-            AwaitingPayment = 3,
+            AwaitingPayment = 2,
             Completed = 0xFF,
         }
 
@@ -39,14 +38,14 @@ namespace Registration
         }
 
         public Guid Id { get; private set; }
-        public int StateValue { get; set; }
-        public Guid OrderId { get; private set; }
-        public Guid ReservationId { get; private set; }
+        public int StateValue { get; private set; }
+        public Guid OrderId { get; internal set; }
+        public Guid ReservationId { get; internal set; }
 
         public SagaState State
         {
             get { return (SagaState)this.StateValue; }
-            set { this.StateValue = (int)value; }
+            internal set { this.StateValue = (int)value; }
         }
 
         public IEnumerable<Envelope<ICommand>> Commands
