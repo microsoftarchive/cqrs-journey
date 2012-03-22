@@ -76,6 +76,8 @@ namespace Azure.IntegrationTests.MessageProcessorIntegration
 
             var deadMessage = deadReceiver.Receive(TimeSpan.FromSeconds(5));
 
+            processor.Object.Dispose();
+
             Assert.NotNull(deadMessage);
             var data = new BinarySerializer().Deserialize(deadMessage.GetBody<Stream>());
 

@@ -24,20 +24,7 @@ namespace Azure.Tests
     public class MessageProcessorFixture
     {
         [Fact]
-        public void when_starting_disposed_then_throws()
-        {
-            var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
-            var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
-
-
-            processor.Dispose();
-
-            Assert.Throws<ObjectDisposedException>(() => processor.Start());
-        }
-
-        [Fact]
-        public void when_starting_twice_then_throws()
+        public void when_starting_twice_then_ignores_second_request()
         {
             var receiver = new Mock<IMessageReceiver>();
             var serializer = new Mock<ISerializer>();
@@ -45,7 +32,7 @@ namespace Azure.Tests
 
             processor.Start();
 
-            Assert.Throws<InvalidOperationException>(() => processor.Start());
+            processor.Start();
         }
 
         [Fact]
@@ -75,7 +62,7 @@ namespace Azure.Tests
         }
 
         [Fact]
-        public void when_stopping_disposed_then_throws()
+        public void when_stopping_disposed_then_ignores()
         {
             var receiver = new Mock<IMessageReceiver>();
             var serializer = new Mock<ISerializer>();
@@ -83,17 +70,17 @@ namespace Azure.Tests
 
             processor.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => processor.Stop());
+            processor.Stop();
         }
 
         [Fact]
-        public void when_stopping_non_started_then_throws()
+        public void when_stopping_non_started_then_ignores()
         {
             var receiver = new Mock<IMessageReceiver>();
             var serializer = new Mock<ISerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
-            Assert.Throws<InvalidOperationException>(() => processor.Stop());
+            processor.Stop();
         }
 
         [Fact]
