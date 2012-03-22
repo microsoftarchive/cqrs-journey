@@ -42,7 +42,6 @@ namespace Conference.Web.Public
 
             Func<IRepository> ormFactory = () => new OrmRepository(eventBus);
             Func<ISagaRepository> sagaOrmFactory = () => new OrmSagaRepository(commandBus);
-            Func<IViewRepository> viewOrmFactory = () => new OrmViewRepository();
 
             // Handlers
             var registrationSaga = new RegistrationProcessSagaRouter(sagaOrmFactory);
@@ -58,7 +57,7 @@ namespace Conference.Web.Public
             services[typeof(IEventBus)] = eventBus;
             services[typeof(Func<IRepository>)] = ormFactory;
             services[typeof(Func<ISagaRepository>)] = sagaOrmFactory;
-            services[typeof(Func<IViewRepository>)] = viewOrmFactory;
+            services[typeof(IViewRepository)] = new OrmViewRepositoryProxy();
 
             return services;
         }

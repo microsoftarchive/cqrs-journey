@@ -36,7 +36,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             this.bus = Mock.Of<ICommandBus>();
             this.viewRepository = Mock.Of<IViewRepository>();
 
-            this.sut = new RegistrationController(this.bus, () => this.viewRepository);
+            this.sut = new RegistrationController(this.bus, this.viewRepository);
         }
 
         [Fact]
