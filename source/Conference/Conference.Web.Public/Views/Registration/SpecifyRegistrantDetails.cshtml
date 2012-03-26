@@ -1,16 +1,18 @@
-﻿@model Conference.Web.Public.Models.OrderViewModel
+﻿@model Registration.Commands.AssignRegistrantDetails
 @{
-    ViewBag.Title = "Registration for " + Model.ConferenceName;
+    ViewBag.Title = "Registration for " + ViewBag.ConferenceName;
 }
+
 <h2>
     Registrant Information</h2>
 @using (Html.BeginForm())
 {
-    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.OrderId)
     <div class="fieldset">
-        <div class="editor-label">First Name: </div><div class="editor-field">@Html.TextBox("FirstName")</div>
-        <div class="editor-label">First Name: </div><div class="editor-field">@Html.TextBox("FirstName")</div>
-        <div class="editor-label">First Name: </div><div class="editor-field">@Html.TextBox("FirstName")</div>
+        <div class="editor-label">@Html.LabelFor(model => model.FirstName)</div><div class="editor-field">@Html.EditorFor(model => model.FirstName)</div>
+        <div class="editor-label">@Html.LabelFor(model => model.LastName)</div><div class="editor-field">@Html.EditorFor(model => model.LastName)</div>
+        <div class="editor-label">@Html.LabelFor(model => model.Email)</div><div class="editor-field">@Html.EditorFor(model => model.Email)</div>
+        <div class="editor-label">Confirm email: </div><div class="editor-field"><input type="text" /></div>
         <p>
             <input type="submit" value="Next" />
         </p>

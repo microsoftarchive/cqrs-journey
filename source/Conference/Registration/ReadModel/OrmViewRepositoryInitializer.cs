@@ -41,7 +41,9 @@ CREATE VIEW [dbo].[OrdersView]
 AS
 SELECT     
     dbo.Orders.Id AS OrderId, 
-    dbo.Orders.StateValue as StateValue
+    dbo.Orders.StateValue as StateValue,
+    dbo.Orders.AccessCode as AccessCode,
+    dbo.Orders.Registrant_Email as RegistrantEmail
 FROM dbo.Orders");
 
                 context.Database.ExecuteSqlCommand(@"

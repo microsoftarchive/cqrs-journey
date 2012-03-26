@@ -21,7 +21,8 @@ namespace Registration.Handlers
     public class OrderCommandHandler :
         ICommandHandler<RegisterToConference>,
         ICommandHandler<MarkOrderAsBooked>,
-        ICommandHandler<RejectOrder>
+        ICommandHandler<RejectOrder>,
+        ICommandHandler<AssignRegistrantDetails>
     {
         private Func<IRepository> repositoryFactory;
 
@@ -38,7 +39,7 @@ namespace Registration.Handlers
             {
                 var tickets = command.Seats.Select(t => new OrderItem(t.SeatTypeId, t.Quantity)).ToList();
 
-                var order = new Order(command.OrderId, Guid.NewGuid(), command.ConferenceId, tickets);
+                var order = new Order(command.OrderId, command.ConferenceId, tickets);
 
                 repository.Save(order);
             }
@@ -71,6 +72,22 @@ namespace Registration.Handlers
                 if (order != null)
                 {
                     order.Reject();
+                    repository.Save(order);
+                }
+            }
+        }
+
+        public void Handle(AssignRegistrantDetails command)
+        {
+            var repository = this.repositoryFactory();
+
+            using (repository as IDisposable)
+            {
+                var order = repository.Find<Order>(command.OrderId);
+
+                if (order != null)
+                {
+                    order.AssignRegistrant(command.FirstName, command.LastName, command.Email);
                     repository.Save(order);
                 }
             }

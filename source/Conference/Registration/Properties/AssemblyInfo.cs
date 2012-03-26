@@ -49,3 +49,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 [assembly: InternalsVisibleTo("Registration.Tests")]
+[assembly: InternalsVisibleTo("Conference.Web.Public.Tests")]

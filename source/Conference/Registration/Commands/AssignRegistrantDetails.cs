@@ -11,12 +11,30 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Models
+namespace Registration.Commands
 {
-    public class RegistrantDetails
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using Common;
+
+    public class AssignRegistrantDetails : ICommand
     {
+        public AssignRegistrantDetails()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; private set; }
+
+        public Guid OrderId { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string FirstName { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string LastName { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Email { get; set; }
     }
 }

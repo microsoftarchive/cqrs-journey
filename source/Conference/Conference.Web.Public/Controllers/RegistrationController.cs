@@ -70,7 +70,7 @@ namespace Conference.Web.Public.Controllers
             {
                 if (orderDTO.State == Registration.Order.States.Booked)
                 {
-                    return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
+                    return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
                 }
                 else if (orderDTO.State == Registration.Order.States.Rejected)
                 {
@@ -88,23 +88,30 @@ namespace Conference.Web.Public.Controllers
             using (repo as IDisposable)
             {
                 var orderDTO = repo.Find<OrderDTO>(orderId);
-                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+                var conferenceName = repo.Query<ConferenceDTO>()
+                    .Where(c => c.Code == conferenceCode)
+                    .Select(c => c.Name)
+                    .FirstOrDefault();
 
-                return View(viewModel);
+                // TODO: check for nulls.
+
+                // NOTE: we use the view bag to pass out of band details needed for the UI.
+                this.ViewBag.ConferenceName = conferenceName;
+
+                // We just render the command which is later posted back.
+                return View(new AssignRegistrantDetails { OrderId = orderId });
             }
         }
 
-        [HttpGet]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, RegistrantDetails registrantDetails)
+        [HttpPost]
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, AssignRegistrantDetails command)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                var orderDTO = repo.Find<OrderDTO>(orderId);
-                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+            // Validation would have happened automatically via client-side and model binder validation.
+            // Issue #89
 
-                return View(viewModel);
-            }
+            this.commandBus.Send(command);
+
+            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
         }
 
         [HttpGet]
@@ -135,7 +142,7 @@ namespace Conference.Web.Public.Controllers
             }
             else
             {
-                return RedirectToAction("Display", "Conference", new { conferenceCode = conferenceCode });
+                return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
             }
         }
 

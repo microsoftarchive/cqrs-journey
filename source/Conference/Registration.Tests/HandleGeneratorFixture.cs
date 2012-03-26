@@ -11,32 +11,18 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using Common;
+    using Xunit;
 
-    public class OrderPlaced : IEvent
+    public class HandleGeneratorFixture
     {
-        public class OrderItem
+        [Fact]
+        public void when_generating_handle_then_generates_requested_length()
         {
-            public Guid SeatTypeId { get; set; }
+            var handle = HandleGenerator.Generate(5);
 
-            public int Quantity { get; set; }
+            Assert.Equal(5, handle.Length);
         }
-
-        public OrderPlaced()
-        {
-            this.Items = new List<OrderItem>();
-        }
-
-        public Guid OrderId { get; set; }
-
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
-        public Guid ConferenceId { get; set; }
-
-        public ICollection<OrderItem> Items { get; set; }
     }
 }

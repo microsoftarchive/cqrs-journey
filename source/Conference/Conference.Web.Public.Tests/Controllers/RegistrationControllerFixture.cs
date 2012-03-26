@@ -100,7 +100,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             // Assert
 
             Assert.Equal(null, result.RouteValues["controller"]);
-            Assert.Equal("SpecifyPaymentDetails", result.RouteValues["action"]);
+            Assert.Equal("SpecifyRegistrantDetails", result.RouteValues["action"]);
             Assert.Equal("conference", result.RouteValues["conferenceCode"]);
             Assert.Equal(orderId, result.RouteValues["orderId"]);
 
@@ -114,6 +114,32 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                                 && ((RegisterToConference)e.Body).Seats.ElementAt(0).Quantity == 10
                                 && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatTypeId == seatTypeId)),
                     Times.Once());
+        }
+
+        [Fact]
+        public void when_specifying_registrant_details_for_a_valid_registration_then_sends_command_and_redirects_to_specify_payment_details()
+        {
+            var conferenceId = Guid.NewGuid();
+            var orderId = Guid.NewGuid();
+            var command = new AssignRegistrantDetails
+            {
+                OrderId = orderId,
+                Email = "info@contoso.com",
+                FirstName = "First Name",
+                LastName = "Last Name",
+            };
+
+            // Act
+            var result = (RedirectToRouteResult)this.sut.SpecifyRegistrantDetails("conference", orderId, command);
+
+            // Assert
+            Mock.Get<ICommandBus>(this.bus)
+                .Verify(b => b.Send(It.Is<Envelope<ICommand>>(c => c.Body == command)), Times.Once());
+
+            Assert.Equal(null, result.RouteValues["controller"]);
+            Assert.Equal("SpecifyPaymentDetails", result.RouteValues["action"]);
+            Assert.Equal("conference", result.RouteValues["conferenceCode"]);
+            Assert.Equal(orderId, result.RouteValues["orderId"]);
         }
 
         //[Fact]

@@ -35,13 +35,16 @@ namespace Registration.ReadModel
         [Key]
         public Guid OrderId { get; private set; }
         public virtual ObservableCollection<OrderItemDTO> Lines { get; private set; }
-        public int StateValue { get; private set; }
 
-        // TODO: make enum
+        public int StateValue { get; private set; }
+        [NotMapped]
         public Order.States State
         {
             get { return (Order.States)this.StateValue; }
             private set { this.StateValue = (int)value; }
         }
+
+        public string RegistrantEmail { get; internal set; }
+        public string AccessCode { get; internal set; }
     }
 }

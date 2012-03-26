@@ -35,13 +35,16 @@ namespace Registration
 
         protected Order()
         {
+            this.Registrant = new Registrant();
+            this.AccessCode = HandleGenerator.Generate(5);
         }
 
-        public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> items)
+        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)
+            : this()
         {
             this.Id = id;
-            this.UserId = userId;
             this.ConferenceId = conferenceId;
+            this.Registrant = new Registrant();
             this.Items = new ObservableCollection<OrderItem>(items);
 
             // TODO: it feels awkward publishing an event with ALL the details for the order.
@@ -52,18 +55,29 @@ namespace Registration
                 {
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
-                    UserId = this.UserId,
                     Items = this.Items.Select(x => new OrderPlaced.OrderItem { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToArray()
                 });
         }
 
-        public Guid Id { get; private set; }
+        public IEnumerable<IEvent> Events
+        {
+            get { return this.events; }
+        }
 
-        public Guid UserId { get; private set; }
+        public Guid Id { get; private set; }
 
         public Guid ConferenceId { get; private set; }
 
         public virtual ObservableCollection<OrderItem> Items { get; private set; }
+
+        public Registrant Registrant { get; private set; }
+
+        /// <summary>
+        /// Access code, combined with the registrant email can 
+        /// be used to find the order and provide low chances of 
+        /// collision as it's also scoped to the conference.
+        /// </summary>
+        public string AccessCode { get; set; }
 
         public int StateValue { get; private set; }
         [NotMapped]
@@ -71,11 +85,6 @@ namespace Registration
         {
             get { return (States)this.StateValue; }
             internal set { this.StateValue = (int)value; }
-        }
-
-        public IEnumerable<IEvent> Events
-        {
-            get { return this.events; }
         }
 
         public void MarkAsBooked()
@@ -92,6 +101,16 @@ namespace Registration
                 throw new InvalidOperationException();
 
             this.State = States.Rejected;
+        }
+
+        public void AssignRegistrant(string firstName, string lastName, string email)
+        {
+            this.Registrant = new Registrant
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+            };
         }
     }
 }
