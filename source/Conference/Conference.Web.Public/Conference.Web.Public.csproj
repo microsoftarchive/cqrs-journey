@@ -70,6 +70,7 @@
     <Compile Include="AppRoutes.cs" />
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
+    <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
     <Compile Include="Global.asax.cs">
@@ -107,6 +108,9 @@
     <Content Include="Views\Registration\SpecifyPaymentDetails.cshtml" />
     <Content Include="Views\Registration\ThankYou.cshtml" />
     <Content Include="Views\Payment\Display.cshtml" />
+    <Content Include="Views\Registration\SpecifyRegistrantDetails.cshtml" />
+    <Content Include="Views\Order\Find.cshtml" />
+    <Content Include="Views\Order\Display.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

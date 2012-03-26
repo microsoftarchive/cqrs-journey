@@ -68,17 +68,50 @@ namespace Conference.Web.Public.Controllers
 
             if (orderDTO != null)
             {
-                if (orderDTO.State == "Booked")
+                if (orderDTO.State == Registration.Order.States.Booked)
                 {
-                    return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
+                    return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
                 }
-                else if (orderDTO.State == "Rejected")
+                else if (orderDTO.State == Registration.Order.States.Rejected)
                 {
                     return View("ReservationRejected", viewModel);
                 }
             }
 
             return View("ReservationUnknown", viewModel);
+        }
+
+        [HttpGet]
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId)
+        {
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var orderDTO = repo.Find<OrderDTO>(orderId);
+                var conferenceName = repo.Query<ConferenceDTO>()
+                    .Where(c => c.Code == conferenceCode)
+                    .Select(c => c.Name)
+                    .FirstOrDefault();
+
+                // TODO: check for nulls.
+
+                // NOTE: we use the view bag to pass out of band details needed for the UI.
+                this.ViewBag.ConferenceName = conferenceName;
+
+                // We just render the command which is later posted back.
+                return View(new AssignRegistrantDetails { OrderId = orderId });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, AssignRegistrantDetails command)
+        {
+            // Validation would have happened automatically via client-side and model binder validation.
+            // Issue #89
+
+            this.commandBus.Send(command);
+
+            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
         }
 
         [HttpGet]
@@ -109,7 +142,7 @@ namespace Conference.Web.Public.Controllers
             }
             else
             {
-                return RedirectToAction("Display", "Conference", new { conferenceCode = conferenceCode });
+                return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
             }
         }
 
@@ -185,7 +218,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
-                    if (orderDTO != null && orderDTO.State != "Created")
+                    if (orderDTO != null && orderDTO.State != Registration.Order.States.Created)
                     {
                         return orderDTO;
                     }

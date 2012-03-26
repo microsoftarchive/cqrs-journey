@@ -17,47 +17,58 @@ namespace Conference.Web.Public.Controllers
     using System.Linq;
     using System.Web.Mvc;
     using Common;
-
     using Registration.ReadModel;
 
-    public class ConferenceController : Controller
+    public class OrderController : Controller
     {
         private Func<IViewRepository> repositoryFactory;
 
-        public ConferenceController()
+        public OrderController()
             : this(MvcApplication.GetService<Func<IViewRepository>>())
         {
         }
 
-        public ConferenceController(Func<IViewRepository> repositoryFactory)
+        public OrderController(Func<IViewRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
 
-        public ActionResult Display(string conferenceCode)
-        {
-            var conference = this.GetConference(conferenceCode);
-
-            // Reply with 404 if not found?
-            //if (conference == null)
-
-            return View(conference);
-        }
-
-        private Conference.Web.Public.Models.Conference GetConference(string conferenceCode)
+        [HttpGet]
+        public ActionResult Display(string conferenceCode, Guid orderId)
         {
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                return repo.Query<ConferenceDTO>()
-                    .Where(dto => dto.Code == conferenceCode)
-                    .Select(dto => new Conference.Web.Public.Models.Conference
-                    {
-                        Code = dto.Code,
-                        Name = dto.Name,
-                        Description = dto.Description
-                    })
+                var order = repo.Find<OrderDTO>(orderId);
+                if (order == null)
+                    // TODO: 404?
+                    return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+
+                return View(order);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult Find(string conferenceCode)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Find(string conferenceCode, string email, string accessCode)
+        {
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                var order = repo.Query<OrderDTO>()
+                    .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
                     .FirstOrDefault();
+
+                if (order == null)
+                    // TODO: 404?
+                    return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+
+                return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = order.OrderId });
             }
         }
     }

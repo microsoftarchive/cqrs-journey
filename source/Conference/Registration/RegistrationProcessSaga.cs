@@ -15,6 +15,7 @@ namespace Registration
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using Common;
     using Registration.Commands;
@@ -38,10 +39,11 @@ namespace Registration
         }
 
         public Guid Id { get; private set; }
-        public int StateValue { get; private set; }
         public Guid OrderId { get; internal set; }
         public Guid ReservationId { get; internal set; }
 
+        public int StateValue { get; private set; }
+        [NotMapped]
         public SagaState State
         {
             get { return (SagaState)this.StateValue; }

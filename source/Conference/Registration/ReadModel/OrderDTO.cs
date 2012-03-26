@@ -19,11 +19,11 @@ namespace Registration.ReadModel
 
     public class OrderDTO
     {
-        public OrderDTO(Guid orderId, int stateValue)
+        public OrderDTO(Guid orderId, Order.States state)
             : this()
         {
             this.OrderId = orderId;
-            this.StateValue = stateValue;
+            this.State = state;
             this.Lines = new ObservableCollection<OrderItemDTO>();
         }
 
@@ -34,28 +34,17 @@ namespace Registration.ReadModel
 
         [Key]
         public Guid OrderId { get; private set; }
-        public int StateValue { get; private set; }
         public virtual ObservableCollection<OrderItemDTO> Lines { get; private set; }
 
-        // TODO: make enum
-        public string State
+        public int StateValue { get; private set; }
+        [NotMapped]
+        public Order.States State
         {
-            get
-            {
-                switch (this.StateValue)
-                {
-                    case Order.States.Created:
-                        return "Created";
-                    case Order.States.Booked:
-                        return "Booked";
-                    case Order.States.Rejected:
-                        return "Rejected";
-                    case Order.States.Confirmed:
-                        return "Confirmed";
-                }
-
-                return string.Empty;
-            }
+            get { return (Order.States)this.StateValue; }
+            private set { this.StateValue = (int)value; }
         }
+
+        public string RegistrantEmail { get; internal set; }
+        public string AccessCode { get; internal set; }
     }
 }

@@ -11,32 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration
 {
-    using System;
-    using System.Collections.Generic;
-    using Common;
+    using System.ComponentModel.DataAnnotations;
 
-    public class OrderPlaced : IEvent
+    [ComplexType]
+    public class Registrant
     {
-        public class OrderItem
-        {
-            public Guid SeatTypeId { get; set; }
-
-            public int Quantity { get; set; }
-        }
-
-        public OrderPlaced()
-        {
-            this.Items = new List<OrderItem>();
-        }
-
-        public Guid OrderId { get; set; }
-
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
-        public Guid ConferenceId { get; set; }
-
-        public ICollection<OrderItem> Items { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

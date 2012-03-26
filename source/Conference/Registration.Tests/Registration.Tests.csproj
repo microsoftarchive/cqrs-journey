@@ -59,6 +59,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HandleGeneratorFixture.cs" />
     <Compile Include="MemoryEventBusFixture.cs" />
     <Compile Include="MemoryCommandBusFixture.cs" />
     <Compile Include="OrderFixture.cs" />
