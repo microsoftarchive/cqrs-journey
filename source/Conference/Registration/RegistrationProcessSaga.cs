@@ -81,13 +81,15 @@ namespace Registration
         {
             if (this.State == SagaState.AwaitingReservationConfirmation)
             {
+                var delay = TimeSpan.FromMinutes(15);
+
                 this.State = SagaState.AwaitingPayment;
 
-                this.AddCommand(new MarkOrderAsBooked { OrderId = this.OrderId });
-                this.commands.Add(
+                this.AddCommand(new MarkOrderAsBooked { OrderId = this.OrderId, Expiration = DateTime.UtcNow.Add(delay) });
+                this.AddCommand(
                     new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId, ConferenceId = message.ConferenceId })
                     {
-                        Delay = TimeSpan.FromMinutes(15),
+                        Delay = delay,
                     });
             }
             else
@@ -148,6 +150,11 @@ namespace Registration
             where T : ICommand
         {
             this.commands.Add(Envelope.Create<ICommand>(command));
+        }
+
+        private void AddCommand(Envelope<ICommand> envelope)
+        {
+            this.commands.Add(envelope);
         }
     }
 }

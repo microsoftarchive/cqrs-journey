@@ -24,7 +24,6 @@ namespace Registration.ReadModel
         {
             this.OrderId = orderId;
             this.State = state;
-            this.Lines = new ObservableCollection<OrderItemDTO>();
         }
 
         protected OrderDTO()
@@ -34,9 +33,13 @@ namespace Registration.ReadModel
 
         [Key]
         public Guid OrderId { get; private set; }
+
+        public DateTime? BookingExpirationDate { get; private set; }
+
         public virtual ObservableCollection<OrderItemDTO> Lines { get; private set; }
 
         public int StateValue { get; private set; }
+
         [NotMapped]
         public Order.States State
         {

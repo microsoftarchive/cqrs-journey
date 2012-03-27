@@ -13,13 +13,15 @@
 
 namespace Registration.Commands
 {
+    using System;
     using Common;
-	using System;
 
     public class MarkOrderAsBooked : ICommand
     {
-		public Guid Id { get; set; }
+        public Guid Id { get; set; }
 
         public Guid OrderId { get; set; }
+
+        public DateTime Expiration { get; set; }
     }
 }

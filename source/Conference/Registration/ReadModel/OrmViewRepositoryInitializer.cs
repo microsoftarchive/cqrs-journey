@@ -43,7 +43,8 @@ SELECT
     dbo.Orders.Id AS OrderId, 
     dbo.Orders.StateValue as StateValue,
     dbo.Orders.AccessCode as AccessCode,
-    dbo.Orders.Registrant_Email as RegistrantEmail
+    dbo.Orders.Registrant_Email as RegistrantEmail,
+    dbo.Orders.BookingExpirationDate as BookingExpirationDate
 FROM dbo.Orders");
 
                 context.Database.ExecuteSqlCommand(@"
@@ -107,7 +108,6 @@ Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus,
             }
 
             context.SaveChanges();
-
         }
     }
 }

@@ -45,6 +45,7 @@ namespace Registration.Tests.OrderFixture
 
             Assert.Equal(OrderId, sut.Id);
             Assert.Equal(Order.States.Created, sut.State);
+            Assert.Equal(null, sut.BookingExpirationDate);
         }
 
         [Fact]
@@ -102,9 +103,12 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_marking_as_booked_then_changes_order_state()
         {
-            this.sut.MarkAsBooked();
+            var expirationDate = DateTime.UtcNow;
+
+            this.sut.MarkAsBooked(expirationDate);
 
             Assert.Equal(Order.States.Booked, this.sut.State);
+            Assert.Equal(expirationDate, this.sut.BookingExpirationDate);
         }
 
         [Fact]
@@ -113,6 +117,41 @@ namespace Registration.Tests.OrderFixture
             this.sut.Reject();
 
             Assert.Equal(Order.States.Rejected, this.sut.State);
+        }
+    }
+
+    public class given_booked_order
+    {
+        private static readonly Guid OrderId = Guid.NewGuid();
+        private static readonly Guid ConferenceId = Guid.NewGuid();
+        private static readonly Guid TicketTypeId = Guid.NewGuid();
+
+        private Order sut;
+        private IPersistenceProvider sutProvider;
+
+        protected given_booked_order(IPersistenceProvider sutProvider)
+        {
+            this.sutProvider = sutProvider;
+
+            var lines = new[] { new OrderItem(TicketTypeId, 5) };
+            this.sut = new Order(OrderId, ConferenceId, lines);
+            this.sut.MarkAsBooked(DateTime.UtcNow);
+
+            this.sut = this.sutProvider.PersistReload(this.sut);
+        }
+
+        public given_booked_order()
+            : this(new NoPersistenceProvider())
+        {
+        }
+
+        [Fact]
+        public void when_marking_as_rejected_then_changes_order_state()
+        {
+            this.sut.Reject();
+
+            Assert.Equal(Order.States.Rejected, this.sut.State);
+            Assert.Equal(null, this.sut.BookingExpirationDate);
         }
     }
 }

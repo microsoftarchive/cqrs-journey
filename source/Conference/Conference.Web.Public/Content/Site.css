@@ -88,3 +88,8 @@ textarea
 {
     display: none;
 }
+
+div.main
+{
+    display: block
+}

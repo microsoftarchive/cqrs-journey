@@ -25,6 +25,7 @@ namespace Conference.Web.Public.Controllers
     public class RegistrationController : Controller
     {
         private const int WaitTimeoutInSeconds = 5;
+        private static readonly long EpochTicks = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
 
         private ICommandBus commandBus;
         private Func<IViewRepository> repositoryFactory;
@@ -88,15 +89,17 @@ namespace Conference.Web.Public.Controllers
             using (repo as IDisposable)
             {
                 var orderDTO = repo.Find<OrderDTO>(orderId);
-                var conferenceName = repo.Query<ConferenceDTO>()
+                var conferenceDTO = repo.Query<ConferenceDTO>()
                     .Where(c => c.Code == conferenceCode)
-                    .Select(c => c.Name)
                     .FirstOrDefault();
 
                 // TODO: check for nulls.
 
                 // NOTE: we use the view bag to pass out of band details needed for the UI.
-                this.ViewBag.ConferenceName = conferenceName;
+                this.ViewBag.ConferenceName = conferenceDTO.Name;
+                this.ViewBag.ConferenceCode = conferenceDTO.Code;
+                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+                this.ViewBag.OrderId = orderId;
 
                 // We just render the command which is later posted back.
                 return View(new AssignRegistrantDetails { OrderId = orderId });
@@ -123,6 +126,10 @@ namespace Conference.Web.Public.Controllers
                 var orderDTO = repo.Find<OrderDTO>(orderId);
                 var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
+                this.ViewBag.ConferenceCode = conferenceCode;
+                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+                this.ViewBag.OrderId = orderId;
+
                 return View(viewModel);
             }
         }
@@ -147,6 +154,12 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
+        public ActionResult DisplayOrderStatus(string conferenceCode, Guid orderId)
+        {
+            return View();
+        }
+
+        [HttpGet]
         public ActionResult ThankYou(string conferenceCode, Guid orderId)
         {
             return View();
@@ -168,7 +181,7 @@ namespace Conference.Web.Public.Controllers
                         ConferenceId = conference.Id,
                         ConferenceCode = conference.Code,
                         ConferenceName = conference.Name,
-                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList()
+                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList(),
                     };
 
                 return viewModel;
@@ -181,6 +194,7 @@ namespace Conference.Web.Public.Controllers
             viewModel.Id = orderDTO.OrderId;
 
             // TODO check DTO matches view model
+
 
             foreach (var line in orderDTO.Lines)
             {
