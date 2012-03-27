@@ -55,7 +55,7 @@ namespace Registration.Handlers
 
                 if (order != null)
                 {
-                    order.MarkAsBooked();
+                    order.MarkAsBooked(command.Expiration);
                     repository.Save(order);
                 }
             }

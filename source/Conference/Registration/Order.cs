@@ -87,12 +87,15 @@ namespace Registration
             internal set { this.StateValue = (int)value; }
         }
 
-        public void MarkAsBooked()
+        public DateTime? BookingExpirationDate { get; private set; }
+
+        public void MarkAsBooked(DateTime bookingExpirationDate)
         {
             if (this.State != States.Created)
                 throw new InvalidOperationException();
 
             this.State = States.Booked;
+            this.BookingExpirationDate = bookingExpirationDate;
         }
 
         public void Reject()
@@ -101,6 +104,7 @@ namespace Registration
                 throw new InvalidOperationException();
 
             this.State = States.Rejected;
+            this.BookingExpirationDate = null;
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
