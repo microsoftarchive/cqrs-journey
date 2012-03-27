@@ -79,6 +79,11 @@ namespace Conference.Web.Public
                 "OrderDisplay",
                 "{conferenceCode}/order/{orderId}",
                 new { controller = "Order", action = "Display" });
+
+            routes.MapRoute(
+                "ShowOrder",
+                "{conferenceCode}/order",
+                new { controller = "Registration", Action = "DisplayOrderStatus" });
         }
     }
 }
