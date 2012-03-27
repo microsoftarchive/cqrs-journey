@@ -46,6 +46,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\AssignRegistrantDetails.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
     <Compile Include="Commands\ExpireOrder.cs" />
@@ -56,10 +57,13 @@
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
+    <Compile Include="Events\OrderLocatorCreated.cs" />
     <Compile Include="Events\PaymentReceived.cs" />
     <Compile Include="Events\ReservationRejected.cs" />
     <Compile Include="Events\ReservationAccepted.cs" />
+    <Compile Include="HandleGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
+    <Compile Include="Registrant.cs" />
     <Compile Include="RegistrationProcessSagaRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />

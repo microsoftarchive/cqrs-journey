@@ -14,9 +14,7 @@
 namespace Registration.Tests.OrderFixture
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
-    using Common;
     using Registration.Events;
     using Registration.Tests;
     using Xunit;
@@ -26,7 +24,6 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid TicketTypeId = Guid.NewGuid();
-        private static readonly Guid UserId = Guid.NewGuid();
 
         private Order sut;
         private IPersistenceProvider sutProvider;
@@ -67,7 +64,6 @@ namespace Registration.Tests.OrderFixture
             var @event = (OrderPlaced)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(ConferenceId, @event.ConferenceId);
-            Assert.Equal(UserId, @event.UserId);
             Assert.Equal(1, @event.Items.Count);
             Assert.Equal(5, @event.Items.ElementAt(0).Quantity);
         }
@@ -75,7 +71,7 @@ namespace Registration.Tests.OrderFixture
         private void PlaceOrder()
         {
             var lines = new[] { new OrderItem(TicketTypeId, 5) };
-            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+            this.sut = new Order(OrderId, ConferenceId, lines);
         }
     }
 
@@ -84,7 +80,6 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid TicketTypeId = Guid.NewGuid();
-        private static readonly Guid UserId = Guid.NewGuid();
 
         private Order sut;
         private IPersistenceProvider sutProvider;
@@ -94,7 +89,7 @@ namespace Registration.Tests.OrderFixture
             this.sutProvider = sutProvider;
 
             var lines = new[] { new OrderItem(TicketTypeId, 5) };
-            this.sut = new Order(OrderId, UserId, ConferenceId, lines);
+            this.sut = new Order(OrderId, ConferenceId, lines);
 
             this.sut = this.sutProvider.PersistReload(this.sut);
         }

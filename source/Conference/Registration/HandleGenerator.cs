@@ -11,32 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+using System;
+
+namespace Registration
 {
-    using System;
-    using System.Collections.Generic;
-    using Common;
-
-    public class OrderPlaced : IEvent
+    /// <summary>
+    /// Generates random hexadecimal strings.
+    /// </summary>
+    public static class HandleGenerator
     {
-        public class OrderItem
+        private static Random rnd = new Random(DateTime.UtcNow.Millisecond);
+
+        public static string Generate(int length)
         {
-            public Guid SeatTypeId { get; set; }
+            var result = "";
+            for (int i = 0; i < length; i++)
+            {
+                result += rnd.Next(15).ToString("x");
+            }
 
-            public int Quantity { get; set; }
+            return result;
         }
-
-        public OrderPlaced()
-        {
-            this.Items = new List<OrderItem>();
-        }
-
-        public Guid OrderId { get; set; }
-
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
-        public Guid ConferenceId { get; set; }
-
-        public ICollection<OrderItem> Items { get; set; }
     }
 }

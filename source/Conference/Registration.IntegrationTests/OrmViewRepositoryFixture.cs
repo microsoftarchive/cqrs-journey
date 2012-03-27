@@ -43,7 +43,7 @@ namespace Registration.IntegrationTests
 
             using (var context = new OrmRepository("TestOrmRepository"))
             {
-                var order = new Order(orderId, Guid.NewGuid(), Guid.NewGuid(), new[] { new OrderItem(ticketTypeId, 5) });
+                var order = new Order(orderId, Guid.NewGuid(), new[] { new OrderItem(ticketTypeId, 5) });
                 order.MarkAsBooked();
                 context.Save(order);
             }
@@ -53,7 +53,7 @@ namespace Registration.IntegrationTests
                 var dto = viewContext.Find<OrderDTO>(orderId);
 
                 Assert.NotNull(dto);
-                Assert.Equal("Booked", dto.State);
+                Assert.Equal(Order.States.Booked, dto.State);
                 Assert.Equal(1, dto.Lines.Count);
                 Assert.Equal(ticketTypeId, dto.Lines[0].SeatTypeId);
                 Assert.Equal(5, dto.Lines[0].Quantity);

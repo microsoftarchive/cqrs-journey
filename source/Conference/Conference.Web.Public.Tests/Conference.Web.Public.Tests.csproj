@@ -52,6 +52,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\OrderControllerFixture.cs" />
     <Compile Include="Controllers\PaymentControllerFixture.cs" />
     <Compile Include="Controllers\RegistrationControllerFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
