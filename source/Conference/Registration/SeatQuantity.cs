@@ -11,19 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration
 {
     using System;
-    using Common;
+    using System.ComponentModel.DataAnnotations;
 
-    public class ExpireOrder : ICommand
+    public class SeatQuantity
     {
-        public ExpireOrder()
+        // Serialization ctor.
+        public SeatQuantity()
         {
-            this.Id = Guid.NewGuid();
         }
 
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
+        public SeatQuantity(Guid seatType, int quantity)
+        {
+            this.SeatType = seatType;
+            this.Quantity = quantity;
+        }
+
+        [Key]
+        public Guid SeatType { get; set; }
+        public int Quantity { get; set; }
     }
 }

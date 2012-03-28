@@ -55,7 +55,7 @@ namespace Registration.IntegrationTests
                 Assert.NotNull(dto);
                 Assert.Equal(Order.States.Booked, dto.State);
                 Assert.Equal(1, dto.Lines.Count);
-                Assert.Equal(ticketTypeId, dto.Lines[0].SeatTypeId);
+                Assert.Equal(ticketTypeId, dto.Lines[0].SeatType);
                 Assert.Equal(5, dto.Lines[0].Quantity);
             }
         }

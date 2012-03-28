@@ -53,7 +53,7 @@ AS
 SELECT     
     dbo.OrderItems.Id AS OrderItemId, 
     dbo.OrderItems.Order_Id AS OrdersView_Id, 
-    dbo.OrderItems.SeatTypeId as SeatTypeId,
+    dbo.OrderItems.SeatType as SeatType,
     dbo.OrderItems.Quantity as Quantity
 FROM dbo.OrderItems");
             }

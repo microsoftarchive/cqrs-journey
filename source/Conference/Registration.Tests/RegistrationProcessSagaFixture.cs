@@ -39,7 +39,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = Guid.NewGuid(),
                 ConferenceId = Guid.NewGuid(),
-                Items = new[] { new OrderPlaced.OrderItem { SeatTypeId = Guid.NewGuid(), Quantity = 2 } }
+                Items = new[] { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
             };
             sut.Handle(orderPlaced);
         }
@@ -57,7 +57,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var reservation = (MakeSeatReservation)sut.Commands.Select(x => x.Body).Single();
 
             Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
-            Assert.Equal(2, reservation.NumberOfSeats);
+            Assert.Equal(2, reservation.Seats[0].Quantity);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = this.orderId,
                 ConferenceId = this.conferenceId,
-                Items = new[] { new OrderPlaced.OrderItem { SeatTypeId = Guid.NewGuid(), Quantity = 2 } }
+                Items = new[] { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
             });
         }
     }
@@ -97,12 +97,12 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            var reservationAccepted = new ReservationAccepted
+            var seatsReserved = new SeatsReserved
             {
                 ReservationId = makeReservationCommand.ReservationId,
-                ConferenceId = makeReservationCommand.ConferenceId,
+                // Seats ?
             };
-            sut.Handle(reservationAccepted);
+            sut.Handle(seatsReserved);
         }
 
         [Fact]
@@ -138,12 +138,12 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            var reservationAccepted = new ReservationRejected
-            {
-                ReservationId = this.reservationId,
-                ConferenceId = this.conferenceId,
-            };
-            sut.Handle(reservationAccepted);
+            //var reservationAccepted = new ReservationRejected
+            //{
+            //    ReservationId = this.reservationId,
+            //    ConferenceId = this.conferenceId,
+            //};
+            //sut.Handle(reservationAccepted);
         }
 
         [Fact]
@@ -174,20 +174,25 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
+            var seatType = Guid.NewGuid();
+
             this.sut.Handle(new OrderPlaced
             {
                 OrderId = this.orderId,
                 ConferenceId = this.conferenceId,
-                Items = new[] { new OrderPlaced.OrderItem { SeatTypeId = Guid.NewGuid(), Quantity = 2 } }
+                Items = new[] { new SeatQuantity { SeatType = seatType, Quantity = 2 } }
             });
 
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            this.sut.Handle(new ReservationAccepted
+            this.sut.Handle(new SeatsReserved
             {
                 ReservationId = makeReservationCommand.ReservationId,
-                ConferenceId = makeReservationCommand.ConferenceId,
+                Seats =
+                {
+                    new SeatQuantity { SeatType = seatType, Quantity = 2 },
+                }
             });
         }
     }
@@ -198,7 +203,6 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         {
             sut.Handle(new ExpireOrder
             {
-                ConferenceId = this.conferenceId,
                 OrderId = this.orderId,
             });
         }

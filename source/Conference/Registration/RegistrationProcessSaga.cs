@@ -39,6 +39,7 @@ namespace Registration
         }
 
         public Guid Id { get; private set; }
+        public Guid ConferenceId { get; set; }
         public Guid OrderId { get; internal set; }
         public Guid ReservationId { get; internal set; }
 
@@ -59,6 +60,7 @@ namespace Registration
         {
             if (this.State == SagaState.NotStarted)
             {
+                this.ConferenceId = message.ConferenceId;
                 this.OrderId = message.OrderId;
                 this.ReservationId = Guid.NewGuid();
                 this.State = SagaState.AwaitingReservationConfirmation;
@@ -68,7 +70,7 @@ namespace Registration
                     {
                         ConferenceId = message.ConferenceId,
                         ReservationId = this.ReservationId,
-                        NumberOfSeats = message.Items.Sum(x => x.Quantity)
+                        Seats = message.Items.ToList()
                     });
             }
             else
@@ -77,7 +79,7 @@ namespace Registration
             }
         }
 
-        public void Handle(ReservationAccepted message)
+        public void Handle(SeatsReserved message)
         {
             if (this.State == SagaState.AwaitingReservationConfirmation)
             {
@@ -87,23 +89,10 @@ namespace Registration
 
                 this.AddCommand(new MarkOrderAsBooked { OrderId = this.OrderId, Expiration = DateTime.UtcNow.Add(delay) });
                 this.AddCommand(
-                    new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId, ConferenceId = message.ConferenceId })
+                    new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId })
                     {
                         Delay = delay,
                     });
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public void Handle(ReservationRejected message)
-        {
-            if (this.State == SagaState.AwaitingReservationConfirmation)
-            {
-                this.State = SagaState.Completed;
-                this.AddCommand(new RejectOrder { OrderId = this.OrderId });
             }
             else
             {
@@ -119,8 +108,8 @@ namespace Registration
 
                 this.AddCommand(new CancelSeatReservation
                 {
+                    ConferenceId = this.ConferenceId,
                     ReservationId = this.ReservationId,
-                    ConferenceId = message.ConferenceId
                 });
                 this.AddCommand(new RejectOrder { OrderId = message.OrderId });
             }

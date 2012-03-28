@@ -112,7 +112,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                                 && ((RegisterToConference)e.Body).OrderId == orderId
                                 && ((RegisterToConference)e.Body).Seats.Count == 1
                                 && ((RegisterToConference)e.Body).Seats.ElementAt(0).Quantity == 10
-                                && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatTypeId == seatTypeId)),
+                                && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatType == seatTypeId)),
                     Times.Once());
         }
 

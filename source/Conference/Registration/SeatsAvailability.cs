@@ -28,62 +28,104 @@ namespace Registration
         private List<IEvent> events = new List<IEvent>();
 
         public SeatsAvailability(Guid id)
+            : this()
         {
             this.Id = id;
-            this.PendingReservations = new ObservableCollection<Reservation>();
         }
 
         // ORM requirement
         protected SeatsAvailability()
         {
-            this.PendingReservations = new ObservableCollection<Reservation>();
+            this.Seats = new ObservableCollection<SeatAvailability>();
         }
 
-        public virtual Guid Id { get; private set; }
+        public Guid Id { get; private set; }
 
-        public virtual int RemainingSeats { get; private set; }
-
-        public virtual ObservableCollection<Reservation> PendingReservations { get; private set; }
+        public virtual Collection<SeatAvailability> Seats { get; private set; }
 
         public IEnumerable<IEvent> Events
         {
             get { return this.events; }
         }
 
-        public void AddSeats(int additionalSeats)
+        public void AddSeats(Guid seatType, int quantity)
         {
-            this.RemainingSeats += additionalSeats;
-        }
-
-        public void MakeReservation(Guid reservationId, int numberOfSeats)
-        {
-            if (numberOfSeats > this.RemainingSeats)
+            var availability = this.Seats.FirstOrDefault(x => x.SeatType == seatType);
+            if (availability == null)
             {
-                this.events.Add(new ReservationRejected { ReservationId = reservationId, ConferenceId = this.Id });
+                availability = new SeatAvailability(seatType, quantity);
+                this.Seats.Add(availability);
             }
             else
             {
-                this.PendingReservations.Add(new Reservation(reservationId, numberOfSeats));
-                this.RemainingSeats -= numberOfSeats;
-                this.events.Add(new ReservationAccepted { ReservationId = reservationId, ConferenceId = this.Id });
+                availability.RemainingSeats += quantity;
             }
+        }
+
+        public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> seats)
+        {
+            var reserved = new SeatsReserved { ReservationId = reservationId };
+            foreach (var seat in seats)
+            {
+                var availability = this.Seats.FirstOrDefault(x => x.SeatType == seat.SeatType);
+                if (availability == null)
+                    // TODO: error? means we didn't find the requested seat type for this conference
+                    continue;
+
+                var existing = availability.PendingReservations.FirstOrDefault(x => x.Id == reservationId);
+                var quantity = 0;
+                if (existing == null)
+                {
+                    quantity = availability.RemainingSeats >= seat.Quantity ?
+                        seat.Quantity : availability.RemainingSeats;
+
+                    availability.PendingReservations.Add(new Reservation(reservationId, quantity));
+                    availability.RemainingSeats -= quantity;
+                }
+                else
+                {
+                    var relativeQuantity = seat.Quantity - existing.Quantity;
+
+                    existing.Quantity = quantity = seat.Quantity;
+                    // We might be substracting a negative here, i.e. 
+                    // we request 3, had 5 existing, we're substracting -2
+                    // that is, adding the 2 we dropped.
+                    availability.RemainingSeats -= relativeQuantity;
+                }
+
+                reserved.Seats.Add(new SeatQuantity(seat.SeatType, quantity));
+            }
+
+            this.events.Add(reserved);
         }
 
         public void CommitReservation(Guid reservationId)
         {
-            var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
-            if (reservation == null) throw new KeyNotFoundException();
-
-            this.PendingReservations.Remove(reservation);
+            foreach (var reservation in this.Seats
+                .Select(x => new
+                {
+                    Collection = x.PendingReservations,
+                    Item = x.PendingReservations.FirstOrDefault(r => r.Id == reservationId)
+                })
+                .Where(x => x.Item != null))
+            {
+                reservation.Collection.Remove(reservation.Item);
+            }
         }
 
         public void CancelReservation(Guid reservationId)
         {
-            var reservation = this.PendingReservations.FirstOrDefault(r => r.Id == reservationId);
-            if (reservation == null) throw new KeyNotFoundException();
-
-            this.PendingReservations.Remove(reservation);
-            this.RemainingSeats += reservation.Seats;
+            foreach (var entry in this.Seats
+                .Select(x => new
+                {
+                    Availability = x,
+                    Reservation = x.PendingReservations.FirstOrDefault(r => r.Id == reservationId)
+                })
+                .Where(x => x.Reservation != null))
+            {
+                entry.Availability.PendingReservations.Remove(entry.Reservation);
+                entry.Availability.RemainingSeats += entry.Reservation.Quantity;
+            }
         }
     }
 }

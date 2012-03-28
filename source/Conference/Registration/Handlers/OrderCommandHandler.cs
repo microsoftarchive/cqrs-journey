@@ -37,9 +37,16 @@ namespace Registration.Handlers
 
             using (repository as IDisposable)
             {
-                var tickets = command.Seats.Select(t => new OrderItem(t.SeatTypeId, t.Quantity)).ToList();
-
-                var order = new Order(command.OrderId, command.ConferenceId, tickets);
+                var items = command.Seats.Select(t => new OrderItem(t.SeatType, t.Quantity)).ToList();
+                var order = repository.Find<Order>(command.OrderId);
+                if (order == null)
+                {
+                    order = new Order(command.OrderId, command.ConferenceId, items);
+                }
+                else
+                {
+                    order.ReplaceItems(items);
+                }
 
                 repository.Save(order);
             }

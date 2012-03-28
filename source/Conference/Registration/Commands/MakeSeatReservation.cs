@@ -14,6 +14,7 @@
 namespace Registration.Commands
 {
     using System;
+    using System.Collections.Generic;
     using Common;
 
     public class MakeSeatReservation : ICommand
@@ -21,12 +22,13 @@ namespace Registration.Commands
         public MakeSeatReservation()
         {
             this.Id = Guid.NewGuid();
+            this.Seats = new List<SeatQuantity>();
         }
 
         public Guid Id { get; set; }
 
         public Guid ConferenceId { get; set; }
         public Guid ReservationId { get; set; }
-        public int NumberOfSeats { get; set; }
+        public List<SeatQuantity> Seats { get; set; }
     }
 }

@@ -23,7 +23,7 @@ namespace Registration.Tests.OrderFixture
     {
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
-        private static readonly Guid TicketTypeId = Guid.NewGuid();
+        private static readonly Guid SeatTypeId = Guid.NewGuid();
 
         private Order sut;
         private IPersistenceProvider sutProvider;
@@ -44,7 +44,7 @@ namespace Registration.Tests.OrderFixture
             PlaceOrder();
 
             Assert.Equal(OrderId, sut.Id);
-            Assert.Equal(Order.States.Created, sut.State);
+            Assert.Equal(Order.States.AwaitingReservation, sut.State);
             Assert.Equal(null, sut.BookingExpirationDate);
         }
 
@@ -71,7 +71,7 @@ namespace Registration.Tests.OrderFixture
 
         private void PlaceOrder()
         {
-            var lines = new[] { new OrderItem(TicketTypeId, 5) };
+            var lines = new[] { new OrderItem(SeatTypeId, 5) };
             this.sut = new Order(OrderId, ConferenceId, lines);
         }
     }
@@ -80,7 +80,7 @@ namespace Registration.Tests.OrderFixture
     {
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
-        private static readonly Guid TicketTypeId = Guid.NewGuid();
+        private static readonly Guid SeatTypeId = Guid.NewGuid();
 
         private Order sut;
         private IPersistenceProvider sutProvider;
@@ -89,7 +89,7 @@ namespace Registration.Tests.OrderFixture
         {
             this.sutProvider = sutProvider;
 
-            var lines = new[] { new OrderItem(TicketTypeId, 5) };
+            var lines = new[] { new OrderItem(SeatTypeId, 5) };
             this.sut = new Order(OrderId, ConferenceId, lines);
 
             this.sut = this.sutProvider.PersistReload(this.sut);
@@ -98,6 +98,17 @@ namespace Registration.Tests.OrderFixture
         public given_placed_order()
             : this(new NoPersistenceProvider())
         {
+        }
+
+        [Fact]
+        public void when_replacing_items_then_raises_integration_event()
+        {
+            this.sut.ReplaceItems(new[] { new OrderItem(SeatTypeId, 20) });
+
+            var @event = (OrderUpdated)sut.Events.Last();
+            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(1, @event.Items.Count);
+            Assert.Equal(20, @event.Items.ElementAt(0).Quantity);
         }
 
         [Fact]

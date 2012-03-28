@@ -40,7 +40,7 @@ namespace Registration.Handlers
                 var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
                 if (availability != null)
                 {
-                    availability.MakeReservation(command.ReservationId, command.NumberOfSeats);
+                    availability.MakeReservation(command.ReservationId, command.Seats);
                     repo.Save(availability);
                 }
                 // TODO: what if there's no aggregate? how do we tell the saga?

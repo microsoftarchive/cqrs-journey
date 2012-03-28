@@ -19,16 +19,9 @@ namespace Registration.Events
 
     public class OrderPlaced : IEvent
     {
-        public class OrderItem
-        {
-            public Guid SeatTypeId { get; set; }
-
-            public int Quantity { get; set; }
-        }
-
         public OrderPlaced()
         {
-            this.Items = new List<OrderItem>();
+            this.Items = new List<SeatQuantity>();
         }
 
         public Guid OrderId { get; set; }
@@ -37,6 +30,6 @@ namespace Registration.Events
         // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
         public Guid ConferenceId { get; set; }
 
-        public ICollection<OrderItem> Items { get; set; }
+        public ICollection<SeatQuantity> Items { get; set; }
     }
 }

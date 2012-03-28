@@ -57,10 +57,9 @@
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
-    <Compile Include="Events\OrderLocatorCreated.cs" />
+    <Compile Include="Events\OrderUpdated.cs" />
     <Compile Include="Events\PaymentReceived.cs" />
-    <Compile Include="Events\ReservationRejected.cs" />
-    <Compile Include="Events\ReservationAccepted.cs" />
+    <Compile Include="Events\SeatsReserved.cs" />
     <Compile Include="HandleGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Registrant.cs" />
@@ -80,6 +79,8 @@
     <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
+    <Compile Include="SeatAvailability.cs" />
+    <Compile Include="SeatQuantity.cs" />
     <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>
   <ItemGroup>

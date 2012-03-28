@@ -14,12 +14,17 @@
 namespace Registration.Events
 {
     using System;
+    using System.Collections.Generic;
     using Common;
 
-    public class OrderLocatorCreated : IEvent
+    public class OrderUpdated : IEvent
     {
+        public OrderUpdated()
+        {
+            this.Items = new List<SeatQuantity>();
+        }
+
         public Guid OrderId { get; set; }
-        public string Email { get; set; }
-        public string Code { get; set; }
+        public ICollection<SeatQuantity> Items { get; set; }
     }
 }

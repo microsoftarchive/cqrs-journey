@@ -14,12 +14,17 @@
 namespace Registration.Events
 {
     using System;
+    using System.Collections.Generic;
     using Common;
 
-    public class ReservationAccepted : IEvent
+    public class SeatsReserved : IEvent
     {
-        public Guid ConferenceId { get; set; }
+        public SeatsReserved()
+        {
+            this.Seats = new List<SeatQuantity>();
+        }
 
         public Guid ReservationId { get; set; }
+        public List<SeatQuantity> Seats { get; private set; }
     }
 }

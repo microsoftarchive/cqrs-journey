@@ -17,6 +17,7 @@ namespace Registration.Tests
     using System.Linq;
     using Common;
     using Moq;
+    using Registration.Events;
     using Xunit;
 
     public class RegistrationProcessSagaRouterFixture
@@ -47,26 +48,10 @@ namespace Registration.Tests
             var disposable = repo.As<IDisposable>();
             var router = new RegistrationProcessSagaRouter(() => repo.Object);
 
-            router.Handle(new Events.ReservationAccepted { ReservationId = saga.ReservationId });
-
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
-            disposable.Verify(x => x.Dispose());
-        }
-
-        [Fact]
-        public void when_reservation_rejected_then_routes_and_saves()
-        {
-            var saga = new RegistrationProcessSaga
+            router.Handle(new SeatsReserved
             {
-                State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
-                ReservationId = Guid.NewGuid(),
-            };
-            var repo = new Mock<ISagaRepository>();
-            repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());
-            var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessSagaRouter(() => repo.Object);
-
-            router.Handle(new Events.ReservationRejected { ReservationId = saga.ReservationId });
+                ReservationId = saga.ReservationId,
+            });
 
             repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
             disposable.Verify(x => x.Dispose());

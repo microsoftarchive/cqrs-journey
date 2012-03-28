@@ -21,7 +21,7 @@ namespace Registration.ReadModel
         public OrderItemDTO(Guid id, Guid seatTypeId, int quantity)
         {
             this.OrderItemId = id;
-            this.SeatTypeId = seatTypeId;
+            this.SeatType = seatTypeId;
             this.Quantity = quantity;
         }
 
@@ -32,7 +32,7 @@ namespace Registration.ReadModel
         [Key]
         public Guid OrderItemId { get; private set; }
 
-        public Guid SeatTypeId { get; private set; }
+        public Guid SeatType { get; private set; }
 
         public int Quantity { get; private set; }
     }

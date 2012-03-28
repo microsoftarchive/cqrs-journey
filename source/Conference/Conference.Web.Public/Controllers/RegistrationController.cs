@@ -21,6 +21,7 @@ namespace Conference.Web.Public.Controllers
     using Conference.Web.Public.Models;
     using Registration.Commands;
     using Registration.ReadModel;
+    using Registration;
 
     public class RegistrationController : Controller
     {
@@ -60,7 +61,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     OrderId = viewModel.Id,
                     ConferenceId = viewModel.ConferenceId,
-                    Seats = viewModel.Items.Select(x => new RegisterToConference.Seat { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToList()
+                    Seats = viewModel.Items.Select(x => new SeatQuantity { SeatType = x.SeatTypeId, Quantity = x.Quantity }).ToList()
                 };
 
             this.commandBus.Send(command);
@@ -198,7 +199,7 @@ namespace Conference.Web.Public.Controllers
 
             foreach (var line in orderDTO.Lines)
             {
-                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatTypeId);
+                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
                 seat.Quantity = line.Quantity;
             }
 
@@ -232,7 +233,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
-                    if (orderDTO != null && orderDTO.State != Registration.Order.States.Created)
+                    if (orderDTO != null && orderDTO.State != Registration.Order.States.AwaitingReservation)
                     {
                         return orderDTO;
                     }

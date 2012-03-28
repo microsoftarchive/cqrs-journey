@@ -25,7 +25,7 @@ namespace Registration
     {
         public enum States
         {
-            Created = 0,
+            AwaitingReservation = 0,
             Booked = 1,
             Rejected = 2,
             Confirmed = 3,
@@ -55,7 +55,7 @@ namespace Registration
                 {
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
-                    Items = this.Items.Select(x => new OrderPlaced.OrderItem { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToArray()
+                    Items = this.Items.Select(x => new SeatQuantity { SeatType = x.SeatType, Quantity = x.Quantity }).ToArray()
                 });
         }
 
@@ -89,9 +89,25 @@ namespace Registration
 
         public DateTime? BookingExpirationDate { get; private set; }
 
+        public void ReplaceItems(IEnumerable<OrderItem> items)
+        {
+            this.Items.Clear();
+            foreach (var item in items)
+            {
+                this.Items.Add(item);
+            }
+
+            this.events.Add(
+                new OrderUpdated
+                {
+                    OrderId = this.Id,
+                    Items = this.Items.Select(x => new SeatQuantity { SeatType = x.SeatType, Quantity = x.Quantity }).ToArray()
+                });
+        }
+
         public void MarkAsBooked(DateTime bookingExpirationDate)
         {
-            if (this.State != States.Created)
+            if (this.State != States.AwaitingReservation)
                 throw new InvalidOperationException();
 
             this.State = States.Booked;
@@ -100,7 +116,7 @@ namespace Registration
 
         public void Reject()
         {
-            if (this.State != States.Created && this.State != States.Booked)
+            if (this.State != States.AwaitingReservation && this.State != States.Booked)
                 throw new InvalidOperationException();
 
             this.State = States.Rejected;
