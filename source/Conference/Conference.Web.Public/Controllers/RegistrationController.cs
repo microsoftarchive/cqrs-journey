@@ -109,8 +109,10 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, AssignRegistrantDetails command)
         {
-            // Validation would have happened automatically via client-side and model binder validation.
-            // Issue #89
+            if (!ModelState.IsValid)
+            {
+                return SpecifyRegistrantDetails(conferenceCode, orderId);
+            }
 
             this.commandBus.Send(command);
 
