@@ -21,7 +21,7 @@
         <div class="editor-label">@Html.LabelFor(model => model.FirstName)</div><div class="editor-field">@Html.EditorFor(model => model.FirstName)</div>
         <div class="editor-label">@Html.LabelFor(model => model.LastName)</div><div class="editor-field">@Html.EditorFor(model => model.LastName)</div>
         <div class="editor-label">@Html.LabelFor(model => model.Email)</div><div class="editor-field">@Html.EditorFor(model => model.Email)</div>
-        <div class="editor-label">Confirm email: </div><div class="editor-field"><input type="text" /></div>
+        <div class="editor-label">Confirm email: </div><div class="editor-field"><input type="text" data-val="true" data-val-equalto="E-Mail addresses do not match." data-val-equalto-other="Email" data-val-required="Please confirm the e-mail address."/></div>
         <p>
             <input type="submit" value="Next" />
         </p>
