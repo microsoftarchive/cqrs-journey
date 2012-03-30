@@ -65,45 +65,43 @@ namespace Conference.Web.Public.Controllers
 
             this.commandBus.Send(command);
 
-            var orderDTO = this.WaitUntilUpdated(viewModel.Id);
-
-            if (orderDTO != null)
-            {
-                if (orderDTO.State == Registration.Order.States.Booked)
-                {
-                    return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
-                }
-                else if (orderDTO.State == Registration.Order.States.Rejected)
-                {
-                    return View("ReservationRejected", viewModel);
-                }
-            }
-
-            return View("ReservationUnknown", viewModel);
+            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
         }
 
         [HttpGet]
         public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId)
         {
+            var orderDTO = this.WaitUntilUpdated(orderId);
+            if (orderDTO == null)
+            {
+                return View("ReservationUnknown");
+            }
+
+            ConferenceDTO conferenceDTO;
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var orderDTO = repo.Find<OrderDTO>(orderId);
-                var conferenceDTO = repo.Query<ConferenceDTO>()
+                conferenceDTO = repo.Query<ConferenceDTO>()
                     .Where(c => c.Code == conferenceCode)
                     .FirstOrDefault();
-
-                // TODO: check for nulls.
-
-                // NOTE: we use the view bag to pass out of band details needed for the UI.
-                this.ViewBag.ConferenceName = conferenceDTO.Name;
-                this.ViewBag.ConferenceCode = conferenceDTO.Code;
-                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
-                this.ViewBag.OrderId = orderId;
-
-                // We just render the command which is later posted back.
-                return View(new AssignRegistrantDetails { OrderId = orderId });
             }
+
+            if (orderDTO.State == Registration.Order.States.Rejected)
+            {
+                return View("ReservationRejected", conferenceDTO);
+            }
+
+
+            // TODO: check for nulls.
+
+            // NOTE: we use the view bag to pass out of band details needed for the UI.
+            this.ViewBag.ConferenceName = conferenceDTO.Name;
+            this.ViewBag.ConferenceCode = conferenceDTO.Code;
+            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+            this.ViewBag.OrderId = orderId;
+
+            // We just render the command which is later posted back.
+            return View(new AssignRegistrantDetails { OrderId = orderId });
         }
 
         [HttpPost]
