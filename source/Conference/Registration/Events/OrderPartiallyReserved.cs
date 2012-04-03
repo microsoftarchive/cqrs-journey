@@ -11,44 +11,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
+    using Common;
 
-    public class OrderDTO
+    public class OrderPartiallyReserved : IEvent
     {
-        public OrderDTO(Guid orderId, Order.States state)
-            : this()
+        public OrderPartiallyReserved()
         {
-            this.OrderId = orderId;
-            this.State = state;
+            this.Seats = new List<SeatQuantity>();
         }
 
-        protected OrderDTO()
-        {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
-        }
+        public Guid OrderId { get; set; }
 
-        [Key]
-        public Guid OrderId { get; private set; }
+        public Guid ConferenceId { get; set; }
 
-        public DateTime? BookingExpirationDate { get; private set; }
-
-        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
-
-        public int StateValue { get; private set; }
-
-        [NotMapped]
-        public Order.States State
-        {
-            get { return (Order.States)this.StateValue; }
-            set { this.StateValue = (int)value; }
-        }
-
-        public string RegistrantEmail { get; internal set; }
-        public string AccessCode { get; internal set; }
+        public List<SeatQuantity> Seats { get; set; }
     }
 }

@@ -21,10 +21,10 @@ namespace Registration.Events
     {
         public OrderUpdated()
         {
-            this.Items = new List<SeatQuantity>();
+            this.Seats = new List<SeatQuantity>();
         }
 
         public Guid OrderId { get; set; }
-        public ICollection<SeatQuantity> Items { get; set; }
+        public ICollection<SeatQuantity> Seats { get; set; }
     }
 }

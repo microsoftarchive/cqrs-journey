@@ -54,7 +54,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         {
             // Arrange
             var orderId = Guid.NewGuid();
-            var orderDto = new OrderDTO(orderId, Order.States.AwaitingReservation)
+            var orderDto = new OrderDTO(orderId, Order.States.Created)
             {
                 RegistrantEmail = "info@contoso.com",
                 AccessCode = "asdf",
@@ -93,7 +93,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
                 .Setup(r => r.Query<OrderDTO>())
                 .Returns(new OrderDTO[] 
                 { 
-                    new OrderDTO(orderId, Order.States.AwaitingReservation) 
+                    new OrderDTO(orderId, Order.States.Created) 
                     {
                         RegistrantEmail = "info@contoso.com",
                         AccessCode = "asdf", 

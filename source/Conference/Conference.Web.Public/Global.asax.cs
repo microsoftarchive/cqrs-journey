@@ -54,6 +54,8 @@ namespace Conference.Web.Public
 
             commandBus.Register(new SeatsAvailabilityHandler(ormFactory));
 
+            eventBus.Register(new OrderViewModelGenerator(viewOrmFactory));
+
             services[typeof(ICommandBus)] = commandBus;
             services[typeof(IEventBus)] = eventBus;
             services[typeof(Func<IRepository>)] = ormFactory;

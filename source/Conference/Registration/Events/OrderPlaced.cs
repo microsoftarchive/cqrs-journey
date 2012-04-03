@@ -21,15 +21,16 @@ namespace Registration.Events
     {
         public OrderPlaced()
         {
-            this.Items = new List<SeatQuantity>();
+            this.Seats = new List<SeatQuantity>();
         }
 
         public Guid OrderId { get; set; }
+        public string AccessCode { get; set; }
 
         // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
         // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
         public Guid ConferenceId { get; set; }
 
-        public ICollection<SeatQuantity> Items { get; set; }
+        public List<SeatQuantity> Seats { get; set; }
     }
 }

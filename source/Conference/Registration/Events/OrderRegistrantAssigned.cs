@@ -11,29 +11,16 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Events
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
+    using Common;
 
-    public class OrderItemDTO
+    public class OrderRegistrantAssigned : IEvent
     {
-        public OrderItemDTO(Guid id, Guid seatTypeId, int quantity)
-        {
-            this.OrderItemId = id;
-            this.SeatType = seatTypeId;
-            this.Quantity = quantity;
-        }
-
-        protected OrderItemDTO()
-        {
-        }
-
-        [Key]
-        public Guid OrderItemId { get; private set; }
-
-        public Guid SeatType { get; private set; }
-
-        public int Quantity { get; private set; }
+        public Guid OrderId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

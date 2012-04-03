@@ -70,7 +70,7 @@ namespace Registration
                     {
                         ConferenceId = message.ConferenceId,
                         ReservationId = this.ReservationId,
-                        Seats = message.Items.ToList()
+                        Seats = message.Seats.ToList()
                     });
             }
             else
@@ -87,12 +87,16 @@ namespace Registration
 
                 this.State = SagaState.AwaitingPayment;
 
-                this.AddCommand(new MarkOrderAsBooked { OrderId = this.OrderId, Expiration = DateTime.UtcNow.Add(delay) });
-                this.AddCommand(
-                    new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId })
-                    {
-                        Delay = delay,
-                    });
+                this.AddCommand(new MarkSeatsAsReserved
+                {
+                    OrderId = this.OrderId,
+                    Seats = message.Seats,
+                    Expiration = DateTime.UtcNow.Add(delay)
+                });
+                this.AddCommand(new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId })
+                {
+                    Delay = delay,
+                });
             }
             else
             {

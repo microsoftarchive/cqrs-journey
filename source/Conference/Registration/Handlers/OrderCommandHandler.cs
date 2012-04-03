@@ -20,7 +20,7 @@ namespace Registration.Handlers
 
     public class OrderCommandHandler :
         ICommandHandler<RegisterToConference>,
-        ICommandHandler<MarkOrderAsBooked>,
+        ICommandHandler<MarkSeatsAsReserved>,
         ICommandHandler<RejectOrder>,
         ICommandHandler<AssignRegistrantDetails>
     {
@@ -45,14 +45,14 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    order.ReplaceItems(items);
+                    order.UpdateSeats(items);
                 }
 
                 repository.Save(order);
             }
         }
 
-        public void Handle(MarkOrderAsBooked command)
+        public void Handle(MarkSeatsAsReserved command)
         {
             var repository = this.repositoryFactory();
 
@@ -62,7 +62,7 @@ namespace Registration.Handlers
 
                 if (order != null)
                 {
-                    order.MarkAsBooked(command.Expiration);
+                    order.MarkAsReserved(command.Seats);
                     repository.Save(order);
                 }
             }

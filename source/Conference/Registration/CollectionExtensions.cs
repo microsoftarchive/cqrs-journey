@@ -11,44 +11,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace System.Collections.Generic
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
-
-    public class OrderDTO
+    /// <summary>
+    /// Usability extensions for collections.
+    /// </summary>
+    public static class CollectionExtensions
     {
-        public OrderDTO(Guid orderId, Order.States state)
-            : this()
+        /// <summary>
+        /// Adds a set of items to a collection.
+        /// </summary>
+        public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items)
         {
-            this.OrderId = orderId;
-            this.State = state;
+            foreach (var item in items)
+            {
+                collection.Add(item);
+            }
         }
-
-        protected OrderDTO()
-        {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
-        }
-
-        [Key]
-        public Guid OrderId { get; private set; }
-
-        public DateTime? BookingExpirationDate { get; private set; }
-
-        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
-
-        public int StateValue { get; private set; }
-
-        [NotMapped]
-        public Order.States State
-        {
-            get { return (Order.States)this.StateValue; }
-            set { this.StateValue = (int)value; }
-        }
-
-        public string RegistrantEmail { get; internal set; }
-        public string AccessCode { get; internal set; }
     }
 }

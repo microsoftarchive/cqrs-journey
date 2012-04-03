@@ -39,7 +39,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = Guid.NewGuid(),
                 ConferenceId = Guid.NewGuid(),
-                Items = new[] { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
+                Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
             };
             sut.Handle(orderPlaced);
         }
@@ -83,7 +83,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = this.orderId,
                 ConferenceId = this.conferenceId,
-                Items = new[] { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
+                Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
             });
         }
     }
@@ -108,7 +108,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_updates_order_status()
         {
-            var command = sut.Commands.Select(x => x.Body).OfType<MarkOrderAsBooked>().Single();
+            var command = sut.Commands.Select(x => x.Body).OfType<MarkSeatsAsReserved>().Single();
 
             Assert.Equal(this.orderId, command.OrderId);
         }
@@ -126,38 +126,6 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         public void then_transitions_state()
         {
             Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingPayment, sut.State);
-        }
-    }
-
-    public class when_reservation_is_rejected : given_saga_awaiting_for_reservation_confirmation
-    {
-        private Guid reservationId;
-
-        public when_reservation_is_rejected()
-        {
-            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
-            this.reservationId = makeReservationCommand.ReservationId;
-
-            //var reservationAccepted = new ReservationRejected
-            //{
-            //    ReservationId = this.reservationId,
-            //    ConferenceId = this.conferenceId,
-            //};
-            //sut.Handle(reservationAccepted);
-        }
-
-        [Fact]
-        public void then_updates_order_status()
-        {
-            var command = sut.Commands.Select(x => x.Body).OfType<RejectOrder>().Single();
-
-            Assert.Equal(this.orderId, command.OrderId);
-        }
-
-        [Fact]
-        public void then_transitions_state()
-        {
-            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
         }
     }
 
@@ -180,7 +148,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = this.orderId,
                 ConferenceId = this.conferenceId,
-                Items = new[] { new SeatQuantity { SeatType = seatType, Quantity = 2 } }
+                Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 } }
             });
 
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
@@ -189,10 +157,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             this.sut.Handle(new SeatsReserved
             {
                 ReservationId = makeReservationCommand.ReservationId,
-                Seats =
-                {
-                    new SeatQuantity { SeatType = seatType, Quantity = 2 },
-                }
+                Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 }, }
             });
         }
     }

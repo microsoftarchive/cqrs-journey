@@ -46,22 +46,27 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Commands\AssignRegistrantDetails.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
     <Compile Include="Commands\ExpireOrder.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
-    <Compile Include="Commands\MarkOrderAsBooked.cs" />
+    <Compile Include="Commands\MarkSeatsAsReserved.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\OrmRepository.cs" />
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
+    <Compile Include="Events\OrderPartiallyReserved.cs" />
+    <Compile Include="Events\OrderRegistrantAssigned.cs" />
+    <Compile Include="Events\OrderReservationCompleted.cs" />
     <Compile Include="Events\OrderUpdated.cs" />
     <Compile Include="Events\PaymentReceived.cs" />
     <Compile Include="Events\SeatsReserved.cs" />
     <Compile Include="HandleGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
+    <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="Registrant.cs" />
     <Compile Include="RegistrationProcessSagaRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
@@ -74,7 +79,7 @@
     <Compile Include="ReadModel\ConferenceDTO.cs" />
     <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
-    <Compile Include="ReadModel\OrderLineDTO.cs" />
+    <Compile Include="ReadModel\OrderItemDTO.cs" />
     <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
     <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />

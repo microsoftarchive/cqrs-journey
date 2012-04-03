@@ -40,7 +40,7 @@ namespace Registration.Database
             if (context.Set<SeatsAvailability>().Find(Guid.Empty) == null)
             {
                 var availability = new SeatsAvailability(Guid.Empty);
-                //availability.AddSeats(50);
+                availability.AddSeats(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), 50);
                 context.Save(availability);
             }
 

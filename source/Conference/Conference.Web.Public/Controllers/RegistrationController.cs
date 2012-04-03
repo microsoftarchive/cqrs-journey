@@ -19,9 +19,9 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
+    using Registration;
     using Registration.Commands;
     using Registration.ReadModel;
-    using Registration;
 
     public class RegistrationController : Controller
     {
@@ -199,8 +199,9 @@ namespace Conference.Web.Public.Controllers
 
             foreach (var line in orderDTO.Lines)
             {
-                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
-                seat.Quantity = line.Quantity;
+                // TODO: build view model?
+                //var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
+                //seat.Quantity = line.Quantity;
             }
 
             return viewModel;
@@ -233,7 +234,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
-                    if (orderDTO != null && orderDTO.State != Registration.Order.States.AwaitingReservation)
+                    if (orderDTO != null && orderDTO.State != Registration.Order.States.Created)
                     {
                         return orderDTO;
                     }

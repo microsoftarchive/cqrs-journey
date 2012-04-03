@@ -14,41 +14,23 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
 
-    public class OrderDTO
+    public class OrderItemDTO
     {
-        public OrderDTO(Guid orderId, Order.States state)
-            : this()
+        public OrderItemDTO(Guid seatType, int requestedSeats)
         {
-            this.OrderId = orderId;
-            this.State = state;
+            this.Id = Guid.NewGuid();
+            this.SeatType = seatType;
+            this.RequestedSeats = requestedSeats;
         }
 
-        protected OrderDTO()
+        protected OrderItemDTO()
         {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
         }
 
-        [Key]
-        public Guid OrderId { get; private set; }
-
-        public DateTime? BookingExpirationDate { get; private set; }
-
-        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
-
-        public int StateValue { get; private set; }
-
-        [NotMapped]
-        public Order.States State
-        {
-            get { return (Order.States)this.StateValue; }
-            set { this.StateValue = (int)value; }
-        }
-
-        public string RegistrantEmail { get; internal set; }
-        public string AccessCode { get; internal set; }
+        public Guid Id { get; private set; }
+        public Guid SeatType { get; set; }
+        public int RequestedSeats { get; set; }
+        public int ReservedSeats { get; set; }
     }
 }
