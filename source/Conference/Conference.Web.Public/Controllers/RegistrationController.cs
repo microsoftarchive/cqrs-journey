@@ -78,26 +78,15 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationUnknown");
             }
 
-            ConferenceDTO conferenceDTO;
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                conferenceDTO = repo.Query<ConferenceDTO>()
-                    .Where(c => c.Code == conferenceCode)
-                    .FirstOrDefault();
-            }
-
             if (orderDTO.State == Registration.Order.States.Rejected)
             {
-                return View("ReservationRejected", conferenceDTO);
+                return View("ReservationRejected");
             }
 
 
             // TODO: check for nulls.
 
             // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ConferenceName = conferenceDTO.Name;
-            this.ViewBag.ConferenceCode = conferenceDTO.Code;
             this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
             this.ViewBag.OrderId = orderId;
 
@@ -250,6 +239,34 @@ namespace Conference.Web.Public.Controllers
             }
 
             return null;
+        }
+
+        private ConferenceAliasDTO conference;
+        protected ConferenceAliasDTO Conference
+        {
+            get
+            {
+                if (this.conference == null)
+                {
+                    var conferenceCode = ControllerContext.RouteData.Values["conferenceCode"];
+                    var repo = this.repositoryFactory();
+                    using (repo as IDisposable)
+                    {
+                        this.conference = repo.Query<ConferenceAliasDTO>()
+                            .Where(c => c.Code == conferenceCode)
+                            .FirstOrDefault();
+                    }
+                }
+
+                return this.conference;
+            }
+        }
+
+        protected override void OnResultExecuting(ResultExecutingContext filterContext)
+        {
+            this.ViewBag.Conference = this.Conference;
+
+            base.OnResultExecuting(filterContext);
         }
     }
 }

@@ -48,6 +48,8 @@ namespace Registration.ReadModel
             modelBuilder.Entity<ConferenceDTO>().ToTable("ConferencesView");
             modelBuilder.Entity<ConferenceDTO>().HasMany(c => c.Seats).WithRequired().Map(c => c.MapKey("ConferencesView_Id"));
             modelBuilder.Entity<ConferenceSeatTypeDTO>().ToTable("ConferenceSeatsView");
+            modelBuilder.Entity<ConferenceAliasDTO>().ToTable("ConferenceAliasesView");
+            modelBuilder.Entity<ConferenceDescriptionDTO>().ToTable("ConferenceDescriptionsView");
         }
 
         public T Find<T>(Guid id) where T : class

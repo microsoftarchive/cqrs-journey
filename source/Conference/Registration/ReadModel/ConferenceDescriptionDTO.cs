@@ -11,48 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Controllers
+namespace Registration.ReadModel
 {
     using System;
-    using System.Linq;
-    using System.Web.Mvc;
-    using Common;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
-    using Registration.ReadModel;
-
-    public class ConferenceController : Controller
+    public class ConferenceDescriptionDTO
     {
-        private Func<IViewRepository> repositoryFactory;
+        public ConferenceDescriptionDTO(Guid id, string code, string name, string description)
+        {
+            this.Id = id;
+            this.Code = code;
+            this.Name = name;
+            this.Description = description;
+        }
 
-        public ConferenceController()
-            : this(MvcApplication.GetService<Func<IViewRepository>>())
+        protected ConferenceDescriptionDTO()
         {
         }
 
-        public ConferenceController(Func<IViewRepository> repositoryFactory)
-        {
-            this.repositoryFactory = repositoryFactory;
-        }
+        [Key]
+        public virtual Guid Id { get; private set; }
 
-        public ActionResult Display(string conferenceCode)
-        {
-            var conference = this.GetConference(conferenceCode);
+        public virtual string Code { get; private set; }
 
-            // Reply with 404 if not found?
-            //if (conference == null)
+        public virtual string Name { get; private set; }
 
-            return View(conference);
-        }
-
-        private ConferenceDescriptionDTO GetConference(string conferenceCode)
-        {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                return repo.Query<ConferenceDescriptionDTO>()
-                    .Where(dto => dto.Code == conferenceCode)
-                    .FirstOrDefault();
-            }
-        }
+        public virtual string Description { get; private set; }
     }
 }

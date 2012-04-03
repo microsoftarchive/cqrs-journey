@@ -11,14 +11,31 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Models
+namespace Registration.ReadModel
 {
-    public class Conference
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
+
+    public class ConferenceAliasDTO
     {
-        public string Code { get; set; }
+        public ConferenceAliasDTO(Guid id, string code, string name)
+        {
+            this.Id = id;
+            this.Code = code;
+            this.Name = name;
+        }
 
-        public string Name { get; set; }
+        protected ConferenceAliasDTO()
+        {
+        }
 
-        public string Description { get; set; }
+        [Key]
+        public virtual Guid Id { get; private set; }
+
+        public virtual string Code { get; private set; }
+
+        public virtual string Name { get; private set; }
     }
 }
