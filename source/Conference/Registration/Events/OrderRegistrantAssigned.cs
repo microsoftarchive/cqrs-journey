@@ -16,10 +16,11 @@ namespace Registration.Events
     using System;
     using Common;
 
-    public class ReservationAccepted : IEvent
+    public class OrderRegistrantAssigned : IEvent
     {
-        public Guid ConferenceId { get; set; }
-
-        public Guid ReservationId { get; set; }
+        public Guid OrderId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -19,6 +19,7 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
+    using Registration;
     using Registration.Commands;
     using Registration.ReadModel;
 
@@ -60,7 +61,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     OrderId = viewModel.Id,
                     ConferenceId = viewModel.ConferenceId,
-                    Seats = viewModel.Items.Select(x => new RegisterToConference.Seat { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToList()
+                    Seats = viewModel.Items.Select(x => new SeatQuantity { SeatType = x.SeatTypeId, Quantity = x.Quantity }).ToList()
                 };
 
             this.commandBus.Send(command);
@@ -97,7 +98,7 @@ namespace Conference.Web.Public.Controllers
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ConferenceName = conferenceDTO.Name;
             this.ViewBag.ConferenceCode = conferenceDTO.Code;
-            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
             this.ViewBag.OrderId = orderId;
 
             // We just render the command which is later posted back.
@@ -127,7 +128,7 @@ namespace Conference.Web.Public.Controllers
                 var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
                 this.ViewBag.ConferenceCode = conferenceCode;
-                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
                 this.ViewBag.OrderId = orderId;
 
                 return View(viewModel);
@@ -198,8 +199,9 @@ namespace Conference.Web.Public.Controllers
 
             foreach (var line in orderDTO.Lines)
             {
-                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatTypeId);
-                seat.Quantity = line.Quantity;
+                // TODO: build view model?
+                //var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
+                //seat.Quantity = line.Quantity;
             }
 
             return viewModel;

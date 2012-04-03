@@ -11,15 +11,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.Commands
 {
     using System;
+    using System.Collections.Generic;
     using Common;
 
-    public class OrderLocatorCreated : IEvent
+    public class MarkSeatsAsReserved : ICommand
     {
+        public MarkSeatsAsReserved()
+        {
+            this.Seats = new List<SeatQuantity>();
+        }
+
+        public Guid Id { get; set; }
+
         public Guid OrderId { get; set; }
-        public string Email { get; set; }
-        public string Code { get; set; }
+
+        public List<SeatQuantity> Seats { get; set; }
+
+        public DateTime Expiration { get; set; }
     }
 }

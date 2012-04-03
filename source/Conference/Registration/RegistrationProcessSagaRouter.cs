@@ -23,8 +23,7 @@ namespace Registration
     public class RegistrationProcessSagaRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<PaymentReceived>,
-        IEventHandler<ReservationAccepted>,
-        IEventHandler<ReservationRejected>,
+        IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireOrder>
     {
         private object lockObject = new object();
@@ -50,25 +49,7 @@ namespace Registration
             }
         }
 
-        public void Handle(ReservationAccepted @event)
-        {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
-            {
-                lock (lockObject)
-                {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId);
-                    if (saga != null)
-                    {
-                        saga.Handle(@event);
-
-                        repo.Save(saga);
-                    }
-                }
-            }
-        }
-
-        public void Handle(ReservationRejected @event)
+        public void Handle(SeatsReserved @event)
         {
             var repo = this.repositoryFactory.Invoke();
             using (repo as IDisposable)

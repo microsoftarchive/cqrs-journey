@@ -16,11 +16,11 @@ namespace Registration
 
     public class OrderItem
     {
-        public OrderItem(Guid seatTypeId, int quantity)
+        public OrderItem(Guid seatType, int quantity)
         {
             this.Id = Guid.NewGuid();
 
-            this.SeatTypeId = seatTypeId;
+            this.SeatType = seatType;
             this.Quantity = quantity;
         }
 
@@ -30,7 +30,7 @@ namespace Registration
 
         public Guid Id { get; private set; }
 
-        public Guid SeatTypeId { get; private set; }
+        public Guid SeatType { get; private set; }
 
         public int Quantity { get; private set; }
     }

@@ -11,29 +11,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace System.Collections.Generic
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
-    public class OrderItemDTO
+    /// <summary>
+    /// Usability extensions for collections.
+    /// </summary>
+    public static class CollectionExtensions
     {
-        public OrderItemDTO(Guid id, Guid seatTypeId, int quantity)
+        /// <summary>
+        /// Adds a set of items to a collection.
+        /// </summary>
+        public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items)
         {
-            this.OrderItemId = id;
-            this.SeatTypeId = seatTypeId;
-            this.Quantity = quantity;
+            foreach (var item in items)
+            {
+                collection.Add(item);
+            }
         }
-
-        protected OrderItemDTO()
-        {
-        }
-
-        [Key]
-        public Guid OrderItemId { get; private set; }
-
-        public Guid SeatTypeId { get; private set; }
-
-        public int Quantity { get; private set; }
     }
 }

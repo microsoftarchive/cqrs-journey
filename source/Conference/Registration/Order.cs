@@ -26,9 +26,10 @@ namespace Registration
         public enum States
         {
             Created = 0,
-            Booked = 1,
-            Rejected = 2,
-            Confirmed = 3,
+            PartiallyReserved = 1,
+            ReservationCompleted = 2,
+            Rejected = 3,
+            Confirmed = 4,
         }
 
         private List<IEvent> events = new List<IEvent>();
@@ -47,15 +48,13 @@ namespace Registration
             this.Registrant = new Registrant();
             this.Items = new ObservableCollection<OrderItem>(items);
 
-            // TODO: it feels awkward publishing an event with ALL the details for the order.
-            // should we just do the following and let the saga handler populate all the info?
-            // this.events.Add(new OrderPlaced { OrderId = this.Id });
             this.events.Add(
                 new OrderPlaced
                 {
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
-                    Items = this.Items.Select(x => new OrderPlaced.OrderItem { SeatTypeId = x.SeatTypeId, Quantity = x.Quantity }).ToArray()
+                    AccessCode = this.AccessCode,
+                    Seats = this.Items.Select(x => new SeatQuantity { SeatType = x.SeatType, Quantity = x.Quantity }).ToList()
                 });
         }
 
@@ -87,24 +86,65 @@ namespace Registration
             internal set { this.StateValue = (int)value; }
         }
 
-        public DateTime? BookingExpirationDate { get; private set; }
+        public DateTime? ReservationExpirationDate { get; private set; }
 
-        public void MarkAsBooked(DateTime bookingExpirationDate)
+        public void UpdateSeats(IEnumerable<OrderItem> seats)
         {
-            if (this.State != States.Created)
-                throw new InvalidOperationException();
+            this.Items.Clear();
+            this.Items.AddRange(seats);
 
-            this.State = States.Booked;
-            this.BookingExpirationDate = bookingExpirationDate;
+            this.events.Add(
+                new OrderUpdated
+                {
+                    OrderId = this.Id,
+                    Seats = this.Items.Select(x => new SeatQuantity { SeatType = x.SeatType, Quantity = x.Quantity }).ToArray()
+                });
+        }
+
+        public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> seats)
+        {
+            if (this.State == States.Confirmed || this.State == States.Rejected)
+                throw new InvalidOperationException("Cannot modify confirmed or cancelled order.");
+
+            if (// Is there an order item
+                this.Items.Any(item =>
+                    // which didn't get an exact reservation?
+                !seats.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
+            {
+                this.State = States.PartiallyReserved;
+                this.events.Add(new OrderPartiallyReserved
+                {
+                    OrderId = this.Id,
+                    ConferenceId = this.ConferenceId,
+                    Seats = seats.ToList(),
+                    ReservationExpiration = expirationDate,
+                });
+            }
+            else
+            {
+                this.State = States.ReservationCompleted;
+                this.events.Add(new OrderReservationCompleted
+                {
+                    OrderId = this.Id,
+                    ConferenceId = this.ConferenceId,
+                    Seats = seats.ToList(),
+                    ReservationExpiration = expirationDate,
+                });
+            }
+
+            this.ReservationExpirationDate = expirationDate;
+            this.Items.Clear();
+            this.Items.AddRange(seats.Select(seat => new OrderItem(seat.SeatType, seat.Quantity)));
         }
 
         public void Reject()
         {
-            if (this.State != States.Created && this.State != States.Booked)
-                throw new InvalidOperationException();
+            // TODO: when do we "reject" order? Is it "Cancel" or something else?
+            //if (this.State != States.AwaitingReservation && this.State != States.Booked)
+            //    throw new InvalidOperationException();
 
             this.State = States.Rejected;
-            this.BookingExpirationDate = null;
+            //this.BookingExpirationDate = null;
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
@@ -115,6 +155,14 @@ namespace Registration
                 LastName = lastName,
                 Email = email,
             };
+
+            this.events.Add(new OrderRegistrantAssigned
+            {
+                OrderId = this.Id,
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+            });
         }
     }
 }

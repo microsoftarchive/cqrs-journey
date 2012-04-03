@@ -42,8 +42,9 @@ namespace Registration.ReadModel
 
             // Make the name of the views match exactly the name of the corresponding property.
             modelBuilder.Entity<OrderDTO>().ToTable("OrdersView");
-            modelBuilder.Entity<OrderDTO>().HasMany(c => c.Lines).WithRequired().Map(c => c.MapKey("OrdersView_Id"));
+            // modelBuilder.Entity<OrderDTO>().HasMany(c => c.Lines).WithRequired().Map(c => c.MapKey("OrdersView_Id"));
             modelBuilder.Entity<OrderItemDTO>().ToTable("OrderItemsView");
+
             modelBuilder.Entity<ConferenceDTO>().ToTable("ConferencesView");
             modelBuilder.Entity<ConferenceDTO>().HasMany(c => c.Seats).WithRequired().Map(c => c.MapKey("ConferencesView_Id"));
             modelBuilder.Entity<ConferenceSeatTypeDTO>().ToTable("ConferenceSeatsView");
@@ -57,6 +58,16 @@ namespace Registration.ReadModel
         public IQueryable<T> Query<T>() where T : class
         {
             return this.Set<T>();
+        }
+
+        public void Save<T>(T entity) where T : class
+        {
+            var entry = this.Entry(entity);
+
+            if (entry.State == System.Data.EntityState.Detached)
+                this.Set<T>().Add(entity);
+
+            this.SaveChanges();
         }
     }
 }

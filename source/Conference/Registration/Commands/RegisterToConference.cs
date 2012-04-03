@@ -15,15 +15,14 @@ namespace Registration.Commands
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using Common;
 
     public class RegisterToConference : ICommand
     {
-        public class Seat
+        public RegisterToConference()
         {
-            public Guid SeatTypeId { get; set; }
-
-            public int Quantity { get; set; }
+            this.Seats = new Collection<SeatQuantity>();
         }
 
         public Guid Id { get; private set; }
@@ -32,6 +31,6 @@ namespace Registration.Commands
 
         public Guid ConferenceId { get; set; }
 
-        public ICollection<Seat> Seats { get; set; }
+        public ICollection<SeatQuantity> Seats { get; set; }
     }
 }

@@ -11,19 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration
 {
     using System;
-    using Common;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
-    public class ExpireOrder : ICommand
+    /// <summary>
+    /// Tracks the availability and in-flight reservations for a 
+    /// specific type of seat within a conference.
+    /// </summary>
+    public class SeatAvailability
     {
-        public ExpireOrder()
+        public SeatAvailability(Guid seatType, int quantity)
+            : this()
         {
-            this.Id = Guid.NewGuid();
+            this.SeatType = seatType;
+            this.RemainingSeats = quantity;
         }
 
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
+        // ORM requirement
+        protected SeatAvailability()
+        {
+            this.PendingReservations = new ObservableCollection<Reservation>();
+        }
+
+        [Key]
+        public Guid SeatType { get; private set; }
+        public virtual int RemainingSeats { get; set; }
+        public virtual Collection<Reservation> PendingReservations { get; private set; }
     }
 }

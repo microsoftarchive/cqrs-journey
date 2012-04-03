@@ -14,6 +14,7 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
@@ -34,9 +35,9 @@ namespace Registration.ReadModel
         [Key]
         public Guid OrderId { get; private set; }
 
-        public DateTime? BookingExpirationDate { get; private set; }
+        public DateTime? ReservationExpirationDate { get; set; }
 
-        public virtual ObservableCollection<OrderItemDTO> Lines { get; private set; }
+        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
 
         public int StateValue { get; private set; }
 
@@ -44,7 +45,7 @@ namespace Registration.ReadModel
         public Order.States State
         {
             get { return (Order.States)this.StateValue; }
-            private set { this.StateValue = (int)value; }
+            set { this.StateValue = (int)value; }
         }
 
         public string RegistrantEmail { get; internal set; }

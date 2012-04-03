@@ -20,7 +20,7 @@ namespace Registration.Handlers
 
     public class OrderCommandHandler :
         ICommandHandler<RegisterToConference>,
-        ICommandHandler<MarkOrderAsBooked>,
+        ICommandHandler<MarkSeatsAsReserved>,
         ICommandHandler<RejectOrder>,
         ICommandHandler<AssignRegistrantDetails>
     {
@@ -37,15 +37,22 @@ namespace Registration.Handlers
 
             using (repository as IDisposable)
             {
-                var tickets = command.Seats.Select(t => new OrderItem(t.SeatTypeId, t.Quantity)).ToList();
-
-                var order = new Order(command.OrderId, command.ConferenceId, tickets);
+                var items = command.Seats.Select(t => new OrderItem(t.SeatType, t.Quantity)).ToList();
+                var order = repository.Find<Order>(command.OrderId);
+                if (order == null)
+                {
+                    order = new Order(command.OrderId, command.ConferenceId, items);
+                }
+                else
+                {
+                    order.UpdateSeats(items);
+                }
 
                 repository.Save(order);
             }
         }
 
-        public void Handle(MarkOrderAsBooked command)
+        public void Handle(MarkSeatsAsReserved command)
         {
             var repository = this.repositoryFactory();
 
@@ -55,7 +62,7 @@ namespace Registration.Handlers
 
                 if (order != null)
                 {
-                    order.MarkAsBooked(command.Expiration);
+                    order.MarkAsReserved(command.Expiration, command.Seats);
                     repository.Save(order);
                 }
             }

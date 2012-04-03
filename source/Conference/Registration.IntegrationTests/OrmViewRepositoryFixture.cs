@@ -39,25 +39,27 @@ namespace Registration.IntegrationTests
             }
 
             var orderId = Guid.NewGuid();
-            var ticketTypeId = Guid.NewGuid();
+            var seatTypeId = Guid.NewGuid();
 
-            using (var context = new OrmRepository("TestOrmRepository"))
-            {
-                var order = new Order(orderId, Guid.NewGuid(), new[] { new OrderItem(ticketTypeId, 5) });
-                order.MarkAsBooked(DateTime.UtcNow);
-                context.Save(order);
-            }
+            // TODO: we'll no longer use a SQL view.
+            //using (var context = new OrmRepository("TestOrmRepository"))
+            //{
+            //    var order = new Order(orderId, Guid.NewGuid(), new[] { new OrderItem(seatTypeId, 5) });
+            //    // 
+            //    //order.MarkAsReserved(DateTime.UtcNow);
+            //    context.Save(order);
+            //}
 
-            using (var viewContext = new OrmViewRepository("TestOrmRepository"))
-            {
-                var dto = viewContext.Find<OrderDTO>(orderId);
+            //using (var viewContext = new OrmViewRepository("TestOrmRepository"))
+            //{
+            //    var dto = viewContext.Find<OrderDTO>(orderId);
 
-                Assert.NotNull(dto);
-                Assert.Equal(Order.States.Booked, dto.State);
-                Assert.Equal(1, dto.Lines.Count);
-                Assert.Equal(ticketTypeId, dto.Lines[0].SeatTypeId);
-                Assert.Equal(5, dto.Lines[0].Quantity);
-            }
+            //    Assert.NotNull(dto);
+            //    Assert.Equal(Order.States.Booked, dto.State);
+            //    Assert.Equal(1, dto.Lines.Count);
+            //    Assert.Equal(seatTypeId, dto.Lines[0].SeatType);
+            //    Assert.Equal(5, dto.Lines[0].Quantity);
+            //}
         }
     }
 }

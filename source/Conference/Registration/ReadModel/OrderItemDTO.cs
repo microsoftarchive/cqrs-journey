@@ -11,19 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.ReadModel
 {
     using System;
-    using Common;
 
-    public class ExpireOrder : ICommand
+    public class OrderItemDTO
     {
-        public ExpireOrder()
+        public OrderItemDTO(Guid seatType, int requestedSeats)
         {
             this.Id = Guid.NewGuid();
+            this.SeatType = seatType;
+            this.RequestedSeats = requestedSeats;
         }
 
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
+        protected OrderItemDTO()
+        {
+        }
+
+        public Guid Id { get; private set; }
+        public Guid SeatType { get; set; }
+        public int RequestedSeats { get; set; }
+        public int ReservedSeats { get; set; }
     }
 }

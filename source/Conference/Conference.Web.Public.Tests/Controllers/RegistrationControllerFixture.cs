@@ -84,7 +84,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             Mock.Get<IViewRepository>(this.viewRepository)
                 .Setup(r => r.Find<OrderDTO>(orderId))
-                .Returns(new OrderDTO(orderId, Order.States.Booked));
+                .Returns(new OrderDTO(orderId, Order.States.Created));
 
             var registration =
                 new global::Conference.Web.Public.Models.OrderViewModel
@@ -112,7 +112,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                                 && ((RegisterToConference)e.Body).OrderId == orderId
                                 && ((RegisterToConference)e.Body).Seats.Count == 1
                                 && ((RegisterToConference)e.Body).Seats.ElementAt(0).Quantity == 10
-                                && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatTypeId == seatTypeId)),
+                                && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatType == seatTypeId)),
                     Times.Once());
         }
 

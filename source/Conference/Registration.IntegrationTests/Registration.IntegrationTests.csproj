@@ -49,7 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConferenceSeatsAvailabilityIntegration.cs" />
+    <None Include="ConferenceSeatsAvailabilityIntegration.cs" />
     <Compile Include="OrmSagaRepositoryInitializerFixture.cs" />
     <Compile Include="OrmPersistenceFixture.cs" />
     <Compile Include="OrmPersistenceProvider.cs" />

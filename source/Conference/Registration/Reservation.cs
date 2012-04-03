@@ -14,20 +14,28 @@
 namespace Registration
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
 
+    /// <summary>
+    /// Represents a seat reservation.
+    /// </summary>
     public class Reservation
     {
-        public Reservation(Guid id, int seats)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Reservation"/> class.
+        /// </summary>
+        /// <param name="id">The reservation identifier.</param>
+        /// <param name="quantity">The number of reserved seats.</param>
+        public Reservation(Guid id, int quantity)
+            : this()
         {
             this.Id = id;
-            this.Seats = seats;
+            this.Quantity = quantity;
         }
 
         public Guid Id { get; private set; }
+        public int Quantity { get; internal set; }
 
-        public int Seats { get; private set; }
-
+        // ORM requirement
         protected Reservation()
         {
         }
