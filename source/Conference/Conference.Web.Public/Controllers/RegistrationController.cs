@@ -98,7 +98,7 @@ namespace Conference.Web.Public.Controllers
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ConferenceName = conferenceDTO.Name;
             this.ViewBag.ConferenceCode = conferenceDTO.Code;
-            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
             this.ViewBag.OrderId = orderId;
 
             // We just render the command which is later posted back.
@@ -128,7 +128,7 @@ namespace Conference.Web.Public.Controllers
                 var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
                 this.ViewBag.ConferenceCode = conferenceCode;
-                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.BookingExpirationDate.HasValue ? ((orderDTO.BookingExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
                 this.ViewBag.OrderId = orderId;
 
                 return View(viewModel);

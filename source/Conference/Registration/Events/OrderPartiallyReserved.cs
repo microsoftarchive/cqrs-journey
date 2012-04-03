@@ -28,6 +28,8 @@ namespace Registration.Events
 
         public Guid ConferenceId { get; set; }
 
+        public DateTime ReservationExpiration { get; set; }
+
         public List<SeatQuantity> Seats { get; set; }
     }
 }

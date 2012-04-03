@@ -35,7 +35,7 @@ namespace Registration.ReadModel
         [Key]
         public Guid OrderId { get; private set; }
 
-        public DateTime? BookingExpirationDate { get; private set; }
+        public DateTime? ReservationExpirationDate { get; set; }
 
         public virtual ICollection<OrderItemDTO> Lines { get; private set; }
 

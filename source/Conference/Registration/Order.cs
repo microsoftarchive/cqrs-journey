@@ -86,7 +86,7 @@ namespace Registration
             internal set { this.StateValue = (int)value; }
         }
 
-        public DateTime? BookingExpirationDate { get; private set; }
+        public DateTime? ReservationExpirationDate { get; private set; }
 
         public void UpdateSeats(IEnumerable<OrderItem> seats)
         {
@@ -101,7 +101,7 @@ namespace Registration
                 });
         }
 
-        public void MarkAsReserved(IEnumerable<SeatQuantity> seats)
+        public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> seats)
         {
             if (this.State == States.Confirmed || this.State == States.Rejected)
                 throw new InvalidOperationException("Cannot modify confirmed or cancelled order.");
@@ -116,7 +116,8 @@ namespace Registration
                 {
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
-                    Seats = seats.ToList()
+                    Seats = seats.ToList(),
+                    ReservationExpiration = expirationDate,
                 });
             }
             else
@@ -126,10 +127,12 @@ namespace Registration
                 {
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
-                    Seats = seats.ToList()
+                    Seats = seats.ToList(),
+                    ReservationExpiration = expirationDate,
                 });
             }
 
+            this.ReservationExpirationDate = expirationDate;
             this.Items.Clear();
             this.Items.AddRange(seats.Select(seat => new OrderItem(seat.SeatType, seat.Quantity)));
         }

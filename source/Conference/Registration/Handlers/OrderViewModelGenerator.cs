@@ -74,15 +74,15 @@ namespace Registration.Handlers
 
         public void Handle(OrderPartiallyReserved @event)
         {
-            this.UpdateReserved(@event.OrderId, Order.States.PartiallyReserved, @event.Seats);
+            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, Order.States.PartiallyReserved, @event.Seats);
         }
 
         public void Handle(OrderReservationCompleted @event)
         {
-            this.UpdateReserved(@event.OrderId, Order.States.ReservationCompleted, @event.Seats);
+            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, Order.States.ReservationCompleted, @event.Seats);
         }
 
-        private void UpdateReserved(Guid orderId, Order.States state, IEnumerable<SeatQuantity> seats)
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, Order.States state, IEnumerable<SeatQuantity> seats)
         {
             var repository = this.repositoryFactory();
             using (repository as IDisposable)
@@ -95,6 +95,7 @@ namespace Registration.Handlers
                 }
 
                 dto.State = state;
+                dto.ReservationExpirationDate = reservationExpiration;
 
                 repository.Save(dto);
             }

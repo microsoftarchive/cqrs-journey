@@ -62,7 +62,7 @@ namespace Registration.Handlers
 
                 if (order != null)
                 {
-                    order.MarkAsReserved(command.Seats);
+                    order.MarkAsReserved(command.Expiration, command.Seats);
                     repository.Save(order);
                 }
             }
