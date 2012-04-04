@@ -118,18 +118,18 @@ namespace Azure
             using (var stream = message.GetBody<Stream>())
             {
                 var payload = this.serializer.Deserialize(stream);
-                // TODO: error handling if handlers fail?
                 try
                 {
                     ProcessMessage(payload);
-                    // TODO: exception between these two?
                     message.Async(message.BeginComplete, message.EndComplete);
                 }
                 catch (Exception)
                 {
-                    // TODO: retries, retry count, Abandon vs DeadLetter?
-                    // Just: if (args.Message.DeliveryCount > 5) ?
-                    args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
+                    // If we don't complete the message before the 5th delivery, 
+                    // the message will reappear automatically on the topic, 
+                    // after a default timeout.
+                    if (args.Message.DeliveryCount > 5)
+                        args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
                 }
             }
         }
