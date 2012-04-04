@@ -58,54 +58,30 @@ namespace Registration
             }
             else
             {
-                availability.RemainingSeats += quantity;
+                availability.AddSeats(quantity);
             }
         }
 
         public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> seats)
         {
-            var reserved = new SeatsReserved { ReservationId = reservationId };
-            foreach (var seat in seats)
+            if (seats.Any(x => !this.Seats.Any(availability => x.SeatType == availability.SeatType)))
             {
-                var availability = this.Seats.FirstOrDefault(x => x.SeatType == seat.SeatType);
-                if (availability == null)
-                {
                     throw new ArgumentOutOfRangeException("seats");
-                }
+            }
 
-                var quantity = 0;
-                var existing = availability.PendingReservations.FirstOrDefault(x => x.Id == reservationId);
-                if (existing == null)
+            var reserved = new SeatsReserved { ReservationId = reservationId };
+            foreach (var availability in this.Seats)
+            {
+                var seat = seats.FirstOrDefault(x => x.SeatType == availability.SeatType);
+                if (seat != null)
                 {
-                    quantity = availability.RemainingSeats >= seat.Quantity ? seat.Quantity : availability.RemainingSeats;
-
-                    if (quantity > 0)
-                    {
-                        availability.PendingReservations.Add(new Reservation(reservationId, quantity));
-                        availability.RemainingSeats -= quantity;
-                    }
+                    var actualReserved = availability.Reserve(reservationId, seat.Quantity);
+                    reserved.Seats.Add(new SeatQuantity(seat.SeatType, actualReserved));
                 }
                 else
                 {
-                    var relativeQuantity = seat.Quantity - existing.Quantity;
-                    if (relativeQuantity > availability.RemainingSeats)
-                    {
-                        relativeQuantity = availability.RemainingSeats;
-                    }
-
-                    existing.Quantity += relativeQuantity;
-                    quantity = existing.Quantity;
-                    // We might be substracting a negative here, i.e. 
-                    // we request 3, had 5 existing, we're substracting -2
-                    // that is, adding the 2 we dropped.
-                    availability.RemainingSeats -= relativeQuantity;
-                    if (quantity == 0)
-                    {
-                        availability.PendingReservations.Remove(existing);
-                    }
+                    availability.Reserve(reservationId, 0);
                 }
-
-                reserved.Seats.Add(new SeatQuantity(seat.SeatType, quantity));
             }
 
             this.events.Add(reserved);
@@ -113,30 +89,17 @@ namespace Registration
 
         public void CommitReservation(Guid reservationId)
         {
-            foreach (var reservation in this.Seats
-                .Select(x => new
-                {
-                    Collection = x.PendingReservations,
-                    Item = x.PendingReservations.FirstOrDefault(r => r.Id == reservationId)
-                })
-                .Where(x => x.Item != null))
+            foreach (var availability in this.Seats)
             {
-                reservation.Collection.Remove(reservation.Item);
+                availability.CommitReservation(reservationId);
             }
         }
 
         public void CancelReservation(Guid reservationId)
         {
-            foreach (var entry in this.Seats
-                .Select(x => new
-                {
-                    Availability = x,
-                    Reservation = x.PendingReservations.FirstOrDefault(r => r.Id == reservationId)
-                })
-                .Where(x => x.Reservation != null))
+            foreach (var availability in this.Seats)
             {
-                entry.Availability.PendingReservations.Remove(entry.Reservation);
-                entry.Availability.RemainingSeats += entry.Reservation.Quantity;
+                availability.CancelReservation(reservationId);
             }
         }
     }

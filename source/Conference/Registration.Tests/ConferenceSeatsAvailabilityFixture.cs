@@ -249,6 +249,29 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
             this.setup.Sut = this.setup.Persistence.PersistReload(this.setup.Sut);
             Assert.Equal(0, this.setup.Sut.Seats[0].RemainingSeats);
         }
+
+        [Fact]
+        public void when_updating_reservation_with_different_seats_then_unreserves_the_previous_ones()
+        {
+            this.setup.Sut.MakeReservation(this.setup.ReservationId, new[] 
+            { 
+                new SeatQuantity
+                {
+                    SeatType = this.setup.OtherSeatTypeId, 
+                    Quantity = 3,
+                }
+            });
+
+            var e = this.setup.Sut.Events.OfType<SeatsReserved>().Last();
+
+            Assert.Equal(this.setup.ReservationId, e.ReservationId);
+            Assert.Equal(this.setup.OtherSeatTypeId, e.Seats[0].SeatType);
+            Assert.Equal(3, e.Seats[0].Quantity);
+
+            this.setup.Sut = this.setup.Persistence.PersistReload(this.setup.Sut);
+            Assert.Equal(10, this.setup.Sut.Seats[0].RemainingSeats);
+            Assert.Equal(9, this.setup.Sut.Seats[1].RemainingSeats);
+        }
     }
 
     /// <summary>
@@ -261,6 +284,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
     public class setup_existing_reservation
     {
         public readonly Guid SeatTypeId = Guid.NewGuid();
+        public readonly Guid OtherSeatTypeId = Guid.NewGuid();
         public readonly Guid ReservationId = Guid.NewGuid();
 
         public SeatsAvailability Sut { get; set; }
@@ -271,6 +295,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
             this.Persistence = persistence;
             this.Sut = new SeatsAvailability(Guid.NewGuid());
             this.Sut.AddSeats(SeatTypeId, 10);
+            this.Sut.AddSeats(OtherSeatTypeId, 12);
             this.Sut.MakeReservation(ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) });
 
             this.Sut = this.Persistence.PersistReload(this.Sut);
