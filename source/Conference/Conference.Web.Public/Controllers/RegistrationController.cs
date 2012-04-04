@@ -199,9 +199,8 @@ namespace Conference.Web.Public.Controllers
 
             foreach (var line in orderDTO.Lines)
             {
-                // TODO: build view model?
-                //var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
-                //seat.Quantity = line.Quantity;
+                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
+                seat.Quantity = line.ReservedSeats;
             }
 
             return viewModel;
