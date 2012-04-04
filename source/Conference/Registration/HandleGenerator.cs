@@ -12,25 +12,28 @@
 // ==============================================================================================================
 
 using System;
+using System.Linq;
+using System.Text;
 
 namespace Registration
 {
     /// <summary>
-    /// Generates random hexadecimal strings.
+    /// Generates random alphnumerical strings.
     /// </summary>
     public static class HandleGenerator
     {
         private static Random rnd = new Random(DateTime.UtcNow.Millisecond);
+        private static char[] allowableChars = "ABCDEFGHJKMNPQRSTUVWXYZ123456789".ToCharArray();
 
         public static string Generate(int length)
         {
-            var result = "";
+            var result = new StringBuilder();
             for (int i = 0; i < length; i++)
             {
-                result += rnd.Next(15).ToString("x");
+                result.Append(allowableChars[rnd.Next(0, allowableChars.Length)]);
             }
 
-            return result;
+            return result.ToString();
         }
     }
 }
