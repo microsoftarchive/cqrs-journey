@@ -106,10 +106,8 @@ namespace Registration
             if (this.State == States.Confirmed || this.State == States.Rejected)
                 throw new InvalidOperationException("Cannot modify confirmed or cancelled order.");
 
-            if (// Is there an order item
-                this.Items.Any(item =>
-                    // which didn't get an exact reservation?
-                !seats.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
+            // Is there an order item which didn't get an exact reservation?
+            if (this.Items.Any(item => !seats.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
             {
                 this.State = States.PartiallyReserved;
                 this.events.Add(new OrderPartiallyReserved
