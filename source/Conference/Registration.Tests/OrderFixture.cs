@@ -203,6 +203,13 @@ namespace Registration.Tests.OrderFixture
             this.sut.Reject();
 
             Assert.Equal(Order.States.Rejected, this.sut.State);
+        }
+
+        [Fact(Skip="Not implemented")]
+        public void when_marking_as_rejected_then_resets_expiration()
+        {
+            this.sut.Reject();
+
             Assert.Equal(null, this.sut.ReservationExpirationDate);
         }
     }

@@ -86,18 +86,15 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         }
 
         [Fact]
-        public void when_reserving_non_existing_seat_type_then_ignores_partial_reservation()
+        public void when_reserving_non_existing_seat_type_then_throws()
         {
             var id = Guid.NewGuid();
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
             sut.MakeReservation(id, new[] 
             { 
                 new SeatQuantity(SeatTypeId, 11),
                 new SeatQuantity(Guid.NewGuid(), 3),
-            });
-
-            var e = this.sut.Events.OfType<SeatsReserved>().Last();
-
-            Assert.Equal(1, e.Seats.Count);
+            }));
         }
     }
 
@@ -195,16 +192,14 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         }
 
         [Fact]
-        public void when_updating_reservation_with_more_available_seats_then_reserves_all_requested()
+        public void when_updating_reservation_with_more_seats_then_reserves_all_requested()
         {
-            var remaining = this.setup.Sut.Seats[0].RemainingSeats;
-
             this.setup.Sut.MakeReservation(this.setup.ReservationId, new[] 
             { 
                 new SeatQuantity
                 {
                     SeatType = this.setup.SeatTypeId, 
-                    Quantity= 8,
+                    Quantity = 8,
                 }
             });
 
@@ -221,8 +216,6 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         [Fact]
         public void when_updating_reservation_with_less_seats_then_updates_remaining()
         {
-            var remaining = this.setup.Sut.Seats[0].RemainingSeats;
-
             this.setup.Sut.MakeReservation(this.setup.ReservationId, new[] { new SeatQuantity(this.setup.SeatTypeId, 2) });
 
             var e = this.setup.Sut.Events.OfType<SeatsReserved>().Last();
@@ -233,6 +226,28 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 
             this.setup.Sut = this.setup.Persistence.PersistReload(this.setup.Sut);
             Assert.Equal(8, this.setup.Sut.Seats[0].RemainingSeats);
+        }
+
+        [Fact]
+        public void when_updating_reservation_with_more_seats_than_available_then_reserves_as_much_as_possible()
+        {
+            this.setup.Sut.MakeReservation(this.setup.ReservationId, new[] 
+            { 
+                new SeatQuantity
+                {
+                    SeatType = this.setup.SeatTypeId, 
+                    Quantity = 12,
+                }
+            });
+
+            var e = this.setup.Sut.Events.OfType<SeatsReserved>().Last();
+
+            Assert.Equal(this.setup.ReservationId, e.ReservationId);
+            Assert.Equal(this.setup.SeatTypeId, e.Seats[0].SeatType);
+            Assert.Equal(10, e.Seats[0].Quantity);
+
+            this.setup.Sut = this.setup.Persistence.PersistReload(this.setup.Sut);
+            Assert.Equal(0, this.setup.Sut.Seats[0].RemainingSeats);
         }
     }
 

@@ -69,28 +69,40 @@ namespace Registration
             {
                 var availability = this.Seats.FirstOrDefault(x => x.SeatType == seat.SeatType);
                 if (availability == null)
-                    // TODO: error? means we didn't find the requested seat type for this conference
-                    continue;
+                {
+                    throw new ArgumentOutOfRangeException("seats");
+                }
 
-                var existing = availability.PendingReservations.FirstOrDefault(x => x.Id == reservationId);
                 var quantity = 0;
+                var existing = availability.PendingReservations.FirstOrDefault(x => x.Id == reservationId);
                 if (existing == null)
                 {
-                    quantity = availability.RemainingSeats >= seat.Quantity ?
-                        seat.Quantity : availability.RemainingSeats;
+                    quantity = availability.RemainingSeats >= seat.Quantity ? seat.Quantity : availability.RemainingSeats;
 
-                    availability.PendingReservations.Add(new Reservation(reservationId, quantity));
-                    availability.RemainingSeats -= quantity;
+                    if (quantity > 0)
+                    {
+                        availability.PendingReservations.Add(new Reservation(reservationId, quantity));
+                        availability.RemainingSeats -= quantity;
+                    }
                 }
                 else
                 {
                     var relativeQuantity = seat.Quantity - existing.Quantity;
+                    if (relativeQuantity > availability.RemainingSeats)
+                    {
+                        relativeQuantity = availability.RemainingSeats;
+                    }
 
-                    existing.Quantity = quantity = seat.Quantity;
+                    existing.Quantity += relativeQuantity;
+                    quantity = existing.Quantity;
                     // We might be substracting a negative here, i.e. 
                     // we request 3, had 5 existing, we're substracting -2
                     // that is, adding the 2 we dropped.
                     availability.RemainingSeats -= relativeQuantity;
+                    if (quantity == 0)
+                    {
+                        availability.PendingReservations.Remove(existing);
+                    }
                 }
 
                 reserved.Seats.Add(new SeatQuantity(seat.SeatType, quantity));
