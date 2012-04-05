@@ -9,7 +9,7 @@
 <h2>
     Choose Payment</h2>
 <div id="countdown">
-    <div id="countdown_time" />
+    <div id="countdown_time" data-targetDate="@DateTimeExtensions.ToEpochMilliseconds(this.ViewBag.ExpirationDateUTC)"/>
     <div id="countdown_warning">
         Complete the registration before the count down expires.</div>
 </div>
@@ -71,7 +71,7 @@
     }
 
     $(document).ready(function () {
-        Conference.StartTimer(new Date(@this.ViewBag.ExpirationDateUTCMilliseconds), 'countdown_time', reservationTimedOut);
+        Conference.StartTimer('countdown_time', reservationTimedOut);
     });
 
 </script>

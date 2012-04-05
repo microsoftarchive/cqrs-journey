@@ -26,7 +26,6 @@ namespace Conference.Web.Public.Controllers
     public class RegistrationController : Controller
     {
         private const int WaitTimeoutInSeconds = 5;
-        private static readonly long EpochTicks = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
 
         private ICommandBus commandBus;
         private Func<IViewRepository> repositoryFactory;
@@ -87,7 +86,7 @@ namespace Conference.Web.Public.Controllers
             // TODO: check for nulls.
 
             // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+            this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
             this.ViewBag.OrderId = orderId;
 
             // We just render the command which is later posted back.
@@ -117,7 +116,7 @@ namespace Conference.Web.Public.Controllers
                 var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
                 this.ViewBag.ConferenceCode = conferenceCode;
-                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
+                this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
                 this.ViewBag.OrderId = orderId;
 
                 return View(viewModel);
