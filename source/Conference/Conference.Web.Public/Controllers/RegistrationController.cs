@@ -163,7 +163,14 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult ThankYou(string conferenceCode, Guid orderId)
         {
-            return View();
+            OrderDTO order;
+            var repo = this.repositoryFactory();
+            using (repo as IDisposable)
+            {
+                order = repo.Query<OrderDTO>().FirstOrDefault(x => x.OrderId == orderId);
+            }
+
+            return View(order);
         }
 
         private OrderViewModel CreateViewModel(string conferenceCode)

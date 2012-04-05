@@ -24,5 +24,11 @@ namespace Registration.Tests
 
             Assert.Equal(5, handle.Length);
         }
+
+        [Fact]
+        public void when_generating_handles_then_generates_different_values()
+        {
+            Assert.NotEqual(HandleGenerator.Generate(5), HandleGenerator.Generate(5));
+        }
     }
 }

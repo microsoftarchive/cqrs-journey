@@ -58,7 +58,7 @@ namespace Registration.Tests.OrderFixture
         }
 
         [Fact]
-        public void when_placing_order_then_raises_integration_event_with_full_detauls()
+        public void when_placing_order_then_raises_integration_event_with_full_details()
         {
             PlaceOrder();
 
@@ -67,6 +67,16 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(ConferenceId, @event.ConferenceId);
             Assert.Equal(1, @event.Seats.Count);
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
+        }
+
+        [Fact]
+        public void when_placing_order_then_raises_integration_event_with_access_code()
+        {
+            //TODO: does this need to be part of the write model?
+            PlaceOrder();
+
+            var @event = (OrderPlaced)sut.Events.Single();
+            Assert.NotEmpty(@event.AccessCode);
         }
 
         private void PlaceOrder()

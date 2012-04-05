@@ -36,16 +36,14 @@ namespace Registration
 
         protected Order()
         {
-            this.Registrant = new Registrant();
-            this.AccessCode = HandleGenerator.Generate(5);
         }
 
         public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)
-            : this()
         {
             this.Id = id;
             this.ConferenceId = conferenceId;
             this.Registrant = new Registrant();
+            this.AccessCode = HandleGenerator.Generate(5);
             this.Items = new ObservableCollection<OrderItem>(items);
 
             this.events.Add(
