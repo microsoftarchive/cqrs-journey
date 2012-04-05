@@ -82,12 +82,8 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationRejected");
             }
 
-
-            // TODO: check for nulls.
-
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
-            this.ViewBag.OrderId = orderId;
 
             // We just render the command which is later posted back.
             return View(new AssignRegistrantDetails { OrderId = orderId });
@@ -115,9 +111,7 @@ namespace Conference.Web.Public.Controllers
                 var orderDTO = repo.Find<OrderDTO>(orderId);
                 var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
-                this.ViewBag.ConferenceCode = conferenceCode;
                 this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
-                this.ViewBag.OrderId = orderId;
 
                 return View(viewModel);
             }

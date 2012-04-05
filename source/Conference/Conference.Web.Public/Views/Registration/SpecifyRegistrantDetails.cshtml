@@ -32,7 +32,7 @@
     
     function reservationTimedOut()
     {
-        window.location = '@Url.Action("DisplayOrderStatus", "Registration", new { conferenceCode = this.ViewBag.ConferenceCode, orderId = this.ViewBag.OrderId })';
+        window.location = '@Url.Action("DisplayOrderStatus", "Registration", new { conferenceCode = this.ViewBag.Conference.Code, orderId = this.Model.OrderId })';
     }
 
     $(document).ready(function () {
