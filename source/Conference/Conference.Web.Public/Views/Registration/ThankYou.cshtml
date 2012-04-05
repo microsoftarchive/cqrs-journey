@@ -1,6 +1,8 @@
-﻿@{
-    ViewBag.Title = "RegistrationConfirmed";
+﻿@model Registration.ReadModel.OrderDTO
+@{
+    ViewBag.Title = "Registration confirmed";
 }
 
 <h2>Thanks</h2>
-Your registration has been confirmed
+<p>You will receive a confirmation e-mail in a few minutes.</p>
+You can access you order at any time to update or assign attendes using the provided e-mail address and the order locator code <strong>@Model.AccessCode</strong>.
