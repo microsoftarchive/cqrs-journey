@@ -44,28 +44,31 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult StartRegistration(string conferenceCode)
         {
-            var viewModel = this.CreateViewModel(conferenceCode);
-            viewModel.Id = Guid.NewGuid();
+            ViewBag.OrderId = Guid.NewGuid();
 
-            return View(viewModel);
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
+                // NOTE: If the ConferenceSeatTypeDTO had the ConferenceId property exposed, this query should be simpler. Why do we need to hide the FKs in the read model?
+                var seatTypes = repo.Query<ConferenceDTO>().Where(c => c.Code == conferenceCode).Select(c => c.Seats).FirstOrDefault().ToList();
+                return View(seatTypes);
+            }
         }
 
         [HttpPost]
-        public ActionResult StartRegistration(string conferenceCode, OrderViewModel contentModel)
+        public ActionResult StartRegistration(string conferenceCode, RegisterToConference command)
         {
-            var viewModel = this.UpdateViewModel(conferenceCode, contentModel);
+            if (!ModelState.IsValid)
+            {
+                return StartRegistration(conferenceCode);
+            }
 
-            var command =
-                new RegisterToConference
-                {
-                    OrderId = viewModel.Id,
-                    ConferenceId = viewModel.ConferenceId,
-                    Seats = viewModel.Items.Select(x => new SeatQuantity { SeatType = x.SeatTypeId, Quantity = x.Quantity }).ToList()
-                };
+            // TODO: validate incoming seat types correspond to the conference.
 
+            command.ConferenceId = this.Conference.Id;
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
+            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
         }
 
         [HttpGet]
@@ -90,16 +93,16 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, AssignRegistrantDetails command)
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, AssignRegistrantDetails command)
         {
             if (!ModelState.IsValid)
             {
-                return SpecifyRegistrantDetails(conferenceCode, orderId);
+                return SpecifyRegistrantDetails(conferenceCode, command.OrderId);
             }
 
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
+            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
         }
 
         [HttpGet]
@@ -161,6 +164,7 @@ namespace Conference.Web.Public.Controllers
 
             using (repo as IDisposable)
             {
+                // TODO: how to do .Include("Seats") with this generic repo?
                 var conference = repo.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
 
                 //// TODO check null case
@@ -190,22 +194,6 @@ namespace Conference.Web.Public.Controllers
             {
                 var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
                 seat.Quantity = line.ReservedSeats;
-            }
-
-            return viewModel;
-        }
-
-        private OrderViewModel UpdateViewModel(string conferenceCode, OrderViewModel incomingModel)
-        {
-            var viewModel = this.CreateViewModel(conferenceCode);
-            viewModel.Id = incomingModel.Id;
-
-            // TODO check incoming matches view model
-
-            for (int i = 0; i < viewModel.Items.Count; i++)
-            {
-                var quantity = incomingModel.Items[i].Quantity;
-                viewModel.Items[i].Quantity = quantity;
             }
 
             return viewModel;
@@ -257,9 +245,12 @@ namespace Conference.Web.Public.Controllers
 
         protected override void OnResultExecuting(ResultExecutingContext filterContext)
         {
-            this.ViewBag.Conference = this.Conference;
-
             base.OnResultExecuting(filterContext);
+
+            if (filterContext.Result is ViewResultBase)
+            {
+                this.ViewBag.Conference = this.Conference;
+            }
         }
     }
 }
