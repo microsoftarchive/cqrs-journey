@@ -44,19 +44,13 @@ namespace Conference.Web.Public.Controllers
             return View(conference);
         }
 
-        private Conference.Web.Public.Models.Conference GetConference(string conferenceCode)
+        private ConferenceDescriptionDTO GetConference(string conferenceCode)
         {
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                return repo.Query<ConferenceDTO>()
+                return repo.Query<ConferenceDescriptionDTO>()
                     .Where(dto => dto.Code == conferenceCode)
-                    .Select(dto => new Conference.Web.Public.Models.Conference
-                    {
-                        Code = dto.Code,
-                        Name = dto.Name,
-                        Description = dto.Description
-                    })
                     .FirstOrDefault();
             }
         }

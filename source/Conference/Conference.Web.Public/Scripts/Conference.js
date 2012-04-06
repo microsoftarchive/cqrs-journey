@@ -13,9 +13,12 @@
 
 var Conference = {};
 
-Conference.StartTimer = function(targetDate, elementId, timeoutCallback, formatCallback) {
+Conference.StartTimer = function(elementId, timeoutCallback, formatCallback) {
     timeoutCallback = (typeof timeoutCallback === 'undefined') ? Conference._DefaultTimeoutCallback(elementId) : timeoutCallback;
     formatCallback = (typeof formatCallback === 'undefined') ? Conference._DefaultFormatCallback : formatCallback;
+
+    var element = document.getElementById(elementId);
+    var targetDate = new Date(parseInt(element.getAttribute('data-targetDate')));
 
     var timerCallback = function () {
         var formattedMilliseconds = '';
@@ -24,7 +27,7 @@ Conference.StartTimer = function(targetDate, elementId, timeoutCallback, formatC
         var dateDiff = targetDate.getTime() - currentDate.getTime();
         if (dateDiff > 0) {
             formattedMilliseconds = formatCallback(dateDiff);
-            document.getElementById(elementId).innerHTML = formattedMilliseconds;
+            element.innerHTML = formattedMilliseconds;
             window.setTimeout(function () { timerCallback(); }, 1000);
         }
         else {
@@ -66,6 +69,6 @@ Conference._DefaultFormatCallback = function(milliseconds) {
 
 Conference._DefaultTimeoutCallback = function(elementId) {
     return function () {
-        document.getElementById(elementId).innerHTML = '';
+        element.innerHTML = '';
     };
 }

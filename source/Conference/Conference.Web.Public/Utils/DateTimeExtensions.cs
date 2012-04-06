@@ -11,38 +11,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Conference.Web.Public
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-    using Common;
 
-    public class RegisterToConference : ICommand, IValidatableObject
+    public static class DateTimeExtensions
     {
-        public RegisterToConference()
+        private static readonly long EpochMilliseconds = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks / 10000L;
+
+        public static long ToEpochMilliseconds(this DateTime? time)
         {
-            this.Seats = new Collection<SeatQuantity>();
-        }
-
-        public Guid Id { get; private set; }
-
-        public Guid OrderId { get; set; }
-
-        public Guid ConferenceId { get; set; }
-
-        public ICollection<SeatQuantity> Seats { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (this.Seats == null || !this.Seats.Any(x => x.Quantity > 0))
+            if (time.HasValue)
             {
-                 return new[] { new ValidationResult("One or more items are required", new[] { "Seats" }) };
+                return (time.Value.Ticks / 10000L) - EpochMilliseconds;
             }
 
-            return Enumerable.Empty<ValidationResult>();
+            return 0L;
         }
     }
 }
