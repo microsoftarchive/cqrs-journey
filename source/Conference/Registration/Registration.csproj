@@ -67,6 +67,8 @@
     <Compile Include="HandleGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
+    <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
+    <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
     <Compile Include="Registrant.cs" />
     <Compile Include="RegistrationProcessSagaRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />

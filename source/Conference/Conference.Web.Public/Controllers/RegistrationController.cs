@@ -26,7 +26,6 @@ namespace Conference.Web.Public.Controllers
     public class RegistrationController : Controller
     {
         private const int WaitTimeoutInSeconds = 5;
-        private static readonly long EpochTicks = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
 
         private ICommandBus commandBus;
         private Func<IViewRepository> repositoryFactory;
@@ -45,28 +44,31 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult StartRegistration(string conferenceCode)
         {
-            var viewModel = this.CreateViewModel(conferenceCode);
-            viewModel.Id = Guid.NewGuid();
+            ViewBag.OrderId = Guid.NewGuid();
 
-            return View(viewModel);
+            var repo = this.repositoryFactory.Invoke();
+            using (repo as IDisposable)
+            {
+                // NOTE: If the ConferenceSeatTypeDTO had the ConferenceId property exposed, this query should be simpler. Why do we need to hide the FKs in the read model?
+                var seatTypes = repo.Query<ConferenceDTO>().Where(c => c.Code == conferenceCode).Select(c => c.Seats).FirstOrDefault().ToList();
+                return View(seatTypes);
+            }
         }
 
         [HttpPost]
-        public ActionResult StartRegistration(string conferenceCode, OrderViewModel contentModel)
+        public ActionResult StartRegistration(string conferenceCode, RegisterToConference command)
         {
-            var viewModel = this.UpdateViewModel(conferenceCode, contentModel);
+            if (!ModelState.IsValid)
+            {
+                return StartRegistration(conferenceCode);
+            }
 
-            var command =
-                new RegisterToConference
-                {
-                    OrderId = viewModel.Id,
-                    ConferenceId = viewModel.ConferenceId,
-                    Seats = viewModel.Items.Select(x => new SeatQuantity { SeatType = x.SeatTypeId, Quantity = x.Quantity }).ToList()
-                };
+            // TODO: validate incoming seat types correspond to the conference.
 
+            command.ConferenceId = this.Conference.Id;
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = viewModel.Id });
+            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
         }
 
         [HttpGet]
@@ -78,44 +80,29 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationUnknown");
             }
 
-            ConferenceDTO conferenceDTO;
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                conferenceDTO = repo.Query<ConferenceDTO>()
-                    .Where(c => c.Code == conferenceCode)
-                    .FirstOrDefault();
-            }
-
             if (orderDTO.State == Registration.Order.States.Rejected)
             {
-                return View("ReservationRejected", conferenceDTO);
+                return View("ReservationRejected");
             }
 
-
-            // TODO: check for nulls.
-
             // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ConferenceName = conferenceDTO.Name;
-            this.ViewBag.ConferenceCode = conferenceDTO.Code;
-            this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
-            this.ViewBag.OrderId = orderId;
+            this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
 
             // We just render the command which is later posted back.
             return View(new AssignRegistrantDetails { OrderId = orderId });
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId, AssignRegistrantDetails command)
+        public ActionResult SpecifyRegistrantDetails(string conferenceCode, AssignRegistrantDetails command)
         {
             if (!ModelState.IsValid)
             {
-                return SpecifyRegistrantDetails(conferenceCode, orderId);
+                return SpecifyRegistrantDetails(conferenceCode, command.OrderId);
             }
 
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
+            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
         }
 
         [HttpGet]
@@ -127,9 +114,7 @@ namespace Conference.Web.Public.Controllers
                 var orderDTO = repo.Find<OrderDTO>(orderId);
                 var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
 
-                this.ViewBag.ConferenceCode = conferenceCode;
-                this.ViewBag.ExpirationDateUTCMilliseconds = orderDTO.ReservationExpirationDate.HasValue ? ((orderDTO.ReservationExpirationDate.Value.Ticks - EpochTicks) / 10000L) : 0L;
-                this.ViewBag.OrderId = orderId;
+                this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
 
                 return View(viewModel);
             }
@@ -179,6 +164,7 @@ namespace Conference.Web.Public.Controllers
 
             using (repo as IDisposable)
             {
+                // TODO: how to do .Include("Seats") with this generic repo?
                 var conference = repo.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
 
                 //// TODO check null case
@@ -213,22 +199,6 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private OrderViewModel UpdateViewModel(string conferenceCode, OrderViewModel incomingModel)
-        {
-            var viewModel = this.CreateViewModel(conferenceCode);
-            viewModel.Id = incomingModel.Id;
-
-            // TODO check incoming matches view model
-
-            for (int i = 0; i < viewModel.Items.Count; i++)
-            {
-                var quantity = incomingModel.Items[i].Quantity;
-                viewModel.Items[i].Quantity = quantity;
-            }
-
-            return viewModel;
-        }
-
         private OrderDTO WaitUntilUpdated(Guid orderId)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
@@ -250,6 +220,37 @@ namespace Conference.Web.Public.Controllers
             }
 
             return null;
+        }
+
+        private ConferenceAliasDTO conference;
+        protected ConferenceAliasDTO Conference
+        {
+            get
+            {
+                if (this.conference == null)
+                {
+                    var conferenceCode = ControllerContext.RouteData.Values["conferenceCode"];
+                    var repo = this.repositoryFactory();
+                    using (repo as IDisposable)
+                    {
+                        this.conference = repo.Query<ConferenceAliasDTO>()
+                            .Where(c => c.Code == conferenceCode)
+                            .FirstOrDefault();
+                    }
+                }
+
+                return this.conference;
+            }
+        }
+
+        protected override void OnResultExecuting(ResultExecutingContext filterContext)
+        {
+            base.OnResultExecuting(filterContext);
+
+            if (filterContext.Result is ViewResultBase)
+            {
+                this.ViewBag.Conference = this.Conference;
+            }
         }
     }
 }

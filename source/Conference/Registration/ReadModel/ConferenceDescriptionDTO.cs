@@ -11,38 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.ReadModel
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-    using Common;
 
-    public class RegisterToConference : ICommand, IValidatableObject
+    public class ConferenceDescriptionDTO
     {
-        public RegisterToConference()
+        public ConferenceDescriptionDTO(Guid id, string code, string name, string description)
         {
-            this.Seats = new Collection<SeatQuantity>();
+            this.Id = id;
+            this.Code = code;
+            this.Name = name;
+            this.Description = description;
         }
 
-        public Guid Id { get; private set; }
-
-        public Guid OrderId { get; set; }
-
-        public Guid ConferenceId { get; set; }
-
-        public ICollection<SeatQuantity> Seats { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        protected ConferenceDescriptionDTO()
         {
-            if (this.Seats == null || !this.Seats.Any(x => x.Quantity > 0))
-            {
-                 return new[] { new ValidationResult("One or more items are required", new[] { "Seats" }) };
-            }
-
-            return Enumerable.Empty<ValidationResult>();
         }
+
+        [Key]
+        public virtual Guid Id { get; private set; }
+
+        public virtual string Code { get; private set; }
+
+        public virtual string Name { get; private set; }
+
+        public virtual string Description { get; private set; }
     }
 }

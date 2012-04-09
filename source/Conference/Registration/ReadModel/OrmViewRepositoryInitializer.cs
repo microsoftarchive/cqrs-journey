@@ -17,6 +17,7 @@ namespace Registration.ReadModel
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     using System.Data.SqlClient;
+    using System.Linq;
     using Registration.Database;
 
     public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmRepository>
@@ -74,6 +75,42 @@ Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus,
                     if (se.Class != 16)
                         throw;
                 }
+            }
+
+            // TODO: EF is creating this entity as a table. Avoid that from the begining instead of dropping it after the fact.
+            if (context.Database.SqlQuery<int>("SELECT object_id FROM sys.tables WHERE object_id = OBJECT_ID(N'[dbo].[ConferenceAliasesView]')").Any())
+            {
+                context.Database.ExecuteSqlCommand(@"DROP TABLE [dbo].[ConferenceAliasesView]");
+            }
+
+            if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[ConferenceAliasesView]')").Any())
+            {
+                context.Database.ExecuteSqlCommand(@"
+CREATE VIEW [dbo].[ConferenceAliasesView]
+AS
+SELECT     
+dbo.ConferencesView.Id AS Id, 
+dbo.ConferencesView.Code as Code,
+dbo.ConferencesView.Name as Name
+FROM dbo.ConferencesView");
+            }
+
+            if (context.Database.SqlQuery<int>("SELECT object_id FROM sys.tables WHERE object_id = OBJECT_ID(N'[dbo].[ConferenceDescriptionsView]')").Any())
+            {
+                context.Database.ExecuteSqlCommand(@"DROP TABLE [dbo].[ConferenceDescriptionsView]");
+            }
+
+            if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[ConferenceDescriptionsView]')").Any())
+            {
+                context.Database.ExecuteSqlCommand(@"
+CREATE VIEW [dbo].[ConferenceDescriptionsView]
+AS
+SELECT     
+dbo.ConferencesView.Id AS Id, 
+dbo.ConferencesView.Code as Code,
+dbo.ConferencesView.Name as Name,
+dbo.ConferencesView.Description as Description
+FROM dbo.ConferencesView");
             }
 
             context.SaveChanges();

@@ -1,12 +1,13 @@
-﻿@model Conference.Web.Public.Models.OrderViewModel
+﻿@model IList<Registration.ReadModel.ConferenceSeatTypeDTO>
 @{
-    ViewBag.Title = "Registration for " + Model.ConferenceName;
+    ViewBag.Title = "Registration for " + ViewBag.Conference.Name;
 }
-<h2>
-    Choose seats</h2>
+<h2>Choose seats</h2>
+@Html.ValidationSummary()
+
 @using (Html.BeginForm("ChoosePayment", "Registration"))
 {
-    @Html.HiddenFor(model => model.Id)
+    @Html.Hidden("OrderId")
     <div id="tickets">
         <table width="100%">
             <tr>
@@ -20,16 +21,18 @@
                     Quantity
                 </th>
             </tr>
-            @for (var i = 0; i < this.Model.Items.Count; i++)
+            @for (var i = 0; i < this.Model.Count; i++)
             { 
                 <tr>
-                    <td align="left">@Html.DisplayFor(model => model.Items[i].SeatTypeDescription)
+                    <td align="left">@Html.DisplayFor(model => model[i].Description)
                     </td>
-                    <td align="right">@Html.DisplayFor(model => model.Items[i].Price)
+                    <td align="right">@Html.DisplayFor(model => model[i].Price)
                     </td>
-                    <td align="right">@Html.DropDownListFor(model => model.Items[i].Quantity, new SelectList(Enumerable.Range(0, 20)))
-                        @Html.HiddenFor(model => model.Items[i].SeatTypeId)
+                    <td align="right">@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)))
+                        @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
                     </td>
+
+
                 </tr>
             }
         </table>
