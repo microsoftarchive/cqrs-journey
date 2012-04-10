@@ -46,6 +46,7 @@ namespace Registration
         // feels akward and possibly disrupting to store these properties here. Would it be better if instead of using 
         // current state values, we use event sourcing?
         public DateTime? ReservationAutoExpiration { get; internal set; }
+        public Guid ExpirationCommandId { get; set; }
 
         public int StateValue { get; private set; }
         [NotMapped]
@@ -93,15 +94,18 @@ namespace Registration
                 
                 this.State = SagaState.AwaitingPayment;
 
+                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                this.ExpirationCommandId = expirationCommand.Id;
+
+                this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                {
+                    Delay = expirationTime.Subtract(DateTime.UtcNow).Add(bufferTime),
+                });
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
                     Seats = message.Seats,
                     Expiration = expirationTime,
-                });
-                this.AddCommand(new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId })
-                {
-                    Delay = expirationTime.Subtract(DateTime.UtcNow).Add(bufferTime),
                 });
             }
             else
@@ -110,11 +114,11 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireOrder message)
+        public void Handle(ExpireRegistrationProcess message)
         {
             if (this.State == SagaState.AwaitingPayment)
             {
-                if (this.ReservationAutoExpiration.HasValue)
+                if (this.ExpirationCommandId == message.Id)
                 {
                     this.State = SagaState.Completed;
 
@@ -123,7 +127,7 @@ namespace Registration
                         ConferenceId = this.ConferenceId,
                         ReservationId = this.ReservationId,
                     });
-                    this.AddCommand(new RejectOrder { OrderId = message.OrderId });
+                    this.AddCommand(new RejectOrder { OrderId = this.OrderId });
                 }
             }
 
@@ -134,7 +138,7 @@ namespace Registration
         {
             if (this.State == SagaState.AwaitingPayment)
             {
-                this.ReservationAutoExpiration = null;
+                this.ExpirationCommandId = Guid.Empty;
                 this.State = SagaState.Completed;
 
                 this.AddCommand(new CommitSeatReservation

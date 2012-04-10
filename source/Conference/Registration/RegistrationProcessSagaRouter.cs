@@ -23,7 +23,7 @@ namespace Registration
         IEventHandler<OrderPlaced>,
         IEventHandler<PaymentReceived>,
         IEventHandler<SeatsReserved>,
-        ICommandHandler<ExpireOrder>
+        ICommandHandler<ExpireRegistrationProcess>
     {
         private object lockObject = new object();
         private Func<ISagaRepository> repositoryFactory;
@@ -66,14 +66,14 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireOrder command)
+        public void Handle(ExpireRegistrationProcess command)
         {
             var repo = this.repositoryFactory.Invoke();
             using (repo as IDisposable)
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == command.OrderId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(command);

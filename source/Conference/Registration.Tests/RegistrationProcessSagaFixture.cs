@@ -125,10 +125,11 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_enqueues_expiration_message_using_expected_value_from_order_plus_buffer()
         {
-            var message = sut.Commands.Single(x => x.Body is ExpireOrder);
+            var message = sut.Commands.Single(x => x.Body is ExpireRegistrationProcess);
 
             Assert.True(message.Delay > TimeSpan.FromMinutes(22));
             Assert.True(message.Delay < TimeSpan.FromMinutes(30));
+            Assert.Equal(sut.Id, ((ExpireRegistrationProcess)message.Body).ProcessId);
         }
 
         [Fact]
@@ -211,10 +212,8 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     {
         public when_reservation_is_expired()
         {
-            sut.Handle(new ExpireOrder
-            {
-                OrderId = this.orderId,
-            });
+            var expirationCommand = sut.Commands.Select(x => x.Body).OfType<ExpireRegistrationProcess>().Single();
+            sut.Handle(expirationCommand);
         }
 
         [Fact]

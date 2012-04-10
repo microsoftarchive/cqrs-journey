@@ -73,7 +73,7 @@ namespace Registration.Tests
             var disposable = repo.As<IDisposable>();
             var router = new RegistrationProcessSagaRouter(() => repo.Object);
 
-            router.Handle(new Commands.ExpireOrder { OrderId = saga.OrderId });
+            router.Handle(new Commands.ExpireRegistrationProcess { ProcessId = saga.Id });
 
             repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
             disposable.Verify(x => x.Dispose());
