@@ -29,7 +29,7 @@ namespace Azure.IntegrationTests
         public MessagingSettings Settings { get; private set; }
     }
 
-    public class given_a_topic_and_subscription : given_messaging_settings
+    public class given_a_topic_and_subscription : given_messaging_settings, IDisposable
     {
         public given_a_topic_and_subscription()
         {
