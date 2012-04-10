@@ -19,7 +19,6 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    // TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
     public class RegistrationProcessSagaRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<PaymentReceived>,
@@ -56,7 +55,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(@event);
@@ -74,7 +73,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == command.OrderId);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == command.OrderId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(command);
@@ -92,7 +91,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == @event.OrderId);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(@event);

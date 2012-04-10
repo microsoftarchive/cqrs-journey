@@ -43,6 +43,10 @@ namespace Registration
         public Guid OrderId { get; internal set; }
         public Guid ReservationId { get; internal set; }
 
+        // feels akward and possibly disrupting to store these properties here. Would it be better if instead of using 
+        // current state values, we use event sourcing?
+        public DateTime? ReservationAutoExpiration { get; internal set; }
+
         public int StateValue { get; private set; }
         [NotMapped]
         public SagaState State
@@ -63,6 +67,7 @@ namespace Registration
                 this.ConferenceId = message.ConferenceId;
                 this.OrderId = message.OrderId;
                 this.ReservationId = Guid.NewGuid();
+                this.ReservationAutoExpiration = message.ReservationAutoExpiration;
                 this.State = SagaState.AwaitingReservationConfirmation;
 
                 this.AddCommand(
@@ -83,19 +88,20 @@ namespace Registration
         {
             if (this.State == SagaState.AwaitingReservationConfirmation)
             {
-                var delay = TimeSpan.FromMinutes(15);
-
+                var bufferTime = TimeSpan.FromMinutes(5);
+                var expirationTime = this.ReservationAutoExpiration.Value;
+                
                 this.State = SagaState.AwaitingPayment;
 
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
                     Seats = message.Seats,
-                    Expiration = DateTime.UtcNow.Add(delay)
+                    Expiration = expirationTime,
                 });
                 this.AddCommand(new Envelope<ICommand>(new ExpireOrder { OrderId = this.OrderId })
                 {
-                    Delay = delay,
+                    Delay = expirationTime.Subtract(DateTime.UtcNow).Add(bufferTime),
                 });
             }
             else
@@ -108,14 +114,17 @@ namespace Registration
         {
             if (this.State == SagaState.AwaitingPayment)
             {
-                this.State = SagaState.Completed;
-
-                this.AddCommand(new CancelSeatReservation
+                if (this.ReservationAutoExpiration.HasValue)
                 {
-                    ConferenceId = this.ConferenceId,
-                    ReservationId = this.ReservationId,
-                });
-                this.AddCommand(new RejectOrder { OrderId = message.OrderId });
+                    this.State = SagaState.Completed;
+
+                    this.AddCommand(new CancelSeatReservation
+                    {
+                        ConferenceId = this.ConferenceId,
+                        ReservationId = this.ReservationId,
+                    });
+                    this.AddCommand(new RejectOrder { OrderId = message.OrderId });
+                }
             }
 
             // else ignore the message as it is no longer relevant (but not invalid)
@@ -125,12 +134,18 @@ namespace Registration
         {
             if (this.State == SagaState.AwaitingPayment)
             {
+                this.ReservationAutoExpiration = null;
                 this.State = SagaState.Completed;
 
                 this.AddCommand(new CommitSeatReservation
                 {
                     ReservationId = this.ReservationId,
                     ConferenceId = message.ConferenceId
+                });
+
+                this.AddCommand(new ConfirmOrderPayment
+                {
+                    OrderId = message.OrderId
                 });
             }
             else

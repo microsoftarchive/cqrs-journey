@@ -42,6 +42,7 @@ namespace Registration.Tests
             {
                 State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
                 ReservationId = Guid.NewGuid(),
+                ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
             var repo = new Mock<ISagaRepository>();
             repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());
@@ -65,6 +66,7 @@ namespace Registration.Tests
                 State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
                 ReservationId = Guid.NewGuid(),
                 OrderId = Guid.NewGuid(),
+                ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
             var repo = new Mock<ISagaRepository>();
             repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());
@@ -84,6 +86,7 @@ namespace Registration.Tests
             {
                 State = RegistrationProcessSaga.SagaState.AwaitingPayment,
                 OrderId = Guid.NewGuid(),
+                ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
             var repo = new Mock<ISagaRepository>();
             repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());

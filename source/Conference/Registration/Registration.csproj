@@ -50,6 +50,7 @@
     <Compile Include="Commands\AssignRegistrantDetails.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
+    <Compile Include="Commands\ConfirmOrderPayment.cs" />
     <Compile Include="Commands\ExpireOrder.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkSeatsAsReserved.cs" />
