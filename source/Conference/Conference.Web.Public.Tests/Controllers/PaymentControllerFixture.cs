@@ -42,7 +42,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
         }
 
         [Fact]
-        public void when_accepting_payment_then_returs_redirect()
+        public void when_accepting_payment_then_returns_redirect()
         {
             // Arrange
             var orderId = Guid.NewGuid();
