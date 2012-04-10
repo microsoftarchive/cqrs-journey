@@ -46,6 +46,7 @@
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="CommandProcessor.cs" />
+    <Compile Include="Messaging\QueueSender.cs" />
     <Compile Include="MetadataProvider.cs" />
     <Compile Include="EventBus.cs" />
     <Compile Include="EventProcessor.cs" />
