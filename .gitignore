@@ -18,3 +18,4 @@ UpgradeLog*.XML
 _UpgradeReport_Files
 /source/Conference/Azure/ConsoleCommandProcessor/Settings.xml
 /fix-line-endings.ps1
+/source/Conference/Azure/Settings.xml

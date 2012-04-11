@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
-    <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBus.cs" />
     <Compile Include="CommandProcessor.cs" />
     <Compile Include="MetadataProvider.cs" />

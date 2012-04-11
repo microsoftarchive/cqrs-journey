@@ -16,7 +16,6 @@ namespace Registration.Database
     using System;
     using System.Data.Entity;
     using System.Linq;
-    using System.Transactions;
     using Common;
 
     public class OrmSagaRepository : DbContext, ISagaRepository
@@ -61,16 +60,12 @@ namespace Registration.Database
             if (entry.State == System.Data.EntityState.Detached)
                 this.Set<T>().Add(aggregate);
 
-            using (var scope = new TransactionScope())
-            {
-                this.SaveChanges();
+            // Can't have transactions across storage and message bus.
+            this.SaveChanges();
 
-                var commandPublisher = aggregate as ICommandPublisher;
-                if (commandPublisher != null)
-                    this.commandBus.Send(commandPublisher.Commands);
-
-                scope.Complete();
-            }
+            var commandPublisher = aggregate as ICommandPublisher;
+            if (commandPublisher != null)
+                this.commandBus.Send(commandPublisher.Commands);
         }
 
         // Define the available entity sets for the database.
