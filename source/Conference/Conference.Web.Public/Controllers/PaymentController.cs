@@ -28,6 +28,7 @@ namespace Conference.Web.Public.Controllers
 
         public ActionResult AcceptPayment(string conferenceCode, Guid orderId)
         {
+            // TODO: submit a command that ends up publishing the PaymentReceived event
             return RedirectToAction(
                 "TransactionCompleted",
                 "Registration",

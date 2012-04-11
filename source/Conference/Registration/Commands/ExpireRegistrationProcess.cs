@@ -16,14 +16,14 @@ namespace Registration.Commands
     using System;
     using Common;
 
-    public class ExpireOrder : ICommand
+    public class ExpireRegistrationProcess : ICommand
     {
-        public ExpireOrder()
+        public ExpireRegistrationProcess()
         {
             this.Id = Guid.NewGuid();
         }
 
         public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
+        public Guid ProcessId { get; set; }
     }
 }
