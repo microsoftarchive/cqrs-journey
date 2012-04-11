@@ -54,6 +54,7 @@
     <Compile Include="MessagingSettingsExtensions.cs" />
     <Compile Include="CommandProcessingIntegration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueueSessions.cs" />
     <Compile Include="SendReceiveIntegration.cs" />
     <Compile Include="SubscriptionReceiverIntegration.cs" />
     <Compile Include="TopicSenderIntegration.cs" />

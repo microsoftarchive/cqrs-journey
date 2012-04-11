@@ -60,7 +60,10 @@ namespace Azure
             this.sender.Send(events.Select(e => BuildMessage(e)));
         }
 
-        private BrokeredMessage BuildMessage(IEvent @event)
+        /// <summary>
+        /// Builds the message from the given event.
+        /// </summary>
+        protected virtual BrokeredMessage BuildMessage(IEvent @event)
         {
             var stream = new MemoryStream();
             this.serializer.Serialize(stream, @event);

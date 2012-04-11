@@ -40,10 +40,13 @@ namespace Azure
 
         protected override void ProcessMessage(object payload)
         {
-            var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
+            var handlerTypes = payload.GetType().GetInterfaces()
+                .Select(iface => typeof(IEventHandler<>).MakeGenericType(iface))
+                .Concat(new[] { typeof(IEventHandler<>).MakeGenericType(payload.GetType()) })
+                .ToList();
 
             foreach (dynamic handler in this.handlers
-                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+                .Where(x => handlerTypes.Any(t => t.IsAssignableFrom(x.GetType()))))
             {
                 handler.Handle((dynamic)payload);
             }
