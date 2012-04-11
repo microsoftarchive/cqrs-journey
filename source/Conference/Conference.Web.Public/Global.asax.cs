@@ -22,6 +22,7 @@ namespace Conference.Web.Public
     using Azure;
     using Azure.Messaging;
     using Common;
+    using Newtonsoft.Json;
     using Registration;
     using Registration.Database;
     using Registration.Handlers;
@@ -47,12 +48,20 @@ namespace Conference.Web.Public
             var eventBus = new MemoryEventBus();
             var eventProcessor = eventBus;
 #else
-            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
-            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), new BinarySerializer());
-            var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), new BinarySerializer());
+            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
+            {
+                // Allows deserializing to the actual runtime type
+                TypeNameHandling = TypeNameHandling.Objects,
+                // In a version resilient way
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            }));
 
-            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(settings, "conference/commands", "all"), new BinarySerializer());
-            var eventProcessor = new EventProcessor(new SubscriptionReceiver(settings, "conference/events", "all"), new BinarySerializer());
+            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
+            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
+            var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
+
+            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(settings, "conference/commands", "all"), serializer);
+            var eventProcessor = new EventProcessor(new SubscriptionReceiver(settings, "conference/events", "all"), serializer);
 #endif
 
             Func<IRepository> ormFactory = () => new OrmRepository(eventBus);

@@ -11,12 +11,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure
+namespace Common
 {
-    using System;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
-    using Common;
 
     /// <summary>
     /// Serializes using a binary formatter.
