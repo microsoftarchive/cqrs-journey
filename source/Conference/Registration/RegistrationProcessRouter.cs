@@ -17,10 +17,11 @@ namespace Registration
     using Common;
     using Registration.Commands;
     using Registration.Events;
+    using Payments.Events;
 
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
-        IEventHandler<PaymentReceived>,
+        IEventHandler<PaymentCompleted>,
         IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireRegistrationProcess>
     {
@@ -80,13 +81,13 @@ namespace Registration
             }
         }
 
-        public void Handle(PaymentReceived @event)
+        public void Handle(PaymentCompleted @event)
         {
             using (var repo = this.repositoryFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Find(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find(x => x.OrderId == @event.SourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);

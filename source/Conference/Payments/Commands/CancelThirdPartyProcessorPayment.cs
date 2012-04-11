@@ -11,21 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Payments.Commands
 {
     using System;
+    using Common;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public class CancelThirdPartyProcessorPayment : ICommand
     {
-        T Find(Guid id);
+        public CancelThirdPartyProcessorPayment()
+        {
+            this.Id = Guid.NewGuid();
+        }
 
-        void Save(T aggregate);
-    }
+        public Guid Id { get; private set; }
 
-    public interface IRepository
-    {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
-
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public Guid PaymentId { get; set; }
     }
 }

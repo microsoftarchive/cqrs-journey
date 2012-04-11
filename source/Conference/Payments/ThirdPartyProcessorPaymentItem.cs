@@ -11,21 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Payments
 {
     using System;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public class ThidPartyProcessorPaymentItem
     {
-        T Find(Guid id);
+        public ThidPartyProcessorPaymentItem(string description, double amount)
+        {
+            this.Id = Guid.NewGuid();
 
-        void Save(T aggregate);
-    }
+            this.Description = description;
+            this.Amount = amount;
+        }
 
-    public interface IRepository
-    {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
+        protected ThidPartyProcessorPaymentItem()
+        {
+        }
 
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public Guid Id { get; private set; }
+
+        public string Description { get; private set; }
+
+        public double Amount { get; private set; }
     }
 }

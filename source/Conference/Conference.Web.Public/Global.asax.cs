@@ -15,20 +15,18 @@ namespace Conference.Web.Public
 {
     using System;
     using System.Data.Entity;
-    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
-    using Azure;
-    using Azure.Messaging;
     using Common;
     using Common.Sql;
     using Microsoft.Practices.Unity;
-    using Newtonsoft.Json;
+    using Payments.Handlers;
     using Registration;
     using Registration.Database;
     using Registration.Handlers;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
+    using Newtonsoft.Json;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -59,6 +57,11 @@ namespace Conference.Web.Public
                 context.Database.Initialize(true);
             }
 
+            Database.SetInitializer(new Payments.ReadModel.OrmViewRepositoryInitializer(new Payments.Database.OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<Payments.Database.OrmRepository>())));
+
+            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<Payments.ReadModel.OrmViewRepository>(null);
+
             using (var context = this.container.Resolve<DbContext>("registration"))
             {
                 context.Database.Initialize(true);
@@ -70,6 +73,10 @@ namespace Conference.Web.Public
             }
 
             container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
+            using (var context = this.container.Resolve<Payments.Database.OrmRepository>("payments"))
+            {
+                context.Database.Initialize(true);
+            }
 
 #if !LOCAL
             this.container.Resolve<CommandProcessor>().Start();
@@ -127,6 +134,10 @@ namespace Conference.Web.Public
                 new InjectionConstructor(new ResolvedParameter(typeof(Func<DbContext>), "registration"), typeof(ICommandBus)));
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
+            container.RegisterType<IRepository, Payments.Database.OrmRepository>("payments", new InjectionConstructor(typeof(IEventBus)));
+            container.RegisterType<Payments.ReadModel.IViewRepository, Payments.ReadModel.OrmViewRepository>("payments", new InjectionConstructor());
+
+
             // handlers
 
             container.RegisterType<IEventHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
@@ -138,6 +149,10 @@ namespace Conference.Web.Public
 
             container.RegisterType<IOrderDao, OrderDao>();
             container.RegisterType<IConferenceDao, ConferenceDao>();
+
+            container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>(
+                "ThirdPartyProcessorPaymentCommandHandler",
+                new InjectionConstructor(new ResolvedParameter<Func<IRepository>>("payments")));
 
             return container;
         }

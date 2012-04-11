@@ -11,25 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Common
 {
-    using System;
-    using Common;
+    using System.Collections.Generic;
 
-    public class PaymentReceived : IEvent
+    public interface IEventPublisher
     {
-        public Guid OrderId { get; set; }
-
-        public Guid ConferenceId { get; set; }
-
-        public Guid UserId { get; set; }
-
-        public string PaymentInformation { get; set; }
-
-        // TODO: what is the source for this integration event?
-        public Guid SourceId
-        {
-            get { return this.OrderId; }
-        }
+        IEnumerable<IEvent> Events { get; }
     }
 }

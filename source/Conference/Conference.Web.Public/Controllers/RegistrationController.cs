@@ -14,16 +14,20 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
+    using Payments.Commands;
     using Registration.Commands;
     using Registration.ReadModel;
 
     public class RegistrationController : Controller
     {
+        public const string ThirdPartyProcessorPayment = "thirdParty";
+        public const string InvoicePayment = "invoice";
         private const int WaitTimeoutInSeconds = 5;
 
         private readonly ICommandBus commandBus;
@@ -58,11 +62,11 @@ namespace Conference.Web.Public.Controllers
             command.ConferenceId = this.Conference.Id;
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
+            return RedirectToAction("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
         }
 
         [HttpGet]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId)
+        public ActionResult SpecifyRegistrantAndPaymentDetails(string conferenceCode, Guid orderId)
         {
             var order = this.WaitUntilUpdated(orderId);
             if (order == null)
@@ -75,41 +79,85 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationRejected");
             }
 
+            var orderViewModel = this.CreateViewModel(conferenceCode, order);
+
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
 
             // We just render the command which is later posted back.
-            return View(new AssignRegistrantDetails { OrderId = orderId });
+            return View(
+                new RegistrationViewModel
+                {
+                    RegistrantDetails = new AssignRegistrantDetails { OrderId = orderId },
+                    Order = orderViewModel
+                });
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, AssignRegistrantDetails command)
+        public ActionResult SpecifyRegistrantAndPaymentDetails(string conferenceCode, [Bind(Prefix = "RegistrantDetails")] AssignRegistrantDetails command, string paymentType)
         {
             if (!ModelState.IsValid)
             {
-                return SpecifyRegistrantDetails(conferenceCode, command.OrderId);
+                return SpecifyRegistrantAndPaymentDetails(conferenceCode, command.OrderId);
             }
 
-            this.commandBus.Send(command);
+            var orderId = command.OrderId;
 
-            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
-        }
+            var orderDTO = this.orderDao.GetOrderDetails(orderId);
 
-        [HttpGet]
-        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId)
-        {
-            var order = this.orderDao.GetOrderDetails(orderId);
-            var viewModel = this.CreateViewModel(conferenceCode, order);
+            // TODO check conference and order exist
 
-            this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
+            if (orderDTO == null)
+            {
+                throw new ArgumentException();
+            }
 
-            return View(viewModel);
-        }
+            var commands = new List<ICommand>();
 
-        [HttpPost]
-        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId, PaymentDetails paymentDetails)
-        {
-            return RedirectToAction("Display", "Payment", new { conferenceCode = conferenceCode, orderId = orderId });
+            commands.Add(command);
+
+            switch (paymentType)
+            {
+                case ThirdPartyProcessorPayment:
+
+                    var description = "Registration for " + this.Conference.Name;
+                    var totalAmount = 100d;
+
+                    var paymentCommand =
+                        new InitiateThirdPartyProcessorPayment
+                        {
+                            PaymentId = Guid.NewGuid(),
+                            ConferenceId = this.Conference.Id,
+                            SourceId = orderId,
+                            Description = description,
+                            TotalAmount = totalAmount
+                        };
+
+                    commands.Add(paymentCommand);
+                    this.commandBus.Send(commands);
+
+                    var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode, orderId });
+                    var paymentRejectedUrl = this.Url.Action("TransactionCompleted", new { conferenceCode, orderId, transactionResult = "accepted" });
+
+                    return RedirectToAction(
+                        "ThirdPartyProcessorPayment",
+                        "Payment",
+                        new
+                        {
+                            conferenceCode,
+                            paymentId = paymentCommand.PaymentId,
+                            paymentAcceptedUrl,
+                            paymentRejectedUrl
+                        });
+
+                case InvoicePayment:
+                    break;
+
+                default:
+                    break;
+            }
+
+            throw new InvalidOperationException();
         }
 
         [HttpGet]

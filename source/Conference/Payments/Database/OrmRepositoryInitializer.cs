@@ -11,21 +11,27 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Payments.Database
 {
-    using System;
+    using System.Data.Entity;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public class OrmRepositoryInitializer : IDatabaseInitializer<OrmRepository>
     {
-        T Find(Guid id);
+        private IDatabaseInitializer<OrmRepository> innerInitializer;
 
-        void Save(T aggregate);
-    }
+        // NOTE: we use decorator pattern here because the Seed logic is typically reused 
+        // on tests which have a different requirement than production (they drop DBs on 
+        // every run, regardless of change or AppDomain-wide caching of initialization).
+        // Decorating makes it clear than inheriting from the built-in ones (two at least) 
+        // and then extracting the Seed behavior in a strategy.
+        public OrmRepositoryInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
+        {
+            this.innerInitializer = innerInitializer;
+        }
 
-    public interface IRepository
-    {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
-
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public void InitializeDatabase(OrmRepository context)
+        {
+            this.innerInitializer.InitializeDatabase(context);
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace Registration.Handlers
 {
     using System;
     using Common;
+    using Payments.Events;
     using Registration.Commands;
     using Registration.Events;
 
@@ -24,7 +25,10 @@ namespace Registration.Handlers
         IEventHandler<PaymentReceived>,
         IEventHandler<ReservationAccepted>,
         IEventHandler<ReservationRejected>,
-        ICommandHandler<ExpireOrder>
+        ICommandHandler<ExpireOrder>,
+        IEventHandler<PaymentCompleted>,
+        IEventHandler<SeatsReserved>,
+        ICommandHandler<ExpireRegistrationProcess>
     {
         private object lockObject = new object();
         private Func<ISagaRepository> repositoryFactory;
@@ -94,7 +98,7 @@ namespace Registration.Handlers
             }
         }
 
-        public void Handle(PaymentReceived @event)
+        public void Handle(PaymentCompleted @event)
         {
             var repo = this.repositoryFactory.Invoke();
             using (repo as IDisposable)

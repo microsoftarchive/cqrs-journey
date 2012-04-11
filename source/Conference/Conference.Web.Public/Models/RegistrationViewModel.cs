@@ -11,21 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Conference.Web.Public.Models
 {
-    using System;
+    using Registration.Commands;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public class RegistrationViewModel
     {
-        T Find(Guid id);
+        public OrderViewModel Order { get; set; }
 
-        void Save(T aggregate);
-    }
-
-    public interface IRepository
-    {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
-
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public AssignRegistrantDetails RegistrantDetails { get; set; }
     }
 }

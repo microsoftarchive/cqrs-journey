@@ -11,27 +11,44 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Conference.Web.Public.Controllers
 {
-    using System;
+    using System.Web.Mvc;
 
-    public class OrderItemDTO
+    /// <summary>
+    /// Fake 'third party payment processor' web support
+    /// </summary>
+    public class ThirdPartyProcessorPaymentController : Controller
     {
-        public OrderItemDTO(Guid seatType, int requestedSeats)
+        private const string returnUrlKey = "returnUrl";
+        private const string cancelReturnUrlKey = "cancelReturnUrl";
+
+        [HttpGet]
+        public ActionResult Pay(string itemName, double itemAmount, string returnUrl, string cancelReturnUrl)
         {
-            this.Id = Guid.NewGuid();
-            this.SeatType = seatType;
-            this.RequestedSeats = requestedSeats;
+            this.ViewBag.ItemName = itemName;
+            this.ViewBag.ItemAmount = itemAmount;
+            this.TempData[returnUrlKey] = returnUrl;
+            this.TempData[cancelReturnUrlKey] = cancelReturnUrl;
+
+            return View();
         }
 
-        protected OrderItemDTO()
+        [HttpPost]
+        public ActionResult Pay(string paymentResult)
         {
-        }
+            string url;
 
-        public Guid Id { get; private set; }
-        public Guid SeatType { get; set; }
-        public string SeatTypeDescription { get; set; }
-        public int RequestedSeats { get; set; }
-        public int ReservedSeats { get; set; }
+            if (paymentResult == "accepted")
+            {
+                url = (string)TempData[returnUrlKey];
+            }
+            else
+            {
+                url = (string)TempData[cancelReturnUrlKey];
+            }
+
+            return Redirect(url);
+        }
     }
 }

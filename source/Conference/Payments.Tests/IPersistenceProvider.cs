@@ -11,21 +11,37 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Payments.Tests
 {
     using System;
+    using Common;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    /// <summary>
+    /// Provides a way to abstract the work a persistence layer would perform 
+    /// so that test code can be reused against in-memory and DB tests.
+    /// </summary>
+    public interface IPersistenceProvider : IDisposable
     {
-        T Find(Guid id);
-
-        void Save(T aggregate);
+        /// <summary>
+        /// Persists and reloads the aggregate, so that associated 
+        /// persistence behavior is exercised as needed.
+        /// </summary>
+        T PersistReload<T>(T sut) where T : class, IAggregateRoot;
     }
 
-    public interface IRepository
+    /// <summary>
+    /// Provides a fast no-op provider for unit tests to use.
+    /// </summary>
+    public class NoPersistenceProvider : IPersistenceProvider
     {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
+        public T PersistReload<T>(T sut)
+            where T : class, IAggregateRoot
+        {
+            return sut;
+        }
 
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public void Dispose()
+        {
+        }
     }
 }

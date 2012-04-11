@@ -14,43 +14,89 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
+    using System.Threading;
     using System.Web.Mvc;
+    using Common;
+    using Microsoft.Practices.Unity;
+    using Payments.Commands;
+    using Payments.ReadModel;
 
     public class PaymentController : Controller
     {
-        public ActionResult Display(string conferenceCode, Guid orderId)
-        {
-            this.TempData["conferenceCode"] = conferenceCode;
-            this.TempData["orderId"] = orderId;
+        private const int WaitTimeoutInSeconds = 5;
 
-            return View();
+        private ICommandBus commandBus;
+        private Func<IViewRepository> repositoryFactory;
+
+        public PaymentController(ICommandBus commandBus, [Dependency("payments")]Func<IViewRepository> repositoryFactory)
+        {
+            this.commandBus = commandBus;
+            this.repositoryFactory = repositoryFactory;
         }
 
-        public ActionResult AcceptPayment(string conferenceCode, Guid orderId)
+        public ActionResult ThirdPartyProcessorPayment(string conferenceCode, Guid paymentId, string paymentAcceptedUrl, string paymentRejectedUrl)
         {
-            // TODO: submit a command that ends up publishing the PaymentReceived event
-            return RedirectToAction(
-                "TransactionCompleted",
-                "Registration",
-                new
-                {
-                    conferenceCode = conferenceCode,
-                    orderId = orderId,
-                    transactionResult = "accepted"
-                });
+            var returnUrl = Url.Action("ThirdPartyProcessorPaymentAccepted", new { conferenceCode, paymentId, paymentAcceptedUrl });
+            var cancelReturnUrl = Url.Action("ThirdPartyProcessorPaymentRejected", new { conferenceCode, paymentId, paymentRejectedUrl });
+
+            // TODO retrieve payment information from payment read model
+
+            var paymentDTO = this.WaitUntilAvailable(paymentId);
+            if (paymentDTO == null)
+            {
+                return this.View("WaitForPayment");
+            }
+
+            var paymentProcessorUrl =
+                this.Url.Action(
+                    "Pay",
+                    "ThirdPartyProcessorPayment",
+                    new
+                    {
+                        itemName = paymentDTO.Description,
+                        itemAmount = paymentDTO.TotalAmount,
+                        returnUrl,
+                        cancelReturnUrl
+                    });
+
+            return this.Redirect(paymentProcessorUrl);
         }
 
-        public ActionResult RejectPayment(string conferenceCode, Guid orderId)
+        public ActionResult ThirdPartyProcessorPaymentAccepted(string conferenceCode, Guid paymentId, string paymentAcceptedUrl)
         {
-            return RedirectToAction(
-                "TransactionCompleted",
-                "Registration",
-                new
+            this.commandBus.Send(new CompleteThirdPartyProcessorPayment { PaymentId = paymentId });
+
+            return this.Redirect(paymentAcceptedUrl);
+        }
+
+        public ActionResult ThirdPartyProcessorPaymentRejected(string conferenceCode, Guid paymentId, string paymentRejectedUrl)
+        {
+            this.commandBus.Send(new CancelThirdPartyProcessorPayment { PaymentId = paymentId });
+
+            return this.Redirect(paymentRejectedUrl);
+        }
+
+        private ThirdPartyProcessorPaymentDetailsDTO WaitUntilAvailable(Guid paymentId)
+        {
+            var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
+
+            while (DateTime.Now < deadline)
+            {
+                var repository = this.repositoryFactory();
+                using (repository as IDisposable)
                 {
-                    conferenceCode = conferenceCode,
-                    orderId = orderId,
-                    transactionResult = "rejected"
-                });
+                    var paymentDTO = repository.Find<ThirdPartyProcessorPaymentDetailsDTO>(paymentId);
+
+                    if (paymentDTO != null)
+                    {
+                        return paymentDTO;
+                    }
+                }
+
+                Thread.Sleep(500);
+            }
+
+            return null;
         }
     }
 }

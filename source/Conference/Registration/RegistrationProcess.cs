@@ -18,6 +18,7 @@ namespace Registration
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using Common;
+    using Payments.Events;
     using Registration.Commands;
     using Registration.Events;
 
@@ -134,7 +135,7 @@ namespace Registration
             // else ignore the message as it is no longer relevant (but not invalid)
         }
 
-        public void Handle(PaymentReceived message)
+        public void Handle(PaymentCompleted message)
         {
             if (this.State == ProcessState.AwaitingPayment)
             {
@@ -144,12 +145,12 @@ namespace Registration
                 this.AddCommand(new CommitSeatReservation
                 {
                     ReservationId = this.ReservationId,
-                    ConferenceId = message.ConferenceId
+                    ConferenceId = this.ConferenceId
                 });
 
                 this.AddCommand(new ConfirmOrderPayment
                 {
-                    OrderId = message.OrderId
+                    OrderId = message.SourceId
                 });
             }
             else

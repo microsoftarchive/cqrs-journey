@@ -25,6 +25,17 @@ namespace Conference.Web.Public
                 string.Empty,
                 new { controller = "Default", action = "Index" });
 
+
+            // Third party processor payment routes
+
+            routes.MapRoute(
+                "Pay",
+                "payment",
+                new { controller = "ThirdPartyProcessorPayment", action = "Pay" });
+
+
+            // Registration routes
+
             routes.MapRoute(
                 "ViewConference",
                 "{conferenceCode}",
@@ -38,12 +49,7 @@ namespace Conference.Web.Public
             routes.MapRoute(
                 "RegisterRegistrantDetails",
                 "{conferenceCode}/registrant",
-                new { controller = "Registration", action = "SpecifyRegistrantDetails" });
-
-            routes.MapRoute(
-                "RegisterChoosePayment",
-                "{conferenceCode}/payment",
-                new { controller = "Registration", action = "SpecifyPaymentDetails" });
+                new { controller = "Registration", action = "SpecifyRegistrantAndPaymentDetails" });
 
             routes.MapRoute(
                 "RegisterTransactionCompleted",
@@ -56,21 +62,6 @@ namespace Conference.Web.Public
                 new { controller = "Registration", action = "ThankYou" });
 
             routes.MapRoute(
-                "PaymentDisplay",
-                "{conferenceCode}/payment-fake",
-                new { controller = "Payment", action = "Display" });
-
-            routes.MapRoute(
-                "PaymentAccept",
-                "{conferenceCode}/payment-accept",
-                new { controller = "Payment", action = "AcceptPayment" });
-
-            routes.MapRoute(
-                "PaymentReject",
-                "{conferenceCode}/payment-reject",
-                new { controller = "Payment", action = "RejectPayment" });
-
-            routes.MapRoute(
                 "OrderFind",
                 "{conferenceCode}/order/find",
                 new { controller = "Order", action = "Find" });
@@ -79,6 +70,21 @@ namespace Conference.Web.Public
                 "OrderDisplay",
                 "{conferenceCode}/order/{orderId}",
                 new { controller = "Order", action = "Display" });
+
+            routes.MapRoute(
+                "InitiateThirdPartyPayment",
+                "{conferenceCode}/third-party-payment",
+                new { controller = "Payment", action = "ThirdPartyProcessorPayment" });
+
+            routes.MapRoute(
+                "PaymentAccept",
+                "{conferenceCode}/third-party-payment-accept",
+                new { controller = "Payment", action = "ThirdPartyProcessorPaymentAccepted" });
+
+            routes.MapRoute(
+                "PaymentReject",
+                "{conferenceCode}/third-party-payment-reject",
+                new { controller = "Payment", action = "ThirdPartyProcessorPaymentRejected" });
         }
     }
 }

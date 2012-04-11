@@ -3,17 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>
-    </ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{354FEDBD-DDAD-4242-8D39-7373001480CC}</ProjectGuid>
+    <ProjectGuid>{3D1A5EF7-D235-46D1-A59A-3CF1B4888D9D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Conference.Web.Public.Tests</RootNamespace>
-    <AssemblyName>Conference.Web.Public.Tests</AssemblyName>
+    <RootNamespace>Payments.Tests</RootNamespace>
+    <AssemblyName>Payments.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,47 +31,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.0.1566\lib\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
-      <Visible>False</Visible>
-    </CodeAnalysisDependentAssemblyPaths>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Controllers\OrderControllerFixture.cs" />
-    <Compile Include="Controllers\PaymentControllerFixture.cs" />
-    <Compile Include="Controllers\RegistrationControllerFixture.cs" />
-    <Compile Include="Controllers\ThirdPartyProcessorPaymentControllerFixture.cs" />
+    <Compile Include="IPersistenceProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Conference.licenseheader">
-      <Link>Conference.licenseheader</Link>
-    </None>
-    <None Include="packages.config" />
+    <Compile Include="ThirdPartyProcessorPaymentCommandHandlerFixture.cs" />
+    <Compile Include="ThirdPartyProcessorPaymentFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Conference.Web.Public\Conference.Web.Public.csproj">
-      <Project>{32E3E4D7-D887-4BE1-A84F-130BF80533D0}</Project>
-      <Name>Conference.Web.Public</Name>
     </ProjectReference>
     <ProjectReference Include="..\Payments.Events\Payments.Events.csproj">
       <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
@@ -83,12 +64,14 @@
       <Project>{DB59488E-0358-468D-B074-09A3BD4721BF}</Project>
       <Name>Payments</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Registration\Registration.csproj">
-      <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
-      <Name>Registration</Name>
-    </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="..\Conference.licenseheader">
+      <Link>Conference.licenseheader</Link>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

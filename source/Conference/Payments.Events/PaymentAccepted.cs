@@ -11,21 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Payments.Events
 {
     using System;
+    using Common;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public class PaymentAccepted : IEvent
     {
-        T Find(Guid id);
+        public Guid PaymentId { get; set; }
 
-        void Save(T aggregate);
-    }
-
-    public interface IRepository
-    {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
-
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public Guid SourceId { get; set; }
     }
 }

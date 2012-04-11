@@ -11,21 +11,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Payments.ReadModel
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public class PaymentItemDTO
     {
-        T Find(Guid id);
+        public PaymentItemDTO(Guid id, string description, double price)
+        {
+            this.Id = id;
+            this.Description = description;
+            this.Price = price;
+        }
 
-        void Save(T aggregate);
-    }
+        protected PaymentItemDTO()
+        {
+        }
 
-    public interface IRepository
-    {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
+        [Key]
+        public virtual Guid Id { get; private set; }
 
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        public virtual string Description { get; private set; }
+
+        public virtual double Price { get; private set; }
     }
 }
