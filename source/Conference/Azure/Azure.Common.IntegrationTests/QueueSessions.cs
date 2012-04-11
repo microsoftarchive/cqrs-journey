@@ -310,9 +310,9 @@ namespace Azure.IntegrationTests
                                     stream.Position = 0;
                                     session.SetState(stream);
                                 }
-                            }
 
-                            message.Complete();
+                                message.Complete();
+                            }
                         }
                     }
                     finally
