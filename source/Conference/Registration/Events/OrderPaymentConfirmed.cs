@@ -14,20 +14,17 @@
 namespace Registration.Events
 {
     using System;
-    using System.Collections.Generic;
     using Common;
 
-    public class OrderPartiallyReserved : IEvent
+    public class OrderPaymentConfirmed : IEvent
     {
-        public OrderPartiallyReserved()
+        private readonly Guid orderId;
+
+        public OrderPaymentConfirmed(Guid orderId)
         {
-            this.Seats = new List<SeatQuantity>();
+            this.orderId = orderId;
         }
 
-        public Guid OrderId { get; set; }
-
-        public DateTime ReservationExpiration { get; set; }
-
-        public List<SeatQuantity> Seats { get; set; }
+        public Guid OrderId { get { return this.orderId; } }
     }
 }

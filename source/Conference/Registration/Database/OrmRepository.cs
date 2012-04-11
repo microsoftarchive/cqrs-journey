@@ -64,6 +64,5 @@ namespace Registration.Database
 
         // Define the available entity sets for the database.
         public virtual DbSet<SeatsAvailability> ConferenceSeats { get; private set; }
-        public virtual DbSet<Order> Orders { get; private set; }
     }
 }

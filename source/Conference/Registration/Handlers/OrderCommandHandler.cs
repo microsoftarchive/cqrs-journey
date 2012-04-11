@@ -78,7 +78,7 @@ namespace Registration.Handlers
 
                 if (order != null)
                 {
-                    order.Reject();
+                    order.Expire();
                     repository.Save(order);
                 }
             }

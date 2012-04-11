@@ -15,6 +15,7 @@ namespace Registration.Tests.OrderFixture
 {
     using System;
     using System.Linq;
+    using Common;
     using Registration.Events;
     using Registration.Tests;
     using Xunit;
@@ -26,29 +27,9 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid SeatTypeId = Guid.NewGuid();
 
         private Order sut;
-        private IPersistenceProvider sutProvider;
-
-        protected given_no_order(IPersistenceProvider sutProvider)
-        {
-            this.sutProvider = sutProvider;
-        }
-
-        public given_no_order()
-            : this(new NoPersistenceProvider())
-        {
-        }
 
         [Fact]
-        public void when_placing_order_then_state_is_created()
-        {
-            PlaceOrder();
-
-            Assert.Equal(OrderId, sut.Id);
-            Assert.Equal(Order.States.Created, sut.State);
-        }
-
-        [Fact]
-        public void when_placing_order_then_raises_integration_event()
+        public void when_creating_order_then_is_placed()
         {
             PlaceOrder();
 
@@ -57,7 +38,7 @@ namespace Registration.Tests.OrderFixture
         }
 
         [Fact]
-        public void when_placing_order_then_raises_integration_event_with_full_details()
+        public void when_placing_order_then_has_full_details()
         {
             PlaceOrder();
 
@@ -103,63 +84,45 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid SeatTypeId = Guid.NewGuid();
 
         private Order sut;
-        private IPersistenceProvider sutProvider;
-
-        protected given_placed_order(IPersistenceProvider sutProvider)
-        {
-            this.sutProvider = sutProvider;
-
-            var seats = new[] { new OrderItem(SeatTypeId, 5) };
-            this.sut = new Order(OrderId, ConferenceId, seats);
-
-            this.sut = this.sutProvider.PersistReload(this.sut);
-        }
 
         public given_placed_order()
-            : this(new NoPersistenceProvider())
         {
+            this.sut = new Order();
+            this.sut.Rehydrate(new[] {
+                    new OrderPlaced
+                        {
+                            OrderId = OrderId,
+                            ConferenceId = ConferenceId,
+                            Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
+                        }
+                });
         }
 
         [Fact]
-        public void when_updating_seats_then_raises_integration_event()
+        public void when_updating_seats_then_updates_order_with_new_seats()
         {
             this.sut.UpdateSeats(new[] { new OrderItem(SeatTypeId, 20) });
 
-            var @event = (OrderUpdated)sut.Events.Last();
+            var @event = (OrderUpdated)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(1, @event.Seats.Count);
             Assert.Equal(20, @event.Seats.ElementAt(0).Quantity);
         }
 
         [Fact]
-        public void when_making_partial_reservation_then_changes_order_state()
+        public void when_marking_a_subset_of_seats_as_reserved_then_order_is_partially_reserved()
         {
             this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 3) });
 
-            Assert.Equal(Order.States.PartiallyReserved, this.sut.State);
-        }
-
-        [Fact]
-        public void when_making_partial_reservation_then_raises_integration_event()
-        {
-            this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 3) });
-
-            var @event = (OrderPartiallyReserved)sut.Events.Last();
+            var @event = (OrderPartiallyReserved)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(1, @event.Seats.Count);
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
+            //Assert.Equal(, @event.ReservationExpiration);
         }
 
         [Fact]
-        public void when_making_full_reservation_then_changes_order_state()
-        {
-            this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 5) });
-
-            Assert.Equal(Order.States.ReservationCompleted, this.sut.State);
-        }
-
-        [Fact]
-        public void when_making_full_reservation_then_raises_integration_event()
+        public void when_marking_all_seats_as_reserved_then_order_is_reserved()
         {
             this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 5) });
 
@@ -170,11 +133,12 @@ namespace Registration.Tests.OrderFixture
         }
 
         [Fact]
-        public void when_marking_as_rejected_then_changes_order_state()
+        public void when_expiring_order_then_notifies()
         {
-            this.sut.Reject();
+            this.sut.Expire();
 
-            Assert.Equal(Order.States.Rejected, this.sut.State);
+            var @event = (OrderExpired)sut.Events.Single();
+            Assert.Equal(OrderId, @event.OrderId);
         }
 
         [Fact]
@@ -182,13 +146,18 @@ namespace Registration.Tests.OrderFixture
         {
             this.sut.AssignRegistrant("foo", "bar", "foo@bar.com");
 
-            var @event = (OrderRegistrantAssigned)sut.Events.Last();
+            var @event = (OrderRegistrantAssigned)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal("foo", @event.FirstName);
             Assert.Equal("bar", @event.LastName);
             Assert.Equal("foo@bar.com", @event.Email);
         }
 
+        //[Fact]
+        //public void when_confirming_payment_throws()
+        //{
+        //    Assert.Throws<InvalidOperationException>(() => this.sut.ConfirmPayment());
+        //}
     }
 
     public class given_fully_reserved_order
@@ -198,56 +167,38 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid SeatTypeId = Guid.NewGuid();
 
         private Order sut;
-        private IPersistenceProvider sutProvider;
-
-        protected given_fully_reserved_order(IPersistenceProvider sutProvider)
-        {
-            this.sutProvider = sutProvider;
-
-            var lines = new[] { new OrderItem(SeatTypeId, 5) };
-            this.sut = new Order(OrderId, ConferenceId, lines);
-
-            this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 5) });
-
-            this.sut = this.sutProvider.PersistReload(this.sut);
-        }
 
         public given_fully_reserved_order()
-            : this(new NoPersistenceProvider())
         {
+            this.sut = new Order();
+            this.sut.Rehydrate(new IEvent[] {
+                    new OrderPlaced
+                        {
+                            OrderId = OrderId,
+                            ConferenceId = ConferenceId,
+                            Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
+                        },
+                    new OrderReservationCompleted { OrderId = OrderId }
+                });
+            // TODO: expiration?
         }
 
         [Fact]
-        public void when_marking_as_rejected_then_changes_order_state()
+        public void when_expiring_order_then_notifies()
         {
-            this.sut.Reject();
+            this.sut.Expire();
 
-            Assert.Equal(Order.States.Rejected, this.sut.State);
+            var @event = (OrderExpired)sut.Events.Single();
+            Assert.Equal(OrderId, @event.OrderId);
         }
 
         [Fact]
-        public void when_marking_as_rejected_then_removes_expiration()
-        {
-            this.sut.Reject();
-
-            Assert.Equal(null, this.sut.ReservationExpirationDate);
-        }
-
-        [Fact]
-        public void when_confirming_payment_then_changes_order_state()
+        public void when_confirming_payment_then_notifies()
         {
             this.sut.ConfirmPayment();
 
-            Assert.Equal(Order.States.Confirmed, this.sut.State);
-        }
-
-
-        [Fact]
-        public void when_confirming_payment_then_removes_expiration()
-        {
-            this.sut.ConfirmPayment();
-
-            Assert.Equal(null, this.sut.ReservationExpirationDate);
+            var @event = (OrderPaymentConfirmed)sut.Events.Single();
+            Assert.Equal(OrderId, @event.OrderId);
         }
     }
 }

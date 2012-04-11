@@ -37,7 +37,7 @@ namespace Registration.Handlers
             var repository = this.repositoryFactory();
             using (repository as IDisposable)
             {
-                var dto = new OrderDTO(@event.OrderId, Order.States.Created)
+                var dto = new OrderDTO(@event.OrderId, OrderDTO.States.Created)
                 {
                     AccessCode = @event.AccessCode,
                 };
@@ -74,15 +74,15 @@ namespace Registration.Handlers
 
         public void Handle(OrderPartiallyReserved @event)
         {
-            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, Order.States.PartiallyReserved, @event.Seats);
+            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Seats);
         }
 
         public void Handle(OrderReservationCompleted @event)
         {
-            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, Order.States.ReservationCompleted, @event.Seats);
+            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Seats);
         }
 
-        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, Order.States state, IEnumerable<SeatQuantity> seats)
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, IEnumerable<SeatQuantity> seats)
         {
             var repository = this.repositoryFactory();
             using (repository as IDisposable)

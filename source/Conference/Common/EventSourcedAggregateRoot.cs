@@ -11,53 +11,36 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
 
-    public class OrderDTO
+    public abstract class EventSourcedAggregateRoot : IAggregateRoot, IEventPublisher
     {
-        public enum States
+        private readonly List<IEvent> pendingEvents = new List<IEvent>();
+
+        public abstract Guid Id { get; }
+
+        public IEnumerable<IEvent> Events
         {
-            Created = 0,
-            PartiallyReserved = 1,
-            ReservationCompleted = 2,
-            Rejected = 3,
-            Confirmed = 4,
+            get { return this.pendingEvents; }
         }
 
-        public OrderDTO(Guid orderId, States state)
-            : this()
+        public void Rehydrate(IEnumerable<IEvent> pastEvents)
         {
-            this.OrderId = orderId;
-            this.State = state;
+            var dynamicThis = (dynamic)this;
+            foreach (var e in pastEvents)
+            {
+                dynamicThis.Apply((dynamic)e);
+            }
         }
 
-        protected OrderDTO()
+        protected void Update(IEvent e)
         {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
+            var dynamicThis = (dynamic)this;
+            dynamicThis.Apply((dynamic)e);
+            this.pendingEvents.Add(e);
         }
-
-        [Key]
-        public Guid OrderId { get; private set; }
-
-        public DateTime? ReservationExpirationDate { get; set; }
-
-        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
-
-        public int StateValue { get; private set; }
-
-        [NotMapped]
-        public States State
-        {
-            get { return (States)this.StateValue; }
-            set { this.StateValue = (int)value; }
-        }
-
-        public string RegistrantEmail { get; internal set; }
-        public string AccessCode { get; internal set; }
     }
 }

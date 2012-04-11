@@ -11,15 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Registration.Events
 {
-    using System.ComponentModel.DataAnnotations;
+    using System;
+    using Common;
 
-    [ComplexType]
-    public class Registrant
+    public class OrderExpired : IEvent
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        private readonly Guid orderId;
+
+        public OrderExpired(Guid orderId)
+        {
+            this.orderId = orderId;
+        }
+
+        public Guid OrderId { get { return this.orderId; } }
     }
 }

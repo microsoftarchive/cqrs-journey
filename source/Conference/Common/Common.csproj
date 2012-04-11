@@ -48,6 +48,7 @@
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBusExtensions.cs" />
     <Compile Include="Envelope.cs" />
+    <Compile Include="EventSourcedAggregateRoot.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />

@@ -37,6 +37,6 @@ namespace Registration.Events
 
         public string AccessCode { get; set; }
 
-        public List<SeatQuantity> Seats { get; set; }
+        public ICollection<SeatQuantity> Seats { get; set; }
     }
 }
