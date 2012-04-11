@@ -32,6 +32,8 @@ namespace Registration
             Confirmed = 4,
         }
 
+        private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
+
         private List<IEvent> events = new List<IEvent>();
 
         protected Order()
@@ -45,6 +47,7 @@ namespace Registration
             this.Registrant = new Registrant();
             this.AccessCode = HandleGenerator.Generate(5);
             this.Items = new ObservableCollection<OrderItem>(items);
+            this.ReservationExpirationDate = DateTime.UtcNow.Add(ReservationAutoExpiration);
 
             this.events.Add(
                 new OrderPlaced
@@ -52,6 +55,7 @@ namespace Registration
                     OrderId = this.Id,
                     ConferenceId = this.ConferenceId,
                     AccessCode = this.AccessCode,
+                    ReservationAutoExpiration = this.ReservationExpirationDate.Value,
                     Seats = this.Items.Select(x => new SeatQuantity { SeatType = x.SeatType, Quantity = x.Quantity }).ToList()
                 });
         }
@@ -136,11 +140,20 @@ namespace Registration
         public void Reject()
         {
             // TODO: when do we "reject" order? Is it "Cancel" or something else?
-            //if (this.State != States.AwaitingReservation && this.State != States.Booked)
-            //    throw new InvalidOperationException();
+            if (this.State == States.Confirmed)
+                throw new InvalidOperationException();
 
             this.State = States.Rejected;
-            //this.BookingExpirationDate = null;
+            this.ReservationExpirationDate = null;
+        }
+
+        public void ConfirmPayment()
+        {
+            if (this.State != States.ReservationCompleted)
+                throw new InvalidOperationException();
+
+            this.State = States.Confirmed;
+            this.ReservationExpirationDate = null;
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)

@@ -39,6 +39,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = Guid.NewGuid(),
                 ConferenceId = Guid.NewGuid(),
+                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
                 Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
             };
             sut.Handle(orderPlaced);
@@ -61,9 +62,16 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
 
         [Fact]
-        public void then_transitions_to_awaiting_reservation_confirmation_state()
+        public void then_reservation_expiration_time_is_stored_for_later_user()
         {
             Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation, sut.State);
+        }
+
+        [Fact]
+        public void then_transitions_to_awaiting_reservation_confirmation_state()
+        {
+            Assert.True(sut.ReservationAutoExpiration.HasValue);
+            Assert.Equal(orderPlaced.ReservationAutoExpiration, sut.ReservationAutoExpiration.Value);
         }
     }
 
@@ -83,6 +91,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = this.orderId,
                 ConferenceId = this.conferenceId,
+                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
                 Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
             });
         }
@@ -114,12 +123,13 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
 
         [Fact]
-        public void then_enqueues_expiration_message()
+        public void then_enqueues_expiration_message_using_expected_value_from_order_plus_buffer()
         {
-            var message = sut.Commands.Single(x => x.Body is ExpireOrder);
+            var message = sut.Commands.Single(x => x.Body is ExpireRegistrationProcess);
 
-            Assert.Equal(TimeSpan.FromMinutes(15), message.Delay);
-            Assert.Equal(this.orderId, ((ExpireOrder)message.Body).OrderId);
+            Assert.True(message.Delay > TimeSpan.FromMinutes(22));
+            Assert.True(message.Delay < TimeSpan.FromMinutes(30));
+            Assert.Equal(sut.Id, ((ExpireRegistrationProcess)message.Body).ProcessId);
         }
 
         [Fact]
@@ -148,6 +158,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             {
                 OrderId = this.orderId,
                 ConferenceId = this.conferenceId,
+                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
                 Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 } }
             });
 
@@ -162,14 +173,47 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
     }
 
+    public class when_reservation_is_paid : given_saga_awaiting_payment
+    {
+        public when_reservation_is_paid()
+        {
+            sut.Handle(new PaymentReceived
+            {
+                OrderId = this.orderId,
+                ConferenceId = this.conferenceId
+            });
+        }
+
+        [Fact]
+        public void then_commits_seat_reservations()
+        {
+            var command = sut.Commands.Select(x => x.Body).OfType<CommitSeatReservation>().Single();
+
+            Assert.Equal(this.reservationId, command.ReservationId);
+            Assert.Equal(this.conferenceId, command.ConferenceId);
+        }
+
+        [Fact]
+        public void then_updates_order_status()
+        {
+            var command = sut.Commands.Select(x => x.Body).OfType<ConfirmOrderPayment>().Single();
+
+            Assert.Equal(this.orderId, command.OrderId);
+        }
+
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
+        }
+    }
+
     public class when_reservation_is_expired : given_saga_awaiting_payment
     {
         public when_reservation_is_expired()
         {
-            sut.Handle(new ExpireOrder
-            {
-                OrderId = this.orderId,
-            });
+            var expirationCommand = sut.Commands.Select(x => x.Body).OfType<ExpireRegistrationProcess>().Single();
+            sut.Handle(expirationCommand);
         }
 
         [Fact]

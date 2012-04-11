@@ -11,32 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.Commands
 {
     using System;
-    using System.Collections.Generic;
     using Common;
 
-    public class OrderPlaced : IEvent
+    public class ConfirmOrderPayment : ICommand
     {
-        public OrderPlaced()
-        {
-            this.Seats = new List<SeatQuantity>();
-        }
+        public Guid Id { get; set; }
 
         public Guid OrderId { get; set; }
-
-        /// <summary>
-        /// The expected expiration time if the reservation is not explicitly confirmed later.
-        /// </summary>
-        public DateTime ReservationAutoExpiration { get; set; }
-
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
-        public Guid ConferenceId { get; set; }
-
-        public string AccessCode { get; set; }
-
-        public List<SeatQuantity> Seats { get; set; }
     }
 }

@@ -45,7 +45,6 @@ namespace Registration.Tests.OrderFixture
 
             Assert.Equal(OrderId, sut.Id);
             Assert.Equal(Order.States.Created, sut.State);
-            Assert.Equal(null, sut.ReservationExpirationDate);
         }
 
         [Fact]
@@ -77,6 +76,17 @@ namespace Registration.Tests.OrderFixture
 
             var @event = (OrderPlaced)sut.Events.Single();
             Assert.NotEmpty(@event.AccessCode);
+        }
+
+        [Fact]
+        public void when_placing_order_then_raises_integration_event_with_expected_expiration_time_in_15_minutes()
+        {
+            PlaceOrder();
+
+            var @event = (OrderPlaced)sut.Events.Single();
+            var relativeExpiration = @event.ReservationAutoExpiration.Subtract(DateTime.UtcNow);
+            Assert.True(relativeExpiration.Minutes <= 16);
+            Assert.True(relativeExpiration.Minutes >= 14);
         }
 
         private void PlaceOrder()
@@ -215,10 +225,27 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(Order.States.Rejected, this.sut.State);
         }
 
-        [Fact(Skip="Not implemented")]
-        public void when_marking_as_rejected_then_resets_expiration()
+        [Fact]
+        public void when_marking_as_rejected_then_removes_expiration()
         {
             this.sut.Reject();
+
+            Assert.Equal(null, this.sut.ReservationExpirationDate);
+        }
+
+        [Fact]
+        public void when_confirming_payment_then_changes_order_state()
+        {
+            this.sut.ConfirmPayment();
+
+            Assert.Equal(Order.States.Confirmed, this.sut.State);
+        }
+
+
+        [Fact]
+        public void when_confirming_payment_then_removes_expiration()
+        {
+            this.sut.ConfirmPayment();
 
             Assert.Equal(null, this.sut.ReservationExpirationDate);
         }

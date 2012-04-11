@@ -19,12 +19,11 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    // TODO: this is to showcase how a handler could be written. No unit tests created yet. Do ASAP.
     public class RegistrationProcessSagaRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<PaymentReceived>,
         IEventHandler<SeatsReserved>,
-        ICommandHandler<ExpireOrder>
+        ICommandHandler<ExpireRegistrationProcess>
     {
         private object lockObject = new object();
         private Func<ISagaRepository> repositoryFactory;
@@ -56,7 +55,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(@event);
@@ -67,14 +66,14 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireOrder command)
+        public void Handle(ExpireRegistrationProcess command)
         {
             var repo = this.repositoryFactory.Invoke();
             using (repo as IDisposable)
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == command.OrderId);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(command);
@@ -92,7 +91,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == @event.OrderId);
+                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
                     if (saga != null)
                     {
                         saga.Handle(@event);
