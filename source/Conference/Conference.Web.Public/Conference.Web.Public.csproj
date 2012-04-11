@@ -134,7 +134,7 @@
   <ItemGroup>
     <Content Include="Views\Conference\Display.cshtml" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
     <Content Include="..\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -165,7 +165,7 @@
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <Target Name="BeforeBuild" Condition=" '$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">
-    <Error Condition="!Exists('..\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\Azure')) directory) and replace the placeholders with your Azure credentials." />
+    <Error Condition="!Exists('..\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\Azure')) directory) and replace the placeholders with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
   </Target>
   <ProjectExtensions>
     <VisualStudio>
