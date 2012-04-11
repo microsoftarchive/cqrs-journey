@@ -16,8 +16,11 @@ namespace Conference.Web.Public
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Azure;
+    using Azure.Messaging;
     using Common;
     using Registration;
     using Registration.Database;
@@ -37,8 +40,20 @@ namespace Conference.Web.Public
         {
             var services = new Dictionary<Type, object>();
 
+
+#if LOCAL
             var commandBus = new MemoryCommandBus();
+            var commandProcessor = commandBus;
             var eventBus = new MemoryEventBus();
+            var eventProcessor = eventBus;
+#else
+            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
+            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), new BinarySerializer());
+            var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), new BinarySerializer());
+
+            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(settings, "conference/commands", "all"), new BinarySerializer());
+            var eventProcessor = new EventProcessor(new SubscriptionReceiver(settings, "conference/events", "all"), new BinarySerializer());
+#endif
 
             Func<IRepository> ormFactory = () => new OrmRepository(eventBus);
             Func<ISagaRepository> sagaOrmFactory = () => new OrmSagaRepository(commandBus);
@@ -47,14 +62,19 @@ namespace Conference.Web.Public
             // Handlers
             var registrationSaga = new RegistrationProcessSagaRouter(sagaOrmFactory);
 
-            commandBus.Register(registrationSaga);
-            eventBus.Register(registrationSaga);
+            commandProcessor.Register(registrationSaga);
+            eventProcessor.Register(registrationSaga);
 
-            commandBus.Register(new OrderCommandHandler(ormFactory));
+            commandProcessor.Register(new OrderCommandHandler(ormFactory));
 
-            commandBus.Register(new SeatsAvailabilityHandler(ormFactory));
+            commandProcessor.Register(new SeatsAvailabilityHandler(ormFactory));
 
-            eventBus.Register(new OrderViewModelGenerator(viewOrmFactory));
+            eventProcessor.Register(new OrderViewModelGenerator(viewOrmFactory));
+
+#if !LOCAL
+            commandProcessor.Start();
+            eventProcessor.Start();
+#endif
 
             services[typeof(ICommandBus)] = commandBus;
             services[typeof(IEventBus)] = eventBus;
