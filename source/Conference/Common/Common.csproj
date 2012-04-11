@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBusExtensions.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="ICommandBus.cs" />
@@ -57,6 +61,7 @@
     <Compile Include="ISagaRepository.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="IViewRepository.cs" />
+    <Compile Include="JsonSerializerAdapter.cs" />
     <Compile Include="MemoryCommandBus.cs" />
     <Compile Include="MemoryEventBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +70,7 @@
     <None Include="..\Conference.licenseheader">
       <Link>Conference.licenseheader</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

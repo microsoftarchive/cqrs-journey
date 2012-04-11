@@ -48,7 +48,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinarySerializerFixture.cs" />
     <Compile Include="CommandProcessorFixture.cs" />
     <Compile Include="MessageProcessorFixture.cs" />
     <Compile Include="MessagingSettingsFixture.cs" />
@@ -72,17 +71,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\ConsoleCommandProcessor\Settings.Template.xml">
+    <Content Include="..\Settings.Template.xml">
       <Link>Settings.Template.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\ConsoleCommandProcessor\Settings.xml">
+    <Content Include="..\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
-    <Error Condition="!Exists('..\ConsoleCommandProcessor\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\ConsoleCommandProcessor')) directory) and replace the placeholders with your Azure credentials." />
+    <Error Condition="!Exists('..\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..')) directory) and replace the placeholders with your Azure credentials." />
   </Target>
 </Project>

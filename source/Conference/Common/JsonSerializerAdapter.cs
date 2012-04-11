@@ -11,42 +11,35 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.Tests
+namespace Common
 {
-    using System;
     using System.IO;
-    using Xunit;
+    using Newtonsoft.Json;
 
-    public class BinarySerializerFixture
+    public class JsonSerializerAdapter : ISerializer
     {
-        [Fact]
-        public void when_using_adapter_then_can_roundtrip_serialized_object()
+        private JsonSerializer serializer;
+
+        public JsonSerializerAdapter(JsonSerializer serializer)
         {
-            var command = new Command
-            {
-                Id = 5,
-                Title = "Foo",
-            };
-
-            var adapter = new BinarySerializer();
-            using (var stream = new MemoryStream())
-            {
-                adapter.Serialize(stream, command);
-
-                stream.Position = 0;
-
-                var deserialized = (Command)adapter.Deserialize(stream);
-
-                Assert.Equal(command.Id, deserialized.Id);
-                Assert.Equal(command.Title, deserialized.Title);
-            }
+            this.serializer = serializer;
         }
 
-        [Serializable]
-        public class Command
+        public void Serialize(Stream stream, object graph)
         {
-            public int Id { get; set; }
-            public string Title { get; set; }
+            var writer = new JsonTextWriter(new StreamWriter(stream));
+
+            this.serializer.Serialize(writer, graph);
+
+            // We don't close the stream as it's owned by the message.
+            writer.Flush();
+        }
+
+        public object Deserialize(Stream stream)
+        {
+            var reader = new JsonTextReader(new StreamReader(stream));
+
+            return this.serializer.Deserialize(reader);
         }
     }
 }
