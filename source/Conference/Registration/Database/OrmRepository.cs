@@ -15,7 +15,6 @@ namespace Registration.Database
 {
     using System;
     using System.Data.Entity;
-    using System.Transactions;
     using Common;
 
     public class OrmRepository : DbContext, IRepository
@@ -55,16 +54,12 @@ namespace Registration.Database
             if (entry.State == System.Data.EntityState.Detached)
                 this.Set<T>().Add(aggregate);
 
-            using (var scope = new TransactionScope())
-            {
-                this.SaveChanges();
+            // Can't have transactions across storage and message bus.
+            this.SaveChanges();
 
-                var publisher = aggregate as IEventPublisher;
-                if (publisher != null)
-                    this.eventBus.Publish(publisher.Events);
-
-                scope.Complete();
-            }
+            var publisher = aggregate as IEventPublisher;
+            if (publisher != null)
+                this.eventBus.Publish(publisher.Events);
         }
 
         // Define the available entity sets for the database.
