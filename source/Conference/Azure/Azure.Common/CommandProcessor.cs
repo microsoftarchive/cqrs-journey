@@ -23,7 +23,7 @@ namespace Azure
     /// Processes incoming commands from the bus and routes them to the appropriate 
     /// handlers.
     /// </summary>
-    public class CommandProcessor : MessageProcessor
+    public class CommandProcessor : MessageProcessor, ICommandHandlerRegistry
     {
         private Dictionary<Type, ICommandHandler> handlers = new Dictionary<Type, ICommandHandler>();
 

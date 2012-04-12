@@ -17,7 +17,7 @@ namespace Common
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class MemoryEventBus : IEventBus
+    public class MemoryEventBus : IEventBus, IEventHandlerRegistry
     {
         private List<IEventHandler> handlers = new List<IEventHandler>();
         private List<IEvent> events = new List<IEvent>();

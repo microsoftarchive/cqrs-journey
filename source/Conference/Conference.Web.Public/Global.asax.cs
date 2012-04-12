@@ -14,7 +14,6 @@
 namespace Conference.Web.Public
 {
     using System;
-    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Web;
     using System.Web.Mvc;
@@ -22,6 +21,7 @@ namespace Conference.Web.Public
     using Azure;
     using Azure.Messaging;
     using Common;
+    using Microsoft.Practices.Unity;
     using Newtonsoft.Json;
     using Registration;
     using Registration.Database;
@@ -30,23 +30,61 @@ namespace Conference.Web.Public
 
     public class MvcApplication : System.Web.HttpApplication
     {
-        private static IDictionary<Type, object> services = new Dictionary<Type, object>();
+        private IUnityContainer container;
 
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
         }
 
-        public static IDictionary<Type, object> GetDefaultServices()
+        protected void Application_Start()
         {
-            var services = new Dictionary<Type, object>();
+            this.container = CreateContainer();
+            RegisterHandlers(this.container);
 
+            DependencyResolver.SetResolver(new UnityServiceLocator(this.container));
 
+            RegisterGlobalFilters(GlobalFilters.Filters);
+            RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            AppRoutes.RegisterRoutes(RouteTable.Routes);
+
+            Database.SetInitializer(new OrmViewRepositoryInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>())));
+            Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
+
+            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<OrmViewRepository>(null);
+
+            using (var context = this.container.Resolve<OrmRepository>("registration"))
+            {
+                context.Database.Initialize(true);
+            }
+
+            using (var context = this.container.Resolve<OrmSagaRepository>("registration"))
+            {
+                context.Database.Initialize(true);
+            }
+
+#if !LOCAL
+            this.container.Resolve<CommandProcessor>().Start();
+            this.container.Resolve<EventProcessor>().Start();
+#endif
+        }
+
+        protected void Application_Stop()
+        {
+            this.container.Dispose();
+        }
+
+        private static UnityContainer CreateContainer()
+        {
+            var container = new UnityContainer();
+
+            // infrastructure
 #if LOCAL
-            var commandBus = new MemoryCommandBus();
-            var commandProcessor = commandBus;
-            var eventBus = new MemoryEventBus();
-            var eventProcessor = eventBus;
+            container.RegisterType<ICommandBus, MemoryCommandBus>(new ContainerControlledLifetimeManager());
+            container.RegisterType<ICommandHandlerRegistry, MemoryCommandBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryCommandBus()));
+            container.RegisterType<IEventBus, MemoryEventBus>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IEventHandlerRegistry, MemoryEventBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryEventBus()));
 #else
             var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
             {
@@ -62,72 +100,62 @@ namespace Conference.Web.Public
 
             var commandProcessor = new CommandProcessor(new SubscriptionReceiver(settings, "conference/commands", "all"), serializer);
             var eventProcessor = new EventProcessor(new SubscriptionReceiver(settings, "conference/events", "all"), serializer);
+
+            container.RegisterInstance<ICommandBus>(commandBus);
+            container.RegisterInstance<IEventBus>(eventBus);
+            container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
+            container.RegisterInstance(commandProcessor);
+            container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);
+            container.RegisterInstance(eventProcessor);
 #endif
 
-            Func<IRepository> ormFactory = () => new OrmRepository(eventBus);
-            Func<ISagaRepository> sagaOrmFactory = () => new OrmSagaRepository(commandBus);
-            Func<IViewRepository> viewOrmFactory = () => new OrmViewRepository();
 
-            // Handlers
-            var registrationSaga = new RegistrationProcessSagaRouter(sagaOrmFactory);
+            // repository
 
-            commandProcessor.Register(registrationSaga);
-            eventProcessor.Register(registrationSaga);
+            container.RegisterType<IRepository, Registration.Database.OrmRepository>("registration", new InjectionConstructor(typeof(IEventBus)));
+            container.RegisterType<ISagaRepository, Registration.Database.OrmSagaRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
+            container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
 
-            commandProcessor.Register(new OrderCommandHandler(ormFactory));
 
-            commandProcessor.Register(new SeatsAvailabilityHandler(ormFactory));
+            // handlers
 
-            eventProcessor.Register(new OrderViewModelGenerator(viewOrmFactory));
+            container.RegisterType<IEventHandler, RegistrationProcessSagaRouter>(
+                "RegistrationProcessSagaRouter",
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(new ResolvedParameter<Func<ISagaRepository>>("registration")));
+            container.RegisterType<ICommandHandler, RegistrationProcessSagaRouter>(
+                "RegistrationProcessSagaRouter",
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(new ResolvedParameter<Func<ISagaRepository>>("registration")));
 
-#if !LOCAL
-            commandProcessor.Start();
-            eventProcessor.Start();
-#endif
+            container.RegisterType<ICommandHandler, OrderCommandHandler>(
+                "OrderCommandHandler",
+                new InjectionConstructor(new ResolvedParameter<Func<IRepository>>("registration")));
 
-            services[typeof(ICommandBus)] = commandBus;
-            services[typeof(IEventBus)] = eventBus;
-            services[typeof(Func<IRepository>)] = ormFactory;
-            services[typeof(Func<ISagaRepository>)] = sagaOrmFactory;
-            services[typeof(Func<IViewRepository>)] = viewOrmFactory;
+            container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>(
+                "SeatsAvailabilityHandler",
+                new InjectionConstructor(new ResolvedParameter<Func<IRepository>>("registration")));
 
-            return services;
+            container.RegisterType<IEventHandler, OrderViewModelGenerator>(
+                "OrderViewModelGenerator",
+                new InjectionConstructor(new ResolvedParameter<Func<IViewRepository>>("registration")));
+
+            return container;
         }
 
-        public static T GetService<T>()
-            where T : class
+        private static void RegisterHandlers(IUnityContainer unityContainer)
         {
-            object service;
-            if (!services.TryGetValue(typeof(T), out service))
+            var commandHandlerRegistry = unityContainer.Resolve<ICommandHandlerRegistry>();
+            var eventHandlerRegistry = unityContainer.Resolve<IEventHandlerRegistry>();
+
+            foreach (var commandHandler in unityContainer.ResolveAll<ICommandHandler>())
             {
-                return null;
+                commandHandlerRegistry.Register(commandHandler);
             }
 
-            return service as T;
-        }
-
-        protected void Application_Start()
-        {
-            RegisterGlobalFilters(GlobalFilters.Filters);
-            RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            AppRoutes.RegisterRoutes(RouteTable.Routes);
-
-            services = GetDefaultServices();
-
-            Database.SetInitializer(new OrmViewRepositoryInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>())));
-            Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
-
-            // Views repository is currently the same as the domain DB. No initializer needed.
-            Database.SetInitializer<OrmViewRepository>(null);
-
-            using (var context = new OrmRepository())
+            foreach (var eventHandler in unityContainer.ResolveAll<IEventHandler>())
             {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = new OrmSagaRepository())
-            {
-                context.Database.Initialize(true);
+                eventHandlerRegistry.Register(eventHandler);
             }
         }
     }

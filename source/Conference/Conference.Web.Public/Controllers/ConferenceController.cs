@@ -17,19 +17,14 @@ namespace Conference.Web.Public.Controllers
     using System.Linq;
     using System.Web.Mvc;
     using Common;
-
+    using Microsoft.Practices.Unity;
     using Registration.ReadModel;
 
     public class ConferenceController : Controller
     {
         private Func<IViewRepository> repositoryFactory;
 
-        public ConferenceController()
-            : this(MvcApplication.GetService<Func<IViewRepository>>())
-        {
-        }
-
-        public ConferenceController(Func<IViewRepository> repositoryFactory)
+        public ConferenceController([Dependency("registration")]Func<IViewRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }

@@ -52,10 +52,12 @@
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandHandler.cs" />
+    <Compile Include="ICommandHandlerRegistry.cs" />
     <Compile Include="ICommandPublisher.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventBus.cs" />
     <Compile Include="IEventHandler.cs" />
+    <Compile Include="IEventHandlerRegistry.cs" />
     <Compile Include="IEventPublisher.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
