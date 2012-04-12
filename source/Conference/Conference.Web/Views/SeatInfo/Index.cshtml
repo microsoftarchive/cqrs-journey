@@ -1,0 +1,155 @@
+﻿@model IEnumerable<Conference.SeatInfo>
+@{
+    ViewBag.Title = "SeatInfo";
+}
+
+<h2>SeatInfo</h2>
+
+<div id="grid-container">
+    <p>
+        <a href="#insertEmptyRow" class="insertEmptyRow hidden">Create New</a>
+    </p>
+    <table id="grid">
+        <thead>
+            <tr>
+                <th data-column-name="Name">
+                    <span>@Html.DisplayNameFor(model => model.Name)</span>
+                    <a href="@Url.RouteUrl(new { orderBy = "Name", desc = true })" class="uparrow">&uarr;</a>
+                    <a href="@Url.RouteUrl(new { orderBy = "Name" })" class="downarrow">&darr;</a>
+                </th>
+                <th data-column-name="Description">
+                    <span>@Html.DisplayNameFor(model => model.Description)</span>
+                    <a href="@Url.RouteUrl(new { orderBy = "Description", desc = true })" class="uparrow">&uarr;</a>
+                    <a href="@Url.RouteUrl(new { orderBy = "Description" })" class="downarrow">&darr;</a>
+                </th>
+                <th data-column-name="Quantity">
+                    <span>@Html.DisplayNameFor(model => model.Quantity)</span>
+                    <a href="@Url.RouteUrl(new { orderBy = "Quantity", desc = true })" class="uparrow">&uarr;</a>
+                    <a href="@Url.RouteUrl(new { orderBy = "Quantity" })" class="downarrow">&darr;</a>
+                </th>
+                <th class="hidden"></th>
+            </tr>
+        </thead>
+        <tbody>
+@{Html.RenderAction("GridData");}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    #grid, #grid input, #grid button { clear: both; width: 100%; }
+    #grid thead { white-space: nowrap; }
+    #grid thead a { text-decoration: none; }
+    #grid .error { background-color: #f66; color: #000; }
+    #grid-container .hidden { display: none; }
+</style>
+
+<script>
+    (function($, undefined) {
+        $.ajaxSetup ({cache: false});
+
+        function createRow(row) {
+            var postParams = getPostParams(row);
+            $.post('@Html.Raw(Url.Action("Create"))', postParams)
+                .done(function(newRow) {
+                    row.replaceWith(newRow);
+                })
+                .fail(function() {
+                    row.addClass('error');
+                });
+        }
+
+        function makeRowEditable(row) {
+            $.get('@Html.Raw(Url.Action("Edit", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), function(editableRow) {
+                row.replaceWith(editableRow);
+            });
+        }
+
+        function editRow(row) {
+            var postParams = getPostParams(row);
+            postParams.push({name: 'Id', value: row.data('pkey')});
+            $.post('@Html.Raw(Url.Action("Edit", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), postParams)
+                .done(function(newRow) {
+                    row.replaceWith(newRow);
+                })
+                .fail(function() {
+                    row.addClass('error');
+                });
+        }
+
+        function deleteRow(row) {
+            if (confirm('Are you sure you want to delete this row?')) {
+                $.post('@Html.Raw(Url.Action("Delete", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')))
+                    .done(function() {
+                        row.remove();
+                    })
+                    .fail(function() {
+                        alert('Row deletion failed.');
+                    });
+            }
+        }
+
+        function disableLink() {
+            var elem = $(this),
+                classes = elem.attr('class'),
+                href = elem.attr('href'),
+                html = elem.html();
+            elem.replaceWith($('<span data-href="' + href + '" class="' + classes + '">' + html + '</span>'));
+        }
+
+        function enableLink() {
+            var elem = $(this),
+                classes = elem.attr('class'),
+                href = elem.data('href'),
+                html = elem.html();
+            elem.replaceWith($('<a href="' + href + '" class="' + classes + '">' + html + '</a>'));
+        }
+
+        function getPostParams(row) {
+            return row.find(':input[name]:not(:disabled)').filter(':not(:checkbox), :checked').map(function () {
+                var input = $(this);
+                return { name: input.attr('name'), value: input.val() };
+            }).get();
+        }
+
+        $(function () {
+            containerContext = $('#grid-container');
+            gridContext = containerContext.find('#grid');
+
+            containerContext.find('.insertEmptyRow').removeClass('hidden');
+            gridContext.find('tr > *').filter(':last-child').removeClass('hidden');
+
+            $('.insertEmptyRow').click(function(e) {
+                $.get('@Html.Raw(Url.Action("Create"))', function(emptyRow) {
+                    gridContext.find('tbody').prepend(emptyRow);
+                });
+                e.preventDefault();
+            });
+            gridContext.delegate('.createRow', 'click', function() {
+                createRow($(this).parents('tr'));
+            });
+            gridContext.delegate('.cancelCreateRow', 'click', function() {
+                $(this).parents('tr').remove();
+            });
+
+            gridContext.delegate('.makeRowEditable', 'click', function(e) {
+                makeRowEditable($(this).parents('tr'));
+                e.preventDefault();
+            });
+            gridContext.delegate('.editRow', 'click', function() {
+                editRow($(this).parents('tr'));
+            });
+            gridContext.delegate('.cancelEditRow', 'click', function() {
+                var row = $(this).parents('tr');
+                $.get('@Html.Raw(Url.Action("RowData", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), function(newRow) {
+                    row.replaceWith(newRow);
+                }); 
+            });
+
+            gridContext.delegate('.deleteRow', 'click', function(e) {
+                deleteRow($(this).parents('tr').eq(0));
+                e.preventDefault();
+            });
+        });
+    })(jQuery);
+</script>
