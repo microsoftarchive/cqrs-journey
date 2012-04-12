@@ -19,7 +19,7 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
-    using Registration;
+    using Microsoft.Practices.Unity;
     using Registration.Commands;
     using Registration.ReadModel;
 
@@ -30,12 +30,7 @@ namespace Conference.Web.Public.Controllers
         private ICommandBus commandBus;
         private Func<IViewRepository> repositoryFactory;
 
-        public RegistrationController()
-            : this(MvcApplication.GetService<ICommandBus>(), MvcApplication.GetService<Func<IViewRepository>>())
-        {
-        }
-
-        public RegistrationController(ICommandBus commandBus, Func<IViewRepository> repositoryFactory)
+        public RegistrationController(ICommandBus commandBus, [Dependency("registration")]Func<IViewRepository> repositoryFactory)
         {
             this.commandBus = commandBus;
             this.repositoryFactory = repositoryFactory;
@@ -229,7 +224,7 @@ namespace Conference.Web.Public.Controllers
             {
                 if (this.conference == null)
                 {
-                    var conferenceCode = ControllerContext.RouteData.Values["conferenceCode"];
+                    var conferenceCode = (string)ControllerContext.RouteData.Values["conferenceCode"];
                     var repo = this.repositoryFactory();
                     using (repo as IDisposable)
                     {

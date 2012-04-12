@@ -22,7 +22,7 @@ namespace Common
     /// <summary>
     /// Sample in-memory command bus that is asynchronous.
     /// </summary>
-    public class MemoryCommandBus : ICommandBus
+    public class MemoryCommandBus : ICommandBus, ICommandHandlerRegistry
     {
         private List<ICommandHandler> handlers = new List<ICommandHandler>();
         private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();

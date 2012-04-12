@@ -17,18 +17,14 @@ namespace Conference.Web.Public.Controllers
     using System.Linq;
     using System.Web.Mvc;
     using Common;
+    using Microsoft.Practices.Unity;
     using Registration.ReadModel;
 
     public class OrderController : Controller
     {
         private Func<IViewRepository> repositoryFactory;
 
-        public OrderController()
-            : this(MvcApplication.GetService<Func<IViewRepository>>())
-        {
-        }
-
-        public OrderController(Func<IViewRepository> repositoryFactory)
+        public OrderController([Dependency("registration")]Func<IViewRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }

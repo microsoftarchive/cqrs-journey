@@ -22,7 +22,7 @@ namespace Azure
     /// Processes incoming events from the bus and routes them to the appropriate 
     /// handlers.
     /// </summary>
-    public class EventProcessor : MessageProcessor
+    public class EventProcessor : MessageProcessor, IEventHandlerRegistry
     {
         // A simpler list just works. We don't care about two handlers for the same event 
         // type, etc.
