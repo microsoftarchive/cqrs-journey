@@ -18,6 +18,7 @@ namespace Common
 
     public abstract class EventSourcedAggregateRoot : IAggregateRoot, IEventPublisher
     {
+        private Dictionary<Type, Action<IEvent>> handlers = new Dictionary<Type, Action<IEvent>>();
         private readonly List<IEvent> pendingEvents = new List<IEvent>();
 
         public abstract Guid Id { get; }
@@ -27,19 +28,26 @@ namespace Common
             get { return this.pendingEvents; }
         }
 
-        public void Rehydrate(IEnumerable<IEvent> pastEvents)
+        /// <summary>
+        /// Configures a handler for an event. 
+        /// </summary>
+        protected virtual void Handles<TEvent>(Action<TEvent> handler)
+            where TEvent : IEvent
         {
-            var dynamicThis = (dynamic)this;
+            this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
+        }
+
+        protected void Rehydrate(IEnumerable<IEvent> pastEvents)
+        {
             foreach (var e in pastEvents)
             {
-                dynamicThis.Apply((dynamic)e);
+                this.handlers[e.GetType()].Invoke(e);
             }
         }
 
         protected void Update(IEvent e)
         {
-            var dynamicThis = (dynamic)this;
-            dynamicThis.Apply((dynamic)e);
+            this.handlers[e.GetType()].Invoke(e);
             this.pendingEvents.Add(e);
         }
     }

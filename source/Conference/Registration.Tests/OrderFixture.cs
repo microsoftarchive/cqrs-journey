@@ -87,15 +87,14 @@ namespace Registration.Tests.OrderFixture
 
         public given_placed_order()
         {
-            this.sut = new Order();
-            this.sut.Rehydrate(new[] {
+            this.sut = new Order(new[] {
                     new OrderPlaced
                         {
                             OrderId = OrderId,
                             ConferenceId = ConferenceId,
                             Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
                         }
-                });
+            });
         }
 
         [Fact]
@@ -170,8 +169,7 @@ namespace Registration.Tests.OrderFixture
 
         public given_fully_reserved_order()
         {
-            this.sut = new Order();
-            this.sut.Rehydrate(new IEvent[] {
+            this.sut = new Order(new IEvent[] {
                     new OrderPlaced
                         {
                             OrderId = OrderId,

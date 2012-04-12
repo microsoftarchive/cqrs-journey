@@ -26,11 +26,27 @@ namespace Registration
     {
         private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
 
+        private Guid id;
+        private List<SeatQuantity> seats;
+        private bool isConfirmed;
+
         public Order()
         {
+            base.Handles<OrderPlaced>(this.OnOrderPlaced);
+            base.Handles<OrderUpdated>(this.OnOrderUpdated);
+            base.Handles<OrderPartiallyReserved>(this.OnOrderPartiallyReserved);
+            base.Handles<OrderReservationCompleted>(this.OnOrderReservationCompleted);
+            base.Handles<OrderExpired>(this.OnOrderExpired);
+            base.Handles<OrderPaymentConfirmed>(this.OnOrderPaymentConfirmed);
+            base.Handles<OrderRegistrantAssigned>(this.OnOrderRegistrantAssigned);
         }
 
-        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)
+        public Order(IEnumerable<IEvent> history) : this()
+        {
+            this.Rehydrate(history);
+        }
+
+        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)  : this()
         {
             this.Update(new OrderPlaced
                                 {
@@ -42,19 +58,9 @@ namespace Registration
                                 });
         }
 
-        private Guid id;
-        private List<SeatQuantity> seats;
-        private bool isConfirmed;
-
         public override Guid Id
         {
             get { return this.id; }
-        }
-
-        public void Apply(OrderPlaced e)
-        {
-            this.id = e.OrderId;
-            this.seats = e.Seats.ToList();
         }
 
         public void UpdateSeats(IEnumerable<OrderItem> seats)
@@ -65,11 +71,6 @@ namespace Registration
                     OrderId = this.id,
                     Seats = ConvertItems(seats)
                 });
-        }
-
-        public void Apply(OrderUpdated e)
-        {
-            this.seats = e.Seats.ToList();
         }
 
         public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> seats)
@@ -100,16 +101,6 @@ namespace Registration
             }
         }
 
-        public void Apply(OrderPartiallyReserved e)
-        {
-            this.seats = e.Seats.ToList();
-        }
-
-        public void Apply(OrderReservationCompleted e)
-        {
-            this.seats = e.Seats.ToList();
-        }
-
         public void Expire()
         {
             if (this.isConfirmed)
@@ -118,18 +109,9 @@ namespace Registration
             this.Update(new OrderExpired(this.id));
         }
 
-        public void Apply(OrderExpired e)
-        {
-        }
-
         public void ConfirmPayment()
         {
             this.Update(new OrderPaymentConfirmed(this.id));
-        }
-
-        public void Apply(OrderPaymentConfirmed e)
-        {
-            this.isConfirmed = true;
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
@@ -143,7 +125,38 @@ namespace Registration
             });
         }
 
-        public void Apply(OrderRegistrantAssigned e)
+        private void OnOrderPlaced(OrderPlaced e)
+        {
+
+            this.id = e.OrderId;
+            this.seats = e.Seats.ToList();
+        }
+
+        private void OnOrderUpdated(OrderUpdated e)
+        {
+            this.seats = e.Seats.ToList();
+        }
+        
+        private void OnOrderPartiallyReserved(OrderPartiallyReserved e)
+        {
+            this.seats = e.Seats.ToList();
+        }
+
+        private void OnOrderReservationCompleted(OrderReservationCompleted e)
+        {
+            this.seats = e.Seats.ToList();
+        }
+
+        private void OnOrderExpired(OrderExpired e)
+        {
+        }
+
+        private void OnOrderPaymentConfirmed(OrderPaymentConfirmed e)
+        {
+            this.isConfirmed = true;
+        }
+
+        private void OnOrderRegistrantAssigned(OrderRegistrantAssigned e)
         {
         }
 
