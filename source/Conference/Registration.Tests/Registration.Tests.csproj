@@ -63,7 +63,6 @@
     <Compile Include="HandleGeneratorFixture.cs" />
     <Compile Include="MemoryEventBusFixture.cs" />
     <Compile Include="MemoryCommandBusFixture.cs" />
-    <Compile Include="OrderCommandHandlerFixture.cs" />
     <Compile Include="OrderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConferenceSeatsAvailabilityFixture.cs" />

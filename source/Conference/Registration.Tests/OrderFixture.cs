@@ -111,24 +111,27 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_marking_a_subset_of_seats_as_reserved_then_order_is_partially_reserved()
         {
-            this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 3) });
+            var expiration = DateTime.UtcNow.AddMinutes(15);
+            this.sut.MarkAsReserved(expiration, new[] { new SeatQuantity(SeatTypeId, 3) });
 
             var @event = (OrderPartiallyReserved)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(1, @event.Seats.Count);
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
-            //Assert.Equal(, @event.ReservationExpiration);
+            Assert.Equal(expiration, @event.ReservationExpiration);
         }
 
         [Fact]
         public void when_marking_all_seats_as_reserved_then_order_is_reserved()
         {
-            this.sut.MarkAsReserved(DateTime.UtcNow.AddMinutes(15), new[] { new SeatQuantity(SeatTypeId, 5) });
+            var expiration = DateTime.UtcNow.AddMinutes(15);
+            this.sut.MarkAsReserved(expiration, new[] { new SeatQuantity(SeatTypeId, 5) });
 
             var @event = (OrderReservationCompleted)sut.Events.Last();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(1, @event.Seats.Count);
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
+            Assert.Equal(expiration, @event.ReservationExpiration);
         }
 
         [Fact]

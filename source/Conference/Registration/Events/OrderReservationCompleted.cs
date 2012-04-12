@@ -26,10 +26,8 @@ namespace Registration.Events
 
         public Guid OrderId { get; set; }
 
-        public Guid ConferenceId { get; set; }
-
         public DateTime ReservationExpiration { get; set; }
 
-        public List<SeatQuantity> Seats { get; set; }
+        public ICollection<SeatQuantity> Seats { get; set; }
     }
 }

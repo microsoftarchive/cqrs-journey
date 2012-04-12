@@ -84,9 +84,8 @@ namespace Registration
                 this.Update(new OrderPartiallyReserved
                 {
                     OrderId = this.id,
-                    //ConferenceId = this.ConferenceId,
                     Seats = seats.ToList(),
-                    //ReservationExpiration = expirationDate,
+                    ReservationExpiration = expirationDate,
                 });
             }
             else
@@ -94,9 +93,8 @@ namespace Registration
                 this.Update(new OrderReservationCompleted
                 {
                     OrderId = this.id,
-                    //ConferenceId = this.ConferenceId,
                     Seats = seats.ToList(),
-                    //ReservationExpiration = expirationDate,
+                    ReservationExpiration = expirationDate,
                 });
             }
         }

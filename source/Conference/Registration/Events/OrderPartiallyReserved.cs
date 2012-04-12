@@ -28,6 +28,6 @@ namespace Registration.Events
 
         public DateTime ReservationExpiration { get; set; }
 
-        public List<SeatQuantity> Seats { get; set; }
+        public ICollection<SeatQuantity> Seats { get; set; }
     }
 }
