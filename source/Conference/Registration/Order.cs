@@ -48,14 +48,7 @@ namespace Registration
 
         public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)  : this()
         {
-            this.Update(new OrderPlaced
-                                {
-                                    OrderId = id,
-                                    ConferenceId = conferenceId,
-                                    AccessCode = HandleGenerator.Generate(6),
-                                    ReservationAutoExpiration = DateTime.UtcNow.Add(ReservationAutoExpiration),
-                                    Seats = ConvertItems(items)
-                                });
+            this.Update(new OrderPlaced(id, conferenceId, ConvertItems(items), DateTime.UtcNow.Add(ReservationAutoExpiration), HandleGenerator.Generate(5)));
         }
 
         public override Guid Id
@@ -73,29 +66,21 @@ namespace Registration
                 });
         }
 
-        public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> seats)
+        public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> reservedSeats)
         {
             if (this.isConfirmed)
                 throw new InvalidOperationException("Cannot modify a confirmed order.");
 
+            var reserved = reservedSeats.ToList();
+
             // Is there an order item which didn't get an exact reservation?
-            if (this.seats.Any(item => !seats.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
+            if (this.seats.Any(item => !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
             {
-                this.Update(new OrderPartiallyReserved
-                {
-                    OrderId = this.id,
-                    Seats = seats.ToList(),
-                    ReservationExpiration = expirationDate,
-                });
+                this.Update(new OrderPartiallyReserved(this.id, expirationDate, reserved));
             }
             else
             {
-                this.Update(new OrderReservationCompleted
-                {
-                    OrderId = this.id,
-                    Seats = seats.ToList(),
-                    ReservationExpiration = expirationDate,
-                });
+                this.Update(new OrderReservationCompleted(this.id, expirationDate, reserved));
             }
         }
 

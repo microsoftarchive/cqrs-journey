@@ -15,28 +15,37 @@ namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Common;
 
     public class OrderPlaced : IEvent
     {
-        public OrderPlaced()
+        private readonly Guid orderId;
+        private readonly Guid conferenceId;
+        private readonly IEnumerable<SeatQuantity> seats;
+        private readonly DateTime reservationAutoExpiration;
+        private readonly string accessCode;
+
+        public OrderPlaced(Guid orderId, Guid conferenceId, IEnumerable<SeatQuantity> seats, DateTime reservationAutoExpiration, string accessCode)
         {
-            this.Seats = new List<SeatQuantity>();
+            this.orderId = orderId;
+            this.conferenceId = conferenceId;
+            this.reservationAutoExpiration = reservationAutoExpiration;
+            this.accessCode = accessCode;
+            this.seats = seats.ToArray();
         }
 
-        public Guid OrderId { get; set; }
+        public Guid OrderId { get { return this.orderId; } }
+
+        public Guid ConferenceId { get { return this.conferenceId; } }
+
+        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
 
         /// <summary>
         /// The expected expiration time if the reservation is not explicitly confirmed later.
         /// </summary>
-        public DateTime ReservationAutoExpiration { get; set; }
+        public DateTime ReservationAutoExpiration { get { return this.reservationAutoExpiration; } }
 
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
-        public Guid ConferenceId { get; set; }
-
-        public string AccessCode { get; set; }
-
-        public ICollection<SeatQuantity> Seats { get; set; }
+        public string AccessCode { get { return this.accessCode; } }
     }
 }

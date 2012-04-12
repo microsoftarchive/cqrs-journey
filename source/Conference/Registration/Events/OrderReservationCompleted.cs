@@ -11,23 +11,31 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+
 namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Common;
 
     public class OrderReservationCompleted : IEvent
     {
-        public OrderReservationCompleted()
+        private readonly Guid orderId;
+        private readonly DateTime reservationExpiration;
+        private readonly IEnumerable<SeatQuantity> seats;
+
+        public OrderReservationCompleted(Guid orderId, DateTime reservationExpiration, IEnumerable<SeatQuantity> seats)
         {
-            this.Seats = new List<SeatQuantity>();
+            this.orderId = orderId;
+            this.reservationExpiration = reservationExpiration;
+            this.seats = seats.ToArray();
         }
 
-        public Guid OrderId { get; set; }
+        public Guid OrderId { get { return this.orderId; } }
 
-        public DateTime ReservationExpiration { get; set; }
+        public DateTime ReservationExpiration { get { return this.reservationExpiration; } }
 
-        public ICollection<SeatQuantity> Seats { get; set; }
+        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
     }
 }

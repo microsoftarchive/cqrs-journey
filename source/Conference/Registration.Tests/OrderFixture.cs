@@ -45,7 +45,7 @@ namespace Registration.Tests.OrderFixture
             var @event = (OrderPlaced)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
             Assert.Equal(ConferenceId, @event.ConferenceId);
-            Assert.Equal(1, @event.Seats.Count);
+            Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
         }
 
@@ -88,13 +88,8 @@ namespace Registration.Tests.OrderFixture
         public given_placed_order()
         {
             this.sut = new Order(new[] {
-                    new OrderPlaced
-                        {
-                            OrderId = OrderId,
-                            ConferenceId = ConferenceId,
-                            Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
-                        }
-            });
+                    new OrderPlaced(OrderId, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null)
+                });
         }
 
         [Fact]
@@ -116,7 +111,7 @@ namespace Registration.Tests.OrderFixture
 
             var @event = (OrderPartiallyReserved)sut.Events.Single();
             Assert.Equal(OrderId, @event.OrderId);
-            Assert.Equal(1, @event.Seats.Count);
+            Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
         }
@@ -129,7 +124,7 @@ namespace Registration.Tests.OrderFixture
 
             var @event = (OrderReservationCompleted)sut.Events.Last();
             Assert.Equal(OrderId, @event.OrderId);
-            Assert.Equal(1, @event.Seats.Count);
+            Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
         }
@@ -173,15 +168,9 @@ namespace Registration.Tests.OrderFixture
         public given_fully_reserved_order()
         {
             this.sut = new Order(new IEvent[] {
-                    new OrderPlaced
-                        {
-                            OrderId = OrderId,
-                            ConferenceId = ConferenceId,
-                            Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
-                        },
-                    new OrderReservationCompleted { OrderId = OrderId }
+                    new OrderPlaced(OrderId, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null),
+                    new OrderReservationCompleted(OrderId, DateTime.UtcNow.AddMinutes(5), new[] { new SeatQuantity(SeatTypeId, 5) })
                 });
-            // TODO: expiration?
         }
 
         [Fact]
