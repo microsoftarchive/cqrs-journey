@@ -55,7 +55,7 @@ namespace Conference
         [Display(Name = "End")]
         public DateTime EndDate { get; set; }
 
-        [Display(Name = "Published")]
+        [Display(Name = "Is Published?")]
         public bool IsPublished { get; set; }
 
         public virtual ICollection<SeatInfo> SeatInfos { get; set; }

@@ -27,6 +27,13 @@
     <div class="display-label">
         @Html.DisplayFor(model => model.OwnerEmail)
     </div>
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.AccessCode)
+    </div>
+    <div class="display-label">
+        @Html.DisplayFor(model => model.AccessCode)
+    </div>
 </fieldset>
 
 <fieldset>
@@ -66,28 +73,18 @@
         @Html.DisplayFor(model => model.EndDate)
     </div>
 
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.IsPublished)
+@{ var action = Model.IsPublished ? "Unpublish" : "Publish"; }
+@using (Html.BeginForm(action, "Conference")) {
+    <div>
+        @Html.HiddenFor(model => model.Id)
+        @Html.DisplayNameFor(model => model.IsPublished) @Html.DisplayFor(model => model.IsPublished)
+        <a href="javascript:$('form').submit();">@action</a>
     </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.IsPublished)
+}
+    <div class="display-label">
     </div>
 </fieldset>
 
-@if (Model.IsPublished) {
-    using (Html.BeginForm("Unpublish", "Conference")) {
-    <div>
-        @Html.HiddenFor(model => model.Id)
-        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null) |
-        <a href="javascript:$('form').submit();">Unpublish</a>
-    </div>
-    }
-} else {
-    using (Html.BeginForm("Publish", "Conference")) {
-    <div>
-        @Html.HiddenFor(model => model.Id)
-        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null) |
-        <a href="javascript:$('form').submit();">Publish</a>
-    </div>
-    }
-}    
+<div>
+        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null)
+</div>
