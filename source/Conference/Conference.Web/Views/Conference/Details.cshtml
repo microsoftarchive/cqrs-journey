@@ -1,0 +1,90 @@
+﻿@model Conference.ConferenceInfo
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<p style="text-align: right">
+    @Html.DisplayFor(model => model.OwnerName)
+</p>
+
+@{ Html.RenderPartial("Navigation"); }
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>Owner Information</legend>
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.OwnerName)
+    </div>
+    <div class="display-label">
+        @Html.DisplayFor(model => model.OwnerName)
+    </div>        
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.OwnerEmail)
+    </div>
+    <div class="display-label">
+        @Html.DisplayFor(model => model.OwnerEmail)
+    </div>
+
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.AccessCode)
+    </div>
+    <div class="display-label">
+        @Html.DisplayFor(model => model.AccessCode)
+    </div>
+</fieldset>
+
+<fieldset>
+    <legend>Conference Information</legend>
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Name)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Name)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Description)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Description)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Slug)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Slug)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.StartDate)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.StartDate)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.EndDate)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.EndDate)
+    </div>
+
+@{ var action = Model.IsPublished ? "Unpublish" : "Publish"; }
+@using (Html.BeginForm(action, "Conference")) {
+    <div>
+        @Html.HiddenFor(model => model.Id)
+        @Html.DisplayNameFor(model => model.IsPublished) @Html.DisplayFor(model => model.IsPublished)
+        <a href="javascript:$('form').submit();">@action</a>
+    </div>
+}
+    <div class="display-label">
+    </div>
+</fieldset>
+
+<div>
+        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null)
+</div>

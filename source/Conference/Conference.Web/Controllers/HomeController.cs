@@ -11,29 +11,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Linq;
-using System.Text;
+using System.Web.Mvc;
 
-namespace Registration
+namespace Conference.Web.Controllers
 {
-    /// <summary>
-    /// Generates random alphnumerical strings.
-    /// </summary>
-    public static class HandleGenerator
+    public class HomeController : Controller
     {
-        private static Random rnd = new Random(DateTime.UtcNow.Millisecond);
-        private static char[] allowableChars = "ABCDEFGHJKMNPQRSTUVWXYZ123456789".ToCharArray();
-
-        public static string Generate(int length)
+        //
+        // GET: /Home/
+        public ActionResult Index()
         {
-            var result = new StringBuilder();
-            for (int i = 0; i < length; i++)
-            {
-                result.Append(allowableChars[rnd.Next(0, allowableChars.Length)]);
-            }
-
-            return result.ToString();
+            return View();
         }
     }
 }

@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Conference.SeatInfo>
+
+@foreach (var item in Model) {
+    <tr data-pkey="@item.Id">
+        <td>
+            @Html.DisplayFor(modelItem => item.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Quantity)
+        </td>
+        <td class="rowControl">
+            <a href="#makeRowEditable" class="makeRowEditable">Edit</a> |
+            <!-- TODO: only allow delete if the conference is not published -->
+            <a href="#deleteRow" class="deleteRow">Delete</a>
+        </td>
+    </tr>
+}

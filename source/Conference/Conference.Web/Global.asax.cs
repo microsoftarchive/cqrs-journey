@@ -11,46 +11,38 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+using System.Data.Entity;
+using System.Web.Mvc;
+using System.Web.Routing;
+
+namespace Conference.Web
 {
-    using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Common.Utils;
-    using Xunit;
-
-    public class HandleGeneratorFixture
+    public class MvcApplication : System.Web.HttpApplication
     {
-        [Fact]
-        public void when_generating_handle_then_generates_requested_length()
+        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            var handle = HandleGenerator.Generate(5);
-
-            Assert.Equal(5, handle.Length);
+            filters.Add(new HandleErrorAttribute());
         }
 
-        [Fact]
-        public void when_generating_handles_then_generates_different_values()
+        public static void RegisterRoutes(RouteCollection routes)
         {
-            Assert.NotEqual(HandleGenerator.Generate(5), HandleGenerator.Generate(5));
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
         }
 
-        [Fact]
-        public void is_thread_safe()
+        protected void Application_Start()
         {
-            var list = new ConcurrentBag<string>();
-            Parallel.For(0, 10000, i => list.Add(HandleGenerator.Generate(6)));
+            AreaRegistration.RegisterAllAreas();
 
-            Assert.Equal(10000, list.Count);
-        }
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<DomainContext>());
 
-        [Fact]
-        public void should_generate_distinct_handles()
-        {
-            var list = new ConcurrentBag<string>();
-            Parallel.For(0, 10000, i => list.Add(HandleGenerator.Generate(100)));
-
-            Assert.Equal(10000, list.Distinct().Count());
+            RegisterGlobalFilters(GlobalFilters.Filters);
+            RegisterRoutes(RouteTable.Routes);
         }
     }
 }

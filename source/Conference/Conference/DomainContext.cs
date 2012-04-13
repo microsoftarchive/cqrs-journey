@@ -11,46 +11,30 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+namespace Conference
 {
-    using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Common.Utils;
-    using Xunit;
+    using System.Data.Entity;
 
-    public class HandleGeneratorFixture
+    public class DomainContext : DbContext
     {
-        [Fact]
-        public void when_generating_handle_then_generates_requested_length()
+        public DomainContext()
+            : base("ConferenceManagement")
         {
-            var handle = HandleGenerator.Generate(5);
-
-            Assert.Equal(5, handle.Length);
         }
 
-        [Fact]
-        public void when_generating_handles_then_generates_different_values()
+        public virtual DbSet<ConferenceInfo> Conferences { get; set; }
+        public virtual DbSet<SeatInfo> Seats { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            Assert.NotEqual(HandleGenerator.Generate(5), HandleGenerator.Generate(5));
-        }
+            base.OnModelCreating(modelBuilder);
 
-        [Fact]
-        public void is_thread_safe()
-        {
-            var list = new ConcurrentBag<string>();
-            Parallel.For(0, 10000, i => list.Add(HandleGenerator.Generate(6)));
-
-            Assert.Equal(10000, list.Count);
-        }
-
-        [Fact]
-        public void should_generate_distinct_handles()
-        {
-            var list = new ConcurrentBag<string>();
-            Parallel.For(0, 10000, i => list.Add(HandleGenerator.Generate(100)));
-
-            Assert.Equal(10000, list.Distinct().Count());
+            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences");
+            // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
+            // Make seat infos required to have a conference info associated, but without 
+            // having to add a navigation property (don't polute the object model).
+            modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.SeatInfos).WithRequired();
+            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes");
         }
     }
 }

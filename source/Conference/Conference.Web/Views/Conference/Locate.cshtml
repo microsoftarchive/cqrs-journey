@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Access Conference";
+}
+
+@if (((bool?)ViewBag.NotFound).GetValueOrDefault()) {
+    <div class="field-validation-error">Could not locate a conference with the provided email and access code.</div>
+}
+
+<p>Please enter your email and conference access code to manage your conference:</p>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <div class="fieldset">
+            <div><label class="editor-label">Email:</label><input type="text" class="editor-field" name="email" value="@ViewBag.Email" /></div>
+            <div><label class="editor-label">Access Code:</label><input type="text" class="editor-field" name="accessCode" /></div>
+        </div>
+        <input id="access" type="submit" value="Access" />
+    </fieldset>
+}

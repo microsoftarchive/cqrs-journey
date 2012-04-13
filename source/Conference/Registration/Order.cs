@@ -19,6 +19,7 @@ namespace Registration
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using Common;
+    using Common.Utils;
     using Registration.Events;
 
     public class Order : IAggregateRoot, IEventPublisher
@@ -45,7 +46,7 @@ namespace Registration
             this.Id = id;
             this.ConferenceId = conferenceId;
             this.Registrant = new Registrant();
-            this.AccessCode = HandleGenerator.Generate(5);
+            this.AccessCode = HandleGenerator.Generate(6);
             this.Items = new ObservableCollection<OrderItem>(items);
             this.ReservationExpirationDate = DateTime.UtcNow.Add(ReservationAutoExpiration);
 

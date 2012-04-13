@@ -65,7 +65,6 @@
     <Compile Include="Events\OrderUpdated.cs" />
     <Compile Include="Events\PaymentReceived.cs" />
     <Compile Include="Events\SeatsReserved.cs" />
-    <Compile Include="HandleGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
