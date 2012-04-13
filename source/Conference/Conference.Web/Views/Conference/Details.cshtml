@@ -65,8 +65,29 @@
     <div class="display-field">
         @Html.DisplayFor(model => model.EndDate)
     </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.IsPublished)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.IsPublished)
+    </div>
 </fieldset>
 
-<div>
-    @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null)
-</div>
+@if (Model.IsPublished) {
+    using (Html.BeginForm("Unpublish", "Conference")) {
+    <div>
+        @Html.HiddenFor(model => model.Id)
+        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null) |
+        <a href="javascript:$('form').submit();">Unpublish</a>
+    </div>
+    }
+} else {
+    using (Html.BeginForm("Publish", "Conference")) {
+    <div>
+        @Html.HiddenFor(model => model.Id)
+        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null) |
+        <a href="javascript:$('form').submit();">Publish</a>
+    </div>
+    }
+}    

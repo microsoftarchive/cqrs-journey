@@ -113,6 +113,33 @@
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public ActionResult Publish(Guid id)
+        {
+            return SetPublished(id, true);
+        }
+
+        [HttpPost]
+        public ActionResult Unpublish(Guid id)
+        {
+            return SetPublished(id, false);
+        }
+
+        private ActionResult SetPublished(Guid id, bool isPublished)
+        {
+            var conference = db.Conferences.Find(id);
+            if (conference == null)
+            {
+                return HttpNotFound();
+            }
+
+            conference.IsPublished = isPublished;
+            db.SaveChanges();
+
+            // TODO: not very secure ;).
+            return RedirectToAction("Details", new { id = id });
+        }
+
         protected override void Dispose(bool disposing)
         {
             db.Dispose();
