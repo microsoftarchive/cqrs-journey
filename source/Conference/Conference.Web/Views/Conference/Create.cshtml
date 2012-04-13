@@ -1,0 +1,105 @@
+﻿@model Conference.ConferenceInfo
+
+@{
+    ViewBag.Title = "Create";
+}
+
+@section Head {
+    <script>
+        $(function () {
+            // TODO: Is there a way to add these classes to the editors 
+            // without having to write custom editor templates?
+            $('#StartDate').addClass('datepicker');
+            $('#EndDate').addClass('datepicker');
+
+            $(".datepicker").datepicker();
+        });
+    </script>
+}
+
+<h2>Create</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Owner Information</legend>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OwnerName)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.OwnerName)
+            @Html.ValidationMessageFor(model => model.OwnerName)
+        </div>        
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OwnerEmail)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.OwnerEmail)
+            @Html.ValidationMessageFor(model => model.OwnerEmail)
+        </div>
+
+        <div class="editor-label">Confirm email: </div>
+        <div class="editor-field">
+            <input type="text" name="ConfirmEmail"
+                data-val="true" 
+                data-val-equalto="E-mail addresses do not match." 
+                data-val-equalto-other="OwnerEmail" 
+                data-val-required="Please confirm the e-mail address."/>
+            <span data-valmsg-replace="true" data-valmsg-for="ConfirmEmail" class="field-validation-valid"></span>
+        </div>
+    </fieldset>
+    
+    <fieldset>
+    <legend>Conference Information</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Name)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Name)
+            @Html.ValidationMessageFor(model => model.Name)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Description)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Description)
+            @Html.ValidationMessageFor(model => model.Description)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Slug)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Slug)
+            @Html.ValidationMessageFor(model => model.Slug)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.StartDate)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.StartDate)
+            @Html.ValidationMessageFor(model => model.StartDate)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.EndDate)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.EndDate)
+            @Html.ValidationMessageFor(model => model.EndDate)
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back", "Index", "Home")
+</div>
