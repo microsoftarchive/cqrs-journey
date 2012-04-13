@@ -24,79 +24,59 @@ namespace Registration.Handlers
         ICommandHandler<RejectOrder>,
         ICommandHandler<AssignRegistrantDetails>
     {
-        private Func<IRepository> repositoryFactory;
+        private readonly IRepository<Order> repository;
 
-        public OrderCommandHandler(Func<IRepository> repositoryFactory)
+        public OrderCommandHandler(IRepository<Order> repository)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.repository = repository;
         }
 
         public void Handle(RegisterToConference command)
         {
-            var repository = this.repositoryFactory();
-
-            using (repository as IDisposable)
+            var items = command.Seats.Select(t => new OrderItem(t.SeatType, t.Quantity)).ToList();
+            var order = repository.Find(command.OrderId);
+            if (order == null)
             {
-                var items = command.Seats.Select(t => new OrderItem(t.SeatType, t.Quantity)).ToList();
-                var order = repository.Find<Order>(command.OrderId);
-                if (order == null)
-                {
-                    order = new Order(command.OrderId, command.ConferenceId, items);
-                }
-                else
-                {
-                    order.UpdateSeats(items);
-                }
-
-                repository.Save(order);
+                order = new Order(command.OrderId, command.ConferenceId, items);
             }
+            else
+            {
+                order.UpdateSeats(items);
+            }
+
+            repository.Save(order);
         }
 
         public void Handle(MarkSeatsAsReserved command)
         {
-            var repository = this.repositoryFactory();
+            var order = repository.Find(command.OrderId);
 
-            using (repository as IDisposable)
+            if (order != null)
             {
-                var order = repository.Find<Order>(command.OrderId);
-
-                if (order != null)
-                {
-                    order.MarkAsReserved(command.Expiration, command.Seats);
-                    repository.Save(order);
-                }
+                order.MarkAsReserved(command.Expiration, command.Seats);
+                repository.Save(order);
             }
         }
 
         public void Handle(RejectOrder command)
         {
-            var repository = this.repositoryFactory();
+            var order = repository.Find(command.OrderId);
 
-            using (repository as IDisposable)
+            if (order != null)
             {
-                var order = repository.Find<Order>(command.OrderId);
-
-                if (order != null)
-                {
-                    order.Expire();
-                    repository.Save(order);
-                }
+                order.Expire();
+                repository.Save(order);
             }
         }
 
         public void Handle(AssignRegistrantDetails command)
         {
-            var repository = this.repositoryFactory();
+            var order = repository.Find(command.OrderId);
 
-            using (repository as IDisposable)
+            if (order != null)
             {
-                var order = repository.Find<Order>(command.OrderId);
-
-                if (order != null)
-                {
-                    order.AssignRegistrant(command.FirstName, command.LastName, command.Email);
-                    repository.Save(order);
-                }
+                order.AssignRegistrant(command.FirstName, command.LastName, command.Email);
+                repository.Save(order);
             }
         }
     }

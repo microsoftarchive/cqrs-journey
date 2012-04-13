@@ -116,6 +116,7 @@ namespace Conference.Web.Public
             container.RegisterType<ISagaRepository, Registration.Database.OrmSagaRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
             container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
 
+            commandProcessor.Register(new OrderCommandHandler(new MemoryEventRepository<Order>(eventBus)));
 
             // handlers
 

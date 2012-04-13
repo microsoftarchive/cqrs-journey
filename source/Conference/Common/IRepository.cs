@@ -21,4 +21,11 @@ namespace Common
 
         void Save<T>(T aggregate) where T : class, IAggregateRoot;
     }
+
+    public interface IRepository<T> where T : class, IAggregateRoot
+    {
+        T Find(Guid id);
+
+        void Save(T aggregate);
+    }
 }
