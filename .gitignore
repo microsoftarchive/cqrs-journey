@@ -7,6 +7,7 @@
 *.ncb
 *.log 
 *.DS_Store
+*.gpState
 [Tt]humbs.db 
 _ReSharper.*
 *.resharper
