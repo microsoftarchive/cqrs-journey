@@ -42,7 +42,7 @@ namespace Conference.Web.Public
             this.container = CreateContainer();
             RegisterHandlers(this.container);
 
-            DependencyResolver.SetResolver(new UnityServiceLocator(this.container));
+            DependencyResolver.SetResolver(new UnityDependencyResolver(this.container));
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
