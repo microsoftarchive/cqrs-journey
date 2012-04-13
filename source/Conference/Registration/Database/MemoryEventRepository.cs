@@ -23,7 +23,7 @@ namespace Registration.Database
     public class MemoryEventRepository<T> : IRepository<T> where T : class, IAggregateRoot, IEventPublisher
     {
         private readonly IEventBus eventBus;
-        private readonly ConcurrentDictionary<Guid, ConcurrentStack<IEvent>> eventStore = new ConcurrentDictionary<Guid, ConcurrentStack<IEvent>>();
+        private readonly ConcurrentDictionary<Guid, ConcurrentQueue<IEvent>> eventStore = new ConcurrentDictionary<Guid, ConcurrentQueue<IEvent>>();
 
         public MemoryEventRepository(IEventBus eventBus)
         {
@@ -32,7 +32,7 @@ namespace Registration.Database
 
         public T Find(Guid id)
         {
-            ConcurrentStack<IEvent> list;
+            ConcurrentQueue<IEvent> list;
             if (this.eventStore.TryGetValue(id, out list) && list.Count > 0)
             {
                 return (T)Activator.CreateInstance(typeof(T), list.ToList());
@@ -45,8 +45,11 @@ namespace Registration.Database
         {
             var events = aggregateRoot.Events.ToArray();
 
-            var list = this.eventStore.GetOrAdd(aggregateRoot.Id, _ => new ConcurrentStack<IEvent>());
-            list.PushRange(events);
+            var list = this.eventStore.GetOrAdd(aggregateRoot.Id, _ => new ConcurrentQueue<IEvent>());
+            foreach (var e in events)
+            {
+                list.Enqueue(e);
+            }
             
             // TODO: guarantee delivery
             this.eventBus.Publish(events);

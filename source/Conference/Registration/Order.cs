@@ -15,8 +15,6 @@ namespace Registration
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using Common;
     using Common.Utils;
@@ -30,7 +28,7 @@ namespace Registration
         private List<SeatQuantity> seats;
         private bool isConfirmed;
 
-        public Order()
+        protected Order()
         {
             base.Handles<OrderPlaced>(this.OnOrderPlaced);
             base.Handles<OrderUpdated>(this.OnOrderUpdated);
@@ -145,7 +143,7 @@ namespace Registration
 
         private static List<SeatQuantity> ConvertItems(IEnumerable<OrderItem> items)
         {
-            return items.Select(x => new SeatQuantity { SeatType = x.SeatType, Quantity = x.Quantity }).ToList();
+            return items.Select(x => new SeatQuantity(x.SeatType, x.Quantity)).ToList();
         }
     }
 }

@@ -104,7 +104,7 @@ namespace Registration
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
-                    Seats = message.Seats,
+                    Seats = message.ReservationDetails.ToList(),
                     Expiration = expirationTime,
                 });
             }

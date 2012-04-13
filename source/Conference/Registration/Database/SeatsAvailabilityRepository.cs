@@ -14,69 +14,16 @@
 namespace Registration.Database
 {
     using System;
-    using System.Linq;
     using Common;
 
-    public sealed class SeatsAvailabilityRepository : IRepository<SeatsAvailability>, IDisposable
+    public sealed class SeatsAvailabilityRepository : MemoryEventRepository<SeatsAvailability>
     {
-        private readonly string nameOrConnectionString;
-        private readonly IEventBus eventBus;
-
-        public SeatsAvailabilityRepository()
-            : this(new MemoryEventBus())
+        public SeatsAvailabilityRepository(IEventBus eventBus) : base(eventBus)
         {
-        }
-
-        public SeatsAvailabilityRepository(IEventBus eventBus)
-            : this(null, eventBus)
-        {
-            this.eventBus = eventBus;
-        }
-
-        public SeatsAvailabilityRepository(string nameOrConnectionString, IEventBus eventBus)
-        {
-            this.nameOrConnectionString = nameOrConnectionString;
-            this.eventBus = eventBus;
-        }
-
-        private RegistrationDbContext dbContext;
-        private RegistrationDbContext GetOrCreateContext()
-        {
-            if (this.dbContext == null)
-            {
-                this.dbContext = string.IsNullOrEmpty(this.nameOrConnectionString) 
-                    ? new RegistrationDbContext() 
-                    : new RegistrationDbContext(this.nameOrConnectionString);
-            }
-
-            return this.dbContext;
-        }
-
-        public SeatsAvailability Find(Guid id)
-        {
-            var context = GetOrCreateContext();
-            return context.Set<SeatsAvailability>().Include("Seats").FirstOrDefault(x => x.Id == id);
-        }
-
-        public void Save(SeatsAvailability aggregate)
-        {
-            var context = GetOrCreateContext();
-            var entry = context.Entry(aggregate);
-
-            if (entry.State == System.Data.EntityState.Detached)
-                context.Set<SeatsAvailability>().Add(aggregate);
-
-            // Can't have transactions across storage and message bus.
-            context.SaveChanges();
-
-            var publisher = aggregate as IEventPublisher;
-            if (publisher != null)
-                this.eventBus.Publish(publisher.Events);
-        }
-
-        public void Dispose()
-        {
-            using (this.dbContext) { }
+            // TODO: remove hardcoded seats availability.
+            var availability = new SeatsAvailability(Guid.Empty);
+            availability.AddSeats(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), 50);
+            base.Save(availability);
         }
     }
 }

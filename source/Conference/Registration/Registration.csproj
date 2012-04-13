@@ -59,8 +59,9 @@
     <Compile Include="Database\MemoryEventRepository.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\SeatsAvailabilityRepository.cs" />
-    <Compile Include="Database\RegistrationDbContextInitializer.cs" />
-    <Compile Include="Database\RegistrationDbContext.cs" />
+    <Compile Include="Events\AvailableSeatsChanged.cs" />
+    <Compile Include="Events\SeatsReservationCancelled.cs" />
+    <Compile Include="Events\SeatsReservationCommitted.cs" />
     <Compile Include="Events\OrderPaymentConfirmed.cs" />
     <Compile Include="Events\OrderExpired.cs" />
     <Compile Include="Events\OrderPartiallyReserved.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
-    <Compile Include="SeatAvailability.cs" />
     <Compile Include="SeatQuantity.cs" />
     <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>

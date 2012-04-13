@@ -11,39 +11,30 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Common;
-
-namespace Registration.Tests
+namespace Registration.Events
 {
-	/// <summary>
-	/// Provides a way to abstract the work a persistence layer would perform 
-	/// so that test code can be reused against in-memory and DB tests.
-	/// </summary>
-    public interface IPersistenceProvider<T> : IDisposable where T : class, IAggregateRoot
-	{
-		/// <summary>
-		/// Persists and reloads the aggregate, so that associated 
-		/// persistence behavior is exercised as needed.
-		/// </summary>
-		T PersistReload(T sut) ;
-	}
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common;
 
-	/// <summary>
-	/// Provides a fast no-op provider for unit tests to use.
-	/// </summary>
-    public class NoPersistenceProvider<T> : IPersistenceProvider<T> where T : class, IAggregateRoot
-	{
-		public T PersistReload(T sut)
-		{
-			return sut;
-		}
+    public class SeatsReservationCancelled : IEvent
+    {
+        private readonly Guid conferenceId;
+        private readonly Guid reservationId;
+        private readonly IEnumerable<SeatQuantity> availableSeatsChanged;
 
-		public void Dispose()
-		{
-		}
-	}
+        public SeatsReservationCancelled(Guid conferenceId, Guid reservationId, IEnumerable<SeatQuantity> availableSeatsChanged)
+        {
+            this.conferenceId = conferenceId;
+            this.reservationId = reservationId;
+            this.availableSeatsChanged = availableSeatsChanged.ToList();
+        }
+
+        public Guid ConferenceId { get { return this.conferenceId; } }
+
+        public Guid ReservationId { get { return this.reservationId; } }
+
+        public IEnumerable<SeatQuantity> AvailableSeatsChanged { get { return this.availableSeatsChanged; } }
+    }
 }

@@ -108,7 +108,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 new RegisterToConference
                 {
                     OrderId = orderId,
-                    Seats = { new SeatQuantity { Quantity = 10, SeatType = seatTypeId } }
+                    Seats = { new SeatQuantity(seatTypeId, 10) }
                 };
 
             // Act

@@ -11,29 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Registration.Events
 {
-    using System.Data.Entity;
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using Registration.Database;
-    using Xunit;
+    using Common;
 
-    public class RegistrationDbContextInitializerFixture
+    public class AvailableSeatsChanged : IEvent
     {
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        private readonly Guid conferenceId;
+        private readonly IEnumerable<SeatQuantity> seats;
+
+        public AvailableSeatsChanged(Guid conferenceId, IEnumerable<SeatQuantity> seats)
         {
-            var initializer = new RegistrationDbContextInitializer(new DropCreateDatabaseAlways<RegistrationDbContext>());
-
-            using (var context = new RegistrationDbContext("TestOrmRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
-
-            using (var context = new RegistrationDbContext("TestOrmRepository"))
-            {
-                Assert.Equal(1, context.Set<SeatsAvailability>().Count());
-            }
+            this.conferenceId = conferenceId;
+            this.seats = seats.ToList();
         }
+
+        public Guid ConferenceId { get { return this.conferenceId; } }
+
+        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
     }
 }

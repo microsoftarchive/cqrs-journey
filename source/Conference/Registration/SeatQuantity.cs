@@ -14,23 +14,28 @@
 namespace Registration
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
 
-    public class SeatQuantity
+    public struct SeatQuantity
     {
-        // Serialization ctor.
-        public SeatQuantity()
-        {
-        }
+        private Guid seatType;
+        private int quantity;
 
         public SeatQuantity(Guid seatType, int quantity)
         {
-            this.SeatType = seatType;
-            this.Quantity = quantity;
+            this.seatType = seatType;
+            this.quantity = quantity;
         }
 
-        [Key]
-        public Guid SeatType { get; set; }
-        public int Quantity { get; set; }
+        public Guid SeatType
+        {
+            get { return this.seatType; }
+            set { this.seatType = value; }
+        }
+
+        public int Quantity
+        {
+            get { return this.quantity; }
+            set { this.quantity = value; }
+        }
     }
 }

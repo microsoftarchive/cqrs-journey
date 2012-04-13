@@ -48,13 +48,10 @@ namespace Conference.Web.Public
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-            Database.SetInitializer(new OrmViewRepositoryInitializer(new RegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationDbContext>())));
+            Database.SetInitializer(new OrmViewRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmViewRepository>()));
             Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
 
-            // Views repository is currently the same as the domain DB. No initializer needed.
-            Database.SetInitializer<OrmViewRepository>(null);
-
-            using (var context = new RegistrationDbContext())
+            using (var context = this.container.Resolve<OrmViewRepository>("registration"))
             {
                 context.Database.Initialize(true);
             }
@@ -111,7 +108,8 @@ namespace Conference.Web.Public
 
             // repository
 
-            container.RegisterType(typeof(IRepository<>), typeof(MemoryEventRepository<>));
+            container.RegisterType(typeof(IRepository<>), typeof(MemoryEventRepository<>), new ContainerControlledLifetimeManager());
+            container.RegisterType<IRepository<SeatsAvailability>, SeatsAvailabilityRepository>(new ContainerControlledLifetimeManager());
             container.RegisterType<ISagaRepository, Registration.Database.OrmSagaRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
             container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
 
@@ -128,10 +126,7 @@ namespace Conference.Web.Public
 
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
 
-            container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>(
-                "SeatsAvailabilityHandler",
-                new TransientLifetimeManager(),
-                new InjectionFactory(u => new SeatsAvailabilityHandler(() => new SeatsAvailabilityRepository(u.Resolve<IEventBus>()))));
+            container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>(
                 "OrderViewModelGenerator",
