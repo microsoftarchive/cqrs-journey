@@ -108,7 +108,6 @@
     <Compile Include="Models\PaymentDetails.cs" />
     <Compile Include="Models\PaymentInfomation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnityDependencyResolver.cs" />
     <Compile Include="Utils\DateTimeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
