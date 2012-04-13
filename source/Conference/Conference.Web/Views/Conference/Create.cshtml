@@ -4,11 +4,53 @@
     ViewBag.Title = "Create";
 }
 
+@section Head {
+    <script>
+        $(function () {
+            // TODO: Is there a way to add these classes to the editors 
+            // without having to write custom editor templates?
+            $('#StartDate').addClass('datepicker');
+            $('#EndDate').addClass('datepicker');
+
+            $(".datepicker").datepicker();
+        });
+    </script>
+}
+
 <h2>Create</h2>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
 
+    <fieldset>
+        <legend>Owner Information</legend>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OwnerName)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.OwnerName)
+            @Html.ValidationMessageFor(model => model.OwnerName)
+        </div>        
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.OwnerEmail)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.OwnerEmail)
+            @Html.ValidationMessageFor(model => model.OwnerEmail)
+        </div>
+
+        <div class="editor-label">Confirm email: </div>
+        <div class="editor-field">
+            <input type="text" name="ConfirmEmail"
+                data-val="true" 
+                data-val-equalto="E-mail addresses do not match." 
+                data-val-equalto-other="OwnerEmail" 
+                data-val-required="Please confirm the e-mail address."/>
+            <span data-valmsg-replace="true" data-valmsg-for="ConfirmEmail" class="field-validation-valid"></span>
+        </div>
+    </fieldset>
+    
     <fieldset>
     <legend>Conference Information</legend>
 
@@ -59,5 +101,5 @@
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Back", "Index", "Home")
 </div>

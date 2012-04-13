@@ -11,26 +11,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
+using System.Linq;
+using System.Text;
+
 namespace Conference
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
-    public class SeatInfo
+    /// <summary>
+    /// Generates random alphnumerical strings.
+    /// </summary>
+    public static class HandleGenerator
     {
-        public SeatInfo()
+        private static Random rnd = new Random(DateTime.UtcNow.Millisecond);
+        private static char[] allowableChars = "ABCDEFGHJKMNPQRSTUVWXYZ123456789".ToCharArray();
+
+        public static string Generate(int length)
         {
-            this.Id = Guid.NewGuid();
+            var result = new StringBuilder();
+            for (int i = 0; i < length; i++)
+            {
+                result.Append(allowableChars[rnd.Next(0, allowableChars.Length)]);
+            }
+
+            return result.ToString();
         }
-
-        public Guid Id { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Name { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Description { get; set; }
-
-        public int Quantity { get; set; }
     }
 }

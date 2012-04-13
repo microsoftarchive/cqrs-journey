@@ -4,11 +4,50 @@
     ViewBag.Title = "Edit";
 }
 
+@section Head {
+    <script>
+        $(function () {
+            // TODO: Is there a way to add these classes to the editors 
+            // without having to write custom editor templates?
+            $('#StartDate').addClass('datepicker');
+            $('#EndDate').addClass('datepicker');
+
+            $(".datepicker").datepicker();
+        });
+    </script>
+}
+
+<p style="text-align: right">
+    @Html.DisplayFor(model => model.OwnerName)
+</p>
+
+@{ Html.RenderPartial("Navigation"); }
+
 <h2>Edit</h2>
 
-@using (Html.BeginForm()) {
+@using (Html.BeginForm())
+{
     @Html.ValidationSummary(true)
 
+    <fieldset>
+        <legend>Owner Information</legend>
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.OwnerName)
+        </div>
+        <div class="display-label">
+            @Html.DisplayFor(model => model.OwnerName)
+            @Html.HiddenFor(model => model.OwnerName)
+        </div>        
+
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.OwnerEmail)
+        </div>
+        <div class="display-label">
+            @Html.DisplayFor(model => model.OwnerEmail)
+            @Html.HiddenFor(model => model.OwnerEmail)
+        </div>
+    </fieldset>
+    
     <fieldset>
     <legend>Conference Information</legend>
 
@@ -26,7 +65,7 @@
             @Html.LabelFor(model => model.Description)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Description)
+            @Html.TextAreaFor(model => model.Description)
             @Html.ValidationMessageFor(model => model.Description)
         </div>
 
@@ -34,8 +73,8 @@
             @Html.LabelFor(model => model.Slug)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Slug)
-            @Html.ValidationMessageFor(model => model.Slug)
+            @Html.DisplayFor(model => model.Slug)
+            @Html.HiddenFor(model => model.Slug)
         </div>
 
         <div class="editor-label">
@@ -61,5 +100,5 @@
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Cancel", "Details", new { id = @Model.Id }, null)
 </div>

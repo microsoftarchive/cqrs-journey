@@ -4,11 +4,33 @@
     ViewBag.Title = "Details";
 }
 
+<p style="text-align: right">
+    @Html.DisplayFor(model => model.OwnerName)
+</p>
+
+@{ Html.RenderPartial("Navigation"); }
+
 <h2>Details</h2>
 
 <fieldset>
-    <legend>Conference Information</legend>
+    <legend>Owner Information</legend>
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.OwnerName)
+    </div>
+    <div class="display-label">
+        @Html.DisplayFor(model => model.OwnerName)
+    </div>        
 
+    <div class="display-label">
+        @Html.DisplayNameFor(model => model.OwnerEmail)
+    </div>
+    <div class="display-label">
+        @Html.DisplayFor(model => model.OwnerEmail)
+    </div>
+</fieldset>
+
+<fieldset>
+    <legend>Conference Information</legend>
     <div class="display-label">
          @Html.DisplayNameFor(model => model.Name)
     </div>
@@ -44,7 +66,7 @@
         @Html.DisplayFor(model => model.EndDate)
     </div>
 </fieldset>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id=Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null)
+</div>

@@ -1,100 +1,114 @@
-﻿using System;
-using System.Data;
-using System.Web.Mvc;
-
-namespace Conference.Web.Controllers
+﻿namespace Conference.Web.Controllers
 {
+    using System;
+    using System.Data;
+    using System.Linq;
+    using System.Web.Mvc;
+
     public class ConferenceController : Controller
     {
         private DomainContext db = new DomainContext();
 
-        //
-        // GET: /Conference/Details/5
+        public ActionResult Locate()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Locate(string email, string accessCode)
+        {
+            var conference = db.Conferences.FirstOrDefault(c => c.OwnerEmail == email && c.AccessCode == accessCode);
+            if (conference == null)
+            {
+                ViewBag.NotFound = true;
+                // Preserve input so the user doesn't have to type email again.
+                ViewBag.Email = email;
+
+                return Locate();
+            }
+
+            // TODO: not very secure ;).
+            return RedirectToAction("Details", new { id = conference.Id });
+        }
 
         public ActionResult Details(Guid id)
         {
-            ConferenceInfo conferenceinfo = db.Conferences.Find(id);
-            if (conferenceinfo == null)
+            var conference = db.Conferences.Find(id);
+            if (conference == null)
             {
                 return HttpNotFound();
             }
-            return View(conferenceinfo);
+            return View(conference);
         }
-
-        //
-        // GET: /Conference/Create
 
         public ActionResult Create()
         {
             return View();
         }
 
-        //
-        // POST: /Conference/Create
-
         [HttpPost]
-        public ActionResult Create(ConferenceInfo conferenceinfo)
+        public ActionResult Create(ConferenceInfo conference)
         {
             if (ModelState.IsValid)
             {
-                conferenceinfo.Id = Guid.NewGuid();
-                db.Conferences.Add(conferenceinfo);
+                var existingSlug = db.Conferences
+                    .Where(c => c.Slug == conference.Slug)
+                    .Select(c => c.Slug)
+                    .Any();
+
+                if (existingSlug)
+                {
+                    ModelState.AddModelError("Slug", "The chosen conference slug is already taken.");
+                    return View(conference);
+                }
+
+                conference.Id = Guid.NewGuid();
+                db.Conferences.Add(conference);
                 db.SaveChanges();
-                return RedirectToAction("Details", new { id = conferenceinfo.Id });
+                return RedirectToAction("Details", new { id = conference.Id });
             }
 
-            return View(conferenceinfo);
+            return View(conference);
         }
-
-        //
-        // GET: /Conference/Edit/5
 
         public ActionResult Edit(Guid id)
         {
-            ConferenceInfo conferenceinfo = db.Conferences.Find(id);
-            if (conferenceinfo == null)
+            var conference = db.Conferences.Find(id);
+            if (conference == null)
             {
                 return HttpNotFound();
             }
-            return View(conferenceinfo);
+            return View(conference);
         }
 
-        //
-        // POST: /Conference/Edit/5
-
         [HttpPost]
-        public ActionResult Edit(ConferenceInfo conferenceinfo)
+        public ActionResult Edit(ConferenceInfo conference)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(conferenceinfo).State = EntityState.Modified;
+                db.Entry(conference).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = conference.Id });
             }
-            return View(conferenceinfo);
-        }
 
-        //
-        // GET: /Conference/Delete/5
+            return View(conference);
+        }
 
         public ActionResult Delete(Guid id)
         {
-            ConferenceInfo conferenceinfo = db.Conferences.Find(id);
-            if (conferenceinfo == null)
+            var conference = db.Conferences.Find(id);
+            if (conference == null)
             {
                 return HttpNotFound();
             }
-            return View(conferenceinfo);
+            return View(conference);
         }
-
-        //
-        // POST: /Conference/Delete/5
 
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(Guid id)
         {
-            ConferenceInfo conferenceinfo = db.Conferences.Find(id);
-            db.Conferences.Remove(conferenceinfo);
+            var conference = db.Conferences.Find(id);
+            db.Conferences.Remove(conference);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

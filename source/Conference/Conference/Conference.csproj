@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="ConferenceInfo.cs" />
     <Compile Include="DomainContext.cs" />
+    <Compile Include="HandleGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeatInfo.cs" />
   </ItemGroup>
@@ -56,6 +57,12 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

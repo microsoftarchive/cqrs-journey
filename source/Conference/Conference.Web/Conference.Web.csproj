@@ -153,6 +153,11 @@
     <Content Include="Views\SeatInfo\Index.cshtml" />
     <Content Include="Views\SeatInfo\GridData.cshtml" />
     <Content Include="Views\SeatInfo\Edit.cshtml" />
+    <Content Include="Views\Conference\Locate.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Views\Conference\Navigation.cshtml" />
+    <Content Include="Views\SeatInfo\Navigation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Conference\Conference.csproj">
@@ -176,8 +181,8 @@
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>19996</DevelopmentServerPort>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>42000</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>

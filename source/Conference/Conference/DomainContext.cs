@@ -17,6 +17,11 @@ namespace Conference
 
     public class DomainContext : DbContext
     {
+        public DomainContext()
+            : base("ConferenceManagement")
+        {
+        }
+
         public virtual DbSet<ConferenceInfo> Conferences { get; set; }
         public virtual DbSet<SeatInfo> Seats { get; set; }
 
@@ -25,6 +30,10 @@ namespace Conference
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences");
+            // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
+            // Make seat infos required to have a conference info associated, but without 
+            // having to add a navigation property (don't polute the object model).
+            modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.SeatInfos).WithRequired();
             modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes");
         }
     }

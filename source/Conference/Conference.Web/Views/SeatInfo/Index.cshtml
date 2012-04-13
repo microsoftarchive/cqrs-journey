@@ -1,9 +1,15 @@
 ﻿@model IEnumerable<Conference.SeatInfo>
 @{
-    ViewBag.Title = "SeatInfo";
+    ViewBag.Title = "Seat Types";
 }
 
-<h2>SeatInfo</h2>
+<p style="text-align: right">
+    // TODO: get conference owner name
+</p>
+
+@{ Html.RenderPartial("Navigation"); }
+
+<h2>Seat Types</h2>
 
 <div id="grid-container">
     <p>
@@ -14,24 +20,18 @@
             <tr>
                 <th data-column-name="Name">
                     <span>@Html.DisplayNameFor(model => model.Name)</span>
-                    <a href="@Url.RouteUrl(new { orderBy = "Name", desc = true })" class="uparrow">&uarr;</a>
-                    <a href="@Url.RouteUrl(new { orderBy = "Name" })" class="downarrow">&darr;</a>
                 </th>
                 <th data-column-name="Description">
                     <span>@Html.DisplayNameFor(model => model.Description)</span>
-                    <a href="@Url.RouteUrl(new { orderBy = "Description", desc = true })" class="uparrow">&uarr;</a>
-                    <a href="@Url.RouteUrl(new { orderBy = "Description" })" class="downarrow">&darr;</a>
                 </th>
                 <th data-column-name="Quantity">
                     <span>@Html.DisplayNameFor(model => model.Quantity)</span>
-                    <a href="@Url.RouteUrl(new { orderBy = "Quantity", desc = true })" class="uparrow">&uarr;</a>
-                    <a href="@Url.RouteUrl(new { orderBy = "Quantity" })" class="downarrow">&darr;</a>
                 </th>
                 <th class="hidden"></th>
             </tr>
         </thead>
         <tbody>
-@{Html.RenderAction("GridData");}
+@{Html.RenderAction("GridData", new { conferenceId = ViewBag.ConferenceId });}
         </tbody>
     </table>
 </div>
@@ -50,7 +50,7 @@
 
         function createRow(row) {
             var postParams = getPostParams(row);
-            $.post('@Html.Raw(Url.Action("Create"))', postParams)
+            $.post('@Html.Raw(Url.Action("Create", new { conferenceId = ViewBag.ConferenceId }))', postParams)
                 .done(function(newRow) {
                     row.replaceWith(newRow);
                 })
@@ -60,7 +60,7 @@
         }
 
         function makeRowEditable(row) {
-            $.get('@Html.Raw(Url.Action("Edit", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), function(editableRow) {
+            $.get('@Html.Raw(Url.Action("Edit", new { conferenceId = ViewBag.ConferenceId, id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), function (editableRow) {
                 row.replaceWith(editableRow);
             });
         }
@@ -68,7 +68,7 @@
         function editRow(row) {
             var postParams = getPostParams(row);
             postParams.push({name: 'Id', value: row.data('pkey')});
-            $.post('@Html.Raw(Url.Action("Edit", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), postParams)
+            $.post('@Html.Raw(Url.Action("Edit", new { conferenceId = ViewBag.ConferenceId, id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), postParams)
                 .done(function(newRow) {
                     row.replaceWith(newRow);
                 })
@@ -79,7 +79,7 @@
 
         function deleteRow(row) {
             if (confirm('Are you sure you want to delete this row?')) {
-                $.post('@Html.Raw(Url.Action("Delete", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')))
+                $.post('@Html.Raw(Url.Action("Delete", new { conferenceId = ViewBag.ConferenceId, id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')))
                     .done(function() {
                         row.remove();
                     })
@@ -87,22 +87,6 @@
                         alert('Row deletion failed.');
                     });
             }
-        }
-
-        function disableLink() {
-            var elem = $(this),
-                classes = elem.attr('class'),
-                href = elem.attr('href'),
-                html = elem.html();
-            elem.replaceWith($('<span data-href="' + href + '" class="' + classes + '">' + html + '</span>'));
-        }
-
-        function enableLink() {
-            var elem = $(this),
-                classes = elem.attr('class'),
-                href = elem.data('href'),
-                html = elem.html();
-            elem.replaceWith($('<a href="' + href + '" class="' + classes + '">' + html + '</a>'));
         }
 
         function getPostParams(row) {
@@ -120,7 +104,7 @@
             gridContext.find('tr > *').filter(':last-child').removeClass('hidden');
 
             $('.insertEmptyRow').click(function(e) {
-                $.get('@Html.Raw(Url.Action("Create"))', function(emptyRow) {
+                $.get('@Html.Raw(Url.Action("Create", new { conferenceId = ViewBag.ConferenceId }))', function(emptyRow) {
                     gridContext.find('tbody').prepend(emptyRow);
                 });
                 e.preventDefault();
@@ -141,7 +125,7 @@
             });
             gridContext.delegate('.cancelEditRow', 'click', function() {
                 var row = $(this).parents('tr');
-                $.get('@Html.Raw(Url.Action("RowData", new { id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), function(newRow) {
+                $.get('@Html.Raw(Url.Action("RowData", new { conferenceId = ViewBag.ConferenceId, id = "__ID__" }))'.replace(/__ID__/, row.data('pkey')), function (newRow) {
                     row.replaceWith(newRow);
                 }); 
             });

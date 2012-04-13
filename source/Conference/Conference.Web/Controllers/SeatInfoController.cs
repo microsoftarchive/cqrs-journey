@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Data.Entity.Infrastructure;
-using System.Data.Objects;
-using System.Linq;
 using System.Web.Mvc;
 
 namespace Conference.Web.Controllers
@@ -11,54 +8,45 @@ namespace Conference.Web.Controllers
     {
         private DomainContext db = new DomainContext();
 
-        //
-        // GET: /SeatInfo/
-
-        public ViewResult Index(string orderBy = "Id", bool desc = false)
+        public ViewResult Index(Guid conferenceId)
         {
-            ViewBag.Count = db.Seats.Count();
-            ViewBag.OrderBy = orderBy;
-            ViewBag.Desc = desc;
-
+            ViewBag.ConferenceId = conferenceId;
             return View();
         }
 
-        public ActionResult GridData(string orderBy = "Id", bool desc = false)
+        public ActionResult GridData(Guid conferenceId)
         {
-            Response.AppendHeader("X-Total-Row-Count", db.Seats.Count().ToString());
-            ObjectQuery<SeatInfo> seats = (db as IObjectContextAdapter).ObjectContext.CreateObjectSet<SeatInfo>();
-            seats = seats.OrderBy("it." + orderBy + (desc ? " desc" : ""));
+            var conference = db.Conferences.Find(conferenceId);
+            if (conference == null)
+            {
+                return HttpNotFound();
+            }
 
-            return PartialView(seats);
+            return PartialView(conference.SeatInfos);
         }
 
-        //
-        // GET: /Default5/RowData/5
-
-        public ActionResult RowData(Guid id)
+        public ActionResult RowData(Guid conferenceId, Guid id)
         {
-            SeatInfo seatinfo = db.Seats.Find(id);
+            var seatinfo = db.Seats.Find(id);
             return PartialView("GridData", new SeatInfo[] { seatinfo });
         }
 
-        //
-        // GET: /SeatInfo/Create
-
-        public ActionResult Create()
+        public ActionResult Create(Guid conferenceId)
         {
+            ViewBag.ConferenceId = conferenceId;
+
             return PartialView("Edit");
         }
 
-        //
-        // POST: /SeatInfo/Create
-
         [HttpPost]
-        public ActionResult Create(SeatInfo seatinfo)
+        public ActionResult Create(Guid conferenceId, SeatInfo seatinfo)
         {
             if (ModelState.IsValid)
             {
                 seatinfo.Id = Guid.NewGuid();
-                db.Seats.Add(seatinfo);
+                // db.Seats.Add(seatinfo);
+                var conference = db.Conferences.Find(conferenceId);
+                conference.SeatInfos.Add(seatinfo);
                 db.SaveChanges();
                 return PartialView("GridData", new SeatInfo[] { seatinfo });
             }
@@ -66,20 +54,14 @@ namespace Conference.Web.Controllers
             return PartialView("Edit", seatinfo);
         }
 
-        //
-        // GET: /SeatInfo/Edit/5
-
-        public ActionResult Edit(Guid id)
+        public ActionResult Edit(Guid conferenceId, Guid id)
         {
-            SeatInfo seatinfo = db.Seats.Find(id);
+            var seatinfo = db.Seats.Find(id);
             return PartialView(seatinfo);
         }
 
-        //
-        // POST: /SeatInfo/Edit/5
-
         [HttpPost]
-        public ActionResult Edit(SeatInfo seatinfo)
+        public ActionResult Edit(Guid conferenceId, SeatInfo seatinfo)
         {
             if (ModelState.IsValid)
             {
@@ -91,11 +73,8 @@ namespace Conference.Web.Controllers
             return PartialView(seatinfo);
         }
 
-        //
-        // POST: /SeatInfo/Delete/5
-
         [HttpPost]
-        public void Delete(Guid id)
+        public void Delete(Guid conferenceId, Guid id)
         {
             SeatInfo seatinfo = db.Seats.Find(id);
             db.Seats.Remove(seatinfo);

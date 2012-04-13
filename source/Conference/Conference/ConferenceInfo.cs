@@ -16,28 +16,47 @@ namespace Conference
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
 
-    [DisplayName("Conference Information")]
     public class ConferenceInfo
     {
         public ConferenceInfo()
         {
             this.Id = Guid.NewGuid();
             this.SeatInfos = new ObservableCollection<SeatInfo>();
+            this.AccessCode = HandleGenerator.Generate(5);
         }
 
-        [Display(AutoGenerateField = false)]
         public Guid Id { get; set; }
+        public string AccessCode { get; set; }
+
+        [Display(Name = "Owner")]
+        [Required(AllowEmptyStrings = false)]
+        public string OwnerName { get; set; }
+
+        [Display(Name = "Email")]
+        [Required(AllowEmptyStrings = false)]
+        public string OwnerEmail { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Description { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Slug { get; set; }
 
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
         [Display(Name = "Start")]
         public DateTime StartDate { get; set; }
+
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
         [Display(Name = "End")]
         public DateTime EndDate { get; set; }
+
+        [Display(Name = "Published")]
+        public bool IsPublished { get; set; }
 
         public virtual ICollection<SeatInfo> SeatInfos { get; set; }
     }

@@ -1,10 +1,8 @@
 ﻿@{
     ViewBag.Title = "Orders for " + ViewBag.ConferenceName;
 }
-<h2>
-    Find order</h2>
-@using (Html.BeginForm())
-{
+<h2>Find order</h2>
+@using (Html.BeginForm()) {
     <div class="fieldset">
         <div><label class="editor-label">Email:</label><input type="text" class="" name="email" /></div>
         <div><label class="editor-label">Order #:</label><input type="text" class="" name="accessCode" /></div>
