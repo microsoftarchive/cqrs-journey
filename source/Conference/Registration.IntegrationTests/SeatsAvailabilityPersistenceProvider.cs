@@ -18,44 +18,46 @@ namespace Registration.IntegrationTests
     using Registration.Database;
     using Registration.Tests;
 
-    public class OrmPersistenceProvider : IPersistenceProvider
+    public class SeatsAvailabilityPersistenceProvider : IPersistenceProvider<SeatsAvailability>
     {
-        private OrmRepository orm;
+        private RegistrationDbContext orm;
 
-        private OrmRepository Orm
+        private RegistrationDbContext Orm
         {
             get
             {
                 if (this.orm == null)
                 {
-                    using (var context = new OrmRepository("TestOrmRepository"))
+                    using (var context = new RegistrationDbContext("TestOrmRepository"))
                     {
                         if (context.Database.Exists())
                             context.Database.Delete();
 
-                        System.Data.Entity.Database.SetInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>()));
+                        System.Data.Entity.Database.SetInitializer(new RegistrationDbContextInitializer(new DropCreateDatabaseAlways<RegistrationDbContext>()));
                         context.Database.Initialize(true);
                     }
 
-                    this.orm = new OrmRepository("TestOrmRepository");
+                    this.orm = new RegistrationDbContext("TestOrmRepository");
                 }
 
                 return this.orm;
             }
         }
 
-        public T PersistReload<T>(T sut)
-            where T : class, IAggregateRoot
+        public SeatsAvailability PersistReload(SeatsAvailability sut)
         {
-            this.Orm.Save(sut);
-            this.Orm.Entry(sut).Reload();
+            var context = this.Orm;
+            context.ConferenceSeats.Attach(sut);
+            context.SaveChanges();
+            context.Entry(sut).Reload();
             return sut;
         }
 
         public void Dispose()
         {
-            if (this.orm != null)
-                this.orm.Dispose();
+            using (this.orm)
+            {
+            }
         }
     }
 }

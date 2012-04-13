@@ -48,13 +48,13 @@ namespace Conference.Web.Public
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-            Database.SetInitializer(new OrmViewRepositoryInitializer(new OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmRepository>())));
+            Database.SetInitializer(new OrmViewRepositoryInitializer(new RegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationDbContext>())));
             Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
 
             // Views repository is currently the same as the domain DB. No initializer needed.
             Database.SetInitializer<OrmViewRepository>(null);
 
-            using (var context = this.container.Resolve<OrmRepository>("registration"))
+            using (var context = new RegistrationDbContext())
             {
                 context.Database.Initialize(true);
             }
@@ -78,7 +78,6 @@ namespace Conference.Web.Public
         private static UnityContainer CreateContainer()
         {
             var container = new UnityContainer();
-
             // infrastructure
 #if LOCAL
             container.RegisterType<ICommandBus, MemoryCommandBus>(new ContainerControlledLifetimeManager());
@@ -112,11 +111,9 @@ namespace Conference.Web.Public
 
             // repository
 
-            container.RegisterType<IRepository, Registration.Database.OrmRepository>("registration", new InjectionConstructor(typeof(IEventBus)));
+            container.RegisterType(typeof(IRepository<>), typeof(MemoryEventRepository<>));
             container.RegisterType<ISagaRepository, Registration.Database.OrmSagaRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
             container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
-
-            commandProcessor.Register(new OrderCommandHandler(new MemoryEventRepository<Order>(eventBus)));
 
             // handlers
 
@@ -129,13 +126,12 @@ namespace Conference.Web.Public
                 new ContainerControlledLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<ISagaRepository>>("registration")));
 
-            container.RegisterType<ICommandHandler, OrderCommandHandler>(
-                "OrderCommandHandler",
-                new InjectionConstructor(new ResolvedParameter<Func<IRepository>>("registration")));
+            container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
 
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>(
                 "SeatsAvailabilityHandler",
-                new InjectionConstructor(new ResolvedParameter<Func<IRepository>>("registration")));
+                new TransientLifetimeManager(),
+                new InjectionFactory(u => new SeatsAvailabilityHandler(() => new SeatsAvailabilityRepository(u.Resolve<IEventBus>()))));
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>(
                 "OrderViewModelGenerator",

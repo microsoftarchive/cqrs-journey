@@ -23,9 +23,9 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         private static readonly Guid SeatTypeId = Guid.NewGuid();
 
         private SeatsAvailability sut;
-        private IPersistenceProvider sutProvider;
+        private IPersistenceProvider<SeatsAvailability> sutProvider;
 
-        protected given_available_seats(IPersistenceProvider sutProvider)
+        protected given_available_seats(IPersistenceProvider<SeatsAvailability> sutProvider)
         {
             this.sutProvider = sutProvider;
             this.sut = new SeatsAvailability(SeatTypeId);
@@ -35,7 +35,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         }
 
         public given_available_seats()
-            : this(new NoPersistenceProvider())
+            : this(new NoPersistenceProvider<SeatsAvailability>())
         {
         }
 
@@ -102,13 +102,13 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
     {
         private setup_existing_reservation setup;
 
-        protected given_some_avilable_seats_and_some_taken(IPersistenceProvider sutProvider)
+        protected given_some_avilable_seats_and_some_taken(IPersistenceProvider<SeatsAvailability> sutProvider)
         {
             this.setup = new setup_existing_reservation(sutProvider);
         }
 
         public given_some_avilable_seats_and_some_taken()
-            : this(new NoPersistenceProvider())
+            : this(new NoPersistenceProvider<SeatsAvailability>())
         {
         }
 
@@ -148,13 +148,13 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
     {
         private setup_existing_reservation setup;
 
-        protected given_an_existing_reservation(IPersistenceProvider sutProvider)
+        protected given_an_existing_reservation(IPersistenceProvider<SeatsAvailability> sutProvider)
         {
             this.setup = new setup_existing_reservation(sutProvider);
         }
 
         public given_an_existing_reservation()
-            : this(new NoPersistenceProvider())
+            : this(new NoPersistenceProvider<SeatsAvailability>())
         {
         }
 
@@ -288,9 +288,9 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         public readonly Guid ReservationId = Guid.NewGuid();
 
         public SeatsAvailability Sut { get; set; }
-        public IPersistenceProvider Persistence { get; private set; }
+        public IPersistenceProvider<SeatsAvailability> Persistence { get; private set; }
 
-        public setup_existing_reservation(IPersistenceProvider persistence)
+        public setup_existing_reservation(IPersistenceProvider<SeatsAvailability> persistence)
         {
             this.Persistence = persistence;
             this.Sut = new SeatsAvailability(Guid.NewGuid());

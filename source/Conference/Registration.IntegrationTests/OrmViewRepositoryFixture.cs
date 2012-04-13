@@ -24,13 +24,13 @@ namespace Registration.IntegrationTests
         [Fact]
         public void WhenReadingViewDTO_ThenSucceedsIfAggregateExists()
         {
-            Database.SetInitializer<OrmRepository>(
+            Database.SetInitializer<RegistrationDbContext>(
                 new OrmViewRepositoryInitializer(
-                    new OrmRepositoryInitializer(
-                        new DropCreateDatabaseAlways<OrmRepository>())));
+                    new RegistrationDbContextInitializer(
+                        new DropCreateDatabaseAlways<RegistrationDbContext>())));
             Database.SetInitializer<OrmViewRepository>(null);
 
-            using (var context = new OrmRepository("TestOrmRepository"))
+            using (var context = new RegistrationDbContext("TestOrmRepository"))
             {
                 if (context.Database.Exists())
                     context.Database.Delete();

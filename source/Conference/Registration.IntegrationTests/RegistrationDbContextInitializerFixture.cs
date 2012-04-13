@@ -18,19 +18,19 @@ namespace Registration.IntegrationTests
     using Registration.Database;
     using Xunit;
 
-    public class OrmRepositoryInitializerFixture
+    public class RegistrationDbContextInitializerFixture
     {
         [Fact]
         public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
         {
-            var initializer = new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>());
+            var initializer = new RegistrationDbContextInitializer(new DropCreateDatabaseAlways<RegistrationDbContext>());
 
-            using (var context = new OrmRepository("TestOrmRepository"))
+            using (var context = new RegistrationDbContext("TestOrmRepository"))
             {
                 initializer.InitializeDatabase(context);
             }
 
-            using (var context = new OrmRepository("TestOrmRepository"))
+            using (var context = new RegistrationDbContext("TestOrmRepository"))
             {
                 Assert.Equal(1, context.Set<SeatsAvailability>().Count());
             }

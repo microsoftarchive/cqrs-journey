@@ -20,19 +20,19 @@ namespace Registration.ReadModel
     using System.Linq;
     using Registration.Database;
 
-    public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmRepository>
+    public class OrmViewRepositoryInitializer : IDatabaseInitializer<RegistrationDbContext>
     {
         // NOTE: we initialize the same OrmRepository for both because we happen to 
         // persist the views in the same database. This is not required and could be 
         // a separate one if we weren't using SQL Views to drive them.
-        private IDatabaseInitializer<OrmRepository> innerInitializer;
+        private IDatabaseInitializer<RegistrationDbContext> innerInitializer;
 
-        public OrmViewRepositoryInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
+        public OrmViewRepositoryInitializer(IDatabaseInitializer<RegistrationDbContext> innerInitializer)
         {
             this.innerInitializer = innerInitializer;
         }
 
-        public void InitializeDatabase(OrmRepository context)
+        public void InitializeDatabase(RegistrationDbContext context)
         {
             this.innerInitializer.InitializeDatabase(context);
 

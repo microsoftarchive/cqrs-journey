@@ -64,7 +64,8 @@ namespace Registration
 
         public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> seats)
         {
-            if (seats.Any(x => !this.Seats.Any(availability => x.SeatType == availability.SeatType)))
+            var wantedSeats = seats.ToList();
+            if (wantedSeats.Any(x => !this.Seats.Any(availability => x.SeatType == availability.SeatType)))
             {
                     throw new ArgumentOutOfRangeException("seats");
             }
@@ -72,7 +73,7 @@ namespace Registration
             var reserved = new SeatsReserved { ReservationId = reservationId };
             foreach (var availability in this.Seats)
             {
-                var seat = seats.FirstOrDefault(x => x.SeatType == availability.SeatType);
+                var seat = wantedSeats.FirstOrDefault(x => x.SeatType == availability.SeatType);
                 if (seat != null)
                 {
                     var actualReserved = availability.Reserve(reservationId, seat.Quantity);

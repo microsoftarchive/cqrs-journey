@@ -48,7 +48,7 @@ namespace Registration
 
         public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)  : this()
         {
-            this.Update(new OrderPlaced(id, conferenceId, ConvertItems(items), DateTime.UtcNow.Add(ReservationAutoExpiration), HandleGenerator.Generate(5)));
+            this.Update(new OrderPlaced(id, conferenceId, ConvertItems(items), DateTime.UtcNow.Add(ReservationAutoExpiration), HandleGenerator.Generate(6)));
         }
 
         public override Guid Id

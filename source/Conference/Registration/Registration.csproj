@@ -58,8 +58,9 @@
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\MemoryEventRepository.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
-    <Compile Include="Database\OrmRepository.cs" />
-    <Compile Include="Database\OrmRepositoryInitializer.cs" />
+    <Compile Include="Database\SeatsAvailabilityRepository.cs" />
+    <Compile Include="Database\RegistrationDbContextInitializer.cs" />
+    <Compile Include="Database\RegistrationDbContext.cs" />
     <Compile Include="Events\OrderPaymentConfirmed.cs" />
     <Compile Include="Events\OrderExpired.cs" />
     <Compile Include="Events\OrderPartiallyReserved.cs" />

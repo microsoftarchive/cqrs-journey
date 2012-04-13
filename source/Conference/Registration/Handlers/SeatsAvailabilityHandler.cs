@@ -25,9 +25,9 @@ namespace Registration.Handlers
         ICommandHandler<CancelSeatReservation>,
         ICommandHandler<CommitSeatReservation>
     {
-        private Func<IRepository> repositoryFactory;
+        private readonly Func<IRepository<SeatsAvailability>> repositoryFactory;
 
-        public SeatsAvailabilityHandler(Func<IRepository> repositoryFactory)
+        public SeatsAvailabilityHandler(Func<IRepository<SeatsAvailability>> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
@@ -37,7 +37,7 @@ namespace Registration.Handlers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
+                var availability = repo.Find(command.ConferenceId);
                 if (availability != null)
                 {
                     availability.MakeReservation(command.ReservationId, command.Seats);
@@ -52,7 +52,7 @@ namespace Registration.Handlers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
+                var availability = repo.Find(command.ConferenceId);
                 if (availability != null)
                 {
                     availability.CancelReservation(command.ReservationId);
@@ -67,7 +67,7 @@ namespace Registration.Handlers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
+                var availability = repo.Find(command.ConferenceId);
                 if (availability != null)
                 {
                     availability.CommitReservation(command.ReservationId);
