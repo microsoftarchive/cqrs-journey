@@ -18,7 +18,7 @@ namespace Payments.Database
     using System.Transactions;
     using Common;
 
-    public class OrmRepository : DbContext, IRepository
+    public class OrmRepository : DbContext, IRepository<ThirdPartyProcessorPayment>
     {
         private IEventBus eventBus;
 
@@ -43,17 +43,17 @@ namespace Payments.Database
             this.eventBus = eventBus;
         }
 
-        public T Find<T>(Guid id) where T : class, IAggregateRoot
+        public ThirdPartyProcessorPayment Find(Guid id)
         {
-            return this.Set<T>().Find(id);
+            return this.Set<ThirdPartyProcessorPayment>().Find(id);
         }
 
-        public void Save<T>(T aggregate) where T : class, IAggregateRoot
+        public void Save(ThirdPartyProcessorPayment aggregate)
         {
             var entry = this.Entry(aggregate);
 
             if (entry.State == System.Data.EntityState.Detached)
-                this.Set<T>().Add(aggregate);
+                this.Set<ThirdPartyProcessorPayment>().Add(aggregate);
 
             using (var scope = new TransactionScope())
             {

@@ -60,6 +60,9 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
         {
             // Arrange
             var paymentId = Guid.NewGuid();
+            this.viewRepositoryMock
+                .Setup(vr => vr.Find<ThirdPartyProcessorPaymentDetailsDTO>(It.IsAny<Guid>()))
+                .Returns(new ThirdPartyProcessorPaymentDetailsDTO(Guid.NewGuid(), Payments.ThirdPartyProcessorPayment.States.Initiated, Guid.NewGuid(), "payment", 100d));
 
             // Act
             var result = (RedirectResult)this.sut.ThirdPartyProcessorPayment("conference", paymentId, "accept", "reject");

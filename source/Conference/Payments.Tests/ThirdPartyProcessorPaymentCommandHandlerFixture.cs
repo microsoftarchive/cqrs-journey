@@ -23,12 +23,12 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
 
     public class given_no_payment
     {
-        private Mock<IRepository> repositoryMock;
+        private Mock<IRepository<ThirdPartyProcessorPayment>> repositoryMock;
         private ThirdPartyProcessorPaymentCommandHandler handler;
 
         public given_no_payment()
         {
-            this.repositoryMock = new Mock<IRepository>();
+            this.repositoryMock = new Mock<IRepository<ThirdPartyProcessorPayment>>();
             this.handler = new ThirdPartyProcessorPaymentCommandHandler(() => this.repositoryMock.Object);
         }
 
@@ -41,7 +41,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
             var conferenceId = Guid.NewGuid();
 
             this.repositoryMock
-                .Setup(x => x.Save<ThirdPartyProcessorPayment>(It.IsAny<ThirdPartyProcessorPayment>()))
+                .Setup(x => x.Save(It.IsAny<ThirdPartyProcessorPayment>()))
                 .Callback<ThirdPartyProcessorPayment>(p => payment = p);
 
             this.handler.Handle(
@@ -65,17 +65,17 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
 
     public class given_initiated_payment
     {
-        private Mock<IRepository> repositoryMock;
+        private Mock<IRepository<ThirdPartyProcessorPayment>> repositoryMock;
         private ThirdPartyProcessorPayment payment;
         private ThirdPartyProcessorPaymentCommandHandler handler;
 
         public given_initiated_payment()
         {
-            this.repositoryMock = new Mock<IRepository>();
+            this.repositoryMock = new Mock<IRepository<ThirdPartyProcessorPayment>>();
             this.payment = new ThirdPartyProcessorPayment(Guid.NewGuid(), Guid.NewGuid(), "payment", 100, new ThidPartyProcessorPaymentItem[0]);
             this.handler = new ThirdPartyProcessorPaymentCommandHandler(() => this.repositoryMock.Object);
 
-            repositoryMock.Setup(x => x.Find<ThirdPartyProcessorPayment>(payment.Id)).Returns(payment);
+            repositoryMock.Setup(x => x.Find(payment.Id)).Returns(payment);
         }
 
         [Fact]

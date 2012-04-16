@@ -20,6 +20,7 @@ namespace Conference.Web.Public
     using Common;
     using Common.Sql;
     using Microsoft.Practices.Unity;
+    using Payments;
     using Payments.Handlers;
     using Registration;
     using Registration.Database;
@@ -27,6 +28,9 @@ namespace Conference.Web.Public
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
     using Newtonsoft.Json;
+    using System.Web;
+    using Azure;
+    using Azure.Messaging;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -73,7 +77,7 @@ namespace Conference.Web.Public
             }
 
             container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
-            using (var context = this.container.Resolve<Payments.Database.OrmRepository>("payments"))
+            using (var context = this.container.Resolve<Payments.Database.OrmRepository>())
             {
                 context.Database.Initialize(true);
             }
@@ -134,8 +138,8 @@ namespace Conference.Web.Public
                 new InjectionConstructor(new ResolvedParameter(typeof(Func<DbContext>), "registration"), typeof(ICommandBus)));
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
-            container.RegisterType<IRepository, Payments.Database.OrmRepository>("payments", new InjectionConstructor(typeof(IEventBus)));
-            container.RegisterType<Payments.ReadModel.IViewRepository, Payments.ReadModel.OrmViewRepository>("payments", new InjectionConstructor());
+            container.RegisterType<IRepository<ThirdPartyProcessorPayment>, Payments.Database.OrmRepository>(new InjectionConstructor(typeof(IEventBus)));
+            container.RegisterType<IViewRepository, Payments.ReadModel.OrmViewRepository>("payments", new InjectionConstructor());
 
 
             // handlers
@@ -151,8 +155,7 @@ namespace Conference.Web.Public
             container.RegisterType<IConferenceDao, ConferenceDao>();
 
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>(
-                "ThirdPartyProcessorPaymentCommandHandler",
-                new InjectionConstructor(new ResolvedParameter<Func<IRepository>>("payments")));
+                "ThirdPartyProcessorPaymentCommandHandler");
 
             return container;
         }

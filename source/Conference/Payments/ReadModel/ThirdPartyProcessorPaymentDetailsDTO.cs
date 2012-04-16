@@ -14,15 +14,21 @@
 namespace Payments.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
     public class ThirdPartyProcessorPaymentDetailsDTO
     {
+        public ThirdPartyProcessorPaymentDetailsDTO(Guid id, ThirdPartyProcessorPayment.States state, Guid sourceId, string description, double totalAmount)
+        {
+            this.Id = id;
+            this.State = state;
+            this.SourceId = sourceId;
+            this.Description = description;
+            this.TotalAmount = totalAmount;
+        }
+
         protected ThirdPartyProcessorPaymentDetailsDTO()
         {
-            //this.Items = new ObservableCollection<PaymentItemDTO>();
         }
 
         [Key]
@@ -42,7 +48,5 @@ namespace Payments.ReadModel
         public string Description { get; private set; }
 
         public double TotalAmount { get; private set; }
-
-        //public virtual ICollection<PaymentItemDTO> Items { get; private set; }
     }
 }

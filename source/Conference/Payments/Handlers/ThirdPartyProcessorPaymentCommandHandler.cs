@@ -23,9 +23,9 @@ namespace Payments.Handlers
         ICommandHandler<CompleteThirdPartyProcessorPayment>,
         ICommandHandler<CancelThirdPartyProcessorPayment>
     {
-        private Func<IRepository> repositoryFactory;
+        private Func<IRepository<ThirdPartyProcessorPayment>> repositoryFactory;
 
-        public ThirdPartyProcessorPaymentCommandHandler(Func<IRepository> repositoryFactory)
+        public ThirdPartyProcessorPaymentCommandHandler(Func<IRepository<ThirdPartyProcessorPayment>> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
@@ -49,7 +49,7 @@ namespace Payments.Handlers
 
             using (repository as IDisposable)
             {
-                var payment = repository.Find<ThirdPartyProcessorPayment>(command.PaymentId);
+                var payment = repository.Find(command.PaymentId);
 
                 if (payment != null)
                 {
@@ -65,7 +65,7 @@ namespace Payments.Handlers
 
             using (repository as IDisposable)
             {
-                var payment = repository.Find<ThirdPartyProcessorPayment>(command.PaymentId);
+                var payment = repository.Find(command.PaymentId);
 
                 if (payment != null)
                 {
