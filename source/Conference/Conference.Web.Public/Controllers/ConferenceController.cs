@@ -22,7 +22,7 @@ namespace Conference.Web.Public.Controllers
 
     public class ConferenceController : Controller
     {
-        private Func<IViewRepository> repositoryFactory;
+        private readonly Func<IViewRepository> repositoryFactory;
 
         public ConferenceController([Dependency("registration")]Func<IViewRepository> repositoryFactory)
         {
@@ -44,9 +44,7 @@ namespace Conference.Web.Public.Controllers
             var repo = this.repositoryFactory();
             using (repo as IDisposable)
             {
-                return repo.Query<ConferenceDescriptionDTO>()
-                    .Where(dto => dto.Code == conferenceCode)
-                    .FirstOrDefault();
+                return repo.Query<ConferenceDescriptionDTO>().FirstOrDefault(dto => dto.Code == conferenceCode);
             }
         }
     }

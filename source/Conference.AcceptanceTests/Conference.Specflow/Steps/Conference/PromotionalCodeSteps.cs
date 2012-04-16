@@ -16,7 +16,7 @@ namespace Conference.Specflow.Steps.Conference
 
         private dynamic _newPromoCode;
         
-        [Given(@"the following Promotional Codes")]
+        [Given(@"the ?|following Promotional Codes")]
         public void GivenThePromotionalCodes(Table table)
         {
             _promotionalCodes.Clear();

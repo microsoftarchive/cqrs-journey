@@ -4,12 +4,13 @@
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
+	Given the 'CQRS summit 2012 conference' site conference
+	And the following seating types and prices
 	| seat type                        | rate |
 	| General admission                | $199 |
 	| Pre-con Workshop with Greg Young | $500 |
 	| Additional cocktail party		   | $50  |	
-	And the selected Order Items
+	And the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
