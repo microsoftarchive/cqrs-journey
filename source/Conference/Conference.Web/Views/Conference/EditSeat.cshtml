@@ -16,7 +16,11 @@
         @Html.ValidationMessageFor(model => model.Quantity)
     </td>
     <td>
-@if (ViewContext.RouteData.Values["Action"].ToString() == "Edit") {
+        @Html.EditorFor(model => model.Price)
+        @Html.ValidationMessageFor(model => model.Price)
+    </td>
+    <td>
+@if (ViewContext.RouteData.Values["Action"].ToString() == "EditSeat") {
         <button class="editRow">Save</button><button class="cancelEditRow">Cancel</button>
 } else {
         <button class="createRow">Create</button><button class="cancelCreateRow">Cancel</button>
