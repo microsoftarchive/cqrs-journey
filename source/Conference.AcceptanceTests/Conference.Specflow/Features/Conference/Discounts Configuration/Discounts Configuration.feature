@@ -4,10 +4,10 @@
 	I want to be able to create or update a Promotional Code and set its properties
 
 Background: 
-Given the Promotional Codes
-         | Promotional Code | Discount | Quota     | Scope | Cumulative |
-         | SPEAKER123       | 100%     | Unlimited | All   |            |
-And the Seat Types configuration
+Given the following Promotional Codes
+		 | Promotional Code | Discount | Quota     | Scope | Cumulative |
+		 | SPEAKER123       | 100%     | Unlimited | All   |            |
+And the following Seat Types
 	| seat type                        | quota |
 	| General admission                | 500   |
 	| Pre-con Workshop with Greg Young | 100   |
@@ -17,20 +17,19 @@ And the Seat Types configuration
 
 # New Promo Code  Happy path
 Scenario: Create a new Promotional Code
-Given the Business Customer selects 'Add new Promotional code' option
-And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
-	| Discount | Quota     | Scope             | Cumulative |
-	| 10%      | Unlimited | General admission | SPEAKER123 |
-When the 'Save' option is selected
+When the following Promotional Code is entered
+	| Promotional Code | Discount | Quota     | Scope             | Cumulative |
+	| NEWCODE          | 10%      | Unlimited | General admission | SPEAKER123 |
+And the 'Save' option is selected
 Then the new Promotional Code is added to the list of existing codes
 
 
 # New Promo Code Sad path
 Scenario: Create a new Promotional Code with with exceeding quota
 Given the Business Customer selects 'Add new Promotional code' option
-And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
-	| Discount | Quota | Scope             | Cumulative |
-	| 10%      | 1000  | General admission | SPEAKER123 |
+And the following Promotional Code is entered
+	| Promotional Code | Discount | Quota | Scope             | Cumulative |
+	| NEWCODE          | 10%      | 1000  | General admission | SPEAKER123 |
 When the 'Save' option is selected
 Then an error message will show up describing that the quota value exceeds the total seats for the specified Seat Type
 

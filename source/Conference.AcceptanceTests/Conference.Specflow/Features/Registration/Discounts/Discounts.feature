@@ -9,7 +9,7 @@ Background:
 	| General admission                | $199 |
 	| Pre-con Workshop with Greg Young | $500 |
 	| Additional cocktail party		   | $50  |	
-	And the Promotional Codes
+	And the following Promotional Codes
 	| Promotional Code | Discount | Quota     | Scope                                               | Cumulative |
 	| SPEAKER123       | 100%     | Unlimited | All                                                 |            |
 	| VOLUNTEER        | 100%     | Unlimited | General admission                                   |            |
