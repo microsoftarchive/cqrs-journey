@@ -16,7 +16,7 @@ namespace Common
     using System.Collections.Generic;
 
     /// <summary>
-    /// Interface implemented by sagas that publish commands to the command bus.
+    /// Interface implemented by processes that publish commands to the command bus.
     /// </summary>
     public interface ICommandPublisher
     {

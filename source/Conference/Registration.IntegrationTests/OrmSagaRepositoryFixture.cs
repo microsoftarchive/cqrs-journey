@@ -22,11 +22,11 @@ namespace Registration.Tests
     using Registration.Database;
     using Xunit;
 
-    public class OrmSagaRepositoryFixture
+    public class OrmProcessRepositoryFixture
     {
-        public OrmSagaRepositoryFixture()
+        public OrmProcessRepositoryFixture()
         {
-            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
             {
                 if (context.Database.Exists()) context.Database.Delete();
 
@@ -39,15 +39,15 @@ namespace Registration.Tests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
             {
-                var conference = new OrmTestSaga(id);
+                var conference = new OrmTestProcess(id);
                 context.Save(conference);
             }
 
-            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
             {
-                var conference = context.Find<OrmTestSaga>(id);
+                var conference = context.Find<OrmTestProcess>(id);
 
                 Assert.NotNull(conference);
             }
@@ -58,15 +58,15 @@ namespace Registration.Tests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
             {
-                var conference = new OrmTestSaga(id);
+                var conference = new OrmTestProcess(id);
                 context.Save(conference);
             }
 
-            using (var context = new TestOrmSagaRepository(Mock.Of<ICommandBus>()))
+            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
             {
-                var conference = context.Find<OrmTestSaga>(id);
+                var conference = context.Find<OrmTestProcess>(id);
                 conference.Title = "CQRS Journey";
 
                 context.Save(conference);
@@ -88,9 +88,9 @@ namespace Registration.Tests
 
             var command = new TestCommand();
 
-            using (var context = new TestOrmSagaRepository(bus.Object))
+            using (var context = new TestOrmProcessRepository(bus.Object))
             {
-                var aggregate = new OrmTestSaga(Guid.NewGuid());
+                var aggregate = new OrmTestProcess(Guid.NewGuid());
                 aggregate.AddCommand(command);
                 context.Save(aggregate);
             }
@@ -99,14 +99,14 @@ namespace Registration.Tests
             Assert.True(commands.Contains(command));
         }
 
-        public class TestOrmSagaRepository : OrmSagaRepository
+        public class TestOrmProcessRepository : OrmProcessRepository
         {
-            public TestOrmSagaRepository(ICommandBus commandBus)
-                : base("TestOrmSagaRepository", commandBus)
+            public TestOrmProcessRepository(ICommandBus commandBus)
+                : base("TestOrmProcessRepository", commandBus)
             {
             }
 
-            public DbSet<OrmTestSaga> TestSagas { get; set; }
+            public DbSet<OrmTestProcess> TestProcesses { get; set; }
         }
 
         public class TestCommand : ICommand
@@ -115,13 +115,13 @@ namespace Registration.Tests
         }
     }
 
-    public class OrmTestSaga : IAggregateRoot, ICommandPublisher
+    public class OrmTestProcess : IAggregateRoot, ICommandPublisher
     {
         private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
-        protected OrmTestSaga() { }
+        protected OrmTestProcess() { }
 
-        public OrmTestSaga(Guid id)
+        public OrmTestProcess(Guid id)
         {
             this.Id = id;
         }

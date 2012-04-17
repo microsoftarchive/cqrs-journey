@@ -11,23 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Common
 {
-    using System.Data.Entity;
-    using Registration.Database;
-    using Xunit;
+	using System;
+	using System.Linq;
 
-    public class OrmSagaRepositoryInitializerFixture
-    {
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
-        {
-            var initializer = new OrmSagaRepositoryInitializer(new DropCreateDatabaseAlways<OrmSagaRepository>());
+    public interface IProcessRepository
+	{
+        T Find<T>(Guid id) where T : class, IAggregateRoot;
 
-            using (var context = new OrmSagaRepository("TestOrmSagaRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
-        }
-    }
+        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+
+		// TODO: queryability to reload processes from correlation ids, etc. 
+		// Is this appropriate? How do others reload processes? (MassTransit 
+		// uses this kind of queryable thinghy, apparently).
+		IQueryable<T> Query<T>() where T : class, IAggregateRoot;
+	}
 }

@@ -15,16 +15,16 @@ namespace Registration.Database
 {
     using System.Data.Entity;
 
-    public class OrmSagaRepositoryInitializer : IDatabaseInitializer<OrmSagaRepository>
+    public class OrmProcessRepositoryInitializer : IDatabaseInitializer<OrmProcessRepository>
     {
-        private IDatabaseInitializer<OrmSagaRepository> innerInitializer;
+        private IDatabaseInitializer<OrmProcessRepository> innerInitializer;
 
-        public OrmSagaRepositoryInitializer(IDatabaseInitializer<OrmSagaRepository> innerInitializer)
+        public OrmProcessRepositoryInitializer(IDatabaseInitializer<OrmProcessRepository> innerInitializer)
         {
             this.innerInitializer = innerInitializer;
         }
 
-        public void InitializeDatabase(OrmSagaRepository context)
+        public void InitializeDatabase(OrmProcessRepository context)
         {
             this.innerInitializer.InitializeDatabase(context);
 

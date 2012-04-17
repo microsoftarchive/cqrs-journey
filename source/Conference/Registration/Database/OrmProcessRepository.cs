@@ -18,26 +18,26 @@ namespace Registration.Database
     using System.Linq;
     using Common;
 
-    public class OrmSagaRepository : DbContext, ISagaRepository
+    public class OrmProcessRepository : DbContext, IProcessRepository
     {
-        private ICommandBus commandBus;
+        private readonly ICommandBus commandBus;
 
-        public OrmSagaRepository()
-            : this("ConferenceRegistrationSagas")
+        public OrmProcessRepository()
+            : this("ConferenceRegistrationProcesses")
         {
         }
 
-        public OrmSagaRepository(string nameOrConnectionString)
+        public OrmProcessRepository(string nameOrConnectionString)
             : this(nameOrConnectionString, new MemoryCommandBus())
         {
         }
 
-        public OrmSagaRepository(ICommandBus commandBus)
-            : this("ConferenceRegistrationSagas", commandBus)
+        public OrmProcessRepository(ICommandBus commandBus)
+            : this("ConferenceRegistrationProcesses", commandBus)
         {
         }
 
-        public OrmSagaRepository(string nameOrConnectionString, ICommandBus commandBus)
+        public OrmProcessRepository(string nameOrConnectionString, ICommandBus commandBus)
             : base(nameOrConnectionString)
         {
             this.commandBus = commandBus;
@@ -69,6 +69,6 @@ namespace Registration.Database
         }
 
         // Define the available entity sets for the database.
-        public virtual DbSet<RegistrationProcessSaga> RegistrationProcesses { get; private set; }
+        public virtual DbSet<RegistrationProcess> RegistrationProcesses { get; private set; }
     }
 }
