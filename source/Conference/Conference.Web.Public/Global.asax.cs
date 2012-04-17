@@ -50,7 +50,7 @@ namespace Conference.Web.Public
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
             Database.SetInitializer(new OrmViewRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmViewRepository>()));
-            Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
+            Database.SetInitializer(new OrmProcessRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmProcessRepository>()));
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
             
             using (var context = this.container.Resolve<OrmViewRepository>("registration"))
@@ -58,7 +58,7 @@ namespace Conference.Web.Public
                 context.Database.Initialize(true);
             }
 
-            using (var context = this.container.Resolve<OrmSagaRepository>("registration"))
+            using (var context = this.container.Resolve<OrmProcessRepository>("registration"))
             {
                 context.Database.Initialize(true);
             }
@@ -120,19 +120,19 @@ namespace Conference.Web.Public
 
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
             container.RegisterType(typeof(IRepository<>), typeof(SqlEventRepository<>), new ContainerControlledLifetimeManager());
-            container.RegisterType<ISagaRepository, Registration.Database.OrmSagaRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
+            container.RegisterType<IProcessRepository, Registration.Database.OrmProcessRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
             container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
 
             // handlers
 
-            container.RegisterType<IEventHandler, RegistrationProcessSagaRouter>(
-                "RegistrationProcessSagaRouter",
+            container.RegisterType<IEventHandler, RegistrationProcessRouter>(
+                "RegistrationProcessRouter",
                 new ContainerControlledLifetimeManager(),
-                new InjectionConstructor(new ResolvedParameter<Func<ISagaRepository>>("registration")));
-            container.RegisterType<ICommandHandler, RegistrationProcessSagaRouter>(
-                "RegistrationProcessSagaRouter",
+                new InjectionConstructor(new ResolvedParameter<Func<IProcessRepository>>("registration")));
+            container.RegisterType<ICommandHandler, RegistrationProcessRouter>(
+                "RegistrationProcessRouter",
                 new ContainerControlledLifetimeManager(),
-                new InjectionConstructor(new ResolvedParameter<Func<ISagaRepository>>("registration")));
+                new InjectionConstructor(new ResolvedParameter<Func<IProcessRepository>>("registration")));
 
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
 

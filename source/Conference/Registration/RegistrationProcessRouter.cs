@@ -19,31 +19,31 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    public class RegistrationProcessSagaRouter :
+    public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<PaymentReceived>,
         IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireRegistrationProcess>
     {
-        private object lockObject = new object();
-        private Func<ISagaRepository> repositoryFactory;
+        private readonly object lockObject = new object();
+        private readonly Func<IProcessRepository> repositoryFactory;
 
-        public RegistrationProcessSagaRouter(Func<ISagaRepository> repositoryFactory)
+        public RegistrationProcessRouter(Func<IProcessRepository> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
 
         public void Handle(OrderPlaced @event)
         {
-            var saga = new RegistrationProcessSaga();
-            saga.Handle(@event);
+            var process = new RegistrationProcess();
+            process.Handle(@event);
 
             var repo = this.repositoryFactory.Invoke();
             using (repo as IDisposable)
             {
                 lock (lockObject)
                 {
-                    repo.Save(saga);
+                    repo.Save(process);
                 }
             }
         }
@@ -55,12 +55,12 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
-                    if (saga != null)
+                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    if (process != null)
                     {
-                        saga.Handle(@event);
+                        process.Handle(@event);
 
-                        repo.Save(saga);
+                        repo.Save(process);
                     }
                 }
             }
@@ -73,12 +73,12 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
-                    if (saga != null)
+                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    if (process != null)
                     {
-                        saga.Handle(command);
+                        process.Handle(command);
 
-                        repo.Save(saga);
+                        repo.Save(process);
                     }
                 }
             }
@@ -91,12 +91,12 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var saga = repo.Query<RegistrationProcessSaga>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcessSaga.SagaState.Completed);
-                    if (saga != null)
+                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    if (process != null)
                     {
-                        saga.Handle(@event);
+                        process.Handle(@event);
 
-                        repo.Save(saga);
+                        repo.Save(process);
                     }
                 }
             }
