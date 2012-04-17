@@ -21,7 +21,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
     using Common;
     using Conference.Web.Public.Controllers;
     using Moq;
-    using Payments.Commands;
+    using Payments.Contracts.Commands;
     using Payments.ReadModel;
     using Xunit;
 

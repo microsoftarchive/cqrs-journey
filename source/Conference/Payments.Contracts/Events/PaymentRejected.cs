@@ -11,15 +11,21 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.Events
+namespace Payments.Contracts.Events
 {
     using System;
     using Common;
 
-    public class PaymentCompleted : IEvent
+    public class PaymentRejected : IEvent
     {
         public Guid PaymentId { get; set; }
 
         public Guid SourceId { get; set; }
+
+        public Guid UserId { get; set; }
+
+        public string PaymentInformation { get; set; }
+
+        public string Reason { get; set; }
     }
 }

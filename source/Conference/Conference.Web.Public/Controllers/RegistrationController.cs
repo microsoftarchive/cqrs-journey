@@ -20,7 +20,7 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
-    using Payments.Commands;
+    using Payments.Contracts.Commands;
     using Registration.Commands;
     using Registration.ReadModel;
 

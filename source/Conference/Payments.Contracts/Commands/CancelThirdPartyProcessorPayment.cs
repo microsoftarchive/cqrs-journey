@@ -11,14 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.Commands
+namespace Payments.Contracts.Commands
 {
     using System;
     using Common;
 
-    public class CompleteThirdPartyProcessorPayment : ICommand
+    public class CancelThirdPartyProcessorPayment : ICommand
     {
-        public CompleteThirdPartyProcessorPayment()
+        public CancelThirdPartyProcessorPayment()
         {
             this.Id = Guid.NewGuid();
         }

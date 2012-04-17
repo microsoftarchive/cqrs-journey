@@ -8,8 +8,8 @@
     <ProjectGuid>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Payments.Events</RootNamespace>
-    <AssemblyName>Payments.Events</AssemblyName>
+    <RootNamespace>Payments.Contracts</RootNamespace>
+    <AssemblyName>Payments.Contracts</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,10 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PaymentAccepted.cs" />
-    <Compile Include="PaymentCompleted.cs" />
-    <Compile Include="PaymentInitiated.cs" />
-    <Compile Include="PaymentRejected.cs" />
+    <Compile Include="Commands\CancelThirdPartyProcessorPayment.cs" />
+    <Compile Include="Commands\CompleteThirdPartyProcessorPayment.cs" />
+    <Compile Include="Commands\InitiateInvoicePayment.cs" />
+    <Compile Include="Commands\InitiateThirdPartyProcessorPayment.cs" />
+    <Compile Include="Events\PaymentAccepted.cs" />
+    <Compile Include="Events\PaymentCompleted.cs" />
+    <Compile Include="Events\PaymentInitiated.cs" />
+    <Compile Include="Events\PaymentRejected.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

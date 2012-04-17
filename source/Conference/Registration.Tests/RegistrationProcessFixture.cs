@@ -15,7 +15,7 @@ namespace Registration.Tests.RegistrationProcessFixture
 {
     using System;
     using System.Linq;
-    using Payments.Events;
+    using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;
     using Xunit;

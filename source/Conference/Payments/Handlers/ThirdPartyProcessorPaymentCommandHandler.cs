@@ -16,7 +16,7 @@ namespace Payments.Handlers
     using System;
     using System.Linq;
     using Common;
-    using Payments.Commands;
+    using Payments.Contracts.Commands;
 
     public class ThirdPartyProcessorPaymentCommandHandler :
         ICommandHandler<InitiateThirdPartyProcessorPayment>,

@@ -17,7 +17,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
     using System.Linq;
     using Common;
     using Moq;
-    using Payments.Commands;
+    using Payments.Contracts.Commands;
     using Payments.Handlers;
     using Xunit;
 

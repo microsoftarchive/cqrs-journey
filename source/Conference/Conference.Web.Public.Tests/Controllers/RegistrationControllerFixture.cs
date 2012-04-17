@@ -23,7 +23,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
     using Common;
     using Conference.Web.Public.Controllers;
     using Moq;
-    using Payments.Commands;
+    using Payments.Contracts.Commands;
     using Registration;
     using Registration.Commands;
     using Registration.ReadModel;

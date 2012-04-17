@@ -18,7 +18,7 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Microsoft.Practices.Unity;
-    using Payments.Commands;
+    using Payments.Contracts.Commands;
     using Payments.ReadModel;
 
     public class PaymentController : Controller

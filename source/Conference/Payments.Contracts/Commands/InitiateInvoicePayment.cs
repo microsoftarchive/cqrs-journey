@@ -11,15 +11,18 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.Events
+namespace Payments.Contracts.Commands
 {
     using System;
     using Common;
 
-    public class PaymentAccepted : IEvent
+    public class InitiateInvoicePayment : ICommand
     {
-        public Guid PaymentId { get; set; }
+        public InitiateInvoicePayment()
+        {
+            this.Id = Guid.NewGuid();
+        }
 
-        public Guid SourceId { get; set; }
+        public Guid Id { get; private set; }
     }
 }

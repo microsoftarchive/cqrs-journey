@@ -15,7 +15,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentFixture
 {
     using System;
     using System.Linq;
-    using Payments.Events;
+    using Payments.Contracts.Events;
     using Xunit;
 
     public class given_no_payment

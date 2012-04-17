@@ -15,7 +15,7 @@ namespace Registration.Handlers
 {
     using System;
     using Common;
-    using Payments.Events;
+    using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;
 
