@@ -15,7 +15,7 @@ using System.Data.Entity;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace Conference.Web
+namespace Conference.Web.Admin
 {
     public class MvcApplication : System.Web.HttpApplication
     {

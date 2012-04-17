@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Controllers
+namespace Conference.Web.Admin.Controllers
 {
     using System;
     using System.Data;
