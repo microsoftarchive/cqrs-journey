@@ -49,14 +49,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ConferenceSeatsAvailabilityIntegration.cs" />
-    <Compile Include="OrmSagaRepositoryInitializerFixture.cs" />
-    <Compile Include="OrmPersistenceFixture.cs" />
-    <Compile Include="OrmPersistenceProvider.cs" />
-    <Compile Include="OrmRepositoryFixture.cs" />
-    <Compile Include="OrmRepositoryInitializerFixture.cs" />
+    <Compile Include="OrmProcessRepositoryInitializerFixture.cs" />
     <Compile Include="OrmSagaRepositoryFixture.cs" />
-    <Compile Include="OrmViewRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

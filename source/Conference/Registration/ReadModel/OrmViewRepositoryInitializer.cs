@@ -18,21 +18,22 @@ namespace Registration.ReadModel
     using System.Data.Entity.Infrastructure;
     using System.Data.SqlClient;
     using System.Linq;
-    using Registration.Database;
 
-    public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmRepository>
+    public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmViewRepository>
     {
-        // NOTE: we initialize the same OrmRepository for both because we happen to 
-        // persist the views in the same database. This is not required and could be 
-        // a separate one if we weren't using SQL Views to drive them.
-        private IDatabaseInitializer<OrmRepository> innerInitializer;
+        private readonly IDatabaseInitializer<OrmViewRepository> innerInitializer;
 
-        public OrmViewRepositoryInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
+        // NOTE: we use decorator pattern here because the Seed logic is typically reused 
+        // on tests which have a different requirement than production (they drop DBs on 
+        // every run, regardless of change or AppDomain-wide caching of initialization).
+        // Decorating makes it clear than inheriting from the built-in ones (two at least) 
+        // and then extracting the Seed behavior in a strategy.
+        public OrmViewRepositoryInitializer(IDatabaseInitializer<OrmViewRepository> innerInitializer)
         {
             this.innerInitializer = innerInitializer;
         }
 
-        public void InitializeDatabase(OrmRepository context)
+        public void InitializeDatabase(OrmViewRepository context)
         {
             this.innerInitializer.InitializeDatabase(context);
 
@@ -44,6 +45,19 @@ namespace Registration.ReadModel
                     // Initializer will be called even if the DB already exists, 
                     // Once in the app domain.
                     context.Database.ExecuteSqlCommand(ddl);
+                }
+                catch (SqlException se)
+                {
+                    if (se.Class != 16)
+                        throw;
+                }
+
+                try
+                {
+                    if (context.Database.SqlQuery<int>("SELECT COUNT(Id) FROM [dbo].[ConferencesView] WHERE Id = '" + Guid.Empty + "'").First() == 0)
+                    {
+                    // Initializer will be called even if the DB already exists, 
+                    // Once in the app domain.
 
                     // TODO: remove hardcoded conference
 
@@ -54,21 +68,23 @@ Sed ac nibh mauris. Curabitur et purus odio, vitae iaculis augue. Donec sceleris
 
 Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus, vel consectetur nulla quam et justo. Ut nec condimentum felis. Vivamus bibendum risus ut nibh scelerisque eget sodales purus tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non libero ante. Mauris felis dolor, aliquam vitae luctus vel, elementum in mauris. Donec a risus purus. Fusce sit amet lobortis velit. Nam lacinia sagittis fermentum. Nulla sapien erat, cursus a porta non, malesuada ut erat. Vivamus pharetra erat eu metus varius vel placerat nunc interdum. Sed tristique, risus eu sollicitudin aliquam, nibh purus rhoncus dolor, in elementum arcu orci eu lorem. Cras a diam mattis nisl laoreet tempus quis in nunc. Aliquam erat volutpat.";
 
-                    context.Database
-                        .ExecuteSqlCommand(
-                            @"INSERT INTO [dbo].[ConferencesView] (Id, Code, Name, Description) VALUES (@Id, @Code, @Name, @Description)",
-                            new SqlParameter("Id", Guid.Empty),
-                            new SqlParameter("Code", "pandpsymposium"),
-                            new SqlParameter("Name", "P&P Symposium"),
-                            new SqlParameter("Description", description));
 
-                    context.Database
-                        .ExecuteSqlCommand(
-                            @"INSERT INTO [dbo].[ConferenceSeatsView] (Id, Description, Price, ConferencesView_Id) VALUES (@Id, @Description, @Price, @ConferencesView_Id)",
-                            new SqlParameter("Id", new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B")),
-                            new SqlParameter("Description", "Test seat"),
-                            new SqlParameter("Price", 10d),
-                            new SqlParameter("ConferencesView_Id", Guid.Empty));
+                        context.Database
+                            .ExecuteSqlCommand(
+                                @"INSERT INTO [dbo].[ConferencesView] (Id, Code, Name, Description) VALUES (@Id, @Code, @Name, @Description)",
+                                new SqlParameter("Id", Guid.Empty),
+                                new SqlParameter("Code", "pandpsymposium"),
+                                new SqlParameter("Name", "P&P Symposium"),
+                                new SqlParameter("Description", description));
+
+                        context.Database
+                            .ExecuteSqlCommand(
+                                @"INSERT INTO [dbo].[ConferenceSeatsView] (Id, Description, Price, ConferencesView_Id) VALUES (@Id, @Description, @Price, @ConferencesView_Id)",
+                                new SqlParameter("Id", new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B")),
+                                new SqlParameter("Description", "Test seat"),
+                                new SqlParameter("Price", 10d),
+                                new SqlParameter("ConferencesView_Id", Guid.Empty));
+                    }
                 }
                 catch (SqlException se)
                 {

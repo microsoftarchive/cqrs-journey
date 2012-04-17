@@ -11,31 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Common
 {
-    using System;
+	using System;
+	using System.Linq;
 
-    public struct SeatQuantity
-    {
-        private Guid seatType;
-        private int quantity;
+    public interface IProcessRepository
+	{
+        T Find<T>(Guid id) where T : class, IAggregateRoot;
 
-        public SeatQuantity(Guid seatType, int quantity)
-        {
-            this.seatType = seatType;
-            this.quantity = quantity;
-        }
+        void Save<T>(T aggregate) where T : class, IAggregateRoot;
 
-        public Guid SeatType
-        {
-            get { return this.seatType; }
-            set { this.seatType = value; }
-        }
-
-        public int Quantity
-        {
-            get { return this.quantity; }
-            set { this.quantity = value; }
-        }
-    }
+		// TODO: queryability to reload processes from correlation ids, etc. 
+		// Is this appropriate? How do others reload processes? (MassTransit 
+		// uses this kind of queryable thinghy, apparently).
+		IQueryable<T> Query<T>() where T : class, IAggregateRoot;
+	}
 }

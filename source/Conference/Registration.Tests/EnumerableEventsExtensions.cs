@@ -11,18 +11,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Registration.Tests
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
+    using System.Linq;
+    using Common;
 
-	public interface ISagaRepository : IRepository
-	{
-		// TODO: queryability to reload sagas from correlation ids, etc. 
-		// Is this appropriate? How do others reload sagas? (MassTransit 
-		// uses this kind of queryable thinghy, apparently).
-		IQueryable<T> Query<T>() where T : class, IAggregateRoot;
-	}
+    public static class EnumerableEventsExtensions
+    {
+        public static TEvent SingleEvent<TEvent> (this IEventSourcedAggregateRoot aggregate)
+            where TEvent: IEvent
+        {
+            return (TEvent)aggregate.Events.Single();
+        }
+    }
 }

@@ -1,11 +1,11 @@
 ﻿@model Conference.ConferenceInfo
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Conference Details";
 }
 
 <p style="text-align: right">
-    @Html.DisplayFor(model => model.OwnerName)
+    @ViewBag.OwnerName
 </p>
 
 @{ Html.RenderPartial("Navigation"); }
@@ -86,5 +86,5 @@
 </fieldset>
 
 <div>
-        @Html.ActionLink("Edit", "Edit", new { id = @Model.Id }, null)
+        @Html.ActionLink("Edit", "Edit", new { slug = @Model.Slug }, null)
 </div>

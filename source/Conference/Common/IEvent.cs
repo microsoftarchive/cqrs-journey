@@ -13,7 +13,10 @@
 
 namespace Common
 {
+    using System;
+
     public interface IEvent
     {
+        Guid SourceId { get; }
     }
 }

@@ -11,29 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Registration.Database
 {
     using System.Data.Entity;
-    using System.Linq;
-    using Registration.Database;
-    using Xunit;
 
-    public class OrmRepositoryInitializerFixture
+    public class OrmProcessRepositoryInitializer : IDatabaseInitializer<OrmProcessRepository>
     {
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        private IDatabaseInitializer<OrmProcessRepository> innerInitializer;
+
+        public OrmProcessRepositoryInitializer(IDatabaseInitializer<OrmProcessRepository> innerInitializer)
         {
-            var initializer = new OrmRepositoryInitializer(new DropCreateDatabaseAlways<OrmRepository>());
+            this.innerInitializer = innerInitializer;
+        }
 
-            using (var context = new OrmRepository("TestOrmRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
+        public void InitializeDatabase(OrmProcessRepository context)
+        {
+            this.innerInitializer.InitializeDatabase(context);
 
-            using (var context = new OrmRepository("TestOrmRepository"))
-            {
-                Assert.Equal(1, context.Set<SeatsAvailability>().Count());
-            }
+            // Create views, seed reference data, etc.
+
+            context.SaveChanges();
         }
     }
 }

@@ -11,26 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Registration.Events
 {
-    using System.Data.Entity;
+    using System;
+    using Common;
 
-    public class OrmSagaRepositoryInitializer : IDatabaseInitializer<OrmSagaRepository>
+    public class OrderPaymentConfirmed : IDomainEvent
     {
-        private IDatabaseInitializer<OrmSagaRepository> innerInitializer;
+        private readonly Guid sourceId;
+        private readonly int version;
 
-        public OrmSagaRepositoryInitializer(IDatabaseInitializer<OrmSagaRepository> innerInitializer)
+        public OrderPaymentConfirmed(Guid sourceId, int version)
         {
-            this.innerInitializer = innerInitializer;
+            this.sourceId = sourceId;
+            this.version = version;
         }
 
-        public void InitializeDatabase(OrmSagaRepository context)
-        {
-            this.innerInitializer.InitializeDatabase(context);
+        public Guid SourceId { get { return this.sourceId; } }
 
-            // Create views, seed reference data, etc.
-
-            context.SaveChanges();
-        }
+        public int Version { get { return this.version; } }
     }
 }

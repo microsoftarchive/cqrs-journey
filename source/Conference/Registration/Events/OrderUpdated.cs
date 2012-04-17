@@ -15,16 +15,26 @@ namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Common;
 
-    public class OrderUpdated : IEvent
+    public class OrderUpdated : IDomainEvent
     {
-        public OrderUpdated()
+        private readonly Guid sourceId;
+        private readonly int version;
+        private readonly IEnumerable<SeatQuantity> seats;
+
+        public OrderUpdated(Guid sourceId, int version, IEnumerable<SeatQuantity> seats)
         {
-            this.Seats = new List<SeatQuantity>();
+            this.sourceId = sourceId;
+            this.version = version;
+            this.seats = seats.ToArray();
         }
 
-        public Guid OrderId { get; set; }
-        public ICollection<SeatQuantity> Seats { get; set; }
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
+
+        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
     }
 }

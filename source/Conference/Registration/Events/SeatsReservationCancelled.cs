@@ -11,53 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using Common;
 
-    public class OrderDTO
+    public class SeatsReservationCancelled : IDomainEvent
     {
-        public enum States
+        private readonly Guid sourceId;
+        private readonly int version;
+        private readonly Guid reservationId;
+        private readonly IEnumerable<SeatQuantity> availableSeatsChanged;
+
+        public SeatsReservationCancelled(Guid sourceId, int version, Guid reservationId, IEnumerable<SeatQuantity> availableSeatsChanged)
         {
-            Created = 0,
-            PartiallyReserved = 1,
-            ReservationCompleted = 2,
-            Rejected = 3,
-            Confirmed = 4,
+            this.sourceId = sourceId;
+            this.version = version;
+            this.reservationId = reservationId;
+            this.availableSeatsChanged = availableSeatsChanged.ToList();
         }
 
-        public OrderDTO(Guid orderId, States state)
-            : this()
-        {
-            this.OrderId = orderId;
-            this.State = state;
-        }
+        public Guid SourceId { get { return this.sourceId; } }
 
-        protected OrderDTO()
-        {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
-        }
+        public int Version { get { return this.version; } }
 
-        [Key]
-        public Guid OrderId { get; private set; }
+        public Guid ReservationId { get { return this.reservationId; } }
 
-        public DateTime? ReservationExpirationDate { get; set; }
-
-        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
-
-        public int StateValue { get; private set; }
-
-        [NotMapped]
-        public States State
-        {
-            get { return (States)this.StateValue; }
-            set { this.StateValue = (int)value; }
-        }
-
-        public string RegistrantEmail { get; internal set; }
-        public string AccessCode { get; internal set; }
+        public IEnumerable<SeatQuantity> AvailableSeatsChanged { get { return this.availableSeatsChanged; } }
     }
 }

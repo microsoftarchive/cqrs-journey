@@ -11,28 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests.ConferenceSeatsAvailabilityFixture
+namespace Registration.Events
 {
-	using System;
-	using System.Collections.Generic;
-	using Xunit;
-	using Registration.Database;
-	using Common;
-	using Registration.Tests.ConferenceSeatsAvailabilityFixture;
+    using System;
+    using Common;
 
-	public class given_available_seats_orm : given_available_seats
-	{
-		public given_available_seats_orm()
-			: base(new OrmPersistenceProvider())
-		{
-		}
-	}
+    public class SeatsReservationCommitted : IDomainEvent
+    {
+        private readonly Guid sourceId;
+        private readonly Guid reservationId;
+        private readonly int version;
 
-	public class given_some_avilable_seats_and_some_taken_orm : given_some_avilable_seats_and_some_taken
-	{
-		public given_some_avilable_seats_and_some_taken_orm()
-			: base(new OrmPersistenceProvider())
-		{
-		}
-	}
+        public SeatsReservationCommitted(Guid sourceId, int version, Guid reservationId)
+        {
+            this.sourceId = sourceId;
+            this.reservationId = reservationId;
+            this.version = version;
+        }
+
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
+
+        public Guid ReservationId { get { return this.reservationId; } }
+    }
 }

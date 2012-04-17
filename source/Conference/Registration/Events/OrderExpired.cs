@@ -11,23 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Registration.Events
 {
-    using System.Data.Entity;
-    using Registration.Database;
-    using Xunit;
+    using System;
+    using Common;
 
-    public class OrmSagaRepositoryInitializerFixture
+    public class OrderExpired : IDomainEvent
     {
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
-        {
-            var initializer = new OrmSagaRepositoryInitializer(new DropCreateDatabaseAlways<OrmSagaRepository>());
+        private readonly Guid sourceId;
+        private readonly int version;
 
-            using (var context = new OrmSagaRepository("TestOrmSagaRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
+        public OrderExpired(Guid sourceId, int version)
+        {
+            this.sourceId = sourceId;
+            this.version = version;
         }
+
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
     }
 }

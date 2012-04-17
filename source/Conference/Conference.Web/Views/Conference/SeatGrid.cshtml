@@ -11,10 +11,14 @@
         <td>
             @Html.DisplayFor(modelItem => item.Quantity)
         </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Price)
+        </td>
         <td class="rowControl">
-            <a href="#makeRowEditable" class="makeRowEditable">Edit</a> |
-            <!-- TODO: only allow delete if the conference is not published -->
-            <a href="#deleteRow" class="deleteRow">Delete</a>
+            <a href="#makeRowEditable" class="makeRowEditable">Edit</a>
+            <!-- TODO: only allow delete if the conference is not published
+            | <a href="#deleteRow" class="deleteRow">Delete</a>
+            -->
         </td>
     </tr>
 }

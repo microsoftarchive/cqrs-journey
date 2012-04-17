@@ -18,17 +18,9 @@ namespace Registration
     {
         public OrderItem(Guid seatType, int quantity)
         {
-            this.Id = Guid.NewGuid();
-
             this.SeatType = seatType;
             this.Quantity = quantity;
         }
-
-        protected OrderItem()
-        {
-        }
-
-        public Guid Id { get; private set; }
 
         public Guid SeatType { get; private set; }
 

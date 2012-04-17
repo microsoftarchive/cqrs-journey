@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</ProjectGuid>
+    <ProjectGuid>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common</RootNamespace>
-    <AssemblyName>Common</AssemblyName>
+    <RootNamespace>Common.Sql</RootNamespace>
+    <AssemblyName>Common.Sql</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Conference\</SolutionDir>
@@ -33,11 +34,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,37 +48,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinarySerializer.cs" />
-    <Compile Include="CommandBusExtensions.cs" />
-    <Compile Include="IDomainEvent.cs" />
-    <Compile Include="Envelope.cs" />
-    <Compile Include="EventSourcedAggregateRoot.cs" />
-    <Compile Include="ICommandBus.cs" />
-    <Compile Include="IAggregateRoot.cs" />
-    <Compile Include="ICommand.cs" />
-    <Compile Include="ICommandHandler.cs" />
-    <Compile Include="ICommandHandlerRegistry.cs" />
-    <Compile Include="ICommandPublisher.cs" />
-    <Compile Include="IEvent.cs" />
-    <Compile Include="IEventBus.cs" />
-    <Compile Include="IEventHandler.cs" />
-    <Compile Include="IEventHandlerRegistry.cs" />
-    <Compile Include="IEventSourcedAggregateRoot.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="IProcessRepository.cs" />
-    <Compile Include="ISerializer.cs" />
-    <Compile Include="IViewRepository.cs" />
-    <Compile Include="JsonSerializerAdapter.cs" />
-    <Compile Include="MemoryCommandBus.cs" />
-    <Compile Include="MemoryEventBus.cs" />
+    <Compile Include="EventStoreDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\HandleGenerator.cs" />
+    <Compile Include="SqlEventRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Conference.licenseheader">
       <Link>Conference.licenseheader</Link>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{b5786d07-5888-4df5-b295-3fea593f3bfe}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

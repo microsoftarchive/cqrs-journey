@@ -21,9 +21,9 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    public class RegistrationProcessSaga : IAggregateRoot, ICommandPublisher
+    public class RegistrationProcess : IAggregateRoot, ICommandPublisher
     {
-        public enum SagaState
+        public enum ProcessState
         {
             NotStarted = 0,
             AwaitingReservationConfirmation = 1,
@@ -33,7 +33,7 @@ namespace Registration
 
         private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
-        public RegistrationProcessSaga()
+        public RegistrationProcess()
         {
             this.Id = Guid.NewGuid();
         }
@@ -50,9 +50,9 @@ namespace Registration
 
         public int StateValue { get; private set; }
         [NotMapped]
-        public SagaState State
+        public ProcessState State
         {
-            get { return (SagaState)this.StateValue; }
+            get { return (ProcessState)this.StateValue; }
             internal set { this.StateValue = (int)value; }
         }
 
@@ -63,13 +63,13 @@ namespace Registration
 
         public void Handle(OrderPlaced message)
         {
-            if (this.State == SagaState.NotStarted)
+            if (this.State == ProcessState.NotStarted)
             {
                 this.ConferenceId = message.ConferenceId;
-                this.OrderId = message.OrderId;
+                this.OrderId = message.SourceId;
                 this.ReservationId = Guid.NewGuid();
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
-                this.State = SagaState.AwaitingReservationConfirmation;
+                this.State = ProcessState.AwaitingReservationConfirmation;
 
                 this.AddCommand(
                     new MakeSeatReservation
@@ -87,12 +87,12 @@ namespace Registration
 
         public void Handle(SeatsReserved message)
         {
-            if (this.State == SagaState.AwaitingReservationConfirmation)
+            if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
                 var bufferTime = TimeSpan.FromMinutes(5);
                 var expirationTime = this.ReservationAutoExpiration.Value;
                 
-                this.State = SagaState.AwaitingPayment;
+                this.State = ProcessState.AwaitingPayment;
 
                 var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
                 this.ExpirationCommandId = expirationCommand.Id;
@@ -104,7 +104,7 @@ namespace Registration
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
-                    Seats = message.Seats,
+                    Seats = message.ReservationDetails.ToList(),
                     Expiration = expirationTime,
                 });
             }
@@ -116,11 +116,11 @@ namespace Registration
 
         public void Handle(ExpireRegistrationProcess message)
         {
-            if (this.State == SagaState.AwaitingPayment)
+            if (this.State == ProcessState.AwaitingPayment)
             {
                 if (this.ExpirationCommandId == message.Id)
                 {
-                    this.State = SagaState.Completed;
+                    this.State = ProcessState.Completed;
 
                     this.AddCommand(new CancelSeatReservation
                     {
@@ -136,10 +136,10 @@ namespace Registration
 
         public void Handle(PaymentReceived message)
         {
-            if (this.State == SagaState.AwaitingPayment)
+            if (this.State == ProcessState.AwaitingPayment)
             {
                 this.ExpirationCommandId = Guid.Empty;
-                this.State = SagaState.Completed;
+                this.State = ProcessState.Completed;
 
                 this.AddCommand(new CommitSeatReservation
                 {

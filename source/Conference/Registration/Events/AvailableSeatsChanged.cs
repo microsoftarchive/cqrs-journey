@@ -11,12 +11,30 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Registration.Events
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using Common;
 
-    public interface IEventPublisher
+    public class AvailableSeatsChanged : IDomainEvent
     {
-        IEnumerable<IEvent> Events { get; }
+        private readonly Guid sourceId;
+        private readonly int version;
+        private readonly IEnumerable<SeatQuantity> seats;
+
+        public AvailableSeatsChanged(Guid sourceId, int version, IEnumerable<SeatQuantity> seats)
+        {
+            this.sourceId = sourceId;
+            this.version = version;
+            this.seats = seats.ToList();
+        }
+
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
+
+        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
     }
 }

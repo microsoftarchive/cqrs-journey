@@ -20,82 +20,80 @@ namespace Registration.Tests
     using Registration.Events;
     using Xunit;
 
-    public class RegistrationProcessSagaRouterFixture
+    public class RegistrationProcessRouterFixture
     {
         [Fact]
         public void when_order_placed_then_routes_and_saves()
         {
-            var repo = new Mock<ISagaRepository>();
+            var repo = new Mock<IProcessRepository>();
             var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessSagaRouter(() => repo.Object);
+            var router = new RegistrationProcessRouter(() => repo.Object);
 
-            router.Handle(new Events.OrderPlaced());
+            router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
+            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
             disposable.Verify(x => x.Dispose());
         }
 
         [Fact]
         public void when_reservation_accepted_then_routes_and_saves()
         {
-            var saga = new RegistrationProcessSaga
+            var process = new RegistrationProcess
             {
-                State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
+                State = RegistrationProcess.ProcessState.AwaitingReservationConfirmation,
                 ReservationId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new Mock<ISagaRepository>();
-            repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());
+            var repo = new Mock<IProcessRepository>();
+            repo.Setup(x => x.Query<RegistrationProcess>()).Returns(new[] { process }.AsQueryable());
             var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessSagaRouter(() => repo.Object);
+            var router = new RegistrationProcessRouter(() => repo.Object);
 
-            router.Handle(new SeatsReserved
-            {
-                ReservationId = saga.ReservationId,
-            });
+            router.Handle(new SeatsReserved(process.ConferenceId, -1, process.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
+            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
             disposable.Verify(x => x.Dispose());
         }
 
         [Fact]
         public void when_order_expired_then_routes_and_saves()
         {
-            var saga = new RegistrationProcessSaga
+            var process = new RegistrationProcess
             {
-                State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
+                State = RegistrationProcess.ProcessState.AwaitingReservationConfirmation,
                 ReservationId = Guid.NewGuid(),
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new Mock<ISagaRepository>();
-            repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());
+            var repo = new Mock<IProcessRepository>();
+            repo.Setup(x => x.Query<RegistrationProcess>()).Returns(new[] { process }.AsQueryable());
             var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessSagaRouter(() => repo.Object);
+            var router = new RegistrationProcessRouter(() => repo.Object);
 
-            router.Handle(new Commands.ExpireRegistrationProcess { ProcessId = saga.Id });
+            router.Handle(new Commands.ExpireRegistrationProcess { ProcessId = process.Id });
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
+            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
             disposable.Verify(x => x.Dispose());
         }
 
         [Fact]
         public void when_payment_received_then_routes_and_saves()
         {
-            var saga = new RegistrationProcessSaga
+            var process = new RegistrationProcess
             {
-                State = RegistrationProcessSaga.SagaState.AwaitingPayment,
+                State = RegistrationProcess.ProcessState.AwaitingPayment,
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new Mock<ISagaRepository>();
-            repo.Setup(x => x.Query<RegistrationProcessSaga>()).Returns(new[] { saga }.AsQueryable());
+            var repo = new Mock<IProcessRepository>();
+            repo.Setup(x => x.Query<RegistrationProcess>()).Returns(new[] { process }.AsQueryable());
             var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessSagaRouter(() => repo.Object);
+            var router = new RegistrationProcessRouter(() => repo.Object);
 
-            router.Handle(new Events.PaymentReceived { OrderId = saga.OrderId });
+            router.Handle(new Events.PaymentReceived { OrderId = process.OrderId });
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
+            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
             disposable.Verify(x => x.Dispose());
         }
 

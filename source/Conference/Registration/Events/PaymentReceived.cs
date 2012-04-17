@@ -25,5 +25,11 @@ namespace Registration.Events
         public Guid UserId { get; set; }
 
         public string PaymentInformation { get; set; }
+
+        // TODO: what is the source for this integration event?
+        public Guid SourceId
+        {
+            get { return this.OrderId; }
+        }
     }
 }

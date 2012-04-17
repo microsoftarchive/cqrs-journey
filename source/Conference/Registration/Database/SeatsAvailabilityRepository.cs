@@ -14,37 +14,27 @@
 namespace Registration.Database
 {
     using System;
-    using System.Data.Entity;
+    using Common;
 
-    public class OrmRepositoryInitializer : IDatabaseInitializer<OrmRepository>
+    public sealed class FakeSeatsAvailabilityInitializer
     {
-        private IDatabaseInitializer<OrmRepository> innerInitializer;
+        private readonly IRepository<SeatsAvailability> repository;
 
-        // NOTE: we use decorator pattern here because the Seed logic is typically reused 
-        // on tests which have a different requirement than production (they drop DBs on 
-        // every run, regardless of change or AppDomain-wide caching of initialization).
-        // Decorating makes it clear than inheriting from the built-in ones (two at least) 
-        // and then extracting the Seed behavior in a strategy.
-        public OrmRepositoryInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
+        public FakeSeatsAvailabilityInitializer(IRepository<SeatsAvailability> repository)
         {
-            this.innerInitializer = innerInitializer;
+            this.repository = repository;
         }
 
-        public void InitializeDatabase(OrmRepository context)
+        public void Initialize()
         {
-            this.innerInitializer.InitializeDatabase(context);
-
-            // Create views, seed reference data, etc.
-
             // TODO: remove hardcoded seats availability.
-            if (context.Set<SeatsAvailability>().Find(Guid.Empty) == null)
+            if (repository.Find(Guid.Empty) == null)
             {
                 var availability = new SeatsAvailability(Guid.Empty);
                 availability.AddSeats(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), 50);
-                context.Save(availability);
-            }
 
-            context.SaveChanges();
+                repository.Save(availability);
+            }
         }
     }
 }

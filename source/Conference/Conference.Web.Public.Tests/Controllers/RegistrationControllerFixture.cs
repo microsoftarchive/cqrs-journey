@@ -102,13 +102,13 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             Mock.Get<IViewRepository>(this.viewRepository)
                 .Setup(r => r.Find<OrderDTO>(orderId))
-                .Returns(new OrderDTO(orderId, Order.States.Created));
+                .Returns(new OrderDTO(orderId, OrderDTO.States.Created));
 
             var registration =
                 new RegisterToConference
                 {
                     OrderId = orderId,
-                    Seats = { new SeatQuantity { Quantity = 10, SeatType = seatTypeId } }
+                    Seats = { new SeatQuantity(seatTypeId, 10) }
                 };
 
             // Act

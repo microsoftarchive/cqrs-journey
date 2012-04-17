@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests.RegistrationProcessSagaFixture
+namespace Registration.Tests.RegistrationProcessFixture
 {
     using System;
     using System.Linq;
@@ -19,29 +19,23 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
     using Registration.Events;
     using Xunit;
 
-    public class given_uninitialized_saga
+    public class given_uninitialized_process
     {
-        protected RegistrationProcessSaga sut;
+        protected RegistrationProcess sut;
 
-        public given_uninitialized_saga()
+        public given_uninitialized_process()
         {
-            this.sut = new RegistrationProcessSaga();
+            this.sut = new RegistrationProcess();
         }
     }
 
-    public class when_order_is_placed : given_uninitialized_saga
+    public class when_order_is_placed : given_uninitialized_process
     {
         private OrderPlaced orderPlaced;
 
         public when_order_is_placed()
         {
-            this.orderPlaced = new OrderPlaced
-            {
-                OrderId = Guid.NewGuid(),
-                ConferenceId = Guid.NewGuid(),
-                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
-                Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
-            };
+            this.orderPlaced = new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new[] { new SeatQuantity(Guid.NewGuid(), 2) }, DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)), null);
             sut.Handle(orderPlaced);
         }
 
@@ -64,7 +58,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_reservation_expiration_time_is_stored_for_later_user()
         {
-            Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation, sut.State);
+            Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
 
         [Fact]
@@ -75,29 +69,23 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         }
     }
 
-    public class given_saga_awaiting_for_reservation_confirmation
+    public class given_process_awaiting_for_reservation_confirmation
     {
-        protected RegistrationProcessSaga sut;
+        protected RegistrationProcess sut;
         protected Guid orderId;
         protected Guid conferenceId;
 
-        public given_saga_awaiting_for_reservation_confirmation()
+        public given_process_awaiting_for_reservation_confirmation()
         {
-            this.sut = new RegistrationProcessSaga();
+            this.sut = new RegistrationProcess();
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
-            this.sut.Handle(new OrderPlaced
-            {
-                OrderId = this.orderId,
-                ConferenceId = this.conferenceId,
-                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
-                Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
-            });
+            this.sut.Handle(new OrderPlaced(this.orderId, -1, this.conferenceId, new[] { new SeatQuantity(Guid.NewGuid(), 2) }, DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)), null));
         }
     }
 
-    public class when_reservation_confirmation_is_received : given_saga_awaiting_for_reservation_confirmation
+    public class when_reservation_confirmation_is_received : given_process_awaiting_for_reservation_confirmation
     {
         private Guid reservationId;
 
@@ -106,11 +94,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            var seatsReserved = new SeatsReserved
-            {
-                ReservationId = makeReservationCommand.ReservationId,
-                // Seats ?
-            };
+            var seatsReserved = new SeatsReserved(this.conferenceId, -1, makeReservationCommand.ReservationId, new SeatQuantity[0], new SeatQuantity[0]);
             sut.Handle(seatsReserved);
         }
 
@@ -135,45 +119,41 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcessSaga.SagaState.AwaitingPayment, sut.State);
+            Assert.Equal(RegistrationProcess.ProcessState.AwaitingPayment, sut.State);
         }
     }
 
-    public class given_saga_awaiting_payment
+    public class given_process_awaiting_payment
     {
-        protected RegistrationProcessSaga sut;
+        protected RegistrationProcess sut;
         protected Guid orderId;
         protected Guid conferenceId;
         protected Guid reservationId;
 
-        public given_saga_awaiting_payment()
+        public given_process_awaiting_payment()
         {
-            this.sut = new RegistrationProcessSaga();
+            this.sut = new RegistrationProcess();
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
             var seatType = Guid.NewGuid();
 
-            this.sut.Handle(new OrderPlaced
-            {
-                OrderId = this.orderId,
-                ConferenceId = this.conferenceId,
-                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
-                Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 } }
-            });
+            this.sut.Handle(new OrderPlaced(this.orderId, -1, this.conferenceId, new[] { new SeatQuantity(Guid.NewGuid(), 2) }, DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)), null));
 
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            this.sut.Handle(new SeatsReserved
-            {
-                ReservationId = makeReservationCommand.ReservationId,
-                Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 }, }
-            });
+            this.sut.Handle(
+                new SeatsReserved(
+                    this.conferenceId, 
+                    -1,
+                    makeReservationCommand.ReservationId, 
+                    new[] { new SeatQuantity(seatType, 2) },
+                    new SeatQuantity[0]));
         }
     }
 
-    public class when_reservation_is_paid : given_saga_awaiting_payment
+    public class when_reservation_is_paid : given_process_awaiting_payment
     {
         public when_reservation_is_paid()
         {
@@ -204,11 +184,11 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
+            Assert.Equal(RegistrationProcess.ProcessState.Completed, sut.State);
         }
     }
 
-    public class when_reservation_is_expired : given_saga_awaiting_payment
+    public class when_reservation_is_expired : given_process_awaiting_payment
     {
         public when_reservation_is_expired()
         {
@@ -236,7 +216,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcessSaga.SagaState.Completed, sut.State);
+            Assert.Equal(RegistrationProcess.ProcessState.Completed, sut.State);
         }
     }
 }
