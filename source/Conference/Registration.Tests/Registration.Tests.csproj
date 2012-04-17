@@ -67,8 +67,8 @@
     <Compile Include="OrderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeatsAvailabilityFixture.cs" />
-    <Compile Include="RegistrationProcessSagaFixture.cs" />
-    <Compile Include="RegistrationProcessSagaRouterFixture.cs" />
+    <Compile Include="RegistrationProcessFixture.cs" />
+    <Compile Include="RegistrationProcessRouterFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

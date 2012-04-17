@@ -49,7 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OrmSagaRepositoryInitializerFixture.cs" />
+    <Compile Include="OrmProcessRepositoryInitializerFixture.cs" />
     <Compile Include="OrmSagaRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

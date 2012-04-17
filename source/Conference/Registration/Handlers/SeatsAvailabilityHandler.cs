@@ -40,7 +40,7 @@ namespace Registration.Handlers
                 availability.MakeReservation(command.ReservationId, command.Seats);
                 this.repository.Save(availability);
             }
-            // TODO: what if there's no aggregate? how do we tell the saga?
+            // TODO: what if there's no aggregate? how do we tell the process?
         }
 
         public void Handle(CancelSeatReservation command)
@@ -51,7 +51,7 @@ namespace Registration.Handlers
                 availability.CancelReservation(command.ReservationId);
                 this.repository.Save(availability);
             }
-            // TODO: what if there's no aggregate? how do we tell the saga?
+            // TODO: what if there's no aggregate? how do we tell the process?
         }
 
         public void Handle(CommitSeatReservation command)
@@ -62,7 +62,7 @@ namespace Registration.Handlers
                 availability.CommitReservation(command.ReservationId);
                 this.repository.Save(availability);
             }
-            // TODO: what if there's no aggregate? how do we tell the saga?
+            // TODO: what if there's no aggregate? how do we tell the process?
         }
     }
 }
