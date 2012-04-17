@@ -14,7 +14,7 @@
 namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentControllerFixture
 {
     using System.Web.Mvc;
-    using Conference.Web.Public.Controllers;
+    using Conference.Web.Public.Areas.ThirdPartyProcessor.Controllers;
     using Xunit;
 
     public class given_controller
@@ -35,8 +35,8 @@ namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentCont
             Assert.Equal(this.sut.TempData["cancelReturnUrl"], "cancelreturn");
             Assert.Equal(this.sut.ViewBag.ItemName, "item");
             Assert.Equal(this.sut.ViewBag.ItemAmount, 100d);
-        }
 
+        }
         [Fact]
         public void when_accepting_payment_then_redirects_to_return_url()
         {

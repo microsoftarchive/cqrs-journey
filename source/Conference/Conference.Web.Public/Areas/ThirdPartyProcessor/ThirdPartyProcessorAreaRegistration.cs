@@ -11,44 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Controllers
+using System.Web.Mvc;
+
+namespace Conference.Web.Public.Areas.ThirdPartyProcessor
 {
-    using System.Web.Mvc;
-
-    /// <summary>
-    /// Fake 'third party payment processor' web support
-    /// </summary>
-    public class ThirdPartyProcessorPaymentController : Controller
+    public class ThirdPartyProcessorAreaRegistration : AreaRegistration
     {
-        private const string returnUrlKey = "returnUrl";
-        private const string cancelReturnUrlKey = "cancelReturnUrl";
-
-        [HttpGet]
-        public ActionResult Pay(string itemName, double itemAmount, string returnUrl, string cancelReturnUrl)
+        public override string AreaName
         {
-            this.ViewBag.ItemName = itemName;
-            this.ViewBag.ItemAmount = itemAmount;
-            this.TempData[returnUrlKey] = returnUrl;
-            this.TempData[cancelReturnUrlKey] = cancelReturnUrl;
-
-            return View();
+            get
+            {
+                return "ThirdPartyProcessor";
+            }
         }
 
-        [HttpPost]
-        public ActionResult Pay(string paymentResult)
+        public override void RegisterArea(AreaRegistrationContext context)
         {
-            string url;
-
-            if (paymentResult == "accepted")
-            {
-                url = (string)TempData[returnUrlKey];
-            }
-            else
-            {
-                url = (string)TempData[cancelReturnUrlKey];
-            }
-
-            return Redirect(url);
+            context.MapRoute(
+                "Pay",
+                "payment",
+                new { controller = "ThirdPartyProcessorPayment", action = "Pay" });
         }
     }
 }

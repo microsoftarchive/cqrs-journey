@@ -50,6 +50,7 @@ namespace Conference.Web.Public
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            AreaRegistration.RegisterAllAreas();
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
             Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));

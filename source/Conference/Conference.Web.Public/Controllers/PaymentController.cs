@@ -53,12 +53,14 @@ namespace Conference.Web.Public.Controllers
                     "ThirdPartyProcessorPayment",
                     new
                     {
+                        area = "ThirdPartyProcessor",
                         itemName = paymentDTO.Description,
                         itemAmount = paymentDTO.TotalAmount,
                         returnUrl,
                         cancelReturnUrl
                     });
 
+            // redirect to external site
             return this.Redirect(paymentProcessorUrl);
         }
 

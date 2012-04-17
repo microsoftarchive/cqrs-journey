@@ -26,14 +26,6 @@ namespace Conference.Web.Public
                 new { controller = "Default", action = "Index" });
 
 
-            // Third party processor payment routes
-
-            routes.MapRoute(
-                "Pay",
-                "payment",
-                new { controller = "ThirdPartyProcessorPayment", action = "Pay" });
-
-
             // Registration routes
 
             routes.MapRoute(

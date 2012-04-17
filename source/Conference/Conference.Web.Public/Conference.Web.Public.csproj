@@ -95,12 +95,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppRoutes.cs" />
+    <Compile Include="Areas\ThirdPartyProcessor\Controllers\ThirdPartyProcessorPaymentController.cs" />
+    <Compile Include="Areas\ThirdPartyProcessor\ThirdPartyProcessorAreaRegistration.cs" />
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
-    <Compile Include="Controllers\ThirdPartyProcessorPaymentController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -139,8 +140,9 @@
     <Content Include="Views\Payment\Display.cshtml" />
     <Content Include="Views\Order\Find.cshtml" />
     <Content Include="Views\Order\Display.cshtml" />
-    <Content Include="Views\ThirdPartyProcessorPayment\Pay.cshtml" />
     <Content Include="Views\Registration\SpecifyRegistrantAndPaymentDetails.cshtml" />
+    <Content Include="Areas\ThirdPartyProcessor\Views\Web.config" />
+    <Content Include="Areas\ThirdPartyProcessor\Views\ThirdPartyProcessorPayment\Pay.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -179,7 +181,10 @@
       <Name>Registration</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Areas\ThirdPartyProcessor\Models\" />
+    <Folder Include="Areas\ThirdPartyProcessor\Views\Shared\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
