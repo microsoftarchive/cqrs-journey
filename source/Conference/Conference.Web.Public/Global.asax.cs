@@ -21,6 +21,7 @@ namespace Conference.Web.Public
     using Azure;
     using Azure.Messaging;
     using Common;
+    using Common.Sql;
     using Microsoft.Practices.Unity;
     using Newtonsoft.Json;
     using Registration;
@@ -50,7 +51,8 @@ namespace Conference.Web.Public
 
             Database.SetInitializer(new OrmViewRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmViewRepository>()));
             Database.SetInitializer(new OrmSagaRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmSagaRepository>()));
-
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
+            
             using (var context = this.container.Resolve<OrmViewRepository>("registration"))
             {
                 context.Database.Initialize(true);
@@ -60,6 +62,13 @@ namespace Conference.Web.Public
             {
                 context.Database.Initialize(true);
             }
+
+            using (var context = this.container.Resolve<EventStoreDbContext>())
+            {
+                context.Database.Initialize(true);
+            }
+
+            container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
 
 #if !LOCAL
             this.container.Resolve<CommandProcessor>().Start();
@@ -76,12 +85,6 @@ namespace Conference.Web.Public
         {
             var container = new UnityContainer();
             // infrastructure
-#if LOCAL
-            container.RegisterType<ICommandBus, MemoryCommandBus>(new ContainerControlledLifetimeManager());
-            container.RegisterType<ICommandHandlerRegistry, MemoryCommandBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryCommandBus()));
-            container.RegisterType<IEventBus, MemoryEventBus>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IEventHandlerRegistry, MemoryEventBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryEventBus()));
-#else
             var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
             {
                 // Allows deserializing to the actual runtime type
@@ -89,7 +92,14 @@ namespace Conference.Web.Public
                 // In a version resilient way
                 TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
             }));
+            container.RegisterInstance<ISerializer>(serializer);
 
+#if LOCAL
+            container.RegisterType<ICommandBus, MemoryCommandBus>(new ContainerControlledLifetimeManager());
+            container.RegisterType<ICommandHandlerRegistry, MemoryCommandBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryCommandBus()));
+            container.RegisterType<IEventBus, MemoryEventBus>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IEventHandlerRegistry, MemoryEventBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryEventBus()));
+#else
             var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
             var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
@@ -108,8 +118,8 @@ namespace Conference.Web.Public
 
             // repository
 
-            container.RegisterType(typeof(IRepository<>), typeof(MemoryEventRepository<>), new ContainerControlledLifetimeManager());
-            container.RegisterType<IRepository<SeatsAvailability>, SeatsAvailabilityRepository>(new ContainerControlledLifetimeManager());
+            container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
+            container.RegisterType(typeof(IRepository<>), typeof(SqlEventRepository<>), new ContainerControlledLifetimeManager());
             container.RegisterType<ISagaRepository, Registration.Database.OrmSagaRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
             container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
 

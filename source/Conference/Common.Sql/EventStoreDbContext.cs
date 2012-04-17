@@ -11,30 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Common.Sql
 {
     using System;
-    using Common;
+    using System.Data.Entity;
 
-    public sealed class FakeSeatsAvailabilityInitializer
+    public class EventStoreDbContext : DbContext
     {
-        private readonly IRepository<SeatsAvailability> repository;
-
-        public FakeSeatsAvailabilityInitializer(IRepository<SeatsAvailability> repository)
+        public EventStoreDbContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
         {
-            this.repository = repository;
         }
 
-        public void Initialize()
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            // TODO: remove hardcoded seats availability.
-            if (repository.Find(Guid.Empty) == null)
-            {
-                var availability = new SeatsAvailability(Guid.Empty);
-                availability.AddSeats(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), 50);
+            base.OnModelCreating(modelBuilder);
 
-                repository.Save(availability);
-            }
+            modelBuilder.Entity<Event>().HasKey(x => new { x.AggregateId, x.Version });
         }
+    }
+
+    public class Event
+    {
+        public Guid AggregateId { get; set; }
+        public int Version { get; set; }
+        public byte[] Payload { get; set; }
+
+        // TODO: Following could be very useful for when rebuilding the read model from the event store, 
+        // to avoid replaying every possible event in the system
+        // public string EventType { get; set; }
     }
 }
