@@ -29,7 +29,7 @@ namespace Registration.Tests
             var disposable = repo.As<IDisposable>();
             var router = new RegistrationProcessSagaRouter(() => repo.Object);
 
-            router.Handle(new Events.OrderPlaced());
+            router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
 
             repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
             disposable.Verify(x => x.Dispose());
@@ -42,6 +42,7 @@ namespace Registration.Tests
             {
                 State = RegistrationProcessSaga.SagaState.AwaitingReservationConfirmation,
                 ReservationId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
             var repo = new Mock<ISagaRepository>();
@@ -49,10 +50,7 @@ namespace Registration.Tests
             var disposable = repo.As<IDisposable>();
             var router = new RegistrationProcessSagaRouter(() => repo.Object);
 
-            router.Handle(new SeatsReserved
-            {
-                ReservationId = saga.ReservationId,
-            });
+            router.Handle(new SeatsReserved(saga.ConferenceId, -1, saga.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
 
             repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
             disposable.Verify(x => x.Dispose());

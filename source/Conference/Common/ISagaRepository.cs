@@ -14,12 +14,14 @@
 namespace Common
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Linq;
-	using System.Text;
 
-	public interface ISagaRepository : IRepository
+    public interface ISagaRepository
 	{
+        T Find<T>(Guid id) where T : class, IAggregateRoot;
+
+        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+
 		// TODO: queryability to reload sagas from correlation ids, etc. 
 		// Is this appropriate? How do others reload sagas? (MassTransit 
 		// uses this kind of queryable thinghy, apparently).

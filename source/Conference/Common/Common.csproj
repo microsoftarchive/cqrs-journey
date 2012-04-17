@@ -47,7 +47,9 @@
   <ItemGroup>
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="CommandBusExtensions.cs" />
+    <Compile Include="IDomainEvent.cs" />
     <Compile Include="Envelope.cs" />
+    <Compile Include="EventSourcedAggregateRoot.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />
@@ -58,7 +60,7 @@
     <Compile Include="IEventBus.cs" />
     <Compile Include="IEventHandler.cs" />
     <Compile Include="IEventHandlerRegistry.cs" />
-    <Compile Include="IEventPublisher.cs" />
+    <Compile Include="IEventSourcedAggregateRoot.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="ISagaRepository.cs" />
     <Compile Include="ISerializer.cs" />

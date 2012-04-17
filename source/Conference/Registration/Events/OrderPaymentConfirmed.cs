@@ -11,12 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Registration.Events
 {
-    using System.Collections.Generic;
+    using System;
+    using Common;
 
-    public interface IEventPublisher
+    public class OrderPaymentConfirmed : IDomainEvent
     {
-        IEnumerable<IEvent> Events { get; }
+        private readonly Guid sourceId;
+        private readonly int version;
+
+        public OrderPaymentConfirmed(Guid sourceId, int version)
+        {
+            this.sourceId = sourceId;
+            this.version = version;
+        }
+
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
     }
 }

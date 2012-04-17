@@ -57,8 +57,12 @@
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
-    <Compile Include="Database\OrmRepository.cs" />
-    <Compile Include="Database\OrmRepositoryInitializer.cs" />
+    <Compile Include="Database\SeatsAvailabilityRepository.cs" />
+    <Compile Include="Events\AvailableSeatsChanged.cs" />
+    <Compile Include="Events\SeatsReservationCancelled.cs" />
+    <Compile Include="Events\SeatsReservationCommitted.cs" />
+    <Compile Include="Events\OrderPaymentConfirmed.cs" />
+    <Compile Include="Events\OrderExpired.cs" />
     <Compile Include="Events\OrderPartiallyReserved.cs" />
     <Compile Include="Events\OrderRegistrantAssigned.cs" />
     <Compile Include="Events\OrderReservationCompleted.cs" />
@@ -69,7 +73,6 @@
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
     <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
-    <Compile Include="Registrant.cs" />
     <Compile Include="RegistrationProcessSagaRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
@@ -86,7 +89,6 @@
     <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcessSaga.cs" />
     <Compile Include="Reservation.cs" />
-    <Compile Include="SeatAvailability.cs" />
     <Compile Include="SeatQuantity.cs" />
     <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>

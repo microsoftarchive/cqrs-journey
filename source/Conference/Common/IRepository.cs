@@ -15,10 +15,10 @@ namespace Common
 {
     using System;
 
-    public interface IRepository
+    public interface IRepository<T> where T : class, IAggregateRoot
     {
-        T Find<T>(Guid id) where T : class, IAggregateRoot;
+        T Find(Guid id);
 
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        void Save(T aggregate);
     }
 }

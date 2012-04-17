@@ -25,56 +25,44 @@ namespace Registration.Handlers
         ICommandHandler<CancelSeatReservation>,
         ICommandHandler<CommitSeatReservation>
     {
-        private Func<IRepository> repositoryFactory;
+        private readonly IRepository<SeatsAvailability> repository;
 
-        public SeatsAvailabilityHandler(Func<IRepository> repositoryFactory)
+        public SeatsAvailabilityHandler(IRepository<SeatsAvailability> repository)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.repository = repository;
         }
 
         public void Handle(MakeSeatReservation command)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
+            var availability = this.repository.Find(command.ConferenceId);
+            if (availability != null)
             {
-                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
-                if (availability != null)
-                {
-                    availability.MakeReservation(command.ReservationId, command.Seats);
-                    repo.Save(availability);
-                }
-                // TODO: what if there's no aggregate? how do we tell the saga?
+                availability.MakeReservation(command.ReservationId, command.Seats);
+                this.repository.Save(availability);
             }
+            // TODO: what if there's no aggregate? how do we tell the saga?
         }
 
         public void Handle(CancelSeatReservation command)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
+            var availability = this.repository.Find(command.ConferenceId);
+            if (availability != null)
             {
-                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
-                if (availability != null)
-                {
-                    availability.CancelReservation(command.ReservationId);
-                    repo.Save(availability);
-                }
-                // TODO: what if there's no aggregate? how do we tell the saga?
+                availability.CancelReservation(command.ReservationId);
+                this.repository.Save(availability);
             }
+            // TODO: what if there's no aggregate? how do we tell the saga?
         }
 
         public void Handle(CommitSeatReservation command)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
+            var availability = this.repository.Find(command.ConferenceId);
+            if (availability != null)
             {
-                var availability = repo.Find<SeatsAvailability>(command.ConferenceId);
-                if (availability != null)
-                {
-                    availability.CommitReservation(command.ReservationId);
-                    repo.Save(availability);
-                }
-                // TODO: what if there's no aggregate? how do we tell the saga?
+                availability.CommitReservation(command.ReservationId);
+                this.repository.Save(availability);
             }
+            // TODO: what if there's no aggregate? how do we tell the saga?
         }
     }
 }

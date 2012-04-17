@@ -75,7 +75,7 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationUnknown");
             }
 
-            if (orderDTO.State == Registration.Order.States.Rejected)
+            if (orderDTO.State == OrderDTO.States.Rejected)
             {
                 return View("ReservationRejected");
             }
@@ -205,7 +205,7 @@ namespace Conference.Web.Public.Controllers
                 {
                     var orderDTO = repo.Find<OrderDTO>(orderId);
 
-                    if (orderDTO != null && orderDTO.State != Registration.Order.States.Created)
+                    if (orderDTO != null && orderDTO.State != OrderDTO.States.Created)
                     {
                         return orderDTO;
                     }

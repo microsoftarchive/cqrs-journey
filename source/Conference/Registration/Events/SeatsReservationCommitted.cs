@@ -11,40 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Common;
-
-namespace Registration.Tests
+namespace Registration.Events
 {
-	/// <summary>
-	/// Provides a way to abstract the work a persistence layer would perform 
-	/// so that test code can be reused against in-memory and DB tests.
-	/// </summary>
-	public interface IPersistenceProvider : IDisposable
-	{
-		/// <summary>
-		/// Persists and reloads the aggregate, so that associated 
-		/// persistence behavior is exercised as needed.
-		/// </summary>
-		T PersistReload<T>(T sut) where T : class, IAggregateRoot;
-	}
+    using System;
+    using Common;
 
-	/// <summary>
-	/// Provides a fast no-op provider for unit tests to use.
-	/// </summary>
-	public class NoPersistenceProvider : IPersistenceProvider
-	{
-		public T PersistReload<T>(T sut)
-			where T : class, IAggregateRoot
-		{
-			return sut;
-		}
+    public class SeatsReservationCommitted : IDomainEvent
+    {
+        private readonly Guid sourceId;
+        private readonly Guid reservationId;
+        private readonly int version;
 
-		public void Dispose()
-		{
-		}
-	}
+        public SeatsReservationCommitted(Guid sourceId, int version, Guid reservationId)
+        {
+            this.sourceId = sourceId;
+            this.reservationId = reservationId;
+            this.version = version;
+        }
+
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
+
+        public Guid ReservationId { get { return this.reservationId; } }
+    }
 }
