@@ -137,7 +137,7 @@ namespace Conference.Web.Public.Controllers
                     this.commandBus.Send(commands);
 
                     var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode, orderId });
-                    var paymentRejectedUrl = this.Url.Action("TransactionCompleted", new { conferenceCode, orderId, transactionResult = "accepted" });
+                    var paymentRejectedUrl = this.Url.Action("TransactionCompleted", new { conferenceCode, orderId, transactionResult = "rejected" });
 
                     return RedirectToAction(
                         "ThirdPartyProcessorPayment",
