@@ -16,18 +16,22 @@ namespace Registration.Events
     using System;
     using Common;
 
-    public class SeatsReservationCommitted : IEvent
+    public class SeatsReservationCommitted : IDomainEvent
     {
-        private readonly Guid conferenceId;
+        private readonly Guid sourceId;
         private readonly Guid reservationId;
+        private readonly int version;
 
-        public SeatsReservationCommitted(Guid conferenceId, Guid reservationId)
+        public SeatsReservationCommitted(Guid sourceId, int version, Guid reservationId)
         {
-            this.conferenceId = conferenceId;
+            this.sourceId = sourceId;
             this.reservationId = reservationId;
+            this.version = version;
         }
 
-        public Guid ConferenceId { get { return this.conferenceId; } }
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
 
         public Guid ReservationId { get { return this.reservationId; } }
     }

@@ -18,20 +18,24 @@ namespace Registration.Events
     using System.Linq;
     using Common;
 
-    public class SeatsReservationCancelled : IEvent
+    public class SeatsReservationCancelled : IDomainEvent
     {
-        private readonly Guid conferenceId;
+        private readonly Guid sourceId;
+        private readonly int version;
         private readonly Guid reservationId;
         private readonly IEnumerable<SeatQuantity> availableSeatsChanged;
 
-        public SeatsReservationCancelled(Guid conferenceId, Guid reservationId, IEnumerable<SeatQuantity> availableSeatsChanged)
+        public SeatsReservationCancelled(Guid sourceId, int version, Guid reservationId, IEnumerable<SeatQuantity> availableSeatsChanged)
         {
-            this.conferenceId = conferenceId;
+            this.sourceId = sourceId;
+            this.version = version;
             this.reservationId = reservationId;
             this.availableSeatsChanged = availableSeatsChanged.ToList();
         }
 
-        public Guid ConferenceId { get { return this.conferenceId; } }
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
 
         public Guid ReservationId { get { return this.reservationId; } }
 

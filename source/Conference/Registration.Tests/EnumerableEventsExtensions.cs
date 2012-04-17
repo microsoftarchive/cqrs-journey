@@ -18,10 +18,10 @@ namespace Registration.Tests
 
     public static class EnumerableEventsExtensions
     {
-        public static TEvent SingleEvent<TEvent> (this IEventPublisher publisher)
+        public static TEvent SingleEvent<TEvent> (this IEventSourcedAggregateRoot aggregate)
             where TEvent: IEvent
         {
-            return (TEvent)publisher.Events.Single();
+            return (TEvent)aggregate.Events.Single();
         }
     }
 }

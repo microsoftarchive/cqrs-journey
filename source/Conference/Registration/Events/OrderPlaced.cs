@@ -18,24 +18,28 @@ namespace Registration.Events
     using System.Linq;
     using Common;
 
-    public class OrderPlaced : IEvent
+    public class OrderPlaced : IDomainEvent
     {
-        private readonly Guid orderId;
+        private readonly Guid sourceId;
+        private readonly int version;
         private readonly Guid conferenceId;
         private readonly IEnumerable<SeatQuantity> seats;
         private readonly DateTime reservationAutoExpiration;
         private readonly string accessCode;
 
-        public OrderPlaced(Guid orderId, Guid conferenceId, IEnumerable<SeatQuantity> seats, DateTime reservationAutoExpiration, string accessCode)
+        public OrderPlaced(Guid sourceId, int version, Guid conferenceId, IEnumerable<SeatQuantity> seats, DateTime reservationAutoExpiration, string accessCode)
         {
-            this.orderId = orderId;
+            this.sourceId = sourceId;
+            this.version = version;
             this.conferenceId = conferenceId;
             this.reservationAutoExpiration = reservationAutoExpiration;
             this.accessCode = accessCode;
             this.seats = seats.ToArray();
         }
 
-        public Guid OrderId { get { return this.orderId; } }
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
 
         public Guid ConferenceId { get { return this.conferenceId; } }
 

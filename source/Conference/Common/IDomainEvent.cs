@@ -13,10 +13,8 @@
 
 namespace Common
 {
-    using System.Collections.Generic;
-
-    public interface IEventPublisher
+    public interface IDomainEvent : IEvent
     {
-        IEnumerable<IEvent> Events { get; }
+        int Version { get; }
     }
 }

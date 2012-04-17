@@ -11,19 +11,18 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Common
 {
     using System;
     using System.Collections.Concurrent;
     using System.Linq;
-    using Common;
 
     // TODO: This is an extremely basic implementation of the event store, that will be replaced in the future.
-    // It is not persistent, nor checks for event versions before committing.
-    public class MemoryEventRepository<T> : IRepository<T> where T : class, IAggregateRoot, IEventPublisher
+    // It is not persistent, nor checks for event versions before committing, nor is transactional with the event bus.
+    public class MemoryEventRepository<T> : IRepository<T> where T : class, IEventSourcedAggregateRoot
     {
         private readonly IEventBus eventBus;
-        private readonly ConcurrentDictionary<Guid, ConcurrentQueue<IEvent>> eventStore = new ConcurrentDictionary<Guid, ConcurrentQueue<IEvent>>();
+        private readonly ConcurrentDictionary<Guid, ConcurrentQueue<IDomainEvent>> eventStore = new ConcurrentDictionary<Guid, ConcurrentQueue<IDomainEvent>>();
 
         public MemoryEventRepository(IEventBus eventBus)
         {
@@ -32,7 +31,7 @@ namespace Registration.Database
 
         public T Find(Guid id)
         {
-            ConcurrentQueue<IEvent> list;
+            ConcurrentQueue<IDomainEvent> list;
             if (this.eventStore.TryGetValue(id, out list) && list.Count > 0)
             {
                 return (T)Activator.CreateInstance(typeof(T), list.ToList());
@@ -45,13 +44,14 @@ namespace Registration.Database
         {
             var events = aggregateRoot.Events.ToArray();
 
-            var list = this.eventStore.GetOrAdd(aggregateRoot.Id, _ => new ConcurrentQueue<IEvent>());
+            // TODO: guarantee that only incremental versions of the event are stored
+            var list = this.eventStore.GetOrAdd(aggregateRoot.Id, _ => new ConcurrentQueue<IDomainEvent>());
             foreach (var e in events)
             {
                 list.Enqueue(e);
             }
             
-            // TODO: guarantee delivery
+            // TODO: guarantee delivery or roll back, or have a way to resume after a system crash
             this.eventBus.Publish(events);
         }
     }

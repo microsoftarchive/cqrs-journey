@@ -119,9 +119,9 @@ namespace Azure.IntegrationTests.EventBusIntegration
         {
             public FooEvent()
             {
-                this.Id = Guid.NewGuid();
+                this.SourceId = Guid.NewGuid();
             }
-            public Guid Id { get; set; }
+            public Guid SourceId { get; set; }
         }
 
         [Serializable]
@@ -129,9 +129,9 @@ namespace Azure.IntegrationTests.EventBusIntegration
         {
             public BarEvent()
             {
-                this.Id = Guid.NewGuid();
+                this.SourceId = Guid.NewGuid();
             }
-            public Guid Id { get; set; }
+            public Guid SourceId { get; set; }
         }
 
         public class FooEventHandler : IEventHandler<FooEvent>

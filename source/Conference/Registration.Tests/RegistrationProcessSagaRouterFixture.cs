@@ -29,7 +29,7 @@ namespace Registration.Tests
             var disposable = repo.As<IDisposable>();
             var router = new RegistrationProcessSagaRouter(() => repo.Object);
 
-            router.Handle(new OrderPlaced(Guid.NewGuid(), Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
+            router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
 
             repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
             disposable.Verify(x => x.Dispose());
@@ -50,7 +50,7 @@ namespace Registration.Tests
             var disposable = repo.As<IDisposable>();
             var router = new RegistrationProcessSagaRouter(() => repo.Object);
 
-            router.Handle(new SeatsReserved(saga.ConferenceId, saga.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
+            router.Handle(new SeatsReserved(saga.ConferenceId, -1, saga.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
 
             repo.Verify(x => x.Save(It.IsAny<RegistrationProcessSaga>()));
             disposable.Verify(x => x.Dispose());

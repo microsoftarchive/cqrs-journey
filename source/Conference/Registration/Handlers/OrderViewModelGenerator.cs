@@ -37,7 +37,7 @@ namespace Registration.Handlers
             var repository = this.repositoryFactory();
             using (repository as IDisposable)
             {
-                var dto = new OrderDTO(@event.OrderId, OrderDTO.States.Created)
+                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.Created)
                 {
                     AccessCode = @event.AccessCode,
                 };
@@ -52,7 +52,7 @@ namespace Registration.Handlers
             var repository = this.repositoryFactory();
             using (repository as IDisposable)
             {
-                var dto = repository.Find<OrderDTO>(@event.OrderId);
+                var dto = repository.Find<OrderDTO>(@event.SourceId);
                 dto.RegistrantEmail = @event.Email;
 
                 repository.Save(dto);
@@ -64,7 +64,7 @@ namespace Registration.Handlers
             var repository = this.repositoryFactory();
             using (repository as IDisposable)
             {
-                var dto = repository.Find<OrderDTO>(@event.OrderId);
+                var dto = repository.Find<OrderDTO>(@event.SourceId);
                 dto.Lines.Clear();
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
 
@@ -74,12 +74,12 @@ namespace Registration.Handlers
 
         public void Handle(OrderPartiallyReserved @event)
         {
-            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Seats);
         }
 
         public void Handle(OrderReservationCompleted @event)
         {
-            this.UpdateReserved(@event.OrderId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Seats);
         }
 
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, IEnumerable<SeatQuantity> seats)

@@ -34,7 +34,7 @@ namespace Registration.Tests.OrderFixture
             PlaceOrder();
 
             Assert.Single(sut.Events);
-            Assert.Equal(OrderId, ((OrderPlaced)sut.Events.Single()).OrderId);
+            Assert.Equal(OrderId, ((OrderPlaced)sut.Events.Single()).SourceId);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace Registration.Tests.OrderFixture
             PlaceOrder();
 
             var @event = (OrderPlaced)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(ConferenceId, @event.ConferenceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
@@ -88,7 +88,7 @@ namespace Registration.Tests.OrderFixture
         public given_placed_order()
         {
             this.sut = new Order(new[] {
-                    new OrderPlaced(OrderId, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null)
+                    new OrderPlaced(OrderId, 0, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null)
                 });
         }
 
@@ -98,8 +98,8 @@ namespace Registration.Tests.OrderFixture
             this.sut.UpdateSeats(new[] { new OrderItem(SeatTypeId, 20) });
 
             var @event = (OrderUpdated)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
-            Assert.Equal(1, @event.Seats.Count);
+            Assert.Equal(OrderId, @event.SourceId);
+            Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(20, @event.Seats.ElementAt(0).Quantity);
         }
 
@@ -110,7 +110,7 @@ namespace Registration.Tests.OrderFixture
             this.sut.MarkAsReserved(expiration, new[] { new SeatQuantity(SeatTypeId, 3) });
 
             var @event = (OrderPartiallyReserved)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
@@ -123,7 +123,7 @@ namespace Registration.Tests.OrderFixture
             this.sut.MarkAsReserved(expiration, new[] { new SeatQuantity(SeatTypeId, 5) });
 
             var @event = (OrderReservationCompleted)sut.Events.Last();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
@@ -135,7 +135,7 @@ namespace Registration.Tests.OrderFixture
             this.sut.Expire();
 
             var @event = (OrderExpired)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace Registration.Tests.OrderFixture
             this.sut.AssignRegistrant("foo", "bar", "foo@bar.com");
 
             var @event = (OrderRegistrantAssigned)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal("foo", @event.FirstName);
             Assert.Equal("bar", @event.LastName);
             Assert.Equal("foo@bar.com", @event.Email);
@@ -167,9 +167,9 @@ namespace Registration.Tests.OrderFixture
 
         public given_fully_reserved_order()
         {
-            this.sut = new Order(new IEvent[] {
-                    new OrderPlaced(OrderId, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null),
-                    new OrderReservationCompleted(OrderId, DateTime.UtcNow.AddMinutes(5), new[] { new SeatQuantity(SeatTypeId, 5) })
+            this.sut = new Order(new IDomainEvent[] {
+                    new OrderPlaced(OrderId, 0, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null),
+                    new OrderReservationCompleted(OrderId, 1, DateTime.UtcNow.AddMinutes(5), new[] { new SeatQuantity(SeatTypeId, 5) })
                 });
         }
 
@@ -179,7 +179,7 @@ namespace Registration.Tests.OrderFixture
             this.sut.Expire();
 
             var @event = (OrderExpired)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace Registration.Tests.OrderFixture
             this.sut.ConfirmPayment();
 
             var @event = (OrderPaymentConfirmed)sut.Events.Single();
-            Assert.Equal(OrderId, @event.OrderId);
+            Assert.Equal(OrderId, @event.SourceId);
         }
     }
 }

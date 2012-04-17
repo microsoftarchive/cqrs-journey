@@ -56,7 +56,6 @@
     <Compile Include="Commands\MarkSeatsAsReserved.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
-    <Compile Include="Database\MemoryEventRepository.cs" />
     <Compile Include="Database\OrmSagaRepositoryInitializer.cs" />
     <Compile Include="Database\SeatsAvailabilityRepository.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />

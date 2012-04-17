@@ -18,20 +18,24 @@ namespace Registration.Events
     using System.Linq;
     using Common;
 
-    public class OrderPartiallyReserved : IEvent
+    public class OrderPartiallyReserved : IDomainEvent
     {
-        private readonly Guid orderId;
+        private readonly Guid sourceId;
+        private readonly int version;
         private readonly DateTime reservationExpiration;
         private readonly IEnumerable<SeatQuantity> seats;
 
-        public OrderPartiallyReserved(Guid orderId, DateTime reservationExpiration, IEnumerable<SeatQuantity> seats)
+        public OrderPartiallyReserved(Guid sourceId, int version, DateTime reservationExpiration, IEnumerable<SeatQuantity> seats)
         {
-            this.orderId = orderId;
+            this.sourceId = sourceId;
+            this.version = version;
             this.reservationExpiration = reservationExpiration;
             this.seats = seats.ToArray();
         }
 
-        public Guid OrderId { get { return this.orderId; } }
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
 
         public DateTime ReservationExpiration { get { return this.reservationExpiration; } }
 

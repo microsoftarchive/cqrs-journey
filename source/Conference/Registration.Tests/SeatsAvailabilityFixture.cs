@@ -44,7 +44,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 
         public given_available_seats()
         {
-            this.sut = new SeatsAvailability(new[] { new AvailableSeatsChanged(ConferenceId, new[] { new SeatQuantity(SeatTypeId, 10) }) });
+            this.sut = new SeatsAvailability(new[] { new AvailableSeatsChanged(ConferenceId, 0, new[] { new SeatQuantity(SeatTypeId, 10) }) });
         }
 
         [Fact]
@@ -128,10 +128,10 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         public given_some_avilable_seats_and_some_taken()
         {
             this.sut = new SeatsAvailability(
-                new IEvent[]
+                new IDomainEvent[]
                     {
-                        new AvailableSeatsChanged(ConferenceId, new[] { new SeatQuantity(SeatTypeId, 10), new SeatQuantity(OtherSeatTypeId, 12) }),
-                        new SeatsReserved(ConferenceId, ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) }, new[] { new SeatQuantity(SeatTypeId, -6) }) 
+                        new AvailableSeatsChanged(ConferenceId, 0, new[] { new SeatQuantity(SeatTypeId, 10), new SeatQuantity(OtherSeatTypeId, 12) }),
+                        new SeatsReserved(ConferenceId, 1, ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) }, new[] { new SeatQuantity(SeatTypeId, -6) }) 
                     });
         }
 
@@ -186,10 +186,10 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         public given_an_existing_reservation()
         {
             this.sut = new SeatsAvailability(
-                new IEvent[]
+                new IDomainEvent[]
                     {
-                        new AvailableSeatsChanged(ConferenceId, new[] { new SeatQuantity(SeatTypeId, 10), new SeatQuantity(OtherSeatTypeId, 12) }),
-                        new SeatsReserved(ConferenceId, ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) }, new[] { new SeatQuantity(SeatTypeId, -6) }) 
+                        new AvailableSeatsChanged(ConferenceId, 0, new[] { new SeatQuantity(SeatTypeId, 10), new SeatQuantity(OtherSeatTypeId, 12) }),
+                        new SeatsReserved(ConferenceId, 1, ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) }, new[] { new SeatQuantity(SeatTypeId, -6) }) 
                     });
         }
 

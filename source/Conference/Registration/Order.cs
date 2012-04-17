@@ -39,14 +39,14 @@ namespace Registration
             base.Handles<OrderRegistrantAssigned>(this.OnOrderRegistrantAssigned);
         }
 
-        public Order(IEnumerable<IEvent> history) : this()
+        public Order(IEnumerable<IDomainEvent> history) : this()
         {
             this.Rehydrate(history);
         }
 
         public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)  : this()
         {
-            this.Update(new OrderPlaced(id, conferenceId, ConvertItems(items), DateTime.UtcNow.Add(ReservationAutoExpiration), HandleGenerator.Generate(6)));
+            this.Update(new OrderPlaced(id, 0, conferenceId, ConvertItems(items), DateTime.UtcNow.Add(ReservationAutoExpiration), HandleGenerator.Generate(6)));
         }
 
         public override Guid Id
@@ -56,12 +56,7 @@ namespace Registration
 
         public void UpdateSeats(IEnumerable<OrderItem> seats)
         {
-            this.Update(
-                new OrderUpdated
-                {
-                    OrderId = this.id,
-                    Seats = ConvertItems(seats)
-                });
+            this.Update(new OrderUpdated(this.id, this.Version + 1, ConvertItems(seats)));
         }
 
         public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> reservedSeats)
@@ -74,11 +69,11 @@ namespace Registration
             // Is there an order item which didn't get an exact reservation?
             if (this.seats.Any(item => !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
             {
-                this.Update(new OrderPartiallyReserved(this.id, expirationDate, reserved));
+                this.Update(new OrderPartiallyReserved(this.id, this.Version + 1, expirationDate, reserved));
             }
             else
             {
-                this.Update(new OrderReservationCompleted(this.id, expirationDate, reserved));
+                this.Update(new OrderReservationCompleted(this.id, this.Version + 1, expirationDate, reserved));
             }
         }
 
@@ -87,19 +82,20 @@ namespace Registration
             if (this.isConfirmed)
                 throw new InvalidOperationException();
 
-            this.Update(new OrderExpired(this.id));
+            this.Update(new OrderExpired(this.id, this.Version + 1));
         }
 
         public void ConfirmPayment()
         {
-            this.Update(new OrderPaymentConfirmed(this.id));
+            this.Update(new OrderPaymentConfirmed(this.id, this.Version + 1));
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
         {
             this.Update(new OrderRegistrantAssigned
             {
-                OrderId = this.id,
+                SourceId = this.id,
+                Version = this.Version + 1,
                 FirstName = firstName,
                 LastName = lastName,
                 Email = email,
@@ -109,7 +105,7 @@ namespace Registration
         private void OnOrderPlaced(OrderPlaced e)
         {
 
-            this.id = e.OrderId;
+            this.id = e.SourceId;
             this.seats = e.Seats.ToList();
         }
 

@@ -15,15 +15,19 @@ namespace Common
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
-    public abstract class EventSourcedAggregateRoot : IAggregateRoot, IEventPublisher
+    public abstract class EventSourcedAggregateRoot : IEventSourcedAggregateRoot
     {
-        private Dictionary<Type, Action<IEvent>> handlers = new Dictionary<Type, Action<IEvent>>();
-        private readonly List<IEvent> pendingEvents = new List<IEvent>();
+        private readonly Dictionary<Type, Action<IDomainEvent>> handlers = new Dictionary<Type, Action<IDomainEvent>>();
+        private readonly List<IDomainEvent> pendingEvents = new List<IDomainEvent>();
+        private int version = -1;
 
         public abstract Guid Id { get; }
 
-        public IEnumerable<IEvent> Events
+        public int Version { get { return this.version; } }
+
+        public IEnumerable<IDomainEvent> Events
         {
             get { return this.pendingEvents; }
         }
@@ -37,17 +41,20 @@ namespace Common
             this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
         }
 
-        protected void Rehydrate(IEnumerable<IEvent> pastEvents)
+        protected void Rehydrate(IEnumerable<IDomainEvent> pastEvents)
         {
             foreach (var e in pastEvents)
             {
                 this.handlers[e.GetType()].Invoke(e);
+                this.version = e.Version;
             }
         }
 
-        protected void Update(IEvent e)
+        protected void Update(IDomainEvent e)
         {
             this.handlers[e.GetType()].Invoke(e);
+            Debug.Assert(e.Version == this.version + 1);
+            this.version = e.Version;
             this.pendingEvents.Add(e);
         }
     }
