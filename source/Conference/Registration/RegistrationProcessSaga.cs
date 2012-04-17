@@ -66,7 +66,7 @@ namespace Registration
             if (this.State == SagaState.NotStarted)
             {
                 this.ConferenceId = message.ConferenceId;
-                this.OrderId = message.OrderId;
+                this.OrderId = message.SourceId;
                 this.ReservationId = Guid.NewGuid();
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
                 this.State = SagaState.AwaitingReservationConfirmation;
@@ -104,7 +104,7 @@ namespace Registration
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
-                    Seats = message.Seats,
+                    Seats = message.ReservationDetails.ToList(),
                     Expiration = expirationTime,
                 });
             }

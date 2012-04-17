@@ -11,15 +11,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Common
 {
-    using System.ComponentModel.DataAnnotations;
-
-    [ComplexType]
-    public class Registrant
+    public interface IDomainEvent : IEvent
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        int Version { get; }
     }
 }

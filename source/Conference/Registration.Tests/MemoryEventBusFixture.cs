@@ -81,10 +81,18 @@ namespace Registration.Tests
 
 		public class TestEvent : IEvent
 		{
-		}
+            public Guid SourceId
+            {
+                get { throw new NotImplementedException(); }
+            }
+        }
 
 		public class FooEvent : IEvent
 		{
-		}
+            public Guid SourceId
+            {
+                get { throw new NotImplementedException(); }
+            }
+        }
 	}
 }

@@ -11,31 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Common
 {
-    using System;
+    using System.Collections.Generic;
 
-    public struct SeatQuantity
+    public interface IEventSourcedAggregateRoot : IAggregateRoot
     {
-        private Guid seatType;
-        private int quantity;
+        int Version { get; }
 
-        public SeatQuantity(Guid seatType, int quantity)
-        {
-            this.seatType = seatType;
-            this.quantity = quantity;
-        }
-
-        public Guid SeatType
-        {
-            get { return this.seatType; }
-            set { this.seatType = value; }
-        }
-
-        public int Quantity
-        {
-            get { return this.quantity; }
-            set { this.quantity = value; }
-        }
+        IEnumerable<IDomainEvent> Events { get; }
     }
 }

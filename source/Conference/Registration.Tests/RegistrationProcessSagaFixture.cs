@@ -35,13 +35,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 
         public when_order_is_placed()
         {
-            this.orderPlaced = new OrderPlaced
-            {
-                OrderId = Guid.NewGuid(),
-                ConferenceId = Guid.NewGuid(),
-                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
-                Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
-            };
+            this.orderPlaced = new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new[] { new SeatQuantity(Guid.NewGuid(), 2) }, DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)), null);
             sut.Handle(orderPlaced);
         }
 
@@ -87,13 +81,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
-            this.sut.Handle(new OrderPlaced
-            {
-                OrderId = this.orderId,
-                ConferenceId = this.conferenceId,
-                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
-                Seats = { new SeatQuantity { SeatType = Guid.NewGuid(), Quantity = 2 } }
-            });
+            this.sut.Handle(new OrderPlaced(this.orderId, -1, this.conferenceId, new[] { new SeatQuantity(Guid.NewGuid(), 2) }, DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)), null));
         }
     }
 
@@ -106,11 +94,7 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            var seatsReserved = new SeatsReserved
-            {
-                ReservationId = makeReservationCommand.ReservationId,
-                // Seats ?
-            };
+            var seatsReserved = new SeatsReserved(this.conferenceId, -1, makeReservationCommand.ReservationId, new SeatQuantity[0], new SeatQuantity[0]);
             sut.Handle(seatsReserved);
         }
 
@@ -154,22 +138,18 @@ namespace Registration.Tests.RegistrationProcessSagaFixture
 
             var seatType = Guid.NewGuid();
 
-            this.sut.Handle(new OrderPlaced
-            {
-                OrderId = this.orderId,
-                ConferenceId = this.conferenceId,
-                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)),
-                Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 } }
-            });
+            this.sut.Handle(new OrderPlaced(this.orderId, -1, this.conferenceId, new[] { new SeatQuantity(Guid.NewGuid(), 2) }, DateTime.UtcNow.Add(TimeSpan.FromMinutes(22)), null));
 
             var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
             this.reservationId = makeReservationCommand.ReservationId;
 
-            this.sut.Handle(new SeatsReserved
-            {
-                ReservationId = makeReservationCommand.ReservationId,
-                Seats = { new SeatQuantity { SeatType = seatType, Quantity = 2 }, }
-            });
+            this.sut.Handle(
+                new SeatsReserved(
+                    this.conferenceId, 
+                    -1,
+                    makeReservationCommand.ReservationId, 
+                    new[] { new SeatQuantity(seatType, 2) },
+                    new SeatQuantity[0]));
         }
     }
 

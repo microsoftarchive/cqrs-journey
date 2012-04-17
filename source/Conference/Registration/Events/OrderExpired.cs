@@ -11,31 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Registration.Events
 {
     using System;
+    using Common;
 
-    public struct SeatQuantity
+    public class OrderExpired : IDomainEvent
     {
-        private Guid seatType;
-        private int quantity;
+        private readonly Guid sourceId;
+        private readonly int version;
 
-        public SeatQuantity(Guid seatType, int quantity)
+        public OrderExpired(Guid sourceId, int version)
         {
-            this.seatType = seatType;
-            this.quantity = quantity;
+            this.sourceId = sourceId;
+            this.version = version;
         }
 
-        public Guid SeatType
-        {
-            get { return this.seatType; }
-            set { this.seatType = value; }
-        }
+        public Guid SourceId { get { return this.sourceId; } }
 
-        public int Quantity
-        {
-            get { return this.quantity; }
-            set { this.quantity = value; }
-        }
+        public int Version { get { return this.version; } }
     }
 }

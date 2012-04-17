@@ -15,28 +15,41 @@ namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Common;
 
-    public class OrderPlaced : IEvent
+    public class OrderPlaced : IDomainEvent
     {
-        public OrderPlaced()
+        private readonly Guid sourceId;
+        private readonly int version;
+        private readonly Guid conferenceId;
+        private readonly IEnumerable<SeatQuantity> seats;
+        private readonly DateTime reservationAutoExpiration;
+        private readonly string accessCode;
+
+        public OrderPlaced(Guid sourceId, int version, Guid conferenceId, IEnumerable<SeatQuantity> seats, DateTime reservationAutoExpiration, string accessCode)
         {
-            this.Seats = new List<SeatQuantity>();
+            this.sourceId = sourceId;
+            this.version = version;
+            this.conferenceId = conferenceId;
+            this.reservationAutoExpiration = reservationAutoExpiration;
+            this.accessCode = accessCode;
+            this.seats = seats.ToArray();
         }
 
-        public Guid OrderId { get; set; }
+        public Guid SourceId { get { return this.sourceId; } }
+
+        public int Version { get { return this.version; } }
+
+        public Guid ConferenceId { get { return this.conferenceId; } }
+
+        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
 
         /// <summary>
         /// The expected expiration time if the reservation is not explicitly confirmed later.
         /// </summary>
-        public DateTime ReservationAutoExpiration { get; set; }
+        public DateTime ReservationAutoExpiration { get { return this.reservationAutoExpiration; } }
 
-        // TODO: Should all the rest be filled in by the event publisher, assuming a non-ES entity?
-        // Or should the event handler get the event, load the aggregate and pass it (or a DTO) into the Saga?
-        public Guid ConferenceId { get; set; }
-
-        public string AccessCode { get; set; }
-
-        public List<SeatQuantity> Seats { get; set; }
+        public string AccessCode { get { return this.accessCode; } }
     }
 }
