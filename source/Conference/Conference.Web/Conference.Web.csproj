@@ -117,7 +117,6 @@
   <ItemGroup>
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\SeatInfoController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -150,19 +149,19 @@
     <None Include="..\Conference.licenseheader">
       <Link>Conference.licenseheader</Link>
     </None>
-    <Content Include="Views\Conference\Details.cshtml" />
     <Content Include="Views\Conference\Create.cshtml" />
     <Content Include="Views\Conference\Edit.cshtml" />
     <Content Include="Views\Conference\Delete.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\SeatInfo\Index.cshtml" />
-    <Content Include="Views\SeatInfo\GridData.cshtml" />
-    <Content Include="Views\SeatInfo\Edit.cshtml" />
     <Content Include="Views\Conference\Locate.cshtml">
       <SubType>Code</SubType>
     </Content>
     <Content Include="Views\Conference\Navigation.cshtml" />
-    <Content Include="Views\SeatInfo\Navigation.cshtml" />
+    <Content Include="Views\Conference\Seats.cshtml" />
+    <Content Include="Views\Conference\SeatsNavigation.cshtml" />
+    <Content Include="Views\Conference\SeatGrid.cshtml" />
+    <Content Include="Views\Conference\EditSeat.cshtml" />
+    <Content Include="Views\Conference\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Conference\Conference.csproj">
