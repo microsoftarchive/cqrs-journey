@@ -26,12 +26,12 @@ namespace Registration.Tests
         [Fact]
         public void when_order_placed_then_routes_and_saves()
         {
-            var repo = new StubProcessRepository();
+            var repo = new StubProcessRepositorySession<RegistrationProcess>();
             var router = new RegistrationProcessRouter(() => repo);
 
             router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
 
-            Assert.Equal(1, repo.SavedProcesses.Cast<RegistrationProcess>().Count());
+            Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);
         }
 
@@ -45,12 +45,12 @@ namespace Registration.Tests
                 ConferenceId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new StubProcessRepository { Store = { process } };
+            var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => repo);
 
             router.Handle(new SeatsReserved(process.ConferenceId, -1, process.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
 
-            Assert.Equal(1, repo.SavedProcesses.Cast<RegistrationProcess>().Count());
+            Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);
         }
 
@@ -64,7 +64,7 @@ namespace Registration.Tests
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new StubProcessRepository { Store = { process } };
+            var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
 
             var router = new RegistrationProcessRouter(() => repo);
 
@@ -83,37 +83,37 @@ namespace Registration.Tests
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new StubProcessRepository { Store = { process } };
+            var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => repo);
 
             router.Handle(new PaymentReceived { OrderId = process.OrderId });
 
-            Assert.Equal(1, repo.SavedProcesses.Cast<RegistrationProcess>().Count());
+            Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);
         }
     }
 
-    class StubProcessRepository : IProcessRepository, IDisposable
+    class StubProcessRepositorySession<T> : IProcessRepositorySession<T> where T : class, IAggregateRoot
     {
-        public readonly List<IAggregateRoot> SavedProcesses = new List<IAggregateRoot>();
+        public readonly List<T> SavedProcesses = new List<T>();
 
-        public readonly List<IAggregateRoot> Store = new List<IAggregateRoot>();
+        public readonly List<T> Store = new List<T>();
 
         public bool DisposeCalled { get; set; }
 
-        public T Find<T>(Guid id) where T : class, IAggregateRoot
+        public T Find(Guid id)
         {
-            return this.Store.OfType<T>().SingleOrDefault(x => x.Id == id);
+            return this.Store.SingleOrDefault(x => x.Id == id);
         }
 
-        public void Save<T>(T process) where T : class, IAggregateRoot
+        public void Save(T process)
         {
             this.SavedProcesses.Add(process);
         }
 
-        public T Find<T>(Expression<Func<T, bool>> predicate) where T : class, IAggregateRoot
+        public T Find(Expression<Func<T, bool>> predicate)
         {
-            return this.Store.OfType<T>().AsQueryable().SingleOrDefault(predicate);
+            return this.Store.AsQueryable().SingleOrDefault(predicate);
         }
 
         public void Dispose()

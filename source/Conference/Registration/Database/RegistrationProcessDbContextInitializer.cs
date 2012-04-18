@@ -11,33 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Registration.Database
 {
-    using System;
     using System.Data.Entity;
-    using Common;
-    using Registration.Database;
-    using Xunit;
 
-    public class OrmProcessRepositoryInitializerFixture : IDisposable
+    public class RegistrationProcessDbContextInitializer : IDatabaseInitializer<RegistrationProcessDbContext>
     {
-        public void Dispose()
+        private readonly IDatabaseInitializer<RegistrationProcessDbContext> innerInitializer;
+
+        public RegistrationProcessDbContextInitializer(IDatabaseInitializer<RegistrationProcessDbContext> innerInitializer)
         {
-            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
-            {
-                context.Database.Delete();
-            }
+            this.innerInitializer = innerInitializer;
         }
 
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        public void InitializeDatabase(RegistrationProcessDbContext context)
         {
-            var initializer = new RegistrationProcessDbContextInitializer(new DropCreateDatabaseAlways<RegistrationProcessDbContext>());
+            this.innerInitializer.InitializeDatabase(context);
 
-            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
+            // Create views, seed reference data, etc.
+
+            context.SaveChanges();
         }
     }
 }

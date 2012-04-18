@@ -11,26 +11,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Common
 {
-    using System.Data.Entity;
+    using System;
+    using System.Linq.Expressions;
 
-    public class OrmProcessRepositoryInitializer : IDatabaseInitializer<OrmProcessRepository>
+    public interface IProcessRepositorySession<T> : IDisposable
+        where T : class, IAggregateRoot
     {
-        private IDatabaseInitializer<OrmProcessRepository> innerInitializer;
+        T Find(Guid id);
 
-        public OrmProcessRepositoryInitializer(IDatabaseInitializer<OrmProcessRepository> innerInitializer)
-        {
-            this.innerInitializer = innerInitializer;
-        }
+        void Save(T process);
 
-        public void InitializeDatabase(OrmProcessRepository context)
-        {
-            this.innerInitializer.InitializeDatabase(context);
-
-            // Create views, seed reference data, etc.
-
-            context.SaveChanges();
-        }
+        // TODO: queryability to reload processes from correlation ids, etc. 
+        // Is this appropriate? How do others reload processes? (MassTransit 
+        // uses this kind of queryable thinghy, apparently).
+        //IEnumerable<T> Query(Expression<Func<T, bool>> predicate)
+        T Find(Expression<Func<T, bool>> predicate);
     }
 }

@@ -19,42 +19,59 @@ namespace Registration.Database
     using System.Linq.Expressions;
     using Common;
 
-    public class OrmProcessRepository : DbContext, IProcessRepository
+    public class OrmProcessRepositorySession<T> : IProcessRepositorySession<T> where T : class, IAggregateRoot
     {
         private readonly ICommandBus commandBus;
+        private readonly DbContext context;
 
-        public OrmProcessRepository(string nameOrConnectionString, ICommandBus commandBus)
-            : base(nameOrConnectionString)
+        public OrmProcessRepositorySession(Func<DbContext> contextFactory, ICommandBus commandBus)
         {
             this.commandBus = commandBus;
+            this.context = contextFactory.Invoke();
         }
 
-        public T Find<T>(Guid id) where T : class, IAggregateRoot
+        public T Find(Guid id)
         {
-            return this.Set<T>().Find(id);
+            return this.context.Set<T>().Find(id);
         }
 
-        public T Find<T>(Expression<Func<T, bool>> predicate) where T : class, IAggregateRoot
+        public T Find(Expression<Func<T, bool>> predicate)
         {
-            return this.Set<T>().Where(predicate).FirstOrDefault();
+            return this.context.Set<T>().Where(predicate).FirstOrDefault();
         }
 
-        public void Save<T>(T process) where T : class, IAggregateRoot
+        public void Save(T process)
         {
-            var entry = this.Entry(process);
+            var entry = this.context.Entry(process);
 
             if (entry.State == System.Data.EntityState.Detached)
-                this.Set<T>().Add(process);
+                this.context.Set<T>().Add(process);
 
             // Can't have transactions across storage and message bus.
-            this.SaveChanges();
+            this.context.SaveChanges();
 
             var commandPublisher = process as ICommandPublisher;
             if (commandPublisher != null)
                 this.commandBus.Send(commandPublisher.Commands);
         }
 
-        // Define the available entity sets for the database.
-        public virtual DbSet<RegistrationProcess> RegistrationProcesses { get; private set; }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~OrmProcessRepositorySession()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.context.Dispose();
+            }
+        }
     }
 }

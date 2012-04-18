@@ -62,7 +62,7 @@
     <Compile Include="IEventHandlerRegistry.cs" />
     <Compile Include="IEventSourcedAggregateRoot.cs" />
     <Compile Include="IRepository.cs" />
-    <Compile Include="IProcessRepository.cs" />
+    <Compile Include="IProcessRepositorySession.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="JsonSerializerAdapter.cs" />
     <Compile Include="MemoryCommandBus.cs" />
