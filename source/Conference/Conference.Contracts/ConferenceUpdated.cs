@@ -11,30 +11,9 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference
+namespace Conference.Contracts
 {
-    using System.Data.Entity;
-
-    public class DomainContext : DbContext
+    public class ConferenceUpdated : ConferenceEvent
     {
-        public DomainContext()
-            : base("ConferenceManagement")
-        {
-        }
-
-        public virtual DbSet<ConferenceInfo> Conferences { get; set; }
-        public virtual DbSet<SeatInfo> Seats { get; set; }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences");
-            // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
-            // Make seat infos required to have a conference info associated, but without 
-            // having to add a navigation property (don't polute the object model).
-            modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
-            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes");
-        }
     }
 }

@@ -24,7 +24,7 @@ namespace Conference
         public ConferenceInfo()
         {
             this.Id = Guid.NewGuid();
-            this.SeatInfos = new ObservableCollection<SeatInfo>();
+            this.Seats = new ObservableCollection<SeatInfo>();
             this.AccessCode = HandleGenerator.Generate(6);
         }
 
@@ -61,6 +61,6 @@ namespace Conference
         [Display(Name = "Is Published?")]
         public bool IsPublished { get; set; }
 
-        public virtual ICollection<SeatInfo> SeatInfos { get; set; }
+        public virtual ICollection<SeatInfo> Seats { get; set; }
     }
 }

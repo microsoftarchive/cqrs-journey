@@ -196,7 +196,7 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            return PartialView(this.Conference.SeatInfos);
+            return PartialView(this.Conference.Seats);
         }
 
         public ActionResult SeatRow(string slug, Guid id)
@@ -223,7 +223,7 @@ namespace Conference.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 seat.Id = Guid.NewGuid();
-                this.Conference.SeatInfos.Add(seat);
+                this.Conference.Seats.Add(seat);
                 db.SaveChanges();
                 return PartialView("SeatGrid", new SeatInfo[] { seat });
             }

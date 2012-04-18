@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceInfo.cs" />
+    <Compile Include="ConferenceService.cs" />
     <Compile Include="DomainContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeatInfo.cs" />
