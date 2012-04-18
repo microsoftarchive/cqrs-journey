@@ -14,40 +14,26 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
-    using System.Linq;
     using System.Web.Mvc;
-    using Common;
-    using Microsoft.Practices.Unity;
     using Registration.ReadModel;
 
     public class ConferenceController : Controller
     {
-        private Func<IViewRepository> repositoryFactory;
+        private readonly IConferenceDao dao;
 
-        public ConferenceController([Dependency("registration")]Func<IViewRepository> repositoryFactory)
+        public ConferenceController(IConferenceDao dao)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.dao = dao;
         }
 
         public ActionResult Display(string conferenceCode)
         {
-            var conference = this.GetConference(conferenceCode);
+            var conference = this.dao.GetDescription(conferenceCode);
 
             // Reply with 404 if not found?
             //if (conference == null)
 
             return View(conference);
-        }
-
-        private ConferenceDescriptionDTO GetConference(string conferenceCode)
-        {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                return repo.Query<ConferenceDescriptionDTO>()
-                    .Where(dto => dto.Code == conferenceCode)
-                    .FirstOrDefault();
-            }
         }
     }
 }

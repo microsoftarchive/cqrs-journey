@@ -14,34 +14,27 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
-    using System.Linq;
     using System.Web.Mvc;
-    using Common;
-    using Microsoft.Practices.Unity;
     using Registration.ReadModel;
 
     public class OrderController : Controller
     {
-        private Func<IViewRepository> repositoryFactory;
+        private readonly IOrderDao orderDao;
 
-        public OrderController([Dependency("registration")]Func<IViewRepository> repositoryFactory)
+        public OrderController(IOrderDao orderDao)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.orderDao = orderDao;
         }
 
         [HttpGet]
         public ActionResult Display(string conferenceCode, Guid orderId)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                var order = repo.Find<OrderDTO>(orderId);
-                if (order == null)
-                    // TODO: 404?
-                    return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+            var order = orderDao.GetOrderDetails(orderId);
+            if (order == null)
+                // TODO: 404?
+                return RedirectToAction("Find", new {conferenceCode = conferenceCode});
 
-                return View(order);
-            }
+            return View(order);
         }
 
         [HttpGet]
@@ -53,19 +46,15 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult Find(string conferenceCode, string email, string accessCode)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
+            var orderId = orderDao.LocateOrder(email, accessCode);
+
+            if (!orderId.HasValue)
             {
-                var order = repo.Query<OrderDTO>()
-                    .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
-                    .FirstOrDefault();
-
-                if (order == null)
-                    // TODO: 404?
-                    return RedirectToAction("Find", new { conferenceCode = conferenceCode });
-
-                return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = order.OrderId });
+                // TODO: 404?
+                return RedirectToAction("Find", new {conferenceCode = conferenceCode});
             }
+
+            return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = orderId.Value});
         }
     }
 }

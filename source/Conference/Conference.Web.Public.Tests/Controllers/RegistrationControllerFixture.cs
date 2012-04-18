@@ -30,15 +30,17 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
     {
         protected readonly RegistrationController sut;
         protected readonly ICommandBus bus;
-        protected readonly IViewRepository viewRepository;
+        protected readonly IOrderDao orderDao;
+        protected readonly IConferenceDao conferenceDao;
         protected readonly ConferenceAliasDTO conferenceAlias = new ConferenceAliasDTO(Guid.NewGuid(), "TestConferenceCode", "Test Conference name");
 
         public given_controller()
         {
             this.bus = Mock.Of<ICommandBus>();
-            this.viewRepository = Mock.Of<IViewRepository>(x => x.Query<ConferenceAliasDTO>() == new ConferenceAliasDTO[] { conferenceAlias }.AsQueryable());
+            this.conferenceDao = Mock.Of<IConferenceDao>(x => x.GetConferenceAlias(conferenceAlias.Code) == conferenceAlias);
+            this.orderDao = Mock.Of<IOrderDao>();
 
-            this.sut = new RegistrationController(this.bus, () => this.viewRepository);
+            this.sut = new RegistrationController(this.bus, this.orderDao, this.conferenceDao);
             this.sut.ControllerContext = new ControllerContext();
             this.sut.ControllerContext.RouteData.Values.Add("conferenceCode", conferenceAlias.Code);
         }
@@ -46,12 +48,9 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         [Fact(Skip="Need to refactor into a testable cross-cutting concern.")]
         public void when_executing_result_then_makes_conference_alias_available_to_view()
         {
-            var conferenceDTO = new ConferenceDTO(conferenceAlias.Id, conferenceAlias.Code, conferenceAlias.Name, "", new[] { new ConferenceSeatTypeDTO(Guid.NewGuid(), "Test Seat", 10d) });
-
+            var seats = new[] { new ConferenceSeatTypeDTO(Guid.NewGuid(), "Test Seat", 10d) };
             // Arrange
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Query<ConferenceDTO>())
-                .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
             var result = (ViewResult)this.sut.StartRegistration(conferenceAlias.Code);
@@ -67,12 +66,10 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_starting_registration_then_returns_view_with_registration_for_conference()
         {
             var seatTypeId = Guid.NewGuid();
-            var conferenceDTO = new ConferenceDTO(conferenceAlias.Id, conferenceAlias.Code, conferenceAlias.Name, "", new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) });
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) };
 
             // Arrange
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Query<ConferenceDTO>())
-                .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
             var result = (ViewResult)this.sut.StartRegistration(conferenceAlias.Code);
@@ -91,18 +88,14 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_specifying_seats_for_a_valid_registration_then_places_registration_and_redirects_to_action()
         {
             var seatTypeId = Guid.NewGuid();
-            var conferenceDTO = new ConferenceDTO(conferenceAlias.Id, conferenceAlias.Code, conferenceAlias.Name, "", new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) });
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) };
 
             // Arrange
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Query<ConferenceDTO>())
-                .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             var orderId = Guid.NewGuid();
 
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Find<OrderDTO>(orderId))
-                .Returns(new OrderDTO(orderId, OrderDTO.States.Created));
+            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(new OrderDTO(orderId, OrderDTO.States.Created));
 
             var registration =
                 new RegisterToConference
@@ -135,7 +128,6 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         [Fact]
         public void when_specifying_registrant_details_for_a_valid_registration_then_sends_command_and_redirects_to_specify_payment_details()
         {
-            var conferenceId = Guid.NewGuid();
             var orderId = Guid.NewGuid();
             var command = new AssignRegistrantDetails
             {

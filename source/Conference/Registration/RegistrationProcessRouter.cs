@@ -14,7 +14,6 @@
 namespace Registration
 {
     using System;
-    using System.Linq;
     using Common;
     using Registration.Commands;
     using Registration.Events;
@@ -26,9 +25,9 @@ namespace Registration
         ICommandHandler<ExpireRegistrationProcess>
     {
         private readonly object lockObject = new object();
-        private readonly Func<IProcessRepository> repositoryFactory;
+        private readonly Func<IProcessRepositorySession<RegistrationProcess>> repositoryFactory;
 
-        public RegistrationProcessRouter(Func<IProcessRepository> repositoryFactory)
+        public RegistrationProcessRouter(Func<IProcessRepositorySession<RegistrationProcess>> repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
@@ -38,8 +37,7 @@ namespace Registration
             var process = new RegistrationProcess();
             process.Handle(@event);
 
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var repo = this.repositoryFactory.Invoke())
             {
                 lock (lockObject)
                 {
@@ -50,12 +48,11 @@ namespace Registration
 
         public void Handle(SeatsReserved @event)
         {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var repo = this.repositoryFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
@@ -68,12 +65,11 @@ namespace Registration
 
         public void Handle(ExpireRegistrationProcess command)
         {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var repo = this.repositoryFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(command);
@@ -86,12 +82,11 @@ namespace Registration
 
         public void Handle(PaymentReceived @event)
         {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var repo = this.repositoryFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
