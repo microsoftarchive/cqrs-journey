@@ -28,6 +28,7 @@ namespace Conference.Web.Public
     using Registration.Database;
     using Registration.Handlers;
     using Registration.ReadModel;
+    using Registration.ReadModel.Implementation;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -49,11 +50,11 @@ namespace Conference.Web.Public
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-            Database.SetInitializer(new OrmViewRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmViewRepository>()));
+            Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));
             Database.SetInitializer(new OrmProcessRepositoryInitializer(new DropCreateDatabaseIfModelChanges<OrmProcessRepository>()));
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
             
-            using (var context = this.container.Resolve<OrmViewRepository>("registration"))
+            using (var context = this.container.Resolve<ConferenceRegistrationDbContext>())
             {
                 context.Database.Initialize(true);
             }
@@ -120,8 +121,8 @@ namespace Conference.Web.Public
 
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
             container.RegisterType(typeof(IRepository<>), typeof(SqlEventRepository<>), new ContainerControlledLifetimeManager());
-            container.RegisterType<IProcessRepository, Registration.Database.OrmProcessRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
-            container.RegisterType<IViewRepository, Registration.ReadModel.OrmViewRepository>("registration", new InjectionConstructor());
+            container.RegisterType<IProcessRepository, OrmProcessRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
+            container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
             // handlers
 
@@ -135,12 +136,11 @@ namespace Conference.Web.Public
                 new InjectionConstructor(new ResolvedParameter<Func<IProcessRepository>>("registration")));
 
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
-
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
+            container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
 
-            container.RegisterType<IEventHandler, OrderViewModelGenerator>(
-                "OrderViewModelGenerator",
-                new InjectionConstructor(new ResolvedParameter<Func<IViewRepository>>("registration")));
+            container.RegisterType<IOrderDao, OrderDao>();
+            container.RegisterType<IConferenceDao, ConferenceDao>();
 
             return container;
         }

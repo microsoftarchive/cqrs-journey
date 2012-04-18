@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.ReadModel.Implementation
 {
     using System;
     using System.Data.Entity;
@@ -19,25 +19,25 @@ namespace Registration.ReadModel
     using System.Data.SqlClient;
     using System.Linq;
 
-    public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmViewRepository>
+    public class ConferenceRegistrationDbContextInitializer : IDatabaseInitializer<ConferenceRegistrationDbContext>
     {
-        private readonly IDatabaseInitializer<OrmViewRepository> innerInitializer;
+        private readonly IDatabaseInitializer<ConferenceRegistrationDbContext> innerInitializer;
 
         // NOTE: we use decorator pattern here because the Seed logic is typically reused 
         // on tests which have a different requirement than production (they drop DBs on 
         // every run, regardless of change or AppDomain-wide caching of initialization).
         // Decorating makes it clear than inheriting from the built-in ones (two at least) 
         // and then extracting the Seed behavior in a strategy.
-        public OrmViewRepositoryInitializer(IDatabaseInitializer<OrmViewRepository> innerInitializer)
+        public ConferenceRegistrationDbContextInitializer(IDatabaseInitializer<ConferenceRegistrationDbContext> innerInitializer)
         {
             this.innerInitializer = innerInitializer;
         }
 
-        public void InitializeDatabase(OrmViewRepository context)
+        public void InitializeDatabase(ConferenceRegistrationDbContext context)
         {
             this.innerInitializer.InitializeDatabase(context);
 
-            using (var viewContext = new OrmViewRepository())
+            using (var viewContext = new ConferenceRegistrationDbContext())
             {
                 var ddl = ((IObjectContextAdapter)viewContext).ObjectContext.CreateDatabaseScript();
                 try

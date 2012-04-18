@@ -11,27 +11,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.ReadModel.Implementation
 {
     using System;
     using System.Data.Entity;
     using System.Linq;
-    using Common;
 
     /// <summary>
     /// A repository stored in a database for the views.
     /// </summary>
-    public class OrmViewRepository : DbContext, IViewRepository
+    public class ConferenceRegistrationDbContext : DbContext
     {
-        public OrmViewRepository()
-            // NOTE: by default, we point to the same database 
-            // as the aggregates because we're using SQL views, 
-            // but of course it could be a separate one.
+        public ConferenceRegistrationDbContext()
             : this("ConferenceRegistration")
         {
         }
 
-        public OrmViewRepository(string nameOrConnectionString)
+        public ConferenceRegistrationDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
         }

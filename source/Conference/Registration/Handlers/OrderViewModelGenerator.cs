@@ -19,23 +19,23 @@ namespace Registration.Handlers
     using Common;
     using Registration.Events;
     using Registration.ReadModel;
+    using Registration.ReadModel.Implementation;
 
     public class OrderViewModelGenerator :
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>
     {
-        private Func<IViewRepository> repositoryFactory;
+        private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
-        public OrderViewModelGenerator(Func<IViewRepository> repositoryFactory)
+        public OrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.contextFactory = contextFactory;
         }
 
         public void Handle(OrderPlaced @event)
         {
-            var repository = this.repositoryFactory();
-            using (repository as IDisposable)
+            using (var repository = this.contextFactory.Invoke())
             {
                 var dto = new OrderDTO(@event.SourceId, OrderDTO.States.Created)
                 {
@@ -49,8 +49,7 @@ namespace Registration.Handlers
 
         public void Handle(OrderRegistrantAssigned @event)
         {
-            var repository = this.repositoryFactory();
-            using (repository as IDisposable)
+            using (var repository = this.contextFactory.Invoke())
             {
                 var dto = repository.Find<OrderDTO>(@event.SourceId);
                 dto.RegistrantEmail = @event.Email;
@@ -61,8 +60,7 @@ namespace Registration.Handlers
 
         public void Handle(OrderUpdated @event)
         {
-            var repository = this.repositoryFactory();
-            using (repository as IDisposable)
+            using (var repository = this.contextFactory.Invoke())
             {
                 var dto = repository.Find<OrderDTO>(@event.SourceId);
                 dto.Lines.Clear();
@@ -84,8 +82,7 @@ namespace Registration.Handlers
 
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, IEnumerable<SeatQuantity> seats)
         {
-            var repository = this.repositoryFactory();
-            using (repository as IDisposable)
+            using (var repository = this.contextFactory.Invoke())
             {
                 var dto = repository.Find<OrderDTO>(orderId);
                 foreach (var seat in seats)

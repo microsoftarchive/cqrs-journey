@@ -1,8 +1,8 @@
-﻿// ==============================================================================================================
+// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
-// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// �2012 Microsoft. All rights reserved. Certain content used with permission from contributors
 // http://cqrsjourney.github.com/contributors/members
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
 // with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,18 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Registration.ReadModel
 {
     using System;
-    using System.Linq;
+    using System.Collections.Generic;
 
-    /// <summary>
-    /// A repository for views.
-    /// </summary>
-    public interface IViewRepository
+    public interface IConferenceDao
     {
-        T Find<T>(Guid id) where T : class;
-        IQueryable<T> Query<T>() where T : class;
-        void Save<T>(T entity) where T : class;
+        ConferenceDescriptionDTO GetDescription(string conferenceCode);
+        ConferenceAliasDTO GetConferenceAlias(string conferenceCode);
+        IList<ConferenceSeatTypeDTO> GetPublishedSeatTypes(Guid conferenceId);
     }
 }

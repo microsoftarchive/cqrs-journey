@@ -72,6 +72,10 @@
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
+    <Compile Include="ReadModel\Implementation\OrderDao.cs" />
+    <Compile Include="ReadModel\IOrderDao.cs" />
+    <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
+    <Compile Include="ReadModel\IConferenceDao.cs" />
     <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />

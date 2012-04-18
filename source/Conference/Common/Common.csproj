@@ -64,7 +64,6 @@
     <Compile Include="IRepository.cs" />
     <Compile Include="IProcessRepository.cs" />
     <Compile Include="ISerializer.cs" />
-    <Compile Include="IViewRepository.cs" />
     <Compile Include="JsonSerializerAdapter.cs" />
     <Compile Include="MemoryCommandBus.cs" />
     <Compile Include="MemoryEventBus.cs" />
