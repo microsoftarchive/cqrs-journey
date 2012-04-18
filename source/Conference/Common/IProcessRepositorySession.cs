@@ -16,6 +16,8 @@ namespace Common
     using System;
     using System.Linq.Expressions;
 
+    // TODO: Does this even belong to a reusable infrastructure?
+    // This for reading and writing processes (aka Sagas in the CQRS community)
     public interface IProcessRepositorySession<T> : IDisposable
         where T : class, IAggregateRoot
     {

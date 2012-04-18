@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Common.Sql
 {
     using System;
     using System.Data.Entity;
@@ -19,12 +19,15 @@ namespace Registration.Database
     using System.Linq.Expressions;
     using Common;
 
-    public class OrmProcessRepositorySession<T> : IProcessRepositorySession<T> where T : class, IAggregateRoot
+    // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
+    // It is not transactional with the event bus.
+    // Does this even belong to a reusable infrastructure?
+    public class SqlProcessRepositorySession<T> : IProcessRepositorySession<T> where T : class, IAggregateRoot
     {
         private readonly ICommandBus commandBus;
         private readonly DbContext context;
 
-        public OrmProcessRepositorySession(Func<DbContext> contextFactory, ICommandBus commandBus)
+        public SqlProcessRepositorySession(Func<DbContext> contextFactory, ICommandBus commandBus)
         {
             this.commandBus = commandBus;
             this.context = contextFactory.Invoke();
@@ -57,13 +60,13 @@ namespace Registration.Database
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~OrmProcessRepositorySession()
+        ~SqlProcessRepositorySession()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
 
         protected virtual void Dispose(bool disposing)

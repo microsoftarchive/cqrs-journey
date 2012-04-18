@@ -18,13 +18,13 @@ namespace Registration.IntegrationTests
     using System.Data.Entity;
     using System.Linq;
     using Common;
+    using Common.Sql;
     using Moq;
-    using Registration.Database;
     using Xunit;
 
-    public class OrmProcessRepositoryFixture : IDisposable
+    public class SqlProcessRepositorySessionFixture : IDisposable
     {
-        public OrmProcessRepositoryFixture()
+        public SqlProcessRepositorySessionFixture()
         {
             using (var context = new TestProcessDbContext())
             {
@@ -46,13 +46,13 @@ namespace Registration.IntegrationTests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new OrmProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = new OrmTestProcess(id);
                 context.Save(conference);
             }
 
-            using (var context = new OrmProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = context.Find(id);
 
@@ -65,13 +65,13 @@ namespace Registration.IntegrationTests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new OrmProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = new OrmTestProcess(id);
                 context.Save(conference);
             }
 
-            using (var context = new OrmProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = context.Find(id);
                 conference.Title = "CQRS Journey";
@@ -79,7 +79,7 @@ namespace Registration.IntegrationTests
                 context.Save(conference);
             }
 
-            using (var context = new OrmProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = context.Find(id);
 
@@ -98,7 +98,7 @@ namespace Registration.IntegrationTests
 
             var command = new TestCommand();
 
-            using (var context = new OrmProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), bus.Object))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), bus.Object))
             {
                 var aggregate = new OrmTestProcess(Guid.NewGuid());
                 aggregate.AddCommand(command);
