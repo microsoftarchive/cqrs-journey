@@ -73,6 +73,8 @@
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
+    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
+    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
@@ -89,8 +91,6 @@
     <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
     <Compile Include="ReadModel\OrderItemDTO.cs" />
-    <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
-    <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcess.cs" />
     <Compile Include="Reservation.cs" />
     <Compile Include="SeatQuantity.cs" />
