@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OrmProcessRepositoryInitializerFixture.cs" />
-    <Compile Include="OrmProcessRepositoryFixture.cs" />
+    <Compile Include="SqlProcessRepositorySessionFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +61,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common.Sql\Common.Sql.csproj">
+      <Project>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</Project>
+      <Name>Common.Sql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Common</Name>

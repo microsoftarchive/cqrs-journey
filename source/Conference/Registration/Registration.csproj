@@ -84,7 +84,6 @@
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />
-    <Compile Include="Database\OrmProcessRepositorySession.cs" />
     <Compile Include="OrderItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
