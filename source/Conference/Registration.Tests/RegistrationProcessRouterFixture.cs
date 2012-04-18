@@ -18,7 +18,7 @@ namespace Registration.Tests
     using System.Linq;
     using System.Linq.Expressions;
     using Common;
-    using Payments.Events;
+    using Payments.Contracts.Events;
     using Registration.Events;
     using Xunit;
 

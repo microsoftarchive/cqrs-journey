@@ -140,7 +140,7 @@ namespace Conference.Web.Public
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
             container.RegisterType<IRepository<ThirdPartyProcessorPayment>, Payments.Database.OrmRepository>(new InjectionConstructor(typeof(IEventBus)));
-            container.RegisterType<IViewRepository, Payments.ReadModel.OrmViewRepository>("payments", new InjectionConstructor());
+            container.RegisterType<Payments.ReadModel.IViewRepository, Payments.ReadModel.OrmViewRepository>("payments", new InjectionConstructor());
 
 
             // handlers

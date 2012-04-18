@@ -17,7 +17,7 @@ namespace Registration
     using Common;
     using Registration.Commands;
     using Registration.Events;
-    using Payments.Events;
+    using Payments.Contracts.Events;
 
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
