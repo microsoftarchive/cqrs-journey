@@ -11,32 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Database
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
+    using System.Data.Entity;
 
-    public class ConferenceDescriptionDTO
+    public class RegistrationProcessDbContextInitializer : IDatabaseInitializer<RegistrationProcessDbContext>
     {
-        public ConferenceDescriptionDTO(Guid id, string code, string name, string description)
+        private readonly IDatabaseInitializer<RegistrationProcessDbContext> innerInitializer;
+
+        public RegistrationProcessDbContextInitializer(IDatabaseInitializer<RegistrationProcessDbContext> innerInitializer)
         {
-            this.Id = id;
-            this.Code = code;
-            this.Name = name;
-            this.Description = description;
+            this.innerInitializer = innerInitializer;
         }
 
-        protected ConferenceDescriptionDTO()
+        public void InitializeDatabase(RegistrationProcessDbContext context)
         {
+            this.innerInitializer.InitializeDatabase(context);
+
+            // Create views, seed reference data, etc.
+
+            context.SaveChanges();
         }
-
-        [Key]
-        public virtual Guid Id { get; private set; }
-
-        public virtual string Code { get; private set; }
-
-        public virtual string Name { get; private set; }
-
-        public virtual string Description { get; private set; }
     }
 }

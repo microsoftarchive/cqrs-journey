@@ -19,7 +19,6 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
-    using Microsoft.Practices.Unity;
     using Registration.Commands;
     using Registration.ReadModel;
 
@@ -27,13 +26,15 @@ namespace Conference.Web.Public.Controllers
     {
         private const int WaitTimeoutInSeconds = 5;
 
-        private ICommandBus commandBus;
-        private Func<IViewRepository> repositoryFactory;
+        private readonly ICommandBus commandBus;
+        private readonly IOrderDao orderDao;
+        private readonly IConferenceDao conferenceDao;
 
-        public RegistrationController(ICommandBus commandBus, [Dependency("registration")]Func<IViewRepository> repositoryFactory)
+        public RegistrationController(ICommandBus commandBus, IOrderDao orderDao, IConferenceDao conferenceDao)
         {
             this.commandBus = commandBus;
-            this.repositoryFactory = repositoryFactory;
+            this.orderDao = orderDao;
+            this.conferenceDao = conferenceDao;
         }
 
         [HttpGet]
@@ -41,13 +42,7 @@ namespace Conference.Web.Public.Controllers
         {
             ViewBag.OrderId = Guid.NewGuid();
 
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
-            {
-                // NOTE: If the ConferenceSeatTypeDTO had the ConferenceId property exposed, this query should be simpler. Why do we need to hide the FKs in the read model?
-                var seatTypes = repo.Query<ConferenceDTO>().Where(c => c.Code == conferenceCode).Select(c => c.Seats).FirstOrDefault().ToList();
-                return View(seatTypes);
-            }
+            return View(this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id));
         }
 
         [HttpPost]
@@ -69,19 +64,19 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId)
         {
-            var orderDTO = this.WaitUntilUpdated(orderId);
-            if (orderDTO == null)
+            var order = this.WaitUntilUpdated(orderId);
+            if (order == null)
             {
                 return View("ReservationUnknown");
             }
 
-            if (orderDTO.State == OrderDTO.States.Rejected)
+            if (order.State == OrderDTO.States.Rejected)
             {
                 return View("ReservationRejected");
             }
 
             // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
+            this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
 
             // We just render the command which is later posted back.
             return View(new AssignRegistrantDetails { OrderId = orderId });
@@ -103,16 +98,12 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId)
         {
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                var orderDTO = repo.Find<OrderDTO>(orderId);
-                var viewModel = this.CreateViewModel(conferenceCode, orderDTO);
+            var order = this.orderDao.GetOrderDetails(orderId);
+            var viewModel = this.CreateViewModel(conferenceCode, order);
 
-                this.ViewBag.ExpirationDateUTC = orderDTO.ReservationExpirationDate;
+            this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
 
-                return View(viewModel);
-            }
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -137,55 +128,42 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult DisplayOrderStatus(string conferenceCode, Guid orderId)
         {
+            // TODO: What is this? There is no backing view for this action!
             return View();
         }
 
         [HttpGet]
         public ActionResult ThankYou(string conferenceCode, Guid orderId)
         {
-            OrderDTO order;
-            var repo = this.repositoryFactory();
-            using (repo as IDisposable)
-            {
-                order = repo.Query<OrderDTO>().FirstOrDefault(x => x.OrderId == orderId);
-            }
+            var order = this.orderDao.GetOrderDetails(orderId);
 
             return View(order);
         }
 
         private OrderViewModel CreateViewModel(string conferenceCode)
         {
-            var repo = this.repositoryFactory();
+            var seats = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
+            var viewModel =
+                new OrderViewModel
+                {
+                    ConferenceId = this.Conference.Id,
+                    ConferenceCode = this.Conference.Code,
+                    ConferenceName = this.Conference.Name,
+                    Items = seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList(),
+                };
 
-            using (repo as IDisposable)
-            {
-                // TODO: how to do .Include("Seats") with this generic repo?
-                var conference = repo.Query<ConferenceDTO>().FirstOrDefault(c => c.Code == conferenceCode);
-
-                //// TODO check null case
-
-                var viewModel =
-                    new OrderViewModel
-                    {
-                        ConferenceId = conference.Id,
-                        ConferenceCode = conference.Code,
-                        ConferenceName = conference.Name,
-                        Items = conference.Seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList(),
-                    };
-
-                return viewModel;
-            }
+            return viewModel;
         }
 
-        private OrderViewModel CreateViewModel(string conferenceCode, OrderDTO orderDTO)
+        private OrderViewModel CreateViewModel(string conferenceCode, OrderDTO order)
         {
             var viewModel = this.CreateViewModel(conferenceCode);
-            viewModel.Id = orderDTO.OrderId;
+            viewModel.Id = order.OrderId;
 
             // TODO check DTO matches view model
 
 
-            foreach (var line in orderDTO.Lines)
+            foreach (var line in order.Lines)
             {
                 var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
                 seat.Quantity = line.ReservedSeats;
@@ -200,15 +178,11 @@ namespace Conference.Web.Public.Controllers
 
             while (DateTime.Now < deadline)
             {
-                var repo = this.repositoryFactory();
-                using (repo as IDisposable)
-                {
-                    var orderDTO = repo.Find<OrderDTO>(orderId);
+                var order = this.orderDao.GetOrderDetails(orderId);
 
-                    if (orderDTO != null && orderDTO.State != OrderDTO.States.Created)
-                    {
-                        return orderDTO;
-                    }
+                if (order != null && order.State != OrderDTO.States.Created)
+                {
+                    return order;
                 }
 
                 Thread.Sleep(500);
@@ -225,13 +199,7 @@ namespace Conference.Web.Public.Controllers
                 if (this.conference == null)
                 {
                     var conferenceCode = (string)ControllerContext.RouteData.Values["conferenceCode"];
-                    var repo = this.repositoryFactory();
-                    using (repo as IDisposable)
-                    {
-                        this.conference = repo.Query<ConferenceAliasDTO>()
-                            .Where(c => c.Code == conferenceCode)
-                            .FirstOrDefault();
-                    }
+                    this.conference = this.conferenceDao.GetConferenceAlias(conferenceCode);
                 }
 
                 return this.conference;

@@ -11,26 +11,33 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+namespace Registration.IntegrationTests
 {
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using Common;
+    using Common.Sql;
     using Moq;
-    using Registration.Database;
     using Xunit;
 
-    public class OrmProcessRepositoryFixture
+    public class SqlProcessRepositorySessionFixture : IDisposable
     {
-        public OrmProcessRepositoryFixture()
+        public SqlProcessRepositorySessionFixture()
         {
-            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
+            using (var context = new TestProcessDbContext())
             {
-                if (context.Database.Exists()) context.Database.Delete();
-
+                context.Database.Delete();
                 context.Database.Create();
+            }
+        }
+
+        public void Dispose()
+        {
+            using (var context = new TestProcessDbContext())
+            {
+                context.Database.Delete();
             }
         }
 
@@ -39,15 +46,15 @@ namespace Registration.Tests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = new OrmTestProcess(id);
                 context.Save(conference);
             }
 
-            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
-                var conference = context.Find<OrmTestProcess>(id);
+                var conference = context.Find(id);
 
                 Assert.NotNull(conference);
             }
@@ -58,20 +65,23 @@ namespace Registration.Tests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
                 var conference = new OrmTestProcess(id);
                 context.Save(conference);
             }
 
-            using (var context = new TestOrmProcessRepository(Mock.Of<ICommandBus>()))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
             {
-                var conference = context.Find<OrmTestProcess>(id);
+                var conference = context.Find(id);
                 conference.Title = "CQRS Journey";
 
                 context.Save(conference);
+            }
 
-                context.Entry(conference).Reload();
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), Mock.Of<ICommandBus>()))
+            {
+                var conference = context.Find(id);
 
                 Assert.Equal("CQRS Journey", conference.Title);
             }
@@ -88,7 +98,7 @@ namespace Registration.Tests
 
             var command = new TestCommand();
 
-            using (var context = new TestOrmProcessRepository(bus.Object))
+            using (var context = new SqlProcessRepositorySession<OrmTestProcess>(() => new TestProcessDbContext(), bus.Object))
             {
                 var aggregate = new OrmTestProcess(Guid.NewGuid());
                 aggregate.AddCommand(command);
@@ -99,10 +109,10 @@ namespace Registration.Tests
             Assert.True(commands.Contains(command));
         }
 
-        public class TestOrmProcessRepository : OrmProcessRepository
+        public class TestProcessDbContext : DbContext
         {
-            public TestOrmProcessRepository(ICommandBus commandBus)
-                : base("TestOrmProcessRepository", commandBus)
+            public TestProcessDbContext()
+                : base("TestOrmProcessRepository")
             {
             }
 

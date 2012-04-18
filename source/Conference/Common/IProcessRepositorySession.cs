@@ -11,32 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Common
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
+    using System.Linq.Expressions;
 
-    public class ConferenceDescriptionDTO
+    // TODO: Does this even belong to a reusable infrastructure?
+    // This for reading and writing processes (aka Sagas in the CQRS community)
+    public interface IProcessRepositorySession<T> : IDisposable
+        where T : class, IAggregateRoot
     {
-        public ConferenceDescriptionDTO(Guid id, string code, string name, string description)
-        {
-            this.Id = id;
-            this.Code = code;
-            this.Name = name;
-            this.Description = description;
-        }
+        T Find(Guid id);
 
-        protected ConferenceDescriptionDTO()
-        {
-        }
+        void Save(T process);
 
-        [Key]
-        public virtual Guid Id { get; private set; }
-
-        public virtual string Code { get; private set; }
-
-        public virtual string Name { get; private set; }
-
-        public virtual string Description { get; private set; }
+        // TODO: queryability to reload processes from correlation ids, etc. 
+        // Is this appropriate? How do others reload processes? (MassTransit 
+        // uses this kind of queryable thinghy, apparently).
+        //IEnumerable<T> Query(Expression<Func<T, bool>> predicate)
+        T Find(Expression<Func<T, bool>> predicate);
     }
 }
