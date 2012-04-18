@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OrmProcessRepositoryInitializerFixture.cs" />
-    <Compile Include="OrmSagaRepositoryFixture.cs" />
+    <Compile Include="OrmProcessRepositoryFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

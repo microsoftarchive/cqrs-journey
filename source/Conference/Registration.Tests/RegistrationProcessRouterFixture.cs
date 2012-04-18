@@ -14,9 +14,10 @@
 namespace Registration.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using Common;
-    using Moq;
     using Registration.Events;
     using Xunit;
 
@@ -25,14 +26,13 @@ namespace Registration.Tests
         [Fact]
         public void when_order_placed_then_routes_and_saves()
         {
-            var repo = new Mock<IProcessRepository>();
-            var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessRouter(() => repo.Object);
+            var repo = new StubProcessRepository();
+            var router = new RegistrationProcessRouter(() => repo);
 
             router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
-            disposable.Verify(x => x.Dispose());
+            Assert.Equal(1, repo.SavedProcesses.Cast<RegistrationProcess>().Count());
+            Assert.True(repo.DisposeCalled);
         }
 
         [Fact]
@@ -45,15 +45,13 @@ namespace Registration.Tests
                 ConferenceId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new Mock<IProcessRepository>();
-            repo.Setup(x => x.Query<RegistrationProcess>()).Returns(new[] { process }.AsQueryable());
-            var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessRouter(() => repo.Object);
+            var repo = new StubProcessRepository { Store = { process } };
+            var router = new RegistrationProcessRouter(() => repo);
 
             router.Handle(new SeatsReserved(process.ConferenceId, -1, process.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
-            disposable.Verify(x => x.Dispose());
+            Assert.Equal(1, repo.SavedProcesses.Cast<RegistrationProcess>().Count());
+            Assert.True(repo.DisposeCalled);
         }
 
         [Fact]
@@ -66,15 +64,14 @@ namespace Registration.Tests
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new Mock<IProcessRepository>();
-            repo.Setup(x => x.Query<RegistrationProcess>()).Returns(new[] { process }.AsQueryable());
-            var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessRouter(() => repo.Object);
+            var repo = new StubProcessRepository { Store = { process } };
+
+            var router = new RegistrationProcessRouter(() => repo);
 
             router.Handle(new Commands.ExpireRegistrationProcess { ProcessId = process.Id });
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
-            disposable.Verify(x => x.Dispose());
+            Assert.Equal(1, repo.SavedProcesses.Count);
+            Assert.True(repo.DisposeCalled);
         }
 
         [Fact]
@@ -86,16 +83,42 @@ namespace Registration.Tests
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new Mock<IProcessRepository>();
-            repo.Setup(x => x.Query<RegistrationProcess>()).Returns(new[] { process }.AsQueryable());
-            var disposable = repo.As<IDisposable>();
-            var router = new RegistrationProcessRouter(() => repo.Object);
+            var repo = new StubProcessRepository { Store = { process } };
+            var router = new RegistrationProcessRouter(() => repo);
 
-            router.Handle(new Events.PaymentReceived { OrderId = process.OrderId });
+            router.Handle(new PaymentReceived { OrderId = process.OrderId });
 
-            repo.Verify(x => x.Save(It.IsAny<RegistrationProcess>()));
-            disposable.Verify(x => x.Dispose());
+            Assert.Equal(1, repo.SavedProcesses.Cast<RegistrationProcess>().Count());
+            Assert.True(repo.DisposeCalled);
+        }
+    }
+
+    class StubProcessRepository : IProcessRepository, IDisposable
+    {
+        public readonly List<IAggregateRoot> SavedProcesses = new List<IAggregateRoot>();
+
+        public readonly List<IAggregateRoot> Store = new List<IAggregateRoot>();
+
+        public bool DisposeCalled { get; set; }
+
+        public T Find<T>(Guid id) where T : class, IAggregateRoot
+        {
+            return this.Store.OfType<T>().SingleOrDefault(x => x.Id == id);
         }
 
+        public void Save<T>(T process) where T : class, IAggregateRoot
+        {
+            this.SavedProcesses.Add(process);
+        }
+
+        public T Find<T>(Expression<Func<T, bool>> predicate) where T : class, IAggregateRoot
+        {
+            return this.Store.OfType<T>().AsQueryable().SingleOrDefault(predicate);
+        }
+
+        public void Dispose()
+        {
+            this.DisposeCalled = true;
+        }
     }
 }

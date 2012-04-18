@@ -14,7 +14,6 @@
 namespace Registration
 {
     using System;
-    using System.Linq;
     using Common;
     using Registration.Commands;
     using Registration.Events;
@@ -55,7 +54,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find<RegistrationProcess>(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
@@ -73,7 +72,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find<RegistrationProcess>(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(command);
@@ -91,7 +90,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find<RegistrationProcess>(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);

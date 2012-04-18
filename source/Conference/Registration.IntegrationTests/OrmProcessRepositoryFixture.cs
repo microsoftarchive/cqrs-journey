@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+namespace Registration.IntegrationTests
 {
     using System;
     using System.Collections.Generic;

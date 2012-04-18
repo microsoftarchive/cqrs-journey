@@ -14,17 +14,18 @@
 namespace Common
 {
 	using System;
-	using System.Linq;
+	using System.Linq.Expressions;
 
     public interface IProcessRepository
 	{
         T Find<T>(Guid id) where T : class, IAggregateRoot;
 
-        void Save<T>(T aggregate) where T : class, IAggregateRoot;
+        void Save<T>(T process) where T : class, IAggregateRoot;
 
-		// TODO: queryability to reload processes from correlation ids, etc. 
+        // TODO: queryability to reload processes from correlation ids, etc. 
 		// Is this appropriate? How do others reload processes? (MassTransit 
 		// uses this kind of queryable thinghy, apparently).
-		IQueryable<T> Query<T>() where T : class, IAggregateRoot;
-	}
+        //IEnumerable<T> Query<T>(Expression<Func<T, bool>> predicate) where T : class, IAggregateRoot;
+        T Find<T>(Expression<Func<T, bool>> predicate) where T : class, IAggregateRoot;
+    }
 }

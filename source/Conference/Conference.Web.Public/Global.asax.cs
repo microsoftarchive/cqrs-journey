@@ -121,7 +121,7 @@ namespace Conference.Web.Public
 
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
             container.RegisterType(typeof(IRepository<>), typeof(SqlEventRepository<>), new ContainerControlledLifetimeManager());
-            container.RegisterType<IProcessRepository, OrmProcessRepository>("registration", new InjectionConstructor(typeof(ICommandBus)));
+            container.RegisterType<IProcessRepository, OrmProcessRepository>("registration", new InjectionConstructor("ConferenceRegistrationProcesses", typeof(ICommandBus)));
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
             // handlers

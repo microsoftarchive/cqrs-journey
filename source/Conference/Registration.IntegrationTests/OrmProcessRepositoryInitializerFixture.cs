@@ -14,6 +14,7 @@
 namespace Registration.IntegrationTests
 {
     using System.Data.Entity;
+    using Common;
     using Registration.Database;
     using Xunit;
 
@@ -24,7 +25,7 @@ namespace Registration.IntegrationTests
         {
             var initializer = new OrmProcessRepositoryInitializer(new DropCreateDatabaseAlways<OrmProcessRepository>());
 
-            using (var context = new OrmProcessRepository("TestOrmProcessRepository"))
+            using (var context = new OrmProcessRepository("TestOrmProcessRepository", new MemoryCommandBus()))
             {
                 initializer.InitializeDatabase(context);
             }

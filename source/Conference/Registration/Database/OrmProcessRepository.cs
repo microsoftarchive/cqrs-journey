@@ -16,26 +16,12 @@ namespace Registration.Database
     using System;
     using System.Data.Entity;
     using System.Linq;
+    using System.Linq.Expressions;
     using Common;
 
     public class OrmProcessRepository : DbContext, IProcessRepository
     {
         private readonly ICommandBus commandBus;
-
-        public OrmProcessRepository()
-            : this("ConferenceRegistrationProcesses")
-        {
-        }
-
-        public OrmProcessRepository(string nameOrConnectionString)
-            : this(nameOrConnectionString, new MemoryCommandBus())
-        {
-        }
-
-        public OrmProcessRepository(ICommandBus commandBus)
-            : this("ConferenceRegistrationProcesses", commandBus)
-        {
-        }
 
         public OrmProcessRepository(string nameOrConnectionString, ICommandBus commandBus)
             : base(nameOrConnectionString)
@@ -48,22 +34,22 @@ namespace Registration.Database
             return this.Set<T>().Find(id);
         }
 
-        public IQueryable<T> Query<T>() where T : class, IAggregateRoot
+        public T Find<T>(Expression<Func<T, bool>> predicate) where T : class, IAggregateRoot
         {
-            return this.Set<T>();
+            return this.Set<T>().Where(predicate).FirstOrDefault();
         }
 
-        public void Save<T>(T aggregate) where T : class, IAggregateRoot
+        public void Save<T>(T process) where T : class, IAggregateRoot
         {
-            var entry = this.Entry(aggregate);
+            var entry = this.Entry(process);
 
             if (entry.State == System.Data.EntityState.Detached)
-                this.Set<T>().Add(aggregate);
+                this.Set<T>().Add(process);
 
             // Can't have transactions across storage and message bus.
             this.SaveChanges();
 
-            var commandPublisher = aggregate as ICommandPublisher;
+            var commandPublisher = process as ICommandPublisher;
             if (commandPublisher != null)
                 this.commandBus.Send(commandPublisher.Commands);
         }
