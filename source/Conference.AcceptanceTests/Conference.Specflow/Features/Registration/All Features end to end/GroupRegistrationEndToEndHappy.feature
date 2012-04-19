@@ -18,9 +18,9 @@ Background:
 Scenario: All the Order Items are available and all get selected, then all get reserved
 	Given the selected available Order Items
 	| seat type                        | quantity |
-	| General admission                | 3               |
-	| Pre-con Workshop with Greg Young | 1               |
-	| Additional cocktail party        | 2               |
+	| General admission                | 3        |
+	| Pre-con Workshop with Greg Young | 1        |
+	| Additional cocktail party        | 2        |
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items.
 	And the total amount should be of $1197

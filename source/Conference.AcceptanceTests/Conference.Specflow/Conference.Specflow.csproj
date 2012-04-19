@@ -134,6 +134,8 @@
       <DependentUpon>PartialAssignments.feature</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\Registration\EndToEnd\EndToEndCommonSteps.cs" />
+    <Compile Include="Steps\Registration\EndToEnd\SelfRegistrationEndToEndHappySteps.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -202,6 +204,10 @@
       <Project>{32E3E4D7-D887-4BE1-A84F-130BF80533D0}</Project>
       <Name>Conference.Web.Public</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
+      <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
+      <Name>Conference</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Conference\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
       <Name>Registration</Name>
@@ -212,8 +218,7 @@
     <Folder Include="Features\Conference\Publish and Unpublish\" />
     <Folder Include="Features\Conference\Seat Types and Quotas Configuration\" />
     <Folder Include="Steps\Conference\" />
-    <Folder Include="Steps\Registration\Group\" />
-    <Folder Include="Steps\Registration\Individual\" />
+    <Folder Include="Support\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
