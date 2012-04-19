@@ -1,0 +1,27 @@
+.quick {
+    color: #cccccc;
+    font-size: 11px;
+    overflow: hidden;
+}
+.quick__list {
+    float: left;
+}
+.quick__item {
+    float: left;
+    margin-right: 18px;
+}
+.quick__item a {
+    color: #cccccc;
+    text-decoration: none;
+}
+.quick__item a:hover {
+	color: #66ccff;
+	}
+.quick__login {
+    float: right;
+    color: #cccccc;
+    text-decoration: none;
+}
+.quick__item_bold a {
+    font-weight: bold;
+}
