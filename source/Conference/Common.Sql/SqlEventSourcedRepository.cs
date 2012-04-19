@@ -17,21 +17,28 @@ namespace Common.Sql
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
 
     // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
     // It does not check for event versions before committing, nor is transactional with the event bus.
     // It does not do any snapshots either, which the SeatsAvailability will definitely need.
-    public class SqlEventRepository<T> : IRepository<T> where T : class, IEventSourcedAggregateRoot
+    public class SqlEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
         private readonly IEventBus eventBus;
         private readonly ISerializer serializer;
         private readonly Func<EventStoreDbContext> contextFactory;
+        private readonly ConstructorInfo constructor;
 
-        public SqlEventRepository(IEventBus eventBus, ISerializer serializer, Func<EventStoreDbContext> contextFactory)
+        public SqlEventSourcedRepository(IEventBus eventBus, ISerializer serializer, Func<EventStoreDbContext> contextFactory)
         {
             this.eventBus = eventBus;
             this.serializer = serializer;
             this.contextFactory = contextFactory;
+            this.constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
+            if (this.constructor == null)
+            {
+                throw new InvalidCastException("Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
+            }
         }
 
         public T Find(Guid id)
@@ -44,8 +51,8 @@ namespace Common.Sql
 
             if (all.Count > 0)
             {
-                var deserialized = all.Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload))).Cast<IDomainEvent>().ToList();
-                return (T)Activator.CreateInstance(typeof(T), deserialized);
+                var deserialized = all.Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload))).Cast<IVersionedEvent>().ToList();
+                return (T)constructor.Invoke(new object[] { id, deserialized });
             }
 
             return null;

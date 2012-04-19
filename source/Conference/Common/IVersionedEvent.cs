@@ -13,12 +13,8 @@
 
 namespace Common
 {
-    using System;
-
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public interface IVersionedEvent : IEvent
     {
-        T Find(Guid id);
-
-        void Save(T aggregate);
+        int Version { get; }
     }
 }

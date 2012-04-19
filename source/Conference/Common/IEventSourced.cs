@@ -13,12 +13,15 @@
 
 namespace Common
 {
+    using System;
     using System.Collections.Generic;
 
-    public interface IEventSourcedAggregateRoot : IAggregateRoot
+    public interface IEventSourced
     {
+        Guid Id { get; }
+
         int Version { get; }
 
-        IEnumerable<IDomainEvent> Events { get; }
+        IEnumerable<IVersionedEvent> Events { get; }
     }
 }

@@ -1,8 +1,8 @@
-﻿// ==============================================================================================================
+// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
-// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// �2012 Microsoft. All rights reserved. Certain content used with permission from contributors
 // http://cqrsjourney.github.com/contributors/members
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
 // with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,8 +13,12 @@
 
 namespace Common
 {
-    public interface IDomainEvent : IEvent
+    using System;
+
+    public abstract class VersionedEvent : IVersionedEvent
     {
-        int Version { get; }
+        public Guid SourceId { get; set; }
+
+        public int Version { get; set; }
     }
 }

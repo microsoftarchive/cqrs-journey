@@ -20,15 +20,14 @@ namespace Registration
     using Common.Utils;
     using Registration.Events;
 
-    public class Order : EventSourcedAggregateRoot
+    public class Order : EventSourcedBase
     {
         private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
 
-        private Guid id;
         private List<SeatQuantity> seats;
         private bool isConfirmed;
 
-        protected Order()
+        protected Order(Guid id) : base(id)
         {
             base.Handles<OrderPlaced>(this.OnOrderPlaced);
             base.Handles<OrderUpdated>(this.OnOrderUpdated);
@@ -39,24 +38,25 @@ namespace Registration
             base.Handles<OrderRegistrantAssigned>(this.OnOrderRegistrantAssigned);
         }
 
-        public Order(IEnumerable<IDomainEvent> history) : this()
+        public Order(Guid id, IEnumerable<IVersionedEvent> history) : this(id)
         {
             this.Rehydrate(history);
         }
 
-        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)  : this()
+        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items) : this(id)
         {
-            this.Update(new OrderPlaced(id, 0, conferenceId, ConvertItems(items), DateTime.UtcNow.Add(ReservationAutoExpiration), HandleGenerator.Generate(6)));
-        }
-
-        public override Guid Id
-        {
-            get { return this.id; }
+            this.Update(new OrderPlaced 
+            {
+                ConferenceId = conferenceId, 
+                Seats = ConvertItems(items),
+                ReservationAutoExpiration = DateTime.UtcNow.Add(ReservationAutoExpiration),
+                AccessCode = HandleGenerator.Generate(6)
+            });
         }
 
         public void UpdateSeats(IEnumerable<OrderItem> seats)
         {
-            this.Update(new OrderUpdated(this.id, this.Version + 1, ConvertItems(seats)));
+            this.Update(new OrderUpdated { Seats = ConvertItems(seats) });
         }
 
         public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> reservedSeats)
@@ -69,11 +69,11 @@ namespace Registration
             // Is there an order item which didn't get an exact reservation?
             if (this.seats.Any(item => !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
             {
-                this.Update(new OrderPartiallyReserved(this.id, this.Version + 1, expirationDate, reserved));
+                this.Update(new OrderPartiallyReserved { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
             else
             {
-                this.Update(new OrderReservationCompleted(this.id, this.Version + 1, expirationDate, reserved));
+                this.Update(new OrderReservationCompleted { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
         }
 
@@ -82,20 +82,18 @@ namespace Registration
             if (this.isConfirmed)
                 throw new InvalidOperationException();
 
-            this.Update(new OrderExpired(this.id, this.Version + 1));
+            this.Update(new OrderExpired());
         }
 
         public void ConfirmPayment()
         {
-            this.Update(new OrderPaymentConfirmed(this.id, this.Version + 1));
+            this.Update(new OrderPaymentConfirmed());
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
         {
             this.Update(new OrderRegistrantAssigned
             {
-                SourceId = this.id,
-                Version = this.Version + 1,
                 FirstName = firstName,
                 LastName = lastName,
                 Email = email,
@@ -104,8 +102,6 @@ namespace Registration
 
         private void OnOrderPlaced(OrderPlaced e)
         {
-
-            this.id = e.SourceId;
             this.seats = e.Seats.ToList();
         }
 

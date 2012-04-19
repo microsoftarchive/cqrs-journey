@@ -13,28 +13,11 @@
 
 namespace Registration.Events
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Common;
 
-    public class OrderUpdated : IDomainEvent
+    public class OrderUpdated : VersionedEvent
     {
-        private readonly Guid sourceId;
-        private readonly int version;
-        private readonly IEnumerable<SeatQuantity> seats;
-
-        public OrderUpdated(Guid sourceId, int version, IEnumerable<SeatQuantity> seats)
-        {
-            this.sourceId = sourceId;
-            this.version = version;
-            this.seats = seats.ToArray();
-        }
-
-        public Guid SourceId { get { return this.sourceId; } }
-
-        public int Version { get { return this.version; } }
-
-        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
+        public IEnumerable<SeatQuantity> Seats { get; set; }
     }
 }

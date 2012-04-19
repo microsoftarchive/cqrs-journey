@@ -15,19 +15,28 @@ namespace Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
 
-    public abstract class EventSourcedAggregateRoot : IEventSourcedAggregateRoot
+    public abstract class EventSourcedBase : IEventSourced
     {
-        private readonly Dictionary<Type, Action<IDomainEvent>> handlers = new Dictionary<Type, Action<IDomainEvent>>();
-        private readonly List<IDomainEvent> pendingEvents = new List<IDomainEvent>();
+        private readonly Dictionary<Type, Action<IVersionedEvent>> handlers = new Dictionary<Type, Action<IVersionedEvent>>();
+        private readonly List<IVersionedEvent> pendingEvents = new List<IVersionedEvent>();
+
+        private readonly Guid id;
         private int version = -1;
 
-        public abstract Guid Id { get; }
+        protected EventSourcedBase(Guid id)
+        {
+            this.id = id;
+        }
+
+        public Guid Id
+        {
+            get { return this.id; }
+        }
 
         public int Version { get { return this.version; } }
 
-        public IEnumerable<IDomainEvent> Events
+        public IEnumerable<IVersionedEvent> Events
         {
             get { return this.pendingEvents; }
         }
@@ -41,7 +50,7 @@ namespace Common
             this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
         }
 
-        protected void Rehydrate(IEnumerable<IDomainEvent> pastEvents)
+        protected void Rehydrate(IEnumerable<IVersionedEvent> pastEvents)
         {
             foreach (var e in pastEvents)
             {
@@ -50,10 +59,11 @@ namespace Common
             }
         }
 
-        protected void Update(IDomainEvent e)
+        protected void Update(VersionedEvent e)
         {
+            e.SourceId = this.Id;
+            e.Version = this.version + 1;
             this.handlers[e.GetType()].Invoke(e);
-            Debug.Assert(e.Version == this.version + 1);
             this.version = e.Version;
             this.pendingEvents.Add(e);
         }
