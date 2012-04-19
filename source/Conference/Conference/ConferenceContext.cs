@@ -13,20 +13,34 @@
 
 namespace Conference
 {
-    using System;
-    using Common;
+    using System.Data.Entity;
 
-    public abstract class ConferenceEvent : IEvent
+    public class ConferenceContext : DbContext
     {
-        public Guid SourceId { get; set; }
+        public ConferenceContext()
+            : this("ConferenceManagement")
+        {
+        }
 
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Slug { get; set; }
+        public ConferenceContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
+        {
+            this.Configuration.LazyLoadingEnabled = false;
+        }
 
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public virtual DbSet<ConferenceInfo> Conferences { get; set; }
+        public virtual DbSet<SeatInfo> Seats { get; set; }
 
-        public Owner Owner { get; set; }
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences");
+            // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
+            // Make seat infos required to have a conference info associated, but without 
+            // having to add a navigation property (don't polute the object model).
+            modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
+            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes");
+        }
     }
 }

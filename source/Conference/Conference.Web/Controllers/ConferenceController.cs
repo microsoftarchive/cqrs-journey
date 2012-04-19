@@ -19,7 +19,12 @@ namespace Conference.Web.Admin.Controllers
 
     public class ConferenceController : Controller
     {
-        private ConferenceService service = new ConferenceService();
+        private ConferenceService service;
+
+        private ConferenceService Service
+        {
+            get { return service ?? (service = new ConferenceService(MvcApplication.EventBus)); }
+        }
 
         public ConferenceInfo Conference { get; private set; }
 
@@ -31,9 +36,12 @@ namespace Conference.Web.Admin.Controllers
             if (!string.IsNullOrEmpty(slug))
             {
                 this.ViewBag.Slug = slug;
-                this.Conference = this.service.FindConference(slug);
+                this.Conference = this.Service.FindConference(slug);
                 if (this.Conference != null)
+                {
                     this.ViewBag.OwnerName = this.Conference.OwnerName;
+                    this.ViewBag.WasEverPublished = this.Conference.WasEverPublished;
+                }
             }
 
             base.OnActionExecuting(filterContext);
@@ -49,7 +57,7 @@ namespace Conference.Web.Admin.Controllers
         [HttpPost]
         public ActionResult Locate(string email, string accessCode)
         {
-            var conference = this.service.FindConference(email, accessCode);
+            var conference = this.Service.FindConference(email, accessCode);
             if (conference == null)
             {
                 ViewBag.NotFound = true;
@@ -84,7 +92,7 @@ namespace Conference.Web.Admin.Controllers
             {
                 try
                 {
-                    this.service.CreateConference(conference);
+                    this.Service.CreateConference(conference);
                 }
                 catch (DuplicateNameException e)
                 {
@@ -116,7 +124,7 @@ namespace Conference.Web.Admin.Controllers
             }
             if (ModelState.IsValid)
             {
-                this.service.UpdateConference(conference);
+                this.Service.UpdateConference(conference);
                 return RedirectToAction("Index", new { slug = conference.Slug });
             }
 
@@ -131,7 +139,7 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            this.service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: true);
+            this.Service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: true);
 
             return RedirectToAction("Index", new { slug = slug });
         }
@@ -144,7 +152,7 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            this.service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: false);
+            this.Service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: false);
 
             return RedirectToAction("Index", new { slug = slug });
         }
@@ -166,12 +174,12 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            return PartialView(this.service.FindSeats(this.Conference.Id));
+            return PartialView(this.Service.FindSeats(this.Conference.Id));
         }
 
         public ActionResult SeatRow(string slug, Guid id)
         {
-            return PartialView("SeatGrid", new SeatInfo[] { this.service.FindSeat(id) });
+            return PartialView("SeatGrid", new SeatInfo[] { this.Service.FindSeat(id) });
         }
 
         public ActionResult CreateSeat(string slug)
@@ -191,7 +199,7 @@ namespace Conference.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                this.service.CreateSeat(this.Conference.Id, seat);
+                this.Service.CreateSeat(this.Conference.Id, seat);
 
                 return PartialView("SeatGrid", new SeatInfo[] { seat });
             }
@@ -206,7 +214,7 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            return PartialView(this.service.FindSeat(id));
+            return PartialView(this.Service.FindSeat(id));
         }
 
         [HttpPost]
@@ -216,7 +224,7 @@ namespace Conference.Web.Admin.Controllers
             {
                 try
                 {
-                    this.service.UpdateSeat(seat);
+                    this.Service.UpdateSeat(seat);
                 }
                 catch (ObjectNotFoundException)
                 {
@@ -232,8 +240,7 @@ namespace Conference.Web.Admin.Controllers
         [HttpPost]
         public void DeleteSeat(string slug, Guid id)
         {
-            // TODO: Do we have Delete at all?
-            this.service.DeleteSeat(id);
+            this.Service.DeleteSeat(id);
         }
 
         #endregion

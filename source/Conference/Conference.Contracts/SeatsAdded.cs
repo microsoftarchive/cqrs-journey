@@ -11,11 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Contracts
+namespace Conference
 {
     using System;
     using Common;
 
+    /// <summary>
+    /// Event raised when seats are added to an existing 
+    /// seat type.
+    /// </summary>
     public class SeatsAdded : IEvent
     {
         /// <summary>

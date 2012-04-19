@@ -18,6 +18,7 @@ namespace Conference
     using System.Data;
     using System.Data.Entity;
     using System.Linq;
+    using Common;
 
     public class ConferenceService
     {
@@ -29,10 +30,18 @@ namespace Conference
         //  DB save (state snapshot)
         //  DB queue (events) -> push to bus (async)
         // }
+        private IEventBus eventBus;
+        private string nameOrConnectionString;
 
-        public void CreateConference(ConferenceInfo conference)
+        public ConferenceService(IEventBus eventBus, string nameOrConnectionString = "ConferenceManagement")
         {
-            using (var context = new DomainContext())
+            this.eventBus = eventBus;
+            this.nameOrConnectionString = nameOrConnectionString;
+        }
+
+        public Guid CreateConference(ConferenceInfo conference)
+        {
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 var existingSlug = context.Conferences
                     .Where(c => c.Slug == conference.Slug)
@@ -45,12 +54,20 @@ namespace Conference
                 conference.Id = Guid.NewGuid();
                 context.Conferences.Add(conference);
                 context.SaveChanges();
+
+                this.PublishConferenceEvent<ConferenceCreated>(conference);
+                foreach (var seat in conference.Seats)
+                {
+                    this.PublishSeatCreated(seat);
+                }
+
+                return conference.Id;
             }
         }
 
-        public void CreateSeat(Guid conferenceId, SeatInfo seat)
+        public Guid CreateSeat(Guid conferenceId, SeatInfo seat)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 var conference = context.Conferences.Find(conferenceId);
                 if (conference == null)
@@ -59,12 +76,16 @@ namespace Conference
                 seat.Id = Guid.NewGuid();
                 conference.Seats.Add(seat);
                 context.SaveChanges();
+
+                this.PublishSeatCreated(seat);
+
+                return seat.Id;
             }
         }
 
         public ConferenceInfo FindConference(string slug)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 return context.Conferences.FirstOrDefault(x => x.Slug == slug);
             }
@@ -72,7 +93,7 @@ namespace Conference
 
         public ConferenceInfo FindConference(string email, string accessCode)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 return context.Conferences.FirstOrDefault(x => x.OwnerEmail == email && x.AccessCode == accessCode);
             }
@@ -80,7 +101,7 @@ namespace Conference
 
         public IEnumerable<SeatInfo> FindSeats(Guid conferenceId)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 return context.Conferences.Include(x => x.Seats)
                     .Where(x => x.Id == conferenceId)
@@ -92,7 +113,7 @@ namespace Conference
 
         public SeatInfo FindSeat(Guid seatId)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 return context.Seats.Find(seatId);
             }
@@ -100,7 +121,7 @@ namespace Conference
 
         public void UpdateConference(ConferenceInfo conference)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 var existing = context.Conferences.Find(conference.Id);
                 if (existing == null)
@@ -108,46 +129,108 @@ namespace Conference
 
                 context.Entry(existing).CurrentValues.SetValues(conference);
                 context.SaveChanges();
+
+                this.PublishConferenceEvent<ConferenceUpdated>(conference);
             }
         }
 
         public void UpdateSeat(SeatInfo seat)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 var existing = context.Seats.Find(seat.Id);
                 if (existing == null)
                     throw new ObjectNotFoundException();
 
+                var diff = seat.Quantity - existing.Quantity;
+                var e = diff > 0 ?
+                    (IEvent)new SeatsAdded { SourceId = seat.Id, AddedQuantity = diff, TotalQuantity = seat.Quantity } :
+                    (IEvent)new SeatsRemoved { SourceId = seat.Id, RemovedQuantity = Math.Abs(diff), TotalQuantity = seat.Quantity };
+
                 context.Entry(existing).CurrentValues.SetValues(seat);
                 context.SaveChanges();
+
+                this.eventBus.Publish(e);
             }
         }
 
         public void UpdatePublished(Guid conferenceId, bool isPublished)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 var conference = context.Conferences.Find(conferenceId);
                 if (conference == null)
                     throw new ObjectNotFoundException();
 
                 conference.IsPublished = isPublished;
+                if (isPublished && !conference.WasEverPublished)
+                    // This flags prevents any further seat type deletions.
+                    conference.WasEverPublished = true;
+
                 context.SaveChanges();
+
+                if (isPublished)
+                    this.eventBus.Publish(new ConferencePublished { SourceId = conferenceId });
+                else
+                    this.eventBus.Publish(new ConferenceUnpublished { SourceId = conferenceId });
             }
         }
 
         public void DeleteSeat(Guid id)
         {
-            using (var context = new DomainContext())
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
                 var seat = context.Seats.Find(id);
                 if (seat == null)
                     throw new ObjectNotFoundException();
 
+                var wasPublished = context.Conferences
+                    .Where(x => x.Seats.Any(s => s.Id == id))
+                    .Select(x => x.WasEverPublished)
+                    .FirstOrDefault();
+
+                if (wasPublished)
+                    throw new InvalidOperationException("Can't delete seats from a conference that has been published at least once.");
+
                 context.Seats.Remove(seat);
                 context.SaveChanges();
             }
+        }
+
+        private void PublishConferenceEvent<T>(ConferenceInfo conference)
+            where T : ConferenceEvent, new()
+        {
+            this.eventBus.Publish(new T()
+            {
+                SourceId = conference.Id,
+                Owner = new Owner
+                {
+                    Name = conference.OwnerName,
+                    Email = conference.OwnerEmail,
+                },
+                Name = conference.Name,
+                Description = conference.Description,
+                Slug = conference.Slug,
+                StartDate = conference.StartDate,
+                EndDate = conference.EndDate,
+            });
+        }
+
+        private void PublishSeatCreated(SeatInfo seat)
+        {
+            this.eventBus.Publish(new SeatCreated
+            {
+                SourceId = seat.Id,
+                Name = seat.Name,
+                Description = seat.Description,
+                Price = seat.Price,
+            });
+            this.eventBus.Publish(new SeatsAdded
+            {
+                SourceId = seat.Id,
+                AddedQuantity = seat.Quantity,
+                TotalQuantity = seat.Quantity,
+            });
         }
     }
 }

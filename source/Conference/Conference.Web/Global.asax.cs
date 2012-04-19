@@ -12,13 +12,20 @@
 // ==============================================================================================================
 
 using System.Data.Entity;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Azure;
+using Azure.Messaging;
+using Common;
+using Newtonsoft.Json;
 
 namespace Conference.Web.Admin
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        public static IEventBus EventBus { get; private set; }
+
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
@@ -58,10 +65,26 @@ namespace Conference.Web.Admin
         {
             AreaRegistration.RegisterAllAreas();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<DomainContext>());
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ConferenceContext>());
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
+
+#if LOCAL
+            // TODO: this WON'T work to integrate across both websites!
+            EventBus = new MemoryEventBus();
+#else
+            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("~\\bin\\Settings.xml"));
+            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
+            {
+                // Allows deserializing to the actual runtime type
+                TypeNameHandling = TypeNameHandling.Objects,
+                // In a version resilient way
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            }));
+
+            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
+#endif
         }
     }
 }

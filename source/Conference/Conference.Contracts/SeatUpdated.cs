@@ -13,29 +13,22 @@
 
 namespace Conference
 {
-    using System.Data.Entity;
+    using System;
+    using Common;
 
-    public class DomainContext : DbContext
+    /// <summary>
+    /// Event raised when a new seat type is created. Note 
+    /// that when a seat type is created.
+    /// </summary>
+    public class SeatUpdated : IEvent
     {
-        public DomainContext()
-            : base("ConferenceManagement")
-        {
-            this.Configuration.LazyLoadingEnabled = false;
-        }
+        /// <summary>
+        /// Gets or sets the source seat type identifier.
+        /// </summary>
+        public Guid SourceId { get; set; }
 
-        public virtual DbSet<ConferenceInfo> Conferences { get; set; }
-        public virtual DbSet<SeatInfo> Seats { get; set; }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences");
-            // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
-            // Make seat infos required to have a conference info associated, but without 
-            // having to add a navigation property (don't polute the object model).
-            modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
-            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes");
-        }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
     }
 }

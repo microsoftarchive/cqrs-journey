@@ -12,7 +12,7 @@
 // ==============================================================================================================
 
 
-namespace Conference.Contracts
+namespace Conference
 {
     public class ConferenceCreated : ConferenceEvent
     {

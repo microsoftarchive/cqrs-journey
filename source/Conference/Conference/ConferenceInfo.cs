@@ -61,6 +61,8 @@ namespace Conference
         [Display(Name = "Is Published?")]
         public bool IsPublished { get; set; }
 
+        public bool WasEverPublished { get; set; }
+
         public ICollection<SeatInfo> Seats { get; set; }
     }
 }

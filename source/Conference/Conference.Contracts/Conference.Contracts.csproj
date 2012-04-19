@@ -8,7 +8,7 @@
     <ProjectGuid>{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Conference.Contracts</RootNamespace>
+    <RootNamespace>Conference</RootNamespace>
     <AssemblyName>Conference.Contracts</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,8 +41,10 @@
     <Compile Include="ConferencePublished.cs" />
     <Compile Include="ConferenceUnpublished.cs" />
     <Compile Include="ConferenceUpdated.cs" />
+    <Compile Include="SeatUpdated.cs" />
     <Compile Include="Owner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeatCreated.cs" />
     <Compile Include="SeatsAdded.cs" />
     <Compile Include="SeatsRemoved.cs" />
   </ItemGroup>

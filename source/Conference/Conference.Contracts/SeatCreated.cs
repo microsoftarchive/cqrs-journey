@@ -16,17 +16,19 @@ namespace Conference
     using System;
     using Common;
 
-    public abstract class ConferenceEvent : IEvent
+    /// <summary>
+    /// Event raised when a new seat type is created. Note 
+    /// that when a seat type is created.
+    /// </summary>
+    public class SeatCreated : IEvent
     {
+        /// <summary>
+        /// Gets or sets the source seat type identifier.
+        /// </summary>
         public Guid SourceId { get; set; }
 
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Slug { get; set; }
-
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-
-        public Owner Owner { get; set; }
+        public decimal Price { get; set; }
     }
 }

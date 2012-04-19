@@ -11,13 +11,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Contracts
+namespace Conference
 {
     using System;
     using Common;
 
     public class ConferenceUnpublished : IEvent
     {
-        public Guid SourceId { get; private set; }
+        public Guid SourceId { get; set; }
     }
 }
