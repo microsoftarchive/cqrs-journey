@@ -27,18 +27,21 @@ namespace Common.Sql
         private readonly IEventBus eventBus;
         private readonly ISerializer serializer;
         private readonly Func<EventStoreDbContext> contextFactory;
-        private readonly ConstructorInfo constructor;
+        private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
 
         public SqlEventSourcedRepository(IEventBus eventBus, ISerializer serializer, Func<EventStoreDbContext> contextFactory)
         {
             this.eventBus = eventBus;
             this.serializer = serializer;
             this.contextFactory = contextFactory;
-            this.constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
-            if (this.constructor == null)
+
+            // TODO: could be replaced with a compiled lambda
+            var constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
+            if (constructor == null)
             {
                 throw new InvalidCastException("Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
             }
+            this.entityFactory = (id, events) => (T)constructor.Invoke(new object[] { id, events });
         }
 
         public T Find(Guid id)
@@ -51,21 +54,21 @@ namespace Common.Sql
                     .AsEnumerable()
                     .Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload)))
                     .Cast<IVersionedEvent>()
-                    .CachedAny();
+                    .AsCachedAnyEnumerable();
 
                 if (deserialized.Any())
                 {
-                    return (T)constructor.Invoke(new object[] { id, deserialized });
+                    return entityFactory.Invoke(id, deserialized);
                 }
 
                 return null;
             }
         }
 
-        public void Save(T aggregateRoot)
+        public void Save(T eventSourced)
         {
             // TODO: guarantee that only incremental versions of the event are stored
-            var events = aggregateRoot.Events.ToArray();
+            var events = eventSourced.Events.ToArray();
             using (var context = this.contextFactory.Invoke())
             {
                 foreach (var e in events)

@@ -19,6 +19,6 @@ namespace Common
     {
         T Find(Guid id);
 
-        void Save(T aggregate);
+        void Save(T eventSourced);
     }
 }

@@ -13,19 +13,20 @@
 
 namespace Common.Sql
 {
+    using System.Collections;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Prevents double roundrip to the database when checking 
+    /// Prevents double enumaration (and potential roundtrip to the database) when checking 
     /// for the presence of items in an enumeration.
     /// </summary>
     public static class CacheAnyEnumerableExtension
     {
         /// <summary>
-        /// Makes sure that calls to <see cref="Any"/> are 
+        /// Makes sure that calls to <see cref="IAnyEnumerable{T}.Any()"/> are 
         /// cached, and reuses the resulting enumerator.
         /// </summary>
-        public static IAnyEnumerable<T> CachedAny<T>(this IEnumerable<T> source)
+        public static IAnyEnumerable<T> AsCachedAnyEnumerable<T>(this IEnumerable<T> source)
         {
             return new AnyEnumerable<T>(source);
         }
@@ -33,7 +34,7 @@ namespace Common.Sql
         /// <summary>
         /// Exposes a cached <see cref="Any"/> operator.
         /// </summary>
-        public interface IAnyEnumerable<T> : IEnumerable<T>
+        public interface IAnyEnumerable<out T> : IEnumerable<T>
         {
             bool Any();
         }
@@ -45,7 +46,7 @@ namespace Common.Sql
         /// <typeparam name="T"></typeparam>
         private class AnyEnumerable<T> : IAnyEnumerable<T>
         {
-            private IEnumerable<T> enumerable;
+            private readonly IEnumerable<T> enumerable;
             private IEnumerator<T> enumerator;
             private bool hasAny;
 
@@ -74,19 +75,19 @@ namespace Common.Sql
                 {
                     var inner = this.enumerable.GetEnumerator();
                     this.hasAny = inner.MoveNext();
-                    this.enumerator = new SkipFirstEnumerator<T>(inner, this.hasAny);
+                    this.enumerator = new SkipFirstEnumerator(inner, this.hasAny);
                 }
             }
 
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            IEnumerator IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
             }
 
-            private class SkipFirstEnumerator<T> : IEnumerator<T>
+            private class SkipFirstEnumerator : IEnumerator<T>
             {
-                private IEnumerator<T> inner;
-                private bool hasNext;
+                private readonly IEnumerator<T> inner;
+                private readonly bool hasNext;
                 private bool isFirst = true;
 
                 public SkipFirstEnumerator(IEnumerator<T> inner, bool hasNext)
@@ -102,7 +103,7 @@ namespace Common.Sql
                     this.inner.Dispose();
                 }
 
-                object System.Collections.IEnumerator.Current { get { return this.Current; } }
+                object IEnumerator.Current { get { return this.Current; } }
 
                 public bool MoveNext()
                 {
