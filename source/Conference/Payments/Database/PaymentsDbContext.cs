@@ -13,58 +13,19 @@
 
 namespace Payments.Database
 {
-    using System;
     using System.Data.Entity;
-    using System.Transactions;
     using Common;
 
-    public class OrmRepository : DbContext, IRepository<ThirdPartyProcessorPayment>
+    public class PaymentsDbContext : DbContext
     {
-        private IEventBus eventBus;
-
-        public OrmRepository()
+        public PaymentsDbContext()
             : this("Payments")
         {
         }
 
-        public OrmRepository(string nameOrConnectionString)
-            : this(nameOrConnectionString, new MemoryEventBus())
-        {
-        }
-
-        public OrmRepository(IEventBus eventBus)
-            : this("Payments", eventBus)
-        {
-        }
-
-        public OrmRepository(string nameOrConnectionString, IEventBus eventBus)
+        public PaymentsDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
-            this.eventBus = eventBus;
-        }
-
-        public ThirdPartyProcessorPayment Find(Guid id)
-        {
-            return this.Set<ThirdPartyProcessorPayment>().Find(id);
-        }
-
-        public void Save(ThirdPartyProcessorPayment aggregate)
-        {
-            var entry = this.Entry(aggregate);
-
-            if (entry.State == System.Data.EntityState.Detached)
-                this.Set<ThirdPartyProcessorPayment>().Add(aggregate);
-
-            using (var scope = new TransactionScope())
-            {
-                this.SaveChanges();
-
-                var publisher = aggregate as IEventPublisher;
-                if (publisher != null)
-                    this.eventBus.Publish(publisher.Events);
-
-                scope.Complete();
-            }
         }
 
         public virtual DbSet<ThirdPartyProcessorPayment> ThirdPartyProcessorPayments { get; private set; }

@@ -18,9 +18,9 @@ namespace Payments.ReadModel.Implementation
 
     public class PaymentDao : IPaymentDao
     {
-        private readonly Func<PaymentsDbContext> contextFactory;
+        private readonly Func<PaymentsReadDbContext> contextFactory;
 
-        public PaymentDao(Func<PaymentsDbContext> contextFactory)
+        public PaymentDao(Func<PaymentsReadDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }

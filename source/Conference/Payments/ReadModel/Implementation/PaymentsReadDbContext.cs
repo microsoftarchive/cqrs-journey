@@ -20,9 +20,9 @@ namespace Payments.ReadModel.Implementation
     /// <summary>
     /// A repository stored in a database for the views.
     /// </summary>
-    public class PaymentsDbContext : DbContext
+    public class PaymentsReadDbContext : DbContext
     {
-        public PaymentsDbContext()
+        public PaymentsReadDbContext()
             // NOTE: by default, we point to the same database 
             // as the aggregates because we're using SQL views, 
             // but of course it could be a separate one.
@@ -30,7 +30,7 @@ namespace Payments.ReadModel.Implementation
         {
         }
 
-        public PaymentsDbContext(string nameOrConnectionString)
+        public PaymentsReadDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
         }

@@ -23,16 +23,16 @@ namespace Payments.Handlers
         ICommandHandler<CompleteThirdPartyProcessorPayment>,
         ICommandHandler<CancelThirdPartyProcessorPayment>
     {
-        private Func<IRepository<ThirdPartyProcessorPayment>> repositoryFactory;
+        private Func<IDataContext<ThirdPartyProcessorPayment>> contextFactory;
 
-        public ThirdPartyProcessorPaymentCommandHandler(Func<IRepository<ThirdPartyProcessorPayment>> repositoryFactory)
+        public ThirdPartyProcessorPaymentCommandHandler(Func<IDataContext<ThirdPartyProcessorPayment>> contextFactory)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.contextFactory = contextFactory;
         }
 
         public void Handle(InitiateThirdPartyProcessorPayment command)
         {
-            var repository = this.repositoryFactory();
+            var repository = this.contextFactory();
 
             using (repository as IDisposable)
             {
@@ -45,7 +45,7 @@ namespace Payments.Handlers
 
         public void Handle(CompleteThirdPartyProcessorPayment command)
         {
-            var repository = this.repositoryFactory();
+            var repository = this.contextFactory();
 
             using (repository as IDisposable)
             {
@@ -61,7 +61,7 @@ namespace Payments.Handlers
 
         public void Handle(CancelThirdPartyProcessorPayment command)
         {
-            var repository = this.repositoryFactory();
+            var repository = this.contextFactory();
 
             using (repository as IDisposable)
             {

@@ -17,19 +17,19 @@ namespace Payments.ReadModel.Implementation
     using System.Linq;
     using Payments.Database;
 
-    public class PaymentsDbContextInitializer : IDatabaseInitializer<OrmRepository>
+    public class PaymentsReadDbContextInitializer : IDatabaseInitializer<PaymentsDbContext>
     {
         // NOTE: we initialize the same OrmRepository for both because we happen to 
         // persist the views in the same database. This is not required and could be 
         // a separate one if we weren't using SQL Views to drive them.
-        private IDatabaseInitializer<OrmRepository> innerInitializer;
+        private IDatabaseInitializer<PaymentsDbContext> innerInitializer;
 
-        public PaymentsDbContextInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
+        public PaymentsReadDbContextInitializer(IDatabaseInitializer<PaymentsDbContext> innerInitializer)
         {
             this.innerInitializer = innerInitializer;
         }
 
-        public void InitializeDatabase(OrmRepository context)
+        public void InitializeDatabase(PaymentsDbContext context)
         {
             this.innerInitializer.InitializeDatabase(context);
 

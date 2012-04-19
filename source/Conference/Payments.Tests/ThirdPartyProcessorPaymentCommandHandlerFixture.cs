@@ -23,13 +23,13 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
 
     public class given_no_payment
     {
-        private Mock<IRepository<ThirdPartyProcessorPayment>> repositoryMock;
+        private Mock<IDataContext<ThirdPartyProcessorPayment>> contextMock;
         private ThirdPartyProcessorPaymentCommandHandler handler;
 
         public given_no_payment()
         {
-            this.repositoryMock = new Mock<IRepository<ThirdPartyProcessorPayment>>();
-            this.handler = new ThirdPartyProcessorPaymentCommandHandler(() => this.repositoryMock.Object);
+            this.contextMock = new Mock<IDataContext<ThirdPartyProcessorPayment>>();
+            this.handler = new ThirdPartyProcessorPaymentCommandHandler(() => this.contextMock.Object);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
             var paymentId = Guid.NewGuid();
             var conferenceId = Guid.NewGuid();
 
-            this.repositoryMock
+            this.contextMock
                 .Setup(x => x.Save(It.IsAny<ThirdPartyProcessorPayment>()))
                 .Callback<ThirdPartyProcessorPayment>(p => payment = p);
 
@@ -65,17 +65,17 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
 
     public class given_initiated_payment
     {
-        private Mock<IRepository<ThirdPartyProcessorPayment>> repositoryMock;
+        private Mock<IDataContext<ThirdPartyProcessorPayment>> contextMock;
         private ThirdPartyProcessorPayment payment;
         private ThirdPartyProcessorPaymentCommandHandler handler;
 
         public given_initiated_payment()
         {
-            this.repositoryMock = new Mock<IRepository<ThirdPartyProcessorPayment>>();
+            this.contextMock = new Mock<IDataContext<ThirdPartyProcessorPayment>>();
             this.payment = new ThirdPartyProcessorPayment(Guid.NewGuid(), Guid.NewGuid(), "payment", 100, new ThidPartyProcessorPaymentItem[0]);
-            this.handler = new ThirdPartyProcessorPaymentCommandHandler(() => this.repositoryMock.Object);
+            this.handler = new ThirdPartyProcessorPaymentCommandHandler(() => this.contextMock.Object);
 
-            repositoryMock.Setup(x => x.Find(payment.Id)).Returns(payment);
+            contextMock.Setup(x => x.Find(payment.Id)).Returns(payment);
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
                 });
 
             Assert.Equal(ThirdPartyProcessorPayment.States.Completed, this.payment.State);
-            this.repositoryMock.Verify(r => r.Save(this.payment), Times.Once());
+            this.contextMock.Verify(r => r.Save(this.payment), Times.Once());
         }
 
         [Fact]
@@ -101,7 +101,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
                 });
 
             Assert.Equal(ThirdPartyProcessorPayment.States.Rejected, this.payment.State);
-            this.repositoryMock.Verify(r => r.Save(this.payment), Times.Once());
+            this.contextMock.Verify(r => r.Save(this.payment), Times.Once());
         }
     }
 }

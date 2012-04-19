@@ -15,13 +15,17 @@ namespace Conference.Web.Public
 {
     using System;
     using System.Data.Entity;
+    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Azure;
+    using Azure.Messaging;
     using Common;
     using Common.Sql;
     using Microsoft.Practices.Unity;
     using Newtonsoft.Json;
     using Payments;
+    using Payments.Database;
     using Payments.Handlers;
     using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
@@ -61,10 +65,10 @@ namespace Conference.Web.Public
                 context.Database.Initialize(true);
             }
 
-            Database.SetInitializer(new PaymentsDbContextInitializer(new Payments.Database.OrmRepositoryInitializer(new DropCreateDatabaseIfModelChanges<Payments.Database.OrmRepository>())));
+            Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
 
             // Views repository is currently the same as the domain DB. No initializer needed.
-            Database.SetInitializer<PaymentsDbContext>(null);
+            Database.SetInitializer<PaymentsReadDbContext>(null);
 
             using (var context = this.container.Resolve<DbContext>("registration"))
             {
@@ -76,7 +80,7 @@ namespace Conference.Web.Public
                 context.Database.Initialize(true);
             }
 
-            using (var context = this.container.Resolve<Payments.Database.OrmRepository>())
+            using (var context = this.container.Resolve<PaymentsDbContext>("payments"))
             {
                 context.Database.Initialize(true);
             }
@@ -136,15 +140,17 @@ namespace Conference.Web.Public
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
             container.RegisterType<IProcessRepositorySession<RegistrationProcess>, SqlProcessRepositorySession<RegistrationProcess>>(
                 new TransientLifetimeManager(),
-                new InjectionConstructor(new ResolvedParameter(typeof(Func<DbContext>), "registration"), typeof(ICommandBus)));
+                new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus)));
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
             container.RegisterType<IOrderDao, OrderDao>();
             container.RegisterType<IConferenceDao, ConferenceDao>();
 
-            container.RegisterType<IRepository<ThirdPartyProcessorPayment>, Payments.Database.OrmRepository>(new InjectionConstructor(typeof(IEventBus)));
-
-            container.RegisterType<PaymentsDbContext>(new TransientLifetimeManager(), new InjectionConstructor("Payments"));
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
+                new TransientLifetimeManager(),
+                new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
             container.RegisterType<IPaymentDao, PaymentDao>();
 
 
@@ -157,8 +163,7 @@ namespace Conference.Web.Public
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
 
-            container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>(
-                "ThirdPartyProcessorPaymentCommandHandler");
+            container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
 
             return container;
         }
