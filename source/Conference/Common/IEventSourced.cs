@@ -14,11 +14,14 @@
 namespace Common
 {
     using System;
+    using System.Collections.Generic;
 
-    public interface IRepository<T> where T : class, IAggregateRoot
+    public interface IEventSourced
     {
-        T Find(Guid id);
+        Guid Id { get; }
 
-        void Save(T aggregate);
+        int Version { get; }
+
+        IEnumerable<IVersionedEvent> Events { get; }
     }
 }

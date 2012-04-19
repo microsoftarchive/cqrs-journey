@@ -15,30 +15,12 @@ namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Common;
 
-    public class SeatsReservationCancelled : IDomainEvent
+    public class SeatsReservationCancelled : VersionedEvent
     {
-        private readonly Guid sourceId;
-        private readonly int version;
-        private readonly Guid reservationId;
-        private readonly IEnumerable<SeatQuantity> availableSeatsChanged;
+        public Guid ReservationId { get; set; }
 
-        public SeatsReservationCancelled(Guid sourceId, int version, Guid reservationId, IEnumerable<SeatQuantity> availableSeatsChanged)
-        {
-            this.sourceId = sourceId;
-            this.version = version;
-            this.reservationId = reservationId;
-            this.availableSeatsChanged = availableSeatsChanged.ToList();
-        }
-
-        public Guid SourceId { get { return this.sourceId; } }
-
-        public int Version { get { return this.version; } }
-
-        public Guid ReservationId { get { return this.reservationId; } }
-
-        public IEnumerable<SeatQuantity> AvailableSeatsChanged { get { return this.availableSeatsChanged; } }
+        public IEnumerable<SeatQuantity> AvailableSeatsChanged { get; set; }
     }
 }

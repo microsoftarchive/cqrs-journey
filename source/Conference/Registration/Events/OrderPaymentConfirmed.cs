@@ -13,22 +13,9 @@
 
 namespace Registration.Events
 {
-    using System;
     using Common;
 
-    public class OrderPaymentConfirmed : IDomainEvent
+    public class OrderPaymentConfirmed : VersionedEvent
     {
-        private readonly Guid sourceId;
-        private readonly int version;
-
-        public OrderPaymentConfirmed(Guid sourceId, int version)
-        {
-            this.sourceId = sourceId;
-            this.version = version;
-        }
-
-        public Guid SourceId { get { return this.sourceId; } }
-
-        public int Version { get { return this.version; } }
     }
 }
