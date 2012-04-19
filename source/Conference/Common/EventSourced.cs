@@ -16,7 +16,7 @@ namespace Common
     using System;
     using System.Collections.Generic;
 
-    public abstract class EventSourcedBase : IEventSourced
+    public abstract class EventSourced : IEventSourced
     {
         private readonly Dictionary<Type, Action<IVersionedEvent>> handlers = new Dictionary<Type, Action<IVersionedEvent>>();
         private readonly List<IVersionedEvent> pendingEvents = new List<IVersionedEvent>();
@@ -24,7 +24,7 @@ namespace Common
         private readonly Guid id;
         private int version = -1;
 
-        protected EventSourcedBase(Guid id)
+        protected EventSourced(Guid id)
         {
             this.id = id;
         }
@@ -50,7 +50,7 @@ namespace Common
             this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
         }
 
-        protected void Rehydrate(IEnumerable<IVersionedEvent> pastEvents)
+        protected void LoadFrom(IEnumerable<IVersionedEvent> pastEvents)
         {
             foreach (var e in pastEvents)
             {

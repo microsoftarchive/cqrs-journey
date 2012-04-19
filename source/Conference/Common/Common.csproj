@@ -49,7 +49,7 @@
     <Compile Include="CommandBusExtensions.cs" />
     <Compile Include="IVersionedEvent.cs" />
     <Compile Include="Envelope.cs" />
-    <Compile Include="EventSourcedBase.cs" />
+    <Compile Include="EventSourced.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />

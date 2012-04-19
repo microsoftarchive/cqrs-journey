@@ -43,19 +43,18 @@ namespace Common.Sql
 
         public T Find(Guid id)
         {
-            List<Event> all;
             using (var context = this.contextFactory.Invoke())
             {
-                all = context.Set<Event>().Where(x => x.AggregateId == id).OrderBy(x => x.Version).ToList();
-            }
+                var deserialized = context.Set<Event>().Where(x => x.AggregateId == id).OrderBy(x => x.Version).AsEnumerable()
+                    .Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload))).Cast<IVersionedEvent>();
 
-            if (all.Count > 0)
-            {
-                var deserialized = all.Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload))).Cast<IVersionedEvent>().ToList();
-                return (T)constructor.Invoke(new object[] { id, deserialized });
-            }
+                if (deserialized.Any())
+                {
+                    return (T) constructor.Invoke(new object[] { id, deserialized });
+                }
 
-            return null;
+                return null;
+            }
         }
 
         public void Save(T aggregateRoot)

@@ -23,7 +23,7 @@ namespace Registration
     /// <summary>
     /// Manages the availability of conference seats.
     /// </summary>
-    public class SeatsAvailability : EventSourcedBase
+    public class SeatsAvailability : EventSourced
     {
         private readonly ConcurrentDictionary<Guid, int> remainingSeats = new ConcurrentDictionary<Guid, int>();
         private readonly ConcurrentDictionary<Guid, List<SeatQuantity>> pendingReservations = new ConcurrentDictionary<Guid, List<SeatQuantity>>();
@@ -41,7 +41,7 @@ namespace Registration
         public SeatsAvailability(Guid id, IEnumerable<IVersionedEvent> history)
             : this(id)
         {
-            this.Rehydrate(history);
+            this.LoadFrom(history);
         }
 
         public void AddSeats(Guid seatType, int quantity)

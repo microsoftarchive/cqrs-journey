@@ -20,7 +20,7 @@ namespace Registration
     using Common.Utils;
     using Registration.Events;
 
-    public class Order : EventSourcedBase
+    public class Order : EventSourced
     {
         private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
 
@@ -40,7 +40,7 @@ namespace Registration
 
         public Order(Guid id, IEnumerable<IVersionedEvent> history) : this(id)
         {
-            this.Rehydrate(history);
+            this.LoadFrom(history);
         }
 
         public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items) : this(id)
