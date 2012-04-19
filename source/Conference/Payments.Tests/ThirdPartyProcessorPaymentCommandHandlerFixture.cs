@@ -48,7 +48,7 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
                 new InitiateThirdPartyProcessorPayment
                 {
                     PaymentId = paymentId,
-                    SourceId = orderId,
+                    PaymentSourceId = orderId,
                     ConferenceId = conferenceId,
                     Items = 
                     { 

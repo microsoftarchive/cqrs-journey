@@ -87,7 +87,7 @@ namespace Registration.Tests
             var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => repo);
 
-            router.Handle(new PaymentCompleted { SourceId = process.OrderId });
+            router.Handle(new PaymentCompleted { PaymentSourceId = process.OrderId });
 
             Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);

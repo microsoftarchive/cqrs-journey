@@ -32,16 +32,16 @@ namespace Payments
 
         private List<IEvent> events = new List<IEvent>();
 
-        public ThirdPartyProcessorPayment(Guid id, Guid sourceId, string description, double totalAmount, IEnumerable<ThidPartyProcessorPaymentItem> items)
+        public ThirdPartyProcessorPayment(Guid id, Guid paymentSourceId, string description, double totalAmount, IEnumerable<ThidPartyProcessorPaymentItem> items)
             : this()
         {
             this.Id = id;
-            this.SourceId = sourceId;
+            this.PaymentSourceId = paymentSourceId;
             this.Description = description;
             this.TotalAmount = totalAmount;
             this.Items.AddRange(items);
 
-            this.AddEvent(new PaymentInitiated { PaymentId = id, SourceId = sourceId });
+            this.AddEvent(new PaymentInitiated { SourceId = id, PaymentSourceId = paymentSourceId });
         }
 
         protected ThirdPartyProcessorPayment()
@@ -65,7 +65,7 @@ namespace Payments
 
         public Guid Id { get; private set; }
 
-        public Guid SourceId { get; private set; }
+        public Guid PaymentSourceId { get; private set; }
 
         public string Description { get; private set; }
 
@@ -81,7 +81,7 @@ namespace Payments
             }
 
             this.State = States.Completed;
-            this.AddEvent(new PaymentCompleted { PaymentId = this.Id, SourceId = this.SourceId });
+            this.AddEvent(new PaymentCompleted { SourceId = this.Id, PaymentSourceId = this.PaymentSourceId });
         }
 
         public void Cancel()
@@ -92,7 +92,7 @@ namespace Payments
             }
 
             this.State = States.Rejected;
-            this.AddEvent(new PaymentRejected { PaymentId = this.Id, SourceId = this.SourceId });
+            this.AddEvent(new PaymentRejected { SourceId = this.Id, PaymentSourceId = this.PaymentSourceId });
         }
 
         protected void AddEvent(IEvent @event)

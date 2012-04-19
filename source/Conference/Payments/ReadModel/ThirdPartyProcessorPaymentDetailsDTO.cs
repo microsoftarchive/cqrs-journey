@@ -18,11 +18,11 @@ namespace Payments.ReadModel
 
     public class ThirdPartyProcessorPaymentDetailsDTO
     {
-        public ThirdPartyProcessorPaymentDetailsDTO(Guid id, ThirdPartyProcessorPayment.States state, Guid sourceId, string description, double totalAmount)
+        public ThirdPartyProcessorPaymentDetailsDTO(Guid id, ThirdPartyProcessorPayment.States state, Guid paymentSourceId, string description, double totalAmount)
         {
             this.Id = id;
             this.State = state;
-            this.SourceId = sourceId;
+            this.PaymentSourceId = paymentSourceId;
             this.Description = description;
             this.TotalAmount = totalAmount;
         }
@@ -43,7 +43,7 @@ namespace Payments.ReadModel
             set { this.StateValue = (int)value; }
         }
 
-        public Guid SourceId { get; private set; }
+        public Guid PaymentSourceId { get; private set; }
 
         public string Description { get; private set; }
 

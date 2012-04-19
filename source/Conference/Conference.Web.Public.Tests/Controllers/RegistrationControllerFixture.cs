@@ -75,7 +75,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
-            var result = (ViewResult)this.sut.StartRegistration(conferenceAlias.Code);
+            var result = (ViewResult)this.sut.StartRegistration();
             // How to force OnResultExecuting?
             // TODO: instead, can create an action filter an test that cross-cutting concern separately.
 
@@ -94,7 +94,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
-            var result = (ViewResult)this.sut.StartRegistration(conferenceAlias.Code);
+            var result = (ViewResult)this.sut.StartRegistration();
 
             // Assert
             Assert.NotNull(result);
@@ -127,7 +127,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 };
 
             // Act
-            var result = (RedirectToRouteResult)this.sut.StartRegistration(conferenceAlias.Code, registration);
+            var result = (RedirectToRouteResult)this.sut.StartRegistration(registration);
 
             // Assert
             Assert.Equal(null, result.RouteValues["controller"]);
@@ -161,9 +161,18 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Guid paymentId = Guid.Empty;
 
             // Arrange
+            var seatId = Guid.NewGuid();
+
+            var order = new OrderDTO(orderId, OrderDTO.States.ReservationCompleted);
+            order.Lines.Add(new OrderItemDTO(seatId, 5) { ReservedSeats = 5 });
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.GetOrderDetails(orderId))
-                .Returns(new OrderDTO(orderId, OrderDTO.States.ReservationCompleted));
+                .Returns(order);
+
+            var seat = new ConferenceSeatTypeDTO(seatId, "test", 20d);
+            Mock.Get<IConferenceDao>(this.conferenceDao)
+                .Setup(d => d.GetPublishedSeatTypes(this.conferenceAlias.Id))
+                .Returns(new[] { seat });
 
             Mock.Get<ICommandBus>(this.bus)
                 .Setup(b => b.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))
@@ -174,7 +183,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             // Act
             var result =
-                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(conferenceAlias.Code, command, RegistrationController.ThirdPartyProcessorPayment);
+                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment);
 
             // Assert
             Mock.Get<ICommandBus>(this.bus)
@@ -184,7 +193,10 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                             It.Is<IEnumerable<Envelope<ICommand>>>(es =>
                                 es.Select(e => e.Body).Any(c => c == command)
                                 && es.Select(e => e.Body).OfType<InitiateThirdPartyProcessorPayment>()
-                                     .Any(c => c.ConferenceId == conferenceAlias.Id && c.SourceId == orderId))),
+                                     .Any(c =>
+                                         c.ConferenceId == conferenceAlias.Id
+                                         && c.PaymentSourceId == orderId
+                                         && Math.Abs(c.TotalAmount - 100d) < 0.01d))),
                     Times.Once());
 
             Assert.Equal("Payment", result.RouteValues["controller"]);

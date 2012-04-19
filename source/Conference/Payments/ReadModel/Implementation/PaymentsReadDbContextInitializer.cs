@@ -41,7 +41,7 @@ AS
 SELECT     
     dbo.ThirdPartyProcessorPayments.Id AS Id, 
     dbo.ThirdPartyProcessorPayments.StateValue as StateValue,
-    dbo.ThirdPartyProcessorPayments.SourceId as SourceId,
+    dbo.ThirdPartyProcessorPayments.PaymentSourceId as PaymentSourceId,
     dbo.ThirdPartyProcessorPayments.Description as Description,
     dbo.ThirdPartyProcessorPayments.TotalAmount as TotalAmount
 FROM dbo.ThirdPartyProcessorPayments");

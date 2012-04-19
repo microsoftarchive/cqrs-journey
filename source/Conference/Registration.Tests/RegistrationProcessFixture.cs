@@ -160,7 +160,7 @@ namespace Registration.Tests.RegistrationProcessFixture
         {
             sut.Handle(new PaymentCompleted
             {
-                SourceId = this.orderId,
+                PaymentSourceId = this.orderId,
             });
         }
 

@@ -52,8 +52,8 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentFixture
             this.InitiatePayment();
 
             Assert.Single(sut.Events);
-            Assert.Equal(PaymentId, ((PaymentInitiated)sut.Events.Single()).PaymentId);
-            Assert.Equal(SourceId, ((PaymentInitiated)sut.Events.Single()).SourceId);
+            Assert.Equal(PaymentId, ((PaymentInitiated)sut.Events.Single()).SourceId);
+            Assert.Equal(SourceId, ((PaymentInitiated)sut.Events.Single()).PaymentSourceId);
         }
 
         private void InitiatePayment()
@@ -99,8 +99,8 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentFixture
             this.sut.Complete();
 
             var @event = (PaymentCompleted)sut.Events.Last();
-            Assert.Equal(PaymentId, @event.PaymentId);
-            Assert.Equal(SourceId, @event.SourceId);
+            Assert.Equal(PaymentId, @event.SourceId);
+            Assert.Equal(SourceId, @event.PaymentSourceId);
         }
 
         [Fact]
@@ -117,8 +117,8 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentFixture
             this.sut.Cancel();
 
             var @event = (PaymentRejected)sut.Events.Last();
-            Assert.Equal(PaymentId, @event.PaymentId);
-            Assert.Equal(SourceId, @event.SourceId);
+            Assert.Equal(PaymentId, @event.SourceId);
+            Assert.Equal(SourceId, @event.PaymentSourceId);
         }
     }
 }

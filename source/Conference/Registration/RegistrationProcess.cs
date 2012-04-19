@@ -150,7 +150,7 @@ namespace Registration
 
                 this.AddCommand(new ConfirmOrderPayment
                 {
-                    OrderId = message.SourceId
+                    OrderId = message.PaymentSourceId
                 });
             }
             else

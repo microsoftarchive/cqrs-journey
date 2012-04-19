@@ -18,8 +18,8 @@ namespace Payments.Contracts.Events
 
     public class PaymentInitiated : IEvent
     {
-        public Guid PaymentId { get; set; }
-
         public Guid SourceId { get; set; }
+
+        public Guid PaymentSourceId { get; set; }
     }
 }

@@ -18,14 +18,8 @@ namespace Payments.Contracts.Events
 
     public class PaymentRejected : IEvent
     {
-        public Guid PaymentId { get; set; }
-
         public Guid SourceId { get; set; }
 
-        public Guid UserId { get; set; }
-
-        public string PaymentInformation { get; set; }
-
-        public string Reason { get; set; }
+        public Guid PaymentSourceId { get; set; }
     }
 }

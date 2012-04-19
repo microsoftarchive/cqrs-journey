@@ -36,7 +36,7 @@ namespace Payments.Contracts.Commands
 
         public Guid PaymentId { get; set; }
 
-        public Guid SourceId { get; set; }
+        public Guid PaymentSourceId { get; set; }
 
         public Guid ConferenceId { get; set; }
 

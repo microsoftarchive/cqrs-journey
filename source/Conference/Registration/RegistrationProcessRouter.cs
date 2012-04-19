@@ -87,7 +87,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = repo.Find(x => x.OrderId == @event.SourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = repo.Find(x => x.OrderId == @event.PaymentSourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);

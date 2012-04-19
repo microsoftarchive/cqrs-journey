@@ -37,7 +37,7 @@ namespace Payments.Handlers
             using (repository as IDisposable)
             {
                 var items = command.Items.Select(t => new ThidPartyProcessorPaymentItem(t.Description, t.Amount)).ToList();
-                var payment = new ThirdPartyProcessorPayment(command.PaymentId, command.SourceId, command.Description, command.TotalAmount, items);
+                var payment = new ThirdPartyProcessorPayment(command.PaymentId, command.PaymentSourceId, command.Description, command.TotalAmount, items);
 
                 repository.Save(payment);
             }
