@@ -45,12 +45,17 @@ namespace Common.Sql
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var deserialized = context.Set<Event>().Where(x => x.AggregateId == id).OrderBy(x => x.Version).AsEnumerable()
-                    .Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload))).Cast<IVersionedEvent>();
+                var deserialized = context.Set<Event>()
+                    .Where(x => x.AggregateId == id)
+                    .OrderBy(x => x.Version)
+                    .AsEnumerable()
+                    .Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload)))
+                    .Cast<IVersionedEvent>()
+                    .CachedAny();
 
                 if (deserialized.Any())
                 {
-                    return (T) constructor.Invoke(new object[] { id, deserialized });
+                    return (T)constructor.Invoke(new object[] { id, deserialized });
                 }
 
                 return null;

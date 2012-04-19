@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventStoreDbContext.cs" />
+    <Compile Include="CacheAnyEnumerableExtension.cs" />
     <Compile Include="SqlProcessRepositorySession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlEventSourcedRepository.cs" />
