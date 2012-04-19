@@ -17,7 +17,6 @@ namespace Conference.Web.Public.Controllers
     using System.Threading;
     using System.Web.Mvc;
     using Common;
-    using Microsoft.Practices.Unity;
     using Payments.Contracts.Commands;
     using Payments.ReadModel;
 
@@ -26,12 +25,12 @@ namespace Conference.Web.Public.Controllers
         private const int WaitTimeoutInSeconds = 5;
 
         private ICommandBus commandBus;
-        private Func<IViewRepository> repositoryFactory;
+        private IPaymentDao paymentDao;
 
-        public PaymentController(ICommandBus commandBus, [Dependency("payments")]Func<IViewRepository> repositoryFactory)
+        public PaymentController(ICommandBus commandBus, IPaymentDao paymentDao)
         {
             this.commandBus = commandBus;
-            this.repositoryFactory = repositoryFactory;
+            this.paymentDao = paymentDao;
         }
 
         public ActionResult ThirdPartyProcessorPayment(string conferenceCode, Guid paymentId, string paymentAcceptedUrl, string paymentRejectedUrl)
@@ -84,15 +83,11 @@ namespace Conference.Web.Public.Controllers
 
             while (DateTime.Now < deadline)
             {
-                var repository = this.repositoryFactory();
-                using (repository as IDisposable)
-                {
-                    var paymentDTO = repository.Find<ThirdPartyProcessorPaymentDetailsDTO>(paymentId);
+                var paymentDTO = this.paymentDao.GetThirdPartyProcessorPaymentDetails(paymentId);
 
-                    if (paymentDTO != null)
-                    {
-                        return paymentDTO;
-                    }
+                if (paymentDTO != null)
+                {
+                    return paymentDTO;
                 }
 
                 Thread.Sleep(500);

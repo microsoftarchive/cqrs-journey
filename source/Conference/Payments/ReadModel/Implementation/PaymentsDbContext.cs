@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.ReadModel
+namespace Payments.ReadModel.Implementation
 {
     using System;
     using System.Data.Entity;
@@ -20,9 +20,9 @@ namespace Payments.ReadModel
     /// <summary>
     /// A repository stored in a database for the views.
     /// </summary>
-    public class OrmViewRepository : DbContext, IViewRepository
+    public class PaymentsDbContext : DbContext
     {
-        public OrmViewRepository()
+        public PaymentsDbContext()
             // NOTE: by default, we point to the same database 
             // as the aggregates because we're using SQL views, 
             // but of course it could be a separate one.
@@ -30,7 +30,7 @@ namespace Payments.ReadModel
         {
         }
 
-        public OrmViewRepository(string nameOrConnectionString)
+        public PaymentsDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
         }
@@ -54,19 +54,5 @@ namespace Payments.ReadModel
         {
             return this.Set<T>();
         }
-
-        public void Save<T>(T entity) where T : class
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public interface IViewRepository
-    {
-        T Find<T>(Guid id) where T : class;
-
-        IQueryable<T> Query<T>() where T : class;
-
-        void Save<T>(T entity) where T : class;
     }
 }

@@ -50,8 +50,10 @@
     <Compile Include="Database\OrmRepositoryInitializer.cs" />
     <Compile Include="Handlers\ThirdPartyProcessorPaymentCommandHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadModel\OrmViewRepository.cs" />
-    <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
+    <Compile Include="ReadModel\Implementation\PaymentDao.cs" />
+    <Compile Include="ReadModel\Implementation\PaymentsDbContext.cs" />
+    <Compile Include="ReadModel\Implementation\PaymentsDbContextInitializer.cs" />
+    <Compile Include="ReadModel\IPaymentDao.cs" />
     <Compile Include="ReadModel\PaymentItemDTO.cs" />
     <Compile Include="ReadModel\ThirdPartyProcessorPaymentDetailsDTO.cs" />
     <Compile Include="ThirdPartyProcessorPayment.cs" />

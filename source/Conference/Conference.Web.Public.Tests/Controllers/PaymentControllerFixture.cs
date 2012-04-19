@@ -29,7 +29,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
     {
         private PaymentController sut;
         private Mock<ICommandBus> commandBusMock;
-        private Mock<IViewRepository> viewRepositoryMock;
+        private Mock<IPaymentDao> paymentDaoMock;
 
         public given_controller()
         {
@@ -49,8 +49,8 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
             var context = Mock.Of<HttpContextBase>(c => c.Request == requestMock.Object && c.Response == responseMock.Object);
 
             this.commandBusMock = new Mock<ICommandBus>();
-            this.viewRepositoryMock = new Mock<IViewRepository>();
-            this.sut = new PaymentController(this.commandBusMock.Object, () => this.viewRepositoryMock.Object);
+            this.paymentDaoMock = new Mock<IPaymentDao>();
+            this.sut = new PaymentController(this.commandBusMock.Object, this.paymentDaoMock.Object);
             this.sut.ControllerContext = new ControllerContext(context, new RouteData(), this.sut);
             this.sut.Url = new UrlHelper(new RequestContext(context, new RouteData()), routes);
         }
@@ -60,8 +60,8 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
         {
             // Arrange
             var paymentId = Guid.NewGuid();
-            this.viewRepositoryMock
-                .Setup(vr => vr.Find<ThirdPartyProcessorPaymentDetailsDTO>(It.IsAny<Guid>()))
+            this.paymentDaoMock
+                .Setup(pd => pd.GetThirdPartyProcessorPaymentDetails(It.IsAny<Guid>()))
                 .Returns(new ThirdPartyProcessorPaymentDetailsDTO(Guid.NewGuid(), Payments.ThirdPartyProcessorPayment.States.Initiated, Guid.NewGuid(), "payment", 100d));
 
             // Act

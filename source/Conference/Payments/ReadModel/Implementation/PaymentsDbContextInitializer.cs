@@ -11,20 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.ReadModel
+namespace Payments.ReadModel.Implementation
 {
     using System.Data.Entity;
-    using Payments.Database;
     using System.Linq;
+    using Payments.Database;
 
-    public class OrmViewRepositoryInitializer : IDatabaseInitializer<OrmRepository>
+    public class PaymentsDbContextInitializer : IDatabaseInitializer<OrmRepository>
     {
         // NOTE: we initialize the same OrmRepository for both because we happen to 
         // persist the views in the same database. This is not required and could be 
         // a separate one if we weren't using SQL Views to drive them.
         private IDatabaseInitializer<OrmRepository> innerInitializer;
 
-        public OrmViewRepositoryInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
+        public PaymentsDbContextInitializer(IDatabaseInitializer<OrmRepository> innerInitializer)
         {
             this.innerInitializer = innerInitializer;
         }
@@ -46,15 +46,15 @@ SELECT
     dbo.ThirdPartyProcessorPayments.TotalAmount as TotalAmount
 FROM dbo.ThirdPartyProcessorPayments");
 
-//                context.Database.ExecuteSqlCommand(@"
-//CREATE VIEW [dbo].[PaymentItemsView]
-//AS
-//SELECT     
-//    dbo.PaymentItems.Id AS Id, 
-//    dbo.PaymentItems.Payment_Id AS ThirdPartyProcessorPaymentDetailsView_Id, 
-//    dbo.PaymentItems.SeatType as SeatType,
-//    dbo.PaymentItems.Quantity as Quantity
-//FROM dbo.PaymentItems");
+                //                context.Database.ExecuteSqlCommand(@"
+                //CREATE VIEW [dbo].[PaymentItemsView]
+                //AS
+                //SELECT     
+                //    dbo.PaymentItems.Id AS Id, 
+                //    dbo.PaymentItems.Payment_Id AS ThirdPartyProcessorPaymentDetailsView_Id, 
+                //    dbo.PaymentItems.SeatType as SeatType,
+                //    dbo.PaymentItems.Quantity as Quantity
+                //FROM dbo.PaymentItems");
             }
 
             context.SaveChanges();
