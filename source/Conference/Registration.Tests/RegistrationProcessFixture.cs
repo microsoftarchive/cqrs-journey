@@ -15,6 +15,7 @@ namespace Registration.Tests.RegistrationProcessFixture
 {
     using System;
     using System.Linq;
+    using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;
     using Xunit;
@@ -157,10 +158,9 @@ namespace Registration.Tests.RegistrationProcessFixture
     {
         public when_reservation_is_paid()
         {
-            sut.Handle(new PaymentReceived
+            sut.Handle(new PaymentCompleted
             {
-                OrderId = this.orderId,
-                ConferenceId = this.conferenceId
+                PaymentSourceId = this.orderId,
             });
         }
 

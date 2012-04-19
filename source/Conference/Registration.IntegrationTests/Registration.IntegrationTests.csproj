@@ -69,6 +69,10 @@
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Payments.Contracts\Payments.Contracts.csproj">
+      <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
+      <Name>Payments.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Registration.Tests\Registration.Tests.csproj">
       <Project>{1F861D4D-FD0C-4CA3-BEDB-EDD276CB0248}</Project>
       <Name>Registration.Tests</Name>

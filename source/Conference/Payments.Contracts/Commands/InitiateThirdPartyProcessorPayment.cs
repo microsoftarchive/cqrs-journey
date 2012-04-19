@@ -11,25 +11,39 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Payments.Contracts.Commands
 {
     using System;
+    using System.Collections.Generic;
     using Common;
 
-    public class PaymentReceived : IEvent
+    public class InitiateThirdPartyProcessorPayment : ICommand
     {
-        public Guid OrderId { get; set; }
+        public class PaymentItem
+        {
+            public string Description { get; set; }
+
+            public double Amount { get; set; }
+        }
+
+        public InitiateThirdPartyProcessorPayment()
+        {
+            this.Id = Guid.NewGuid();
+            this.Items = new List<InitiateThirdPartyProcessorPayment.PaymentItem>();
+        }
+
+        public Guid Id { get; private set; }
+
+        public Guid PaymentId { get; set; }
+
+        public Guid PaymentSourceId { get; set; }
 
         public Guid ConferenceId { get; set; }
 
-        public Guid UserId { get; set; }
+        public string Description { get; set; }
 
-        public string PaymentInformation { get; set; }
+        public double TotalAmount { get; set; }
 
-        // TODO: what is the source for this integration event?
-        public Guid SourceId
-        {
-            get { return this.OrderId; }
-        }
+        public IList<InitiateThirdPartyProcessorPayment.PaymentItem> Items { get; private set; }
     }
 }
