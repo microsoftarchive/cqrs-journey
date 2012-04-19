@@ -20,6 +20,7 @@ namespace Conference
         public DomainContext()
             : base("ConferenceManagement")
         {
+            this.Configuration.LazyLoadingEnabled = false;
         }
 
         public virtual DbSet<ConferenceInfo> Conferences { get; set; }

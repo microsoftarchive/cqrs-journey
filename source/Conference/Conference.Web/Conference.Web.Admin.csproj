@@ -151,7 +151,6 @@
     </None>
     <Content Include="Views\Conference\Create.cshtml" />
     <Content Include="Views\Conference\Edit.cshtml" />
-    <Content Include="Views\Conference\Delete.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Conference\Locate.cshtml">
       <SubType>Code</SubType>

@@ -61,6 +61,6 @@ namespace Conference
         [Display(Name = "Is Published?")]
         public bool IsPublished { get; set; }
 
-        public virtual ICollection<SeatInfo> Seats { get; set; }
+        public ICollection<SeatInfo> Seats { get; set; }
     }
 }

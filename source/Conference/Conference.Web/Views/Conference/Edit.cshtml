@@ -28,6 +28,7 @@
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.Id)
 
     <fieldset>
         <legend>Owner Information</legend>
@@ -50,9 +51,6 @@
     
     <fieldset>
     <legend>Conference Information</legend>
-
-        @Html.HiddenFor(model => model.Id)
-
         <div class="editor-label">
             @Html.LabelFor(model => model.Name)
         </div>

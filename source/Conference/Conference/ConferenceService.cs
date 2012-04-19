@@ -13,13 +13,56 @@
 
 namespace Conference
 {
+    using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Data.Entity;
     using System.Linq;
 
     public class ConferenceService
     {
-        public ConferenceInfo Find(string slug)
+        // TODO: transactionally save to DB the outgoing events
+        // and an async process should pick and push to the bus.
+
+        // using (tx)
+        // {
+        //  DB save (state snapshot)
+        //  DB queue (events) -> push to bus (async)
+        // }
+
+        public void CreateConference(ConferenceInfo conference)
+        {
+            using (var context = new DomainContext())
+            {
+                var existingSlug = context.Conferences
+                    .Where(c => c.Slug == conference.Slug)
+                    .Select(c => c.Slug)
+                    .Any();
+
+                if (existingSlug)
+                    throw new DuplicateNameException("The chosen conference slug is already taken.");
+
+                conference.Id = Guid.NewGuid();
+                context.Conferences.Add(conference);
+                context.SaveChanges();
+            }
+        }
+
+        public void CreateSeat(Guid conferenceId, SeatInfo seat)
+        {
+            using (var context = new DomainContext())
+            {
+                var conference = context.Conferences.Find(conferenceId);
+                if (conference == null)
+                    throw new ObjectNotFoundException();
+
+                seat.Id = Guid.NewGuid();
+                conference.Seats.Add(seat);
+                context.SaveChanges();
+            }
+        }
+
+        public ConferenceInfo FindConference(string slug)
         {
             using (var context = new DomainContext())
             {
@@ -27,7 +70,7 @@ namespace Conference
             }
         }
 
-        public ConferenceInfo Find(string email, string accessCode)
+        public ConferenceInfo FindConference(string email, string accessCode)
         {
             using (var context = new DomainContext())
             {
@@ -35,35 +78,76 @@ namespace Conference
             }
         }
 
-        public IEnumerable<SeatInfo> FindSeats(string slug)
+        public IEnumerable<SeatInfo> FindSeats(Guid conferenceId)
         {
             using (var context = new DomainContext())
             {
-                return context.Conferences.Include(x => x.Seats).FirstOrDefault(x => x.Slug == slug).Seats;
+                return context.Conferences.Include(x => x.Seats)
+                    .Where(x => x.Id == conferenceId)
+                    .Select(x => x.Seats)
+                    .FirstOrDefault() ??
+                    Enumerable.Empty<SeatInfo>();
             }
         }
 
-
-        public void Create(ConferenceInfo conference)
+        public SeatInfo FindSeat(Guid seatId)
         {
-            // using (tx)
-            // {
-            //  DB save (state snapshot)
-            //  DB queue (events) -> push to bus (async)
-            // }
+            using (var context = new DomainContext())
+            {
+                return context.Seats.Find(seatId);
+            }
         }
 
-        public void Create(SeatInfo seat)
+        public void UpdateConference(ConferenceInfo conference)
         {
+            using (var context = new DomainContext())
+            {
+                var existing = context.Conferences.Find(conference.Id);
+                if (existing == null)
+                    throw new ObjectNotFoundException();
+
+                context.Entry(existing).CurrentValues.SetValues(conference);
+                context.SaveChanges();
+            }
         }
 
-        public void Update(ConferenceInfo conference)
+        public void UpdateSeat(SeatInfo seat)
         {
+            using (var context = new DomainContext())
+            {
+                var existing = context.Seats.Find(seat.Id);
+                if (existing == null)
+                    throw new ObjectNotFoundException();
+
+                context.Entry(existing).CurrentValues.SetValues(seat);
+                context.SaveChanges();
+            }
         }
 
-        public void Update(SeatInfo seat)
+        public void UpdatePublished(Guid conferenceId, bool isPublished)
         {
+            using (var context = new DomainContext())
+            {
+                var conference = context.Conferences.Find(conferenceId);
+                if (conference == null)
+                    throw new ObjectNotFoundException();
+
+                conference.IsPublished = isPublished;
+                context.SaveChanges();
+            }
         }
 
+        public void DeleteSeat(Guid id)
+        {
+            using (var context = new DomainContext())
+            {
+                var seat = context.Seats.Find(id);
+                if (seat == null)
+                    throw new ObjectNotFoundException();
+
+                context.Seats.Remove(seat);
+                context.SaveChanges();
+            }
+        }
     }
 }
