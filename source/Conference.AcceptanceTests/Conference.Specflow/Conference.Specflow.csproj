@@ -42,9 +42,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Registration">
-      <HintPath>..\..\Conference\Registration\bin\Debug\Registration.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -204,6 +201,10 @@
     <ProjectReference Include="..\..\Conference\Conference.Web.Public\Conference.Web.Public.csproj">
       <Project>{32E3E4D7-D887-4BE1-A84F-130BF80533D0}</Project>
       <Name>Conference.Web.Public</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Registration\Registration.csproj">
+      <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
+      <Name>Registration</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
