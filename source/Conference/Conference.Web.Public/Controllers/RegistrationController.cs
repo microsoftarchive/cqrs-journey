@@ -19,11 +19,14 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using Common;
     using Conference.Web.Public.Models;
+    using Payments.Contracts.Commands;
     using Registration.Commands;
     using Registration.ReadModel;
 
     public class RegistrationController : Controller
     {
+        public const string ThirdPartyProcessorPayment = "thirdParty";
+        public const string InvoicePayment = "invoice";
         private const int WaitTimeoutInSeconds = 5;
 
         private readonly ICommandBus commandBus;
@@ -38,7 +41,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult StartRegistration(string conferenceCode)
+        public ActionResult StartRegistration()
         {
             ViewBag.OrderId = Guid.NewGuid();
 
@@ -46,11 +49,11 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult StartRegistration(string conferenceCode, RegisterToConference command)
+        public ActionResult StartRegistration(RegisterToConference command)
         {
             if (!ModelState.IsValid)
             {
-                return StartRegistration(conferenceCode);
+                return StartRegistration();
             }
 
             // TODO: validate incoming seat types correspond to the conference.
@@ -58,11 +61,11 @@ namespace Conference.Web.Public.Controllers
             command.ConferenceId = this.Conference.Id;
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyRegistrantDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
+            return RedirectToAction("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.Conference.Code, orderId = command.OrderId });
         }
 
         [HttpGet]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId)
+        public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId)
         {
             var order = this.WaitUntilUpdated(orderId);
             if (order == null)
@@ -75,53 +78,65 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationRejected");
             }
 
+            var orderViewModel = this.CreateViewModel(this.Conference.Code, order);
+
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
 
             // We just render the command which is later posted back.
-            return View(new AssignRegistrantDetails { OrderId = orderId });
+            return View(
+                new RegistrationViewModel
+                {
+                    RegistrantDetails = new AssignRegistrantDetails { OrderId = orderId },
+                    Order = orderViewModel
+                });
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantDetails(string conferenceCode, AssignRegistrantDetails command)
+        public ActionResult SpecifyRegistrantAndPaymentDetails([Bind(Prefix = "RegistrantDetails")] AssignRegistrantDetails command, string paymentType)
         {
             if (!ModelState.IsValid)
             {
-                return SpecifyRegistrantDetails(conferenceCode, command.OrderId);
+                return SpecifyRegistrantAndPaymentDetails(command.OrderId);
             }
 
-            this.commandBus.Send(command);
+            var orderId = command.OrderId;
 
-            return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = command.OrderId });
+            var orderDTO = this.orderDao.GetOrderDetails(orderId);
+
+            // TODO check conference and order exist
+
+            if (orderDTO == null)
+            {
+                throw new ArgumentException();
+            }
+
+            switch (paymentType)
+            {
+                case ThirdPartyProcessorPayment:
+
+                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId);
+
+                case InvoicePayment:
+                    break;
+
+                default:
+                    break;
+            }
+
+            throw new InvalidOperationException();
         }
 
         [HttpGet]
-        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId)
-        {
-            var order = this.orderDao.GetOrderDetails(orderId);
-            var viewModel = this.CreateViewModel(conferenceCode, order);
-
-            this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
-
-            return View(viewModel);
-        }
-
-        [HttpPost]
-        public ActionResult SpecifyPaymentDetails(string conferenceCode, Guid orderId, PaymentDetails paymentDetails)
-        {
-            return RedirectToAction("Display", "Payment", new { conferenceCode = conferenceCode, orderId = orderId });
-        }
-
-        [HttpGet]
-        public ActionResult TransactionCompleted(string conferenceCode, Guid orderId, string transactionResult)
+        public ActionResult TransactionCompleted(Guid orderId, string transactionResult)
         {
             if (transactionResult == "accepted")
             {
-                return RedirectToAction("ThankYou", new { conferenceCode = conferenceCode, orderId = orderId });
+                return RedirectToAction("ThankYou", new { conferenceCode = this.Conference.Code, orderId = orderId });
             }
             else
             {
-                return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = conferenceCode, orderId = orderId });
+                return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = this.Conference.Code, orderId = orderId });
             }
         }
 
@@ -138,6 +153,54 @@ namespace Conference.Web.Public.Controllers
             var order = this.orderDao.GetOrderDetails(orderId);
 
             return View(order);
+        }
+
+        private ActionResult InitiateRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId)
+        {
+            var paymentCommand = CreatePaymentCommand(orderId);
+
+            this.commandBus.Send(new ICommand[] { command, paymentCommand });
+
+            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.Conference.Code, orderId });
+            var paymentRejectedUrl = this.Url.Action("TransactionCompleted", new { conferenceCode = this.Conference.Code, orderId, transactionResult = "rejected" });
+
+            return RedirectToAction(
+                "ThirdPartyProcessorPayment",
+                "Payment",
+                new
+                {
+                    conferenceCode = this.Conference.Code,
+                    paymentId = paymentCommand.PaymentId,
+                    paymentAcceptedUrl,
+                    paymentRejectedUrl
+                });
+        }
+
+        private InitiateThirdPartyProcessorPayment CreatePaymentCommand(Guid orderId)
+        {
+            // TODO extract pricing outside the controller
+            var seats = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
+            var order = this.orderDao.GetOrderDetails(orderId);
+
+            var items =
+                from seat in seats
+                join orderItem in order.Lines on seat.Id equals orderItem.SeatType
+                select new { orderItem.SeatType, orderItem.ReservedSeats, seat.Price, ItemPrice = orderItem.ReservedSeats * seat.Price };
+
+            var description = "Registration for " + this.Conference.Name;
+            var totalAmount = items.Sum(i => i.ItemPrice);
+
+            var paymentCommand =
+                new InitiateThirdPartyProcessorPayment
+                {
+                    PaymentId = Guid.NewGuid(),
+                    ConferenceId = this.Conference.Id,
+                    PaymentSourceId = orderId,
+                    Description = description,
+                    TotalAmount = totalAmount
+                };
+
+            return paymentCommand;
         }
 
         private OrderViewModel CreateViewModel(string conferenceCode)

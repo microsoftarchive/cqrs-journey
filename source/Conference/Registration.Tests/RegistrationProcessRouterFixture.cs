@@ -18,6 +18,7 @@ namespace Registration.Tests
     using System.Linq;
     using System.Linq.Expressions;
     using Common;
+    using Payments.Contracts.Events;
     using Registration.Events;
     using Xunit;
 
@@ -86,7 +87,7 @@ namespace Registration.Tests
             var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => repo);
 
-            router.Handle(new PaymentReceived { OrderId = process.OrderId });
+            router.Handle(new PaymentCompleted { PaymentSourceId = process.OrderId });
 
             Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);

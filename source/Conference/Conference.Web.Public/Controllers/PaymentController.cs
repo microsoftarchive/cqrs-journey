@@ -14,43 +14,86 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
+    using System.Threading;
     using System.Web.Mvc;
+    using Common;
+    using Payments.Contracts.Commands;
+    using Payments.ReadModel;
 
     public class PaymentController : Controller
     {
-        public ActionResult Display(string conferenceCode, Guid orderId)
-        {
-            this.TempData["conferenceCode"] = conferenceCode;
-            this.TempData["orderId"] = orderId;
+        private const int WaitTimeoutInSeconds = 5;
 
-            return View();
+        private ICommandBus commandBus;
+        private IPaymentDao paymentDao;
+
+        public PaymentController(ICommandBus commandBus, IPaymentDao paymentDao)
+        {
+            this.commandBus = commandBus;
+            this.paymentDao = paymentDao;
         }
 
-        public ActionResult AcceptPayment(string conferenceCode, Guid orderId)
+        public ActionResult ThirdPartyProcessorPayment(string conferenceCode, Guid paymentId, string paymentAcceptedUrl, string paymentRejectedUrl)
         {
-            // TODO: submit a command that ends up publishing the PaymentReceived event
-            return RedirectToAction(
-                "TransactionCompleted",
-                "Registration",
-                new
-                {
-                    conferenceCode = conferenceCode,
-                    orderId = orderId,
-                    transactionResult = "accepted"
-                });
+            var returnUrl = Url.Action("ThirdPartyProcessorPaymentAccepted", new { conferenceCode, paymentId, paymentAcceptedUrl });
+            var cancelReturnUrl = Url.Action("ThirdPartyProcessorPaymentRejected", new { conferenceCode, paymentId, paymentRejectedUrl });
+
+            // TODO retrieve payment information from payment read model
+
+            var paymentDTO = this.WaitUntilAvailable(paymentId);
+            if (paymentDTO == null)
+            {
+                return this.View("WaitForPayment");
+            }
+
+            var paymentProcessorUrl =
+                this.Url.Action(
+                    "Pay",
+                    "ThirdPartyProcessorPayment",
+                    new
+                    {
+                        area = "ThirdPartyProcessor",
+                        itemName = paymentDTO.Description,
+                        itemAmount = paymentDTO.TotalAmount,
+                        returnUrl,
+                        cancelReturnUrl
+                    });
+
+            // redirect to external site
+            return this.Redirect(paymentProcessorUrl);
         }
 
-        public ActionResult RejectPayment(string conferenceCode, Guid orderId)
+        public ActionResult ThirdPartyProcessorPaymentAccepted(string conferenceCode, Guid paymentId, string paymentAcceptedUrl)
         {
-            return RedirectToAction(
-                "TransactionCompleted",
-                "Registration",
-                new
+            this.commandBus.Send(new CompleteThirdPartyProcessorPayment { PaymentId = paymentId });
+
+            return this.Redirect(paymentAcceptedUrl);
+        }
+
+        public ActionResult ThirdPartyProcessorPaymentRejected(string conferenceCode, Guid paymentId, string paymentRejectedUrl)
+        {
+            this.commandBus.Send(new CancelThirdPartyProcessorPayment { PaymentId = paymentId });
+
+            return this.Redirect(paymentRejectedUrl);
+        }
+
+        private ThirdPartyProcessorPaymentDetailsDTO WaitUntilAvailable(Guid paymentId)
+        {
+            var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
+
+            while (DateTime.Now < deadline)
+            {
+                var paymentDTO = this.paymentDao.GetThirdPartyProcessorPaymentDetails(paymentId);
+
+                if (paymentDTO != null)
                 {
-                    conferenceCode = conferenceCode,
-                    orderId = orderId,
-                    transactionResult = "rejected"
-                });
+                    return paymentDTO;
+                }
+
+                Thread.Sleep(500);
+            }
+
+            return null;
         }
     }
 }

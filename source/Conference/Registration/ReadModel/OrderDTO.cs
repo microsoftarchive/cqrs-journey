@@ -46,7 +46,7 @@ namespace Registration.ReadModel
 
         public DateTime? ReservationExpirationDate { get; set; }
 
-        public virtual ICollection<OrderItemDTO> Lines { get; private set; }
+        public virtual IList<OrderItemDTO> Lines { get; private set; }
 
         public int StateValue { get; private set; }
 
