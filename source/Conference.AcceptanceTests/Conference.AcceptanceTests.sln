@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common", "..\Conferen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference", "..\Conference\Conference\Conference.csproj", "{DACB93E1-1015-4D08-ABF5-D41C74F526DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Sql", "..\Conference\Common.Sql\Common.Sql.csproj", "{F038F286-5AEF-4341-83EC-9F72F42D06D6}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Conference.Specflow.vsmdi
@@ -48,6 +50,10 @@ Global
 		{DACB93E1-1015-4D08-ABF5-D41C74F526DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DACB93E1-1015-4D08-ABF5-D41C74F526DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DACB93E1-1015-4D08-ABF5-D41C74F526DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,5 +64,6 @@ Global
 		{B5786D07-5888-4DF5-B295-3FEA593F3BFE} = {4D1BC313-9BFE-440E-9734-65651AF5E218}
 		{56A53790-2571-4EA6-8742-2FA00E893B21} = {4D1BC313-9BFE-440E-9734-65651AF5E218}
 		{DACB93E1-1015-4D08-ABF5-D41C74F526DC} = {4D1BC313-9BFE-440E-9734-65651AF5E218}
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6} = {4D1BC313-9BFE-440E-9734-65651AF5E218}
 	EndGlobalSection
 EndGlobal

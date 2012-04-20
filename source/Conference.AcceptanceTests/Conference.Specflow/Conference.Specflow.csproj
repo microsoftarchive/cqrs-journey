@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.SHDocVw">
       <HintPath>..\packages\WatiN.2.1.0\lib\net40\Interop.SHDocVw.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -43,10 +47,12 @@
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -68,6 +74,11 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Features\Conference\Conference Creation\ConferenceCreation.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ConferenceCreation.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Conference\Discounts Configuration\Discounts Configuration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -136,10 +147,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steps\Registration\EndToEnd\EndToEndCommonSteps.cs" />
     <Compile Include="Steps\Registration\EndToEnd\SelfRegistrationEndToEndHappySteps.cs" />
+    <Compile Include="Support\ConferenceHelper.cs" />
+    <Compile Include="Support\Constants.cs" />
+    <Compile Include="Support\IEExtension.cs" />
+    <Compile Include="Support\ScenarioContextExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Features\Conference\Conference Creation\ConferenceCreation.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ConferenceCreation.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Conference\Discounts Configuration\Discounts Configuration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -196,29 +215,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Conference\Common\Common.csproj">
-      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Conference\Conference.Web.Public\Conference.Web.Public.csproj">
-      <Project>{32E3E4D7-D887-4BE1-A84F-130BF80533D0}</Project>
-      <Name>Conference.Web.Public</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
-      <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
-      <Name>Conference</Name>
-    </ProjectReference>
+    <Folder Include="Features\Conference\Publish and Unpublish\" />
+    <Folder Include="Features\Conference\Seat Types and Quotas Configuration\" />
+    <Folder Include="Steps\Conference\" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Conference\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
       <Name>Registration</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Features\Conference\Conference Creation\" />
-    <Folder Include="Features\Conference\Publish and Unpublish\" />
-    <Folder Include="Features\Conference\Seat Types and Quotas Configuration\" />
-    <Folder Include="Steps\Conference\" />
-    <Folder Include="Support\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
