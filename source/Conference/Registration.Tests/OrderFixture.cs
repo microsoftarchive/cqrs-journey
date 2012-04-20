@@ -87,8 +87,15 @@ namespace Registration.Tests.OrderFixture
 
         public given_placed_order()
         {
-            this.sut = new Order(new[] {
-                    new OrderPlaced(OrderId, 0, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null)
+            this.sut = new Order(
+                OrderId, new[] 
+                {
+                    new OrderPlaced 
+                    { 
+                        ConferenceId = ConferenceId,
+                        Seats = new[] { new SeatQuantity(SeatTypeId, 5) },
+                        ReservationAutoExpiration = DateTime.UtcNow
+                    }
                 });
         }
 
@@ -167,9 +174,20 @@ namespace Registration.Tests.OrderFixture
 
         public given_fully_reserved_order()
         {
-            this.sut = new Order(new IDomainEvent[] {
-                    new OrderPlaced(OrderId, 0, ConferenceId, new[] { new SeatQuantity(SeatTypeId, 5) }, DateTime.UtcNow, null),
-                    new OrderReservationCompleted(OrderId, 1, DateTime.UtcNow.AddMinutes(5), new[] { new SeatQuantity(SeatTypeId, 5) })
+            this.sut = new Order(
+                OrderId, new IVersionedEvent[] 
+                {
+                    new OrderPlaced 
+                    { 
+                        ConferenceId = ConferenceId,
+                        Seats = new[] { new SeatQuantity(SeatTypeId, 5) },
+                        ReservationAutoExpiration = DateTime.UtcNow
+                    },
+                    new OrderReservationCompleted 
+                    { 
+                        ReservationExpiration =  DateTime.UtcNow.AddMinutes(5),
+                        Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
+                    }
                 });
         }
 

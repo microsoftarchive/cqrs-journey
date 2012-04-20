@@ -13,7 +13,6 @@
 
 namespace Registration.Handlers
 {
-    using System;
     using Common;
     using Registration.Commands;
 
@@ -25,9 +24,9 @@ namespace Registration.Handlers
         ICommandHandler<CancelSeatReservation>,
         ICommandHandler<CommitSeatReservation>
     {
-        private readonly IRepository<SeatsAvailability> repository;
+        private readonly IEventSourcedRepository<SeatsAvailability> repository;
 
-        public SeatsAvailabilityHandler(IRepository<SeatsAvailability> repository)
+        public SeatsAvailabilityHandler(IEventSourcedRepository<SeatsAvailability> repository)
         {
             this.repository = repository;
         }

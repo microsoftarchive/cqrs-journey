@@ -13,8 +13,12 @@
 
 namespace Common
 {
-    public interface IDomainEvent : IEvent
+    using System;
+
+    public interface IEventSourcedRepository<T> where T : IEventSourced
     {
-        int Version { get; }
+        T Find(Guid id);
+
+        void Save(T eventSourced);
     }
 }

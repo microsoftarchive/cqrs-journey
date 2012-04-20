@@ -16,23 +16,8 @@ namespace Registration.Events
     using System;
     using Common;
 
-    public class SeatsReservationCommitted : IDomainEvent
+    public class SeatsReservationCommitted : VersionedEvent
     {
-        private readonly Guid sourceId;
-        private readonly Guid reservationId;
-        private readonly int version;
-
-        public SeatsReservationCommitted(Guid sourceId, int version, Guid reservationId)
-        {
-            this.sourceId = sourceId;
-            this.reservationId = reservationId;
-            this.version = version;
-        }
-
-        public Guid SourceId { get { return this.sourceId; } }
-
-        public int Version { get { return this.version; } }
-
-        public Guid ReservationId { get { return this.reservationId; } }
+        public Guid ReservationId { get; set; }
     }
 }

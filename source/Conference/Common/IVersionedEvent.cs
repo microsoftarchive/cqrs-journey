@@ -11,17 +11,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-
-namespace Registration.Events
+namespace Common
 {
-    using System;
-    using System.Collections.Generic;
-    using Common;
-
-    public class OrderReservationCompleted : VersionedEvent
+    public interface IVersionedEvent : IEvent
     {
-        public DateTime ReservationExpiration { get; set; }
-
-        public IEnumerable<SeatQuantity> Seats { get; set; }
+        int Version { get; }
     }
 }

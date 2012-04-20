@@ -13,22 +13,9 @@
 
 namespace Registration.Events
 {
-    using System;
     using Common;
 
-    public class OrderExpired : IDomainEvent
+    public class OrderExpired : VersionedEvent
     {
-        private readonly Guid sourceId;
-        private readonly int version;
-
-        public OrderExpired(Guid sourceId, int version)
-        {
-            this.sourceId = sourceId;
-            this.version = version;
-        }
-
-        public Guid SourceId { get { return this.sourceId; } }
-
-        public int Version { get { return this.version; } }
     }
 }

@@ -30,7 +30,7 @@ namespace Registration.Tests
             var repo = new StubProcessRepositorySession<RegistrationProcess>();
             var router = new RegistrationProcessRouter(() => repo);
 
-            router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
+            router.Handle(new OrderPlaced { SourceId = Guid.NewGuid(), ConferenceId = Guid.NewGuid(), Seats = new SeatQuantity[0] });
 
             Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);
@@ -49,7 +49,7 @@ namespace Registration.Tests
             var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => repo);
 
-            router.Handle(new SeatsReserved(process.ConferenceId, -1, process.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
+            router.Handle(new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] });
 
             Assert.Equal(1, repo.SavedProcesses.Count);
             Assert.True(repo.DisposeCalled);
