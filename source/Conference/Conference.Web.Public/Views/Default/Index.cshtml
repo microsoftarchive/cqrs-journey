@@ -7,6 +7,8 @@
 <p>
     Go to the specific conference page:
 </p>
+<ul>
 @foreach (var conference in Model) {
-    @Html.ActionLink(conference.Name, "Display", "Conference", new { conferenceCode = conference.Code }, null)
+    <li>@Html.ActionLink(conference.Name, "Display", "Conference", new { conferenceCode = conference.Code }, null)</li>
 }
+</ul>
