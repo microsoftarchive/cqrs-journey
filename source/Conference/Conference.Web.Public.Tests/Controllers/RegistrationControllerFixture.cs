@@ -35,7 +35,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         protected readonly ICommandBus bus;
         protected readonly IOrderDao orderDao;
         protected readonly IConferenceDao conferenceDao;
-        protected readonly ConferenceAliasDTO conferenceAlias = new ConferenceAliasDTO(Guid.NewGuid(), "TestConferenceCode", "Test Conference name");
+        protected readonly ConferenceAliasDTO conferenceAlias = new ConferenceAliasDTO { Id = Guid.NewGuid(), Code = "TestConferenceCode", Name = "Test Conference name" };
         protected readonly RouteCollection routes;
         protected readonly RouteData routeData;
         protected readonly Mock<HttpRequestBase> requestMock;
@@ -103,7 +103,8 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var resultModel = result.Model as IList<ConferenceSeatTypeDTO>;
             Assert.NotNull(resultModel);
             Assert.Equal(1, resultModel.Count);
-            Assert.Equal("Test Seat", resultModel[0].Description);
+            Assert.Equal("Test Seat", resultModel[0].Name);
+            Assert.Equal("Description", resultModel[0].Description);
         }
 
         [Fact]
