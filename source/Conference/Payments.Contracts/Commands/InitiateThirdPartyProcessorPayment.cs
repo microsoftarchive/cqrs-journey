@@ -23,7 +23,7 @@ namespace Payments.Contracts.Commands
         {
             public string Description { get; set; }
 
-            public double Amount { get; set; }
+            public decimal Amount { get; set; }
         }
 
         public InitiateThirdPartyProcessorPayment()
@@ -42,7 +42,7 @@ namespace Payments.Contracts.Commands
 
         public string Description { get; set; }
 
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
 
         public IList<InitiateThirdPartyProcessorPayment.PaymentItem> Items { get; private set; }
     }

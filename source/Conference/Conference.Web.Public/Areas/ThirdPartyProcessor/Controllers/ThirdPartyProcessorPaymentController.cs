@@ -24,7 +24,7 @@ namespace Conference.Web.Public.Areas.ThirdPartyProcessor.Controllers
         private const string cancelReturnUrlKey = "cancelReturnUrl";
 
         [HttpGet]
-        public ActionResult Pay(string itemName, double itemAmount, string returnUrl, string cancelReturnUrl)
+        public ActionResult Pay(string itemName, decimal itemAmount, string returnUrl, string cancelReturnUrl)
         {
             this.ViewBag.ItemName = itemName;
             this.ViewBag.ItemAmount = itemAmount;

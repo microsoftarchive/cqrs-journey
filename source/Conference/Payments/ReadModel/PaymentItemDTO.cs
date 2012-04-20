@@ -18,7 +18,7 @@ namespace Payments.ReadModel
 
     public class PaymentItemDTO
     {
-        public PaymentItemDTO(Guid id, string description, double price)
+        public PaymentItemDTO(Guid id, string description, decimal price)
         {
             this.Id = id;
             this.Description = description;
@@ -34,6 +34,6 @@ namespace Payments.ReadModel
 
         public virtual string Description { get; private set; }
 
-        public virtual double Price { get; private set; }
+        public virtual decimal Price { get; private set; }
     }
 }

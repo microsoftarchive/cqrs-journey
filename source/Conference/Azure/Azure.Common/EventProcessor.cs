@@ -14,6 +14,8 @@
 namespace Azure
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using Azure.Messaging;
     using Common;
@@ -42,10 +44,28 @@ namespace Azure
         {
             var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
 
+            Trace.WriteLine(new string('-', 100));
+            TracePayload(payload);
+
             foreach (dynamic handler in this.handlers
                 .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {
+                Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName);
                 handler.Handle((dynamic)payload);
+            }
+
+            Trace.WriteLine(new string('-', 100));
+        }
+
+        [Conditional("TRACE")]
+        private void TracePayload(object payload)
+        {
+            var stream = new MemoryStream();
+            this.Serializer.Serialize(stream, payload);
+            stream.Position = 0;
+            using (var reader = new StreamReader(stream))
+            {
+                Trace.WriteLine(reader.ReadToEnd());
             }
         }
     }

@@ -29,7 +29,7 @@ namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentCont
         [Fact]
         public void when_intiating_payment_then_returns_payment_view()
         {
-            var result = (ViewResult)this.sut.Pay("item", 100d, "return", "cancelreturn");
+            var result = (ViewResult)this.sut.Pay("item", 100, "return", "cancelreturn");
 
             Assert.Equal(this.sut.ViewBag.ReturnUrl, "return");
             Assert.Equal(this.sut.ViewBag.CancelReturnUrl, "cancelreturn");

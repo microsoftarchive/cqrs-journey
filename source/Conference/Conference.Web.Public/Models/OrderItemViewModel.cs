@@ -21,11 +21,11 @@ namespace Conference.Web.Public.Models
 
         public string SeatTypeDescription { get; set; }
 
-        public double Price { get; set; }
+        public decimal Price { get; set; }
 
         public int Quantity { get; set; }
 
-        public double Total
+        public decimal Total
         {
             get { return this.Price * this.Quantity; }
         }

@@ -70,7 +70,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         [Fact(Skip = "Need to refactor into a testable cross-cutting concern.")]
         public void when_executing_result_then_makes_conference_alias_available_to_view()
         {
-            var seats = new[] { new ConferenceSeatTypeDTO(Guid.NewGuid(), "Test Seat", 10d) };
+            var seats = new[] { new ConferenceSeatTypeDTO(Guid.NewGuid(), "Test Seat", "Description", 10) };
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
@@ -88,7 +88,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_starting_registration_then_returns_view_with_registration_for_conference()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) };
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", "Description", 10) };
 
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
@@ -110,7 +110,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_specifying_seats_for_a_valid_registration_then_places_registration_and_redirects_to_action()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) };
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", "Description", 10) };
 
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
@@ -169,7 +169,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 .Setup(d => d.GetOrderDetails(orderId))
                 .Returns(order);
 
-            var seat = new ConferenceSeatTypeDTO(seatId, "test", 20d);
+            var seat = new ConferenceSeatTypeDTO(seatId, "test", "description", 20);
             Mock.Get<IConferenceDao>(this.conferenceDao)
                 .Setup(d => d.GetPublishedSeatTypes(this.conferenceAlias.Id))
                 .Returns(new[] { seat });
@@ -196,7 +196,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                                      .Any(c =>
                                          c.ConferenceId == conferenceAlias.Id
                                          && c.PaymentSourceId == orderId
-                                         && Math.Abs(c.TotalAmount - 100d) < 0.01d))),
+                                         && Math.Abs(c.TotalAmount - 100) < 0.01m))),
                     Times.Once());
 
             Assert.Equal("Payment", result.RouteValues["controller"]);

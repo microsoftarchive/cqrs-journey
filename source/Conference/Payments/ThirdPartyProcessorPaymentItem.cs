@@ -17,7 +17,7 @@ namespace Payments
 
     public class ThidPartyProcessorPaymentItem
     {
-        public ThidPartyProcessorPaymentItem(string description, double amount)
+        public ThidPartyProcessorPaymentItem(string description, decimal amount)
         {
             this.Id = Guid.NewGuid();
 
@@ -33,6 +33,6 @@ namespace Payments
 
         public string Description { get; private set; }
 
-        public double Amount { get; private set; }
+        public decimal Amount { get; private set; }
     }
 }
