@@ -30,16 +30,23 @@ namespace Registration.ReadModel.Implementation
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<ConferenceDescriptionDTO>().Where(dto => dto.Code == conferenceCode).FirstOrDefault();
+                return repository
+                    .Query<ConferenceDTO>()
+                    .Where(dto => dto.Code == conferenceCode)
+                    .Select(x => new ConferenceDescriptionDTO { Id = x.Id, Code = x.Code, Name = x.Name, Description = x.Description, StartDate = x.StartDate })
+                    .FirstOrDefault();
             }
         }
 
         public ConferenceAliasDTO GetConferenceAlias(string conferenceCode)
         {
-            // NOTE: Could even use a dynamically generated projection (from the already denormailized read model DB) at this point.
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<ConferenceAliasDTO>().Where(dto => dto.Code == conferenceCode).FirstOrDefault();
+                return repository
+                    .Query<ConferenceDTO>()
+                    .Where(dto => dto.Code == conferenceCode)
+                    .Select(x => new ConferenceAliasDTO { Id = x.Id, Code = x.Code, Name = x.Name })
+                    .FirstOrDefault();
             }
         }
 
@@ -47,7 +54,11 @@ namespace Registration.ReadModel.Implementation
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<ConferenceAliasDTO>().Where(c => c.IsPublished).ToList();
+                return repository
+                    .Query<ConferenceDTO>()
+                    .Where(dto => dto.IsPublished)
+                    .Select(x => new ConferenceAliasDTO { Id = x.Id, Code = x.Code, Name = x.Name })
+                    .ToList();
             }
         }
 

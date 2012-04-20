@@ -14,25 +14,11 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
 
     public class ConferenceAliasDTO
     {
-        public ConferenceAliasDTO(Guid id, string code, string name)
-        {
-            this.Id = id;
-            this.Code = code;
-            this.Name = name;
-        }
-
-        protected ConferenceAliasDTO()
-        {
-        }
-
-        [Key]
         public Guid Id { get; set; }
         public string Code { get; set; }
         public string Name { get; set; }
-        public bool IsPublished { get; set; }
     }
 }

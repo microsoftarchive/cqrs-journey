@@ -49,13 +49,17 @@ Sed ac nibh mauris. Curabitur et purus odio, vitae iaculis augue. Donec sceleris
 
 Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus, vel consectetur nulla quam et justo. Ut nec condimentum felis. Vivamus bibendum risus ut nibh scelerisque eget sodales purus tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non libero ante. Mauris felis dolor, aliquam vitae luctus vel, elementum in mauris. Donec a risus purus. Fusce sit amet lobortis velit. Nam lacinia sagittis fermentum. Nulla sapien erat, cursus a porta non, malesuada ut erat. Vivamus pharetra erat eu metus varius vel placerat nunc interdum. Sed tristique, risus eu sollicitudin aliquam, nibh purus rhoncus dolor, in elementum arcu orci eu lorem. Cras a diam mattis nisl laoreet tempus quis in nunc. Aliquam erat volutpat.";
 
-                context.Set<ConferenceDTO>().Add(new ConferenceDTO(Guid.Empty, "pnpsymposium", "P&P Symposium", description, new[]
-                {
-                    new ConferenceSeatTypeDTO(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), "Test Seat", "Test Description", 10),
-                }));
-
-                context.Set<ConferenceAliasDTO>().Add(new ConferenceAliasDTO(Guid.Empty, "pnpsymposium", "P&P Symposium") { IsPublished = true });
-                context.Set<ConferenceDescriptionDTO>().Add(new ConferenceDescriptionDTO(Guid.Empty, "pnpsymposium", "P&P Symposium", description));
+                context.Set<ConferenceDTO>().Add(
+                    new ConferenceDTO(
+                        Guid.Empty,
+                        "pnpsymposium", 
+                        "P&P Symposium",
+                        description, 
+                        DateTimeOffset.UtcNow.AddMonths(2),
+                        new[] { new ConferenceSeatTypeDTO(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), "Test Seat", "Test Description", 10) })
+                        {
+                            IsPublished = true
+                        });
             }
 
             context.SaveChanges();
