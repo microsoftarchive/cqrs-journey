@@ -39,7 +39,7 @@ namespace Conference
             this.nameOrConnectionString = nameOrConnectionString;
         }
 
-        public Guid CreateConference(ConferenceInfo conference)
+        public void CreateConference(ConferenceInfo conference)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
@@ -51,7 +51,6 @@ namespace Conference
                 if (existingSlug)
                     throw new DuplicateNameException("The chosen conference slug is already taken.");
 
-                conference.Id = Guid.NewGuid();
                 context.Conferences.Add(conference);
                 context.SaveChanges();
 
@@ -60,12 +59,10 @@ namespace Conference
                 {
                     this.PublishSeatCreated(conference.Id, seat);
                 }
-
-                return conference.Id;
             }
         }
 
-        public Guid CreateSeat(Guid conferenceId, SeatInfo seat)
+        public void CreateSeat(Guid conferenceId, SeatInfo seat)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
@@ -73,13 +70,10 @@ namespace Conference
                 if (conference == null)
                     throw new ObjectNotFoundException();
 
-                seat.Id = Guid.NewGuid();
                 conference.Seats.Add(seat);
                 context.SaveChanges();
 
                 this.PublishSeatCreated(conferenceId, seat);
-
-                return seat.Id;
             }
         }
 

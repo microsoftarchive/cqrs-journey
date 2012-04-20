@@ -214,20 +214,6 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         }
 
         [Fact]
-        public void when_creating_conference_then_new_id_is_assigned()
-        {
-            this.conference.Id = Guid.NewGuid();
-            this.conference.Slug = "asdfgh";
-            this.conference.Seats.Clear();
-            var existingId = this.conference.Id;
-
-            var newId = service.CreateConference(this.conference);
-
-            Assert.NotEqual(existingId, this.conference.Id);
-            Assert.Equal(newId, this.conference.Id);
-        }
-
-        [Fact]
         public void when_creating_seat_then_adds_to_conference()
         {
             var seat = new SeatInfo
@@ -256,12 +242,12 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
                 Quantity = 100,
             };
 
-            var id = service.CreateSeat(this.conference.Id, seat);
+            service.CreateSeat(this.conference.Id, seat);
 
-            var e = bus.Events.OfType<SeatCreated>().Single(x => x.SourceId == id);
+            var e = bus.Events.OfType<SeatCreated>().Single(x => x.SourceId == seat.Id);
 
             Assert.Equal(this.conference.Id, e.ConferenceId);
-            Assert.Equal(id, e.SourceId);
+            Assert.Equal(seat.Id, e.SourceId);
             Assert.Equal(seat.Name, e.Name);
             Assert.Equal(seat.Description, e.Description);
             Assert.Equal(seat.Price, e.Price);
@@ -278,33 +264,14 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
                 Quantity = 100,
             };
 
-            var id = service.CreateSeat(this.conference.Id, seat);
+            service.CreateSeat(this.conference.Id, seat);
 
-            var e = bus.Events.OfType<SeatsAdded>().Single(x => x.SourceId == id);
+            var e = bus.Events.OfType<SeatsAdded>().Single(x => x.SourceId == seat.Id);
 
             Assert.Equal(this.conference.Id, e.ConferenceId);
-            Assert.Equal(id, e.SourceId);
+            Assert.Equal(seat.Id, e.SourceId);
             Assert.Equal(seat.Quantity, e.AddedQuantity);
             Assert.Equal(seat.Quantity, e.TotalQuantity);
-        }
-
-        [Fact]
-        public void when_creating_seat_then_sets_new_id()
-        {
-            var seat = new SeatInfo
-            {
-                Name = "precon",
-                Description = "precon desc",
-                Price = 100,
-                Quantity = 100,
-            };
-
-            var existingId = seat.Id;
-
-            var newId = service.CreateSeat(this.conference.Id, seat);
-
-            Assert.NotEqual(existingId, seat.Id);
-            Assert.Equal(newId, seat.Id);
         }
 
         [Fact]

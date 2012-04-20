@@ -97,6 +97,7 @@ namespace Conference.Web.Admin.Controllers
             {
                 try
                 {
+                    conference.Id = Guid.NewGuid();
                     this.Service.CreateConference(conference);
                 }
                 catch (DuplicateNameException e)
@@ -201,6 +202,7 @@ namespace Conference.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
+                seat.Id = Guid.NewGuid();
                 this.Service.CreateSeat(this.Conference.Id, seat);
 
                 return PartialView("SeatGrid", new SeatInfo[] { seat });
