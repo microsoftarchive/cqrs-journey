@@ -81,7 +81,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_updating_published_non_existing_conference_then_throws()
         {
-            Assert.Throws<ObjectNotFoundException>(() => service.UpdatePublished(Guid.NewGuid(), false));
+            Assert.Throws<ObjectNotFoundException>(() => service.Unpublish(Guid.NewGuid()));
         }
 
         [Fact]
@@ -396,11 +396,11 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_updating_published_then_updates_conference()
         {
-            service.UpdatePublished(this.conference.Id, true);
+            service.Publish(this.conference.Id);
 
             Assert.True(service.FindConference(this.conference.Slug).IsPublished);
 
-            service.UpdatePublished(this.conference.Id, false);
+            service.Unpublish(this.conference.Id);
 
             Assert.False(service.FindConference(this.conference.Slug).IsPublished);
         }
@@ -408,7 +408,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_updating_published_then_sets_conference_ever_published()
         {
-            service.UpdatePublished(this.conference.Id, true);
+            service.Publish(this.conference.Id);
 
             Assert.True(service.FindConference(this.conference.Slug).WasEverPublished);
         }
@@ -416,8 +416,8 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_updating_published_to_false_then_conference_ever_published_remains_true()
         {
-            service.UpdatePublished(this.conference.Id, true);
-            service.UpdatePublished(this.conference.Id, false);
+            service.Publish(this.conference.Id);
+            service.Unpublish(this.conference.Id);
 
             Assert.True(service.FindConference(this.conference.Slug).WasEverPublished);
         }
@@ -435,7 +435,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_deleting_seat_from_published_conference_then_throws()
         {
-            service.UpdatePublished(this.conference.Id, true);
+            service.Publish(this.conference.Id);
 
             Assert.Throws<InvalidOperationException>(() => service.DeleteSeat(this.conference.Seats.First().Id));
         }
@@ -443,8 +443,8 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_deleting_seat_from_previously_published_conference_then_throws()
         {
-            service.UpdatePublished(this.conference.Id, true);
-            service.UpdatePublished(this.conference.Id, false);
+            service.Publish(this.conference.Id);
+            service.Unpublish(this.conference.Id);
 
             Assert.Throws<InvalidOperationException>(() => service.DeleteSeat(this.conference.Seats.First().Id));
         }

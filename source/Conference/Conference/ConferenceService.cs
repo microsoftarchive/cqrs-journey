@@ -166,7 +166,17 @@ namespace Conference
             }
         }
 
-        public void UpdatePublished(Guid conferenceId, bool isPublished)
+        public void Publish(Guid conferenceId)
+        {
+            this.UpdatePublished(conferenceId, true);
+        }
+
+        public void Unpublish(Guid conferenceId)
+        {
+            this.UpdatePublished(conferenceId, false);
+        }
+
+        private void UpdatePublished(Guid conferenceId, bool isPublished)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {

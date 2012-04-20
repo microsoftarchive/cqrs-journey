@@ -144,7 +144,7 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            this.Service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: true);
+            this.Service.Publish(this.Conference.Id);
 
             return RedirectToAction("Index", new { slug = this.Conference.Slug });
         }
@@ -157,7 +157,7 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            this.Service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: false);
+            this.Service.Unpublish(this.Conference.Id);
 
             return RedirectToAction("Index", new { slug = this.Conference.Slug });
         }
