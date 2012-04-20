@@ -15,7 +15,6 @@ namespace Registration.IntegrationTests
 {
     using System;
     using System.Data.Entity;
-    using Common;
     using Registration.Database;
     using Xunit;
 

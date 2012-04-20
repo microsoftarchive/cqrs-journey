@@ -22,12 +22,12 @@ namespace Common.Sql
     // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
     // It is not transactional with the event bus.
     // Does this even belong to a reusable infrastructure?
-    public class SqlProcessRepositorySession<T> : IProcessRepositorySession<T> where T : class, IAggregateRoot
+    public class SqlProcessDataContext<T> : IProcessDataContext<T> where T : class, IAggregateRoot
     {
         private readonly ICommandBus commandBus;
         private readonly DbContext context;
 
-        public SqlProcessRepositorySession(Func<DbContext> contextFactory, ICommandBus commandBus)
+        public SqlProcessDataContext(Func<DbContext> contextFactory, ICommandBus commandBus)
         {
             this.commandBus = commandBus;
             this.context = contextFactory.Invoke();
@@ -64,7 +64,7 @@ namespace Common.Sql
             GC.SuppressFinalize(this);
         }
 
-        ~SqlProcessRepositorySession()
+        ~SqlProcessDataContext()
         {
             this.Dispose(false);
         }

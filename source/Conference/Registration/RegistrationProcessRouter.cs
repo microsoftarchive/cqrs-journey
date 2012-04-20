@@ -26,11 +26,11 @@ namespace Registration
         ICommandHandler<ExpireRegistrationProcess>
     {
         private readonly object lockObject = new object();
-        private readonly Func<IProcessRepositorySession<RegistrationProcess>> repositoryFactory;
+        private readonly Func<IProcessDataContext<RegistrationProcess>> contextFactory;
 
-        public RegistrationProcessRouter(Func<IProcessRepositorySession<RegistrationProcess>> repositoryFactory)
+        public RegistrationProcessRouter(Func<IProcessDataContext<RegistrationProcess>> contextFactory)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.contextFactory = contextFactory;
         }
 
         public void Handle(OrderPlaced @event)
@@ -38,27 +38,27 @@ namespace Registration
             var process = new RegistrationProcess();
             process.Handle(@event);
 
-            using (var repo = this.repositoryFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    repo.Save(process);
+                    context.Save(process);
                 }
             }
         }
 
         public void Handle(SeatsReserved @event)
         {
-            using (var repo = this.repositoryFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Find(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
 
-                        repo.Save(process);
+                        context.Save(process);
                     }
                 }
             }
@@ -66,16 +66,16 @@ namespace Registration
 
         public void Handle(ExpireRegistrationProcess command)
         {
-            using (var repo = this.repositoryFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Find(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(command);
 
-                        repo.Save(process);
+                        context.Save(process);
                     }
                 }
             }
@@ -83,16 +83,16 @@ namespace Registration
 
         public void Handle(PaymentCompleted @event)
         {
-            using (var repo = this.repositoryFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Find(x => x.OrderId == @event.PaymentSourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
 
-                        repo.Save(process);
+                        context.Save(process);
                     }
                 }
             }
