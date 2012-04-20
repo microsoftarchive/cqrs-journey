@@ -10,7 +10,8 @@
     <div>
         Amount: @this.ViewBag.ItemAmount</div>
     
-    
+    @Html.Hidden("ReturnUrl")
+    @Html.Hidden("CancelReturnUrl")
     <input type="submit" value="accepted" name="paymentResult" title="Accept"/>
     <input type="submit" value="rejected" name="paymentResult" title="Reject" />
 }

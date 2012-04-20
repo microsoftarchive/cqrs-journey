@@ -28,24 +28,24 @@ namespace Conference.Web.Public.Areas.ThirdPartyProcessor.Controllers
         {
             this.ViewBag.ItemName = itemName;
             this.ViewBag.ItemAmount = itemAmount;
-            this.TempData[returnUrlKey] = returnUrl;
-            this.TempData[cancelReturnUrlKey] = cancelReturnUrl;
+            this.ViewBag.ReturnUrl = returnUrl;
+            this.ViewBag.CancelReturnUrl = cancelReturnUrl;
 
             return View();
         }
 
         [HttpPost]
-        public ActionResult Pay(string paymentResult)
+        public ActionResult Pay(string paymentResult, string returnUrl, string cancelReturnUrl)
         {
             string url;
 
             if (paymentResult == "accepted")
             {
-                url = (string)TempData[returnUrlKey];
+                url = returnUrl;
             }
             else
             {
-                url = (string)TempData[cancelReturnUrlKey];
+                url = cancelReturnUrl;
             }
 
             return Redirect(url);

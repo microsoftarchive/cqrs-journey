@@ -31,8 +31,8 @@ namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentCont
         {
             var result = (ViewResult)this.sut.Pay("item", 100d, "return", "cancelreturn");
 
-            Assert.Equal(this.sut.TempData["returnUrl"], "return");
-            Assert.Equal(this.sut.TempData["cancelReturnUrl"], "cancelreturn");
+            Assert.Equal(this.sut.ViewBag.ReturnUrl, "return");
+            Assert.Equal(this.sut.ViewBag.CancelReturnUrl, "cancelreturn");
             Assert.Equal(this.sut.ViewBag.ItemName, "item");
             Assert.Equal(this.sut.ViewBag.ItemAmount, 100d);
 
@@ -40,10 +40,7 @@ namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentCont
         [Fact]
         public void when_accepting_payment_then_redirects_to_return_url()
         {
-            this.sut.TempData["returnUrl"] = "return";
-            this.sut.TempData["cancelReturnUrl"] = "cancelreturn";
-
-            var result = (RedirectResult)this.sut.Pay("accepted");
+            var result = (RedirectResult)this.sut.Pay("accepted", "return", "cancelReturn");
 
             Assert.Equal("return", result.Url);
             Assert.False(result.Permanent);
@@ -52,12 +49,9 @@ namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentCont
         [Fact]
         public void when_rejecting_payment_then_redirects_to_cancel_return_url()
         {
-            this.sut.TempData["returnUrl"] = "return";
-            this.sut.TempData["cancelReturnUrl"] = "cancelreturn";
+            var result = (RedirectResult)this.sut.Pay("rejected", "return", "cancelReturn");
 
-            var result = (RedirectResult)this.sut.Pay("rejected");
-
-            Assert.Equal("cancelreturn", result.Url);
+            Assert.Equal("cancelReturn", result.Url);
             Assert.False(result.Permanent);
         }
     }
