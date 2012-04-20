@@ -19,7 +19,7 @@ namespace Common
     // TODO: Does this even belong to a reusable infrastructure?
     // This for reading and writing processes (aka Sagas in the CQRS community)
     public interface IProcessDataContext<T> : IDisposable
-        where T : class, IAggregateRoot
+        where T : class, IProcess
     {
         T Find(Guid id);
 

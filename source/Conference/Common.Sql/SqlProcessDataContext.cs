@@ -22,7 +22,7 @@ namespace Common.Sql
     // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
     // It is not transactional with the event bus.
     // Does this even belong to a reusable infrastructure?
-    public class SqlProcessDataContext<T> : IProcessDataContext<T> where T : class, IAggregateRoot
+    public class SqlProcessDataContext<T> : IProcessDataContext<T> where T : class, IProcess
     {
         private readonly ICommandBus commandBus;
         private readonly DbContext context;
@@ -53,9 +53,7 @@ namespace Common.Sql
             // Can't have transactions across storage and message bus.
             this.context.SaveChanges();
 
-            var commandPublisher = process as ICommandPublisher;
-            if (commandPublisher != null)
-                this.commandBus.Send(commandPublisher.Commands);
+            this.commandBus.Send(process.Commands);
         }
 
         public void Dispose()

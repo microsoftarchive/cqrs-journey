@@ -22,17 +22,16 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    public class RegistrationProcess : IAggregateRoot, ICommandPublisher
+    public class RegistrationProcess : IProcess
     {
         public enum ProcessState
         {
             NotStarted = 0,
             AwaitingReservationConfirmation = 1,
             AwaitingPayment = 2,
-            Completed = 0xFF,
         }
 
-        private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
+        private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
         public RegistrationProcess()
         {
@@ -40,6 +39,7 @@ namespace Registration
         }
 
         public Guid Id { get; private set; }
+        public bool Completed { get; private set; }
         public Guid ConferenceId { get; set; }
         public Guid OrderId { get; internal set; }
         public Guid ReservationId { get; internal set; }
@@ -121,7 +121,7 @@ namespace Registration
             {
                 if (this.ExpirationCommandId == message.Id)
                 {
-                    this.State = ProcessState.Completed;
+                    this.Completed = true;
 
                     this.AddCommand(new CancelSeatReservation
                     {
@@ -140,7 +140,7 @@ namespace Registration
             if (this.State == ProcessState.AwaitingPayment)
             {
                 this.ExpirationCommandId = Guid.Empty;
-                this.State = ProcessState.Completed;
+                this.Completed = true;
 
                 this.AddCommand(new CommitSeatReservation
                 {

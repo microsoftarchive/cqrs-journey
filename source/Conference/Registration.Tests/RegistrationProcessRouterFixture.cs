@@ -94,7 +94,7 @@ namespace Registration.Tests
         }
     }
 
-    class StubProcessDataContext<T> : IProcessDataContext<T> where T : class, IAggregateRoot
+    class StubProcessDataContext<T> : IProcessDataContext<T> where T : class, IProcess
     {
         public readonly List<T> SavedProcesses = new List<T>();
 

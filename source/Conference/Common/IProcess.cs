@@ -13,13 +13,18 @@
 
 namespace Common
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Interface implemented by processes that publish commands to the command bus.
+    /// Interface implemented by processes (also known as Sagas in the CQRS community) that publish commands to the command bus.
     /// </summary>
-    public interface ICommandPublisher
+    public interface IProcess
     {
+        Guid Id { get; }
+
+        bool Completed { get; }
+
         IEnumerable<Envelope<ICommand>> Commands { get; }
     }
 }

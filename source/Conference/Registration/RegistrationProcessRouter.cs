@@ -53,7 +53,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = context.Find(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.ReservationId == @event.ReservationId && x.Completed == false);
                     if (process != null)
                     {
                         process.Handle(@event);
@@ -70,7 +70,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = context.Find(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.Id == command.ProcessId && x.Completed == false);
                     if (process != null)
                     {
                         process.Handle(command);
@@ -87,7 +87,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.Completed == false);
                     if (process != null)
                     {
                         process.Handle(@event);

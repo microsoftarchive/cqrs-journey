@@ -125,9 +125,9 @@ namespace Common.Sql.IntegrationTests
         }
     }
 
-    public class OrmTestProcess : IAggregateRoot, ICommandPublisher
+    public class OrmTestProcess : IProcess
     {
-        private List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
+        private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
         protected OrmTestProcess() { }
 
@@ -137,6 +137,9 @@ namespace Common.Sql.IntegrationTests
         }
 
         public Guid Id { get; set; }
+
+        public bool Completed { get; set; }
+
         public string Title { get; set; }
 
         public void AddCommand(ICommand command)

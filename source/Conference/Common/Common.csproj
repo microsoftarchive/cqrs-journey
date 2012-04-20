@@ -57,7 +57,7 @@
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandHandler.cs" />
     <Compile Include="ICommandHandlerRegistry.cs" />
-    <Compile Include="ICommandPublisher.cs" />
+    <Compile Include="IProcess.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventBus.cs" />
     <Compile Include="IEventHandler.cs" />
