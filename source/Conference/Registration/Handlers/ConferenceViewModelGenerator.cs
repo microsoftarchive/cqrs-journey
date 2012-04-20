@@ -11,29 +11,33 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference
+namespace Registration.Handlers
 {
-    using System;
     using Common;
+    using Conference;
 
-    /// <summary>
-    /// Event raised when a new seat type is created. Note 
-    /// that when a seat type is created.
-    /// </summary>
-    public class SeatUpdated : IEvent
+    public class ConferenceViewModelGenerator :
+        IEventHandler<ConferenceCreated>,
+        IEventHandler<ConferenceUpdated>,
+        IEventHandler<SeatCreated>
     {
-        /// <summary>
-        /// Gets or sets the conference identifier.
-        /// </summary>
-        public Guid ConferenceId { get; set; }
+        public ConferenceViewModelGenerator()
+        {
+        }
 
-        /// <summary>
-        /// Gets or sets the source seat type identifier.
-        /// </summary>
-        public Guid SourceId { get; set; }
+        public void Handle(ConferenceCreated @event)
+        {
+            // TODO: populate table of ConferenceAliasDTO and ConferenceDTO
+        }
 
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public decimal Price { get; set; }
+        public void Handle(ConferenceUpdated @event)
+        {
+            // TODO: update table of ConferenceDTO
+        }
+
+        public void Handle(SeatCreated @event)
+        {
+            // TODO: update ConferenceDTO to add ConferenceSeatTypeDTO.
+        }
     }
 }

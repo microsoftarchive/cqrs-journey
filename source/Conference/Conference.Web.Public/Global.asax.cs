@@ -163,7 +163,12 @@ namespace Conference.Web.Public
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
 
+            container.RegisterType<IEventHandler, SeatsAvailabilityHandler>("SeatsAv>("registration")));
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
+
+
+
+
 
             return container;
         }

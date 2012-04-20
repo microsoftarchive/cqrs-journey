@@ -19,6 +19,11 @@ namespace Conference
     public class SeatsRemoved : IEvent
     {
         /// <summary>
+        /// Gets or sets the conference identifier.
+        /// </summary>
+        public Guid ConferenceId { get; set; }
+
+        /// <summary>
         /// Gets or sets the source seat type identifier.
         /// </summary>
         public Guid SourceId { get; set; }

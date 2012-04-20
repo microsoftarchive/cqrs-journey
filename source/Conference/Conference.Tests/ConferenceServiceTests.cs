@@ -73,9 +73,9 @@ namespace Conference.Tests.ConferenceServiceTests
         }
 
         [Fact]
-        public void when_updating_non_existing_seat_then_throws()
+        public void when_updating_seat_for_non_existing_conference_then_throws()
         {
-            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(new SeatInfo()));
+            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(Guid.NewGuid(), new SeatInfo()));
         }
 
         [Fact]
@@ -336,6 +336,12 @@ namespace Conference.Tests.ConferenceServiceTests
         }
 
         [Fact]
+        public void when_updating_non_existing_seat_then_throws()
+        {
+            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(this.conference.Id, new SeatInfo()));
+        }
+
+        [Fact]
         public void when_updating_seat_then_can_find_updated_information()
         {
             var seat = this.conference.Seats.First();
@@ -343,7 +349,7 @@ namespace Conference.Tests.ConferenceServiceTests
             seat.Description = "precon desc";
             seat.Price = 200;
 
-            service.UpdateSeat(seat);
+            service.UpdateSeat(this.conference.Id, seat);
 
             var saved = service.FindSeat(seat.Id);
 
@@ -358,7 +364,7 @@ namespace Conference.Tests.ConferenceServiceTests
             var seat = this.conference.Seats.First();
             seat.Quantity += 100;
 
-            service.UpdateSeat(seat);
+            service.UpdateSeat(this.conference.Id, seat);
 
             var e = bus.Events.OfType<SeatsAdded>().LastOrDefault();
 
@@ -373,7 +379,7 @@ namespace Conference.Tests.ConferenceServiceTests
             var seat = this.conference.Seats.First();
             seat.Quantity -= 50;
 
-            service.UpdateSeat(seat);
+            service.UpdateSeat(this.conference.Id, seat);
 
             var e = bus.Events.OfType<SeatsRemoved>().LastOrDefault();
 

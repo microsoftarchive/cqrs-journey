@@ -134,7 +134,7 @@ namespace Conference
             }
         }
 
-        public void UpdateSeat(SeatInfo seat)
+        public void UpdateSeat(Guid conferenceId, SeatInfo seat)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
@@ -144,8 +144,20 @@ namespace Conference
 
                 var diff = seat.Quantity - existing.Quantity;
                 var e = diff > 0 ?
-                    (IEvent)new SeatsAdded { SourceId = seat.Id, AddedQuantity = diff, TotalQuantity = seat.Quantity } :
-                    (IEvent)new SeatsRemoved { SourceId = seat.Id, RemovedQuantity = Math.Abs(diff), TotalQuantity = seat.Quantity };
+                    (IEvent)new SeatsAdded
+                    {
+                        ConferenceId = conferenceId,
+                        SourceId = seat.Id,
+                        AddedQuantity = diff,
+                        TotalQuantity = seat.Quantity
+                    } :
+                    (IEvent)new SeatsRemoved
+                    {
+                        ConferenceId = conferenceId,
+                        SourceId = seat.Id,
+                        RemovedQuantity = Math.Abs(diff),
+                        TotalQuantity = seat.Quantity
+                    };
 
                 context.Entry(existing).CurrentValues.SetValues(seat);
                 context.SaveChanges();

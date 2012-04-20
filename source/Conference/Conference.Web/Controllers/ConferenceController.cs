@@ -30,6 +30,11 @@ namespace Conference.Web.Admin.Controllers
 
         // TODO: Locate and Create are the ONLY methods that don't require authentication/location info.
 
+        /// <summary>
+        /// We receive the slug value as a kind of cross-cutting value that 
+        /// all methods need and use, so we catch and load the conference here, 
+        /// so it's available for all. Each method doesn't need the slug parameter.
+        /// </summary>
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var slug = (string)this.ControllerContext.RequestContext.RouteData.Values["slug"];
@@ -71,7 +76,7 @@ namespace Conference.Web.Admin.Controllers
             return RedirectToAction("Index", new { slug = conference.Slug });
         }
 
-        public ActionResult Index(string slug)
+        public ActionResult Index()
         {
             if (this.Conference == null)
             {
@@ -106,7 +111,7 @@ namespace Conference.Web.Admin.Controllers
             return View(conference);
         }
 
-        public ActionResult Edit(string slug)
+        public ActionResult Edit()
         {
             if (this.Conference == null)
             {
@@ -132,7 +137,7 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult Publish(string slug)
+        public ActionResult Publish()
         {
             if (this.Conference == null)
             {
@@ -141,11 +146,11 @@ namespace Conference.Web.Admin.Controllers
 
             this.Service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: true);
 
-            return RedirectToAction("Index", new { slug = slug });
+            return RedirectToAction("Index", new { slug = this.Conference.Slug });
         }
 
         [HttpPost]
-        public ActionResult Unpublish(string slug)
+        public ActionResult Unpublish()
         {
             if (this.Conference == null)
             {
@@ -154,20 +159,19 @@ namespace Conference.Web.Admin.Controllers
 
             this.Service.UpdatePublished(conferenceId: this.Conference.Id, isPublished: false);
 
-            return RedirectToAction("Index", new { slug = slug });
+            return RedirectToAction("Index", new { slug = this.Conference.Slug });
         }
 
         #endregion
 
         #region Seat Types
 
-        public ViewResult Seats(string slug)
+        public ViewResult Seats()
         {
-            ViewBag.Slug = slug;
             return View();
         }
 
-        public ActionResult SeatGrid(string slug)
+        public ActionResult SeatGrid()
         {
             if (this.Conference == null)
             {
@@ -177,20 +181,18 @@ namespace Conference.Web.Admin.Controllers
             return PartialView(this.Service.FindSeats(this.Conference.Id));
         }
 
-        public ActionResult SeatRow(string slug, Guid id)
+        public ActionResult SeatRow(Guid id)
         {
             return PartialView("SeatGrid", new SeatInfo[] { this.Service.FindSeat(id) });
         }
 
-        public ActionResult CreateSeat(string slug)
+        public ActionResult CreateSeat()
         {
-            ViewBag.Slug = slug;
-
             return PartialView("EditSeat");
         }
 
         [HttpPost]
-        public ActionResult CreateSeat(string slug, SeatInfo seat)
+        public ActionResult CreateSeat(SeatInfo seat)
         {
             if (this.Conference == null)
             {
@@ -207,7 +209,7 @@ namespace Conference.Web.Admin.Controllers
             return PartialView("EditSeat", seat);
         }
 
-        public ActionResult EditSeat(string slug, Guid id)
+        public ActionResult EditSeat(Guid id)
         {
             if (this.Conference == null)
             {
@@ -218,13 +220,18 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditSeat(string slug, SeatInfo seat)
+        public ActionResult EditSeat(SeatInfo seat)
         {
+            if (this.Conference == null)
+            {
+                return HttpNotFound();
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    this.Service.UpdateSeat(seat);
+                    this.Service.UpdateSeat(this.Conference.Id, seat);
                 }
                 catch (ObjectNotFoundException)
                 {
@@ -238,7 +245,7 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public void DeleteSeat(string slug, Guid id)
+        public void DeleteSeat(Guid id)
         {
             this.Service.DeleteSeat(id);
         }

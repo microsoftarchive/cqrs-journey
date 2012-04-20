@@ -49,6 +49,11 @@ namespace Registration
             base.Update(new AvailableSeatsChanged { Seats = new [] { new SeatQuantity(seatType, quantity) } });
         }
 
+        public void RemoveSeats(Guid seatType, int quantity)
+        {
+            base.Update(new AvailableSeatsChanged(this.id, this.Version + 1, new[] { new SeatQuantity(seatType, -quantity) }));
+        }
+
         public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> wantedSeats)
         {
             var wantedList = wantedSeats.ToList();
