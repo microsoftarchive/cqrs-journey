@@ -14,12 +14,20 @@
 namespace Conference.Web.Public.Controllers
 {
     using System.Web.Mvc;
+    using Registration.ReadModel;
 
     public class DefaultController : Controller
     {
+        private readonly IConferenceDao dao;
+
+        public DefaultController(IConferenceDao dao)
+        {
+            this.dao = dao;
+        }
+
         public ActionResult Index()
         {
-            return View();
+            return View(this.dao.GetPublishedConferences());
         }
     }
 }

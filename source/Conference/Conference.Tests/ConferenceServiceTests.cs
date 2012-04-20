@@ -260,6 +260,7 @@ namespace Conference.Tests.ConferenceServiceTests
 
             var e = bus.Events.OfType<SeatCreated>().Single(x => x.SourceId == id);
 
+            Assert.Equal(this.conference.Id, e.ConferenceId);
             Assert.Equal(id, e.SourceId);
             Assert.Equal(seat.Name, e.Name);
             Assert.Equal(seat.Description, e.Description);
@@ -281,6 +282,8 @@ namespace Conference.Tests.ConferenceServiceTests
 
             var e = bus.Events.OfType<SeatsAdded>().Single(x => x.SourceId == id);
 
+            Assert.Equal(this.conference.Id, e.ConferenceId);
+            Assert.Equal(id, e.SourceId);
             Assert.Equal(seat.Quantity, e.AddedQuantity);
             Assert.Equal(seat.Quantity, e.TotalQuantity);
         }
@@ -368,6 +371,7 @@ namespace Conference.Tests.ConferenceServiceTests
 
             var e = bus.Events.OfType<SeatsAdded>().LastOrDefault();
 
+            Assert.Equal(this.conference.Id, e.ConferenceId);
             Assert.Equal(seat.Id, e.SourceId);
             Assert.Equal(seat.Quantity, e.TotalQuantity);
             Assert.Equal(100, e.AddedQuantity);
@@ -383,6 +387,7 @@ namespace Conference.Tests.ConferenceServiceTests
 
             var e = bus.Events.OfType<SeatsRemoved>().LastOrDefault();
 
+            Assert.Equal(this.conference.Id, e.ConferenceId);
             Assert.Equal(seat.Id, e.SourceId);
             Assert.Equal(seat.Quantity, e.TotalQuantity);
             Assert.Equal(50, e.RemovedQuantity);

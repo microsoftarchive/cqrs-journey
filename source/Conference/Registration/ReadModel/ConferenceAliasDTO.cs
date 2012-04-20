@@ -14,8 +14,6 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
     public class ConferenceAliasDTO
@@ -32,10 +30,9 @@ namespace Registration.ReadModel
         }
 
         [Key]
-        public virtual Guid Id { get; private set; }
-
-        public virtual string Code { get; private set; }
-
-        public virtual string Name { get; private set; }
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public bool IsPublished { get; set; }
     }
 }

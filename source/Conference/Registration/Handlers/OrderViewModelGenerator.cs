@@ -15,6 +15,7 @@ namespace Registration.Handlers
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Linq;
     using Common;
     using Registration.Events;
@@ -84,7 +85,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<OrderDTO>(orderId);
+                var dto = repository.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == orderId);
                 foreach (var seat in seats)
                 {
                     var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);

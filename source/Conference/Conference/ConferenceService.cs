@@ -58,7 +58,7 @@ namespace Conference
                 this.PublishConferenceEvent<ConferenceCreated>(conference);
                 foreach (var seat in conference.Seats)
                 {
-                    this.PublishSeatCreated(seat);
+                    this.PublishSeatCreated(conference.Id, seat);
                 }
 
                 return conference.Id;
@@ -77,7 +77,7 @@ namespace Conference
                 conference.Seats.Add(seat);
                 context.SaveChanges();
 
-                this.PublishSeatCreated(seat);
+                this.PublishSeatCreated(conferenceId, seat);
 
                 return seat.Id;
             }
@@ -212,6 +212,7 @@ namespace Conference
         private void PublishConferenceEvent<T>(ConferenceInfo conference)
             where T : ConferenceEvent, new()
         {
+            // TODO: replace with AutoMapper one-liner
             this.eventBus.Publish(new T()
             {
                 SourceId = conference.Id,
@@ -228,10 +229,12 @@ namespace Conference
             });
         }
 
-        private void PublishSeatCreated(SeatInfo seat)
+        private void PublishSeatCreated(Guid conferenceId, SeatInfo seat)
         {
+            // TODO: replace with AutoMapper one-liner
             this.eventBus.Publish(new SeatCreated
             {
+                ConferenceId = conferenceId,
                 SourceId = seat.Id,
                 Name = seat.Name,
                 Description = seat.Description,
@@ -239,6 +242,7 @@ namespace Conference
             });
             this.eventBus.Publish(new SeatsAdded
             {
+                ConferenceId = conferenceId,
                 SourceId = seat.Id,
                 AddedQuantity = seat.Quantity,
                 TotalQuantity = seat.Quantity,

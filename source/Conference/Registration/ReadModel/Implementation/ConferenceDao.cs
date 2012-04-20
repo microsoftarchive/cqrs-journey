@@ -43,6 +43,14 @@ namespace Registration.ReadModel.Implementation
             }
         }
 
+        public IList<ConferenceAliasDTO> GetPublishedConferences()
+        {
+            using (var repository = this.contextFactory.Invoke())
+            {
+                return repository.Query<ConferenceAliasDTO>().Where(c => c.IsPublished).ToList();
+            }
+        }
+
         public IList<ConferenceSeatTypeDTO> GetPublishedSeatTypes(Guid conferenceId)
         {
             using (var repository = this.contextFactory.Invoke())
