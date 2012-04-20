@@ -100,13 +100,15 @@
                 </a>
                 <a class="tile tile_twitter" href="#">
                     <span class="tile__header">Twitter</span>
-                    <span class="tile__tweet">
-                        <span class="tile__nick">
-                            <span class="tile__time">4h ago</span>
-                            @@AltaModaTech
-                        </span>
-                        <strong>RT @@buckwoody:</strong> Amazing work by Patterns and Practices team - Building Hybrid Cloud Applications with Windows Azure
-                    </span>
+                    <div id="tweets" data-user="mspnp">
+                        @*<span class="tile__tweet">
+                            <span class="tile__nick">
+                                <span class="tile__time">4h ago</span>
+                                @@AltaModaTech
+                            </span>
+                            <strong>RT @@buckwoody:</strong> Amazing work by Patterns and Practices team - Building Hybrid Cloud Applications with Windows Azure
+                        </span>*@
+                    </div>
                 </a>
             </div>
         </div>
@@ -141,4 +143,5 @@
 {
 <script src="//ajax.aspnetcdn.com/ajax/jquery.cycle/2.99/jquery.cycle.all.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="@Url.Content("~/Scripts/main.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/tweeter.js")"></script>
 }

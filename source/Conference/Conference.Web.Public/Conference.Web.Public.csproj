@@ -165,8 +165,8 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\Conference.js" />
-    <Content Include="Scripts\jquery.cycle.js" />
     <Content Include="Scripts\main.js" />
+    <Content Include="Scripts\tweeter.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
