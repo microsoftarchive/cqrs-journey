@@ -8,8 +8,8 @@
     <ProjectGuid>{0DDDA8DF-58EA-4682-887E-955C8EDB0AA5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Conference.Tests</RootNamespace>
-    <AssemblyName>Conference.Tests</AssemblyName>
+    <RootNamespace>Conference.IntegrationTests</RootNamespace>
+    <AssemblyName>Conference.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
