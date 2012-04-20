@@ -39,6 +39,8 @@ namespace Azure
             this.serializer = serializer;
         }
 
+        protected ISerializer Serializer { get { return this.serializer; } }
+
         /// <summary>
         /// Starts the listener.
         /// </summary>
