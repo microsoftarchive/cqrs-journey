@@ -68,6 +68,7 @@
     <Compile Include="Events\OrderReservationCompleted.cs" />
     <Compile Include="Events\OrderUpdated.cs" />
     <Compile Include="Events\SeatsReserved.cs" />
+    <Compile Include="Handlers\ConferenceViewModelGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
@@ -105,6 +106,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Conference.Contracts\Conference.Contracts.csproj">
+      <Project>{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA}</Project>
+      <Name>Conference.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\Payments.Contracts\Payments.Contracts.csproj">
       <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>

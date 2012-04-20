@@ -74,7 +74,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
-      <Name>Registration</Name>
+      <Name>Registration %28Registration\Registration%29</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

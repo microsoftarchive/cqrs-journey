@@ -52,14 +52,14 @@ namespace Payments.Tests.ThirdPartyProcessorPaymentCommandHandlerFixture
                     ConferenceId = conferenceId,
                     Items = 
                     { 
-                        new InitiateThirdPartyProcessorPayment.PaymentItem{ Description = "payment", Amount = 100d } 
+                        new InitiateThirdPartyProcessorPayment.PaymentItem{ Description = "payment", Amount = 100 } 
                     }
                 });
 
             Assert.NotNull(payment);
             Assert.Equal(1, payment.Items.Count);
             Assert.Equal("payment", payment.Items.ElementAt(0).Description);
-            Assert.Equal(100d, payment.Items.ElementAt(0).Amount);
+            Assert.Equal(100, payment.Items.ElementAt(0).Amount);
         }
     }
 

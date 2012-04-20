@@ -18,7 +18,7 @@ namespace Payments.ReadModel
 
     public class ThirdPartyProcessorPaymentDetailsDTO
     {
-        public ThirdPartyProcessorPaymentDetailsDTO(Guid id, ThirdPartyProcessorPayment.States state, Guid paymentSourceId, string description, double totalAmount)
+        public ThirdPartyProcessorPaymentDetailsDTO(Guid id, ThirdPartyProcessorPayment.States state, Guid paymentSourceId, string description, decimal totalAmount)
         {
             this.Id = id;
             this.State = state;
@@ -47,6 +47,6 @@ namespace Payments.ReadModel
 
         public string Description { get; private set; }
 
-        public double TotalAmount { get; private set; }
+        public decimal TotalAmount { get; private set; }
     }
 }

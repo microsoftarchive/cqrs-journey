@@ -13,6 +13,7 @@
 
 namespace Azure
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -66,6 +67,9 @@ namespace Azure
             {
                 message.Properties[pair.Key] = pair.Value;
             }
+
+            if (command.Delay != TimeSpan.Zero)
+                message.ScheduledEnqueueTimeUtc = DateTime.UtcNow.Add(command.Delay);
 
             return message;
         }
