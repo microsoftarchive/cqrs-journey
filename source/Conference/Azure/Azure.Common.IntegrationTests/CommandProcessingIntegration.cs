@@ -14,10 +14,14 @@
 namespace Azure.IntegrationTests.CommandProcessingIntegration
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using Azure;
     using Azure.Messaging;
     using Common;
+    using Microsoft.ServiceBus.Messaging;
+    using Moq;
     using Xunit;
 
     public class given_an_azure_command_bus : given_a_topic_and_subscription
@@ -143,6 +147,43 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
             {
                 processor.Stop();
             }
+        }
+
+        [Fact]
+        public void when_sending_command_with_delay_then_sets_message_enqueue_time()
+        {
+            var sender = new Mock<IMessageSender>();
+            var bus = new CommandBus(sender.Object, new MetadataProvider(), new BinarySerializer());
+
+            BrokeredMessage message = null;
+            sender.Setup(x => x.Send(It.IsAny<BrokeredMessage>()))
+                .Callback<BrokeredMessage>(m => message = m);
+
+            bus.Send(new Envelope<ICommand>(new FooCommand()) { Delay = TimeSpan.FromMinutes(5) });
+
+            Assert.NotNull(message);
+            Assert.True(message.ScheduledEnqueueTimeUtc > DateTime.UtcNow.Add(TimeSpan.FromMinutes(4)));
+        }
+
+        [Fact]
+        public void when_sending_multiple_commands_with_delay_then_sets_message_enqueue_time()
+        {
+            var sender = new Mock<IMessageSender>();
+            var bus = new CommandBus(sender.Object, new MetadataProvider(), new BinarySerializer());
+
+            BrokeredMessage message = null;
+            sender.Setup(x => x.Send(It.IsAny<IEnumerable<BrokeredMessage>>()))
+                .Callback<IEnumerable<BrokeredMessage>>(messages =>
+                    message = messages.First(m =>
+                        m.ScheduledEnqueueTimeUtc > DateTime.UtcNow.Add(TimeSpan.FromMinutes(4))));
+
+            bus.Send(new[] 
+            {
+                new Envelope<ICommand>(new FooCommand()) { Delay = TimeSpan.FromMinutes(5) }, 
+                new Envelope<ICommand>(new BarCommand())
+            });
+
+            Assert.NotNull(message);
         }
 
         [Serializable]
