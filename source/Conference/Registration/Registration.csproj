@@ -46,7 +46,6 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Commands\AssignRegistrantDetails.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
@@ -56,7 +55,8 @@
     <Compile Include="Commands\MarkSeatsAsReserved.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
-    <Compile Include="Database\OrmProcessRepositoryInitializer.cs" />
+    <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
+    <Compile Include="Database\RegistrationProcessDbContext.cs" />
     <Compile Include="Database\SeatsAvailabilityRepository.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
     <Compile Include="Events\SeatsReservationCancelled.cs" />
@@ -67,17 +67,21 @@
     <Compile Include="Events\OrderRegistrantAssigned.cs" />
     <Compile Include="Events\OrderReservationCompleted.cs" />
     <Compile Include="Events\OrderUpdated.cs" />
-    <Compile Include="Events\PaymentReceived.cs" />
     <Compile Include="Events\SeatsReserved.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
+    <Compile Include="ReadModel\Implementation\OrderDao.cs" />
+    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
+    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
+    <Compile Include="ReadModel\IOrderDao.cs" />
+    <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
+    <Compile Include="ReadModel\IConferenceDao.cs" />
     <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="Events\OrderPlaced.cs" />
-    <Compile Include="Database\OrmProcessRepository.cs" />
     <Compile Include="OrderItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
@@ -85,8 +89,6 @@
     <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
     <Compile Include="ReadModel\OrderDTO.cs" />
     <Compile Include="ReadModel\OrderItemDTO.cs" />
-    <Compile Include="ReadModel\OrmViewRepositoryInitializer.cs" />
-    <Compile Include="ReadModel\OrmViewRepository.cs" />
     <Compile Include="RegistrationProcess.cs" />
     <Compile Include="Reservation.cs" />
     <Compile Include="SeatQuantity.cs" />
@@ -103,6 +105,10 @@
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Payments.Contracts\Payments.Contracts.csproj">
+      <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
+      <Name>Payments.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -13,13 +13,10 @@
 
 namespace Registration.Events
 {
-    using System;
     using Common;
 
-    public class OrderRegistrantAssigned : IDomainEvent
+    public class OrderRegistrantAssigned : VersionedEvent
     {
-        public Guid SourceId { get; set; }
-        public int Version { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

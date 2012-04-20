@@ -13,18 +13,27 @@
 
 namespace Registration.IntegrationTests
 {
+    using System;
     using System.Data.Entity;
     using Registration.Database;
     using Xunit;
 
-    public class OrmProcessRepositoryInitializerFixture
+    public class OrmProcessRepositoryInitializerFixture : IDisposable
     {
+        public void Dispose()
+        {
+            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
+            {
+                context.Database.Delete();
+            }
+        }
+
         [Fact]
         public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
         {
-            var initializer = new OrmProcessRepositoryInitializer(new DropCreateDatabaseAlways<OrmProcessRepository>());
+            var initializer = new RegistrationProcessDbContextInitializer(new DropCreateDatabaseAlways<RegistrationProcessDbContext>());
 
-            using (var context = new OrmProcessRepository("TestOrmProcessRepository"))
+            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
             {
                 initializer.InitializeDatabase(context);
             }

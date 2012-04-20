@@ -14,23 +14,23 @@
 namespace Registration
 {
     using System;
-    using System.Linq;
     using Common;
     using Registration.Commands;
     using Registration.Events;
+    using Payments.Contracts.Events;
 
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
-        IEventHandler<PaymentReceived>,
+        IEventHandler<PaymentCompleted>,
         IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireRegistrationProcess>
     {
         private readonly object lockObject = new object();
-        private readonly Func<IProcessRepository> repositoryFactory;
+        private readonly Func<IProcessDataContext<RegistrationProcess>> contextFactory;
 
-        public RegistrationProcessRouter(Func<IProcessRepository> repositoryFactory)
+        public RegistrationProcessRouter(Func<IProcessDataContext<RegistrationProcess>> contextFactory)
         {
-            this.repositoryFactory = repositoryFactory;
+            this.contextFactory = contextFactory;
         }
 
         public void Handle(OrderPlaced @event)
@@ -38,29 +38,27 @@ namespace Registration
             var process = new RegistrationProcess();
             process.Handle(@event);
 
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    repo.Save(process);
+                    context.Save(process);
                 }
             }
         }
 
         public void Handle(SeatsReserved @event)
         {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.ReservationId == @event.ReservationId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
 
-                        repo.Save(process);
+                        context.Save(process);
                     }
                 }
             }
@@ -68,35 +66,33 @@ namespace Registration
 
         public void Handle(ExpireRegistrationProcess command)
         {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.Id == command.ProcessId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(command);
 
-                        repo.Save(process);
+                        context.Save(process);
                     }
                 }
             }
         }
 
-        public void Handle(PaymentReceived @event)
+        public void Handle(PaymentCompleted @event)
         {
-            var repo = this.repositoryFactory.Invoke();
-            using (repo as IDisposable)
+            using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = repo.Query<RegistrationProcess>().FirstOrDefault(x => x.OrderId == @event.OrderId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
+                    var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.StateValue != (int)RegistrationProcess.ProcessState.Completed);
                     if (process != null)
                     {
                         process.Handle(@event);
 
-                        repo.Save(process);
+                        context.Save(process);
                     }
                 }
             }

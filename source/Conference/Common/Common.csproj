@@ -46,10 +46,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinarySerializer.cs" />
+    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="CommandBusExtensions.cs" />
-    <Compile Include="IDomainEvent.cs" />
+    <Compile Include="IVersionedEvent.cs" />
+    <Compile Include="IDataContext.cs" />
     <Compile Include="Envelope.cs" />
-    <Compile Include="EventSourcedAggregateRoot.cs" />
+    <Compile Include="EventSourced.cs" />
     <Compile Include="ICommandBus.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="ICommand.cs" />
@@ -60,16 +62,18 @@
     <Compile Include="IEventBus.cs" />
     <Compile Include="IEventHandler.cs" />
     <Compile Include="IEventHandlerRegistry.cs" />
-    <Compile Include="IEventSourcedAggregateRoot.cs" />
+    <Compile Include="IEventPublisher.cs" />
     <Compile Include="IRepository.cs" />
-    <Compile Include="IProcessRepository.cs" />
+    <Compile Include="IEventSourced.cs" />
+    <Compile Include="IEventSourcedRepository.cs" />
+    <Compile Include="IProcessDataContext.cs" />
     <Compile Include="ISerializer.cs" />
-    <Compile Include="IViewRepository.cs" />
     <Compile Include="JsonSerializerAdapter.cs" />
     <Compile Include="MemoryCommandBus.cs" />
     <Compile Include="MemoryEventBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\HandleGenerator.cs" />
+    <Compile Include="VersionedEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Conference.licenseheader">

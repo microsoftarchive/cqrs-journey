@@ -48,9 +48,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SqlDataContext.cs" />
     <Compile Include="EventStoreDbContext.cs" />
+    <Compile Include="CacheAnyEnumerableExtension.cs" />
+    <Compile Include="SqlProcessDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlEventRepository.cs" />
+    <Compile Include="SqlEventSourcedRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Conference.licenseheader">

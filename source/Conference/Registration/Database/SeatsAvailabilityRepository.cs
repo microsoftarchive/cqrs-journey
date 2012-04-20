@@ -18,9 +18,9 @@ namespace Registration.Database
 
     public sealed class FakeSeatsAvailabilityInitializer
     {
-        private readonly IRepository<SeatsAvailability> repository;
+        private readonly IEventSourcedRepository<SeatsAvailability> repository;
 
-        public FakeSeatsAvailabilityInitializer(IRepository<SeatsAvailability> repository)
+        public FakeSeatsAvailabilityInitializer(IEventSourcedRepository<SeatsAvailability> repository)
         {
             this.repository = repository;
         }

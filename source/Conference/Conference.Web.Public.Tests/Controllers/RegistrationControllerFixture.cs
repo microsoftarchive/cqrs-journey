@@ -15,12 +15,15 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.Linq;
+    using System.Web;
     using System.Web.Mvc;
+    using System.Web.Routing;
     using Common;
     using Conference.Web.Public.Controllers;
-    using Conference.Web.Public.Models;
     using Moq;
+    using Payments.Contracts.Commands;
     using Registration;
     using Registration.Commands;
     using Registration.ReadModel;
@@ -30,31 +33,49 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
     {
         protected readonly RegistrationController sut;
         protected readonly ICommandBus bus;
-        protected readonly IViewRepository viewRepository;
+        protected readonly IOrderDao orderDao;
+        protected readonly IConferenceDao conferenceDao;
         protected readonly ConferenceAliasDTO conferenceAlias = new ConferenceAliasDTO(Guid.NewGuid(), "TestConferenceCode", "Test Conference name");
+        protected readonly RouteCollection routes;
+        protected readonly RouteData routeData;
+        protected readonly Mock<HttpRequestBase> requestMock;
+        protected readonly Mock<HttpResponseBase> responseMock;
 
         public given_controller()
         {
             this.bus = Mock.Of<ICommandBus>();
-            this.viewRepository = Mock.Of<IViewRepository>(x => x.Query<ConferenceAliasDTO>() == new ConferenceAliasDTO[] { conferenceAlias }.AsQueryable());
+            this.conferenceDao = Mock.Of<IConferenceDao>(x => x.GetConferenceAlias(conferenceAlias.Code) == conferenceAlias);
+            this.orderDao = Mock.Of<IOrderDao>();
 
-            this.sut = new RegistrationController(this.bus, () => this.viewRepository);
-            this.sut.ControllerContext = new ControllerContext();
-            this.sut.ControllerContext.RouteData.Values.Add("conferenceCode", conferenceAlias.Code);
+            this.routes = new RouteCollection();
+
+            this.routeData = new RouteData();
+            this.routeData.Values.Add("conferenceCode", conferenceAlias.Code);
+
+            var requestMock = new Mock<HttpRequestBase>(MockBehavior.Strict);
+            requestMock.SetupGet(x => x.ApplicationPath).Returns("/");
+            requestMock.SetupGet(x => x.Url).Returns(new Uri("http://localhost/request", UriKind.Absolute));
+            requestMock.SetupGet(x => x.ServerVariables).Returns(new NameValueCollection());
+
+            var responseMock = new Mock<HttpResponseBase>(MockBehavior.Strict);
+            responseMock.Setup(x => x.ApplyAppPathModifier(It.IsAny<string>())).Returns<string>(s => s);
+
+            var context = Mock.Of<HttpContextBase>(c => c.Request == requestMock.Object && c.Response == responseMock.Object);
+
+            this.sut = new RegistrationController(this.bus, this.orderDao, this.conferenceDao);
+            this.sut.ControllerContext = new ControllerContext(context, this.routeData, this.sut);
+            this.sut.Url = new UrlHelper(new RequestContext(context, this.routeData), this.routes);
         }
 
-        [Fact(Skip="Need to refactor into a testable cross-cutting concern.")]
+        [Fact(Skip = "Need to refactor into a testable cross-cutting concern.")]
         public void when_executing_result_then_makes_conference_alias_available_to_view()
         {
-            var conferenceDTO = new ConferenceDTO(conferenceAlias.Id, conferenceAlias.Code, conferenceAlias.Name, "", new[] { new ConferenceSeatTypeDTO(Guid.NewGuid(), "Test Seat", 10d) });
-
+            var seats = new[] { new ConferenceSeatTypeDTO(Guid.NewGuid(), "Test Seat", 10d) };
             // Arrange
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Query<ConferenceDTO>())
-                .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
-            var result = (ViewResult)this.sut.StartRegistration(conferenceAlias.Code);
+            var result = (ViewResult)this.sut.StartRegistration();
             // How to force OnResultExecuting?
             // TODO: instead, can create an action filter an test that cross-cutting concern separately.
 
@@ -67,15 +88,13 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_starting_registration_then_returns_view_with_registration_for_conference()
         {
             var seatTypeId = Guid.NewGuid();
-            var conferenceDTO = new ConferenceDTO(conferenceAlias.Id, conferenceAlias.Code, conferenceAlias.Name, "", new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) });
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) };
 
             // Arrange
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Query<ConferenceDTO>())
-                .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
-            var result = (ViewResult)this.sut.StartRegistration(conferenceAlias.Code);
+            var result = (ViewResult)this.sut.StartRegistration();
 
             // Assert
             Assert.NotNull(result);
@@ -91,18 +110,14 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_specifying_seats_for_a_valid_registration_then_places_registration_and_redirects_to_action()
         {
             var seatTypeId = Guid.NewGuid();
-            var conferenceDTO = new ConferenceDTO(conferenceAlias.Id, conferenceAlias.Code, conferenceAlias.Name, "", new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) });
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", 10d) };
 
             // Arrange
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Query<ConferenceDTO>())
-                .Returns(new ConferenceDTO[] { conferenceDTO }.AsQueryable());
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             var orderId = Guid.NewGuid();
 
-            Mock.Get<IViewRepository>(this.viewRepository)
-                .Setup(r => r.Find<OrderDTO>(orderId))
-                .Returns(new OrderDTO(orderId, OrderDTO.States.Created));
+            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(new OrderDTO(orderId, OrderDTO.States.Created));
 
             var registration =
                 new RegisterToConference
@@ -112,11 +127,11 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 };
 
             // Act
-            var result = (RedirectToRouteResult)this.sut.StartRegistration(conferenceAlias.Code, registration);
+            var result = (RedirectToRouteResult)this.sut.StartRegistration(registration);
 
             // Assert
             Assert.Equal(null, result.RouteValues["controller"]);
-            Assert.Equal("SpecifyRegistrantDetails", result.RouteValues["action"]);
+            Assert.Equal("SpecifyRegistrantAndPaymentDetails", result.RouteValues["action"]);
             Assert.Equal(conferenceAlias.Code, result.RouteValues["conferenceCode"]);
             Assert.Equal(orderId, result.RouteValues["orderId"]);
 
@@ -135,7 +150,6 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         [Fact]
         public void when_specifying_registrant_details_for_a_valid_registration_then_sends_command_and_redirects_to_specify_payment_details()
         {
-            var conferenceId = Guid.NewGuid();
             var orderId = Guid.NewGuid();
             var command = new AssignRegistrantDetails
             {
@@ -144,18 +158,52 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 FirstName = "First Name",
                 LastName = "Last Name",
             };
+            Guid paymentId = Guid.Empty;
+
+            // Arrange
+            var seatId = Guid.NewGuid();
+
+            var order = new OrderDTO(orderId, OrderDTO.States.ReservationCompleted);
+            order.Lines.Add(new OrderItemDTO(seatId, 5) { ReservedSeats = 5 });
+            Mock.Get<IOrderDao>(this.orderDao)
+                .Setup(d => d.GetOrderDetails(orderId))
+                .Returns(order);
+
+            var seat = new ConferenceSeatTypeDTO(seatId, "test", 20d);
+            Mock.Get<IConferenceDao>(this.conferenceDao)
+                .Setup(d => d.GetPublishedSeatTypes(this.conferenceAlias.Id))
+                .Returns(new[] { seat });
+
+            Mock.Get<ICommandBus>(this.bus)
+                .Setup(b => b.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))
+                .Callback<IEnumerable<Envelope<ICommand>>>(
+                    es => { paymentId = (es.Select(e => e.Body).OfType<InitiateThirdPartyProcessorPayment>().First()).PaymentId; });
+
+            this.routes.MapRoute("ThankYou", "thankyou", new { controller = "Registration", action = "ThankYou" });
 
             // Act
-            var result = (RedirectToRouteResult)this.sut.SpecifyRegistrantDetails("conference", command);
+            var result =
+                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment);
 
             // Assert
             Mock.Get<ICommandBus>(this.bus)
-                .Verify(b => b.Send(It.Is<Envelope<ICommand>>(c => c.Body == command)), Times.Once());
+                .Verify(
+                    b =>
+                        b.Send(
+                            It.Is<IEnumerable<Envelope<ICommand>>>(es =>
+                                es.Select(e => e.Body).Any(c => c == command)
+                                && es.Select(e => e.Body).OfType<InitiateThirdPartyProcessorPayment>()
+                                     .Any(c =>
+                                         c.ConferenceId == conferenceAlias.Id
+                                         && c.PaymentSourceId == orderId
+                                         && Math.Abs(c.TotalAmount - 100d) < 0.01d))),
+                    Times.Once());
 
-            Assert.Equal(null, result.RouteValues["controller"]);
-            Assert.Equal("SpecifyPaymentDetails", result.RouteValues["action"]);
-            Assert.Equal("conference", result.RouteValues["conferenceCode"]);
-            Assert.Equal(orderId, result.RouteValues["orderId"]);
+            Assert.Equal("Payment", result.RouteValues["controller"]);
+            Assert.Equal("ThirdPartyProcessorPayment", result.RouteValues["action"]);
+            Assert.Equal(this.conferenceAlias.Code, result.RouteValues["conferenceCode"]);
+            Assert.Equal(paymentId, result.RouteValues["paymentId"]);
+            Assert.True(((string)result.RouteValues["paymentAcceptedUrl"]).StartsWith("/thankyou"));
         }
 
         //[Fact]

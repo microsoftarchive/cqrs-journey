@@ -24,9 +24,9 @@ namespace Registration.Handlers
         ICommandHandler<RejectOrder>,
         ICommandHandler<AssignRegistrantDetails>
     {
-        private readonly IRepository<Order> repository;
+        private readonly IEventSourcedRepository<Order> repository;
 
-        public OrderCommandHandler(IRepository<Order> repository)
+        public OrderCommandHandler(IEventSourcedRepository<Order> repository)
         {
             this.repository = repository;
         }
