@@ -40,9 +40,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                repository.Set<ConferenceAliasDTO>().Add(new ConferenceAliasDTO(@event.SourceId, @event.Slug, @event.Name));
-                repository.Set<ConferenceDescriptionDTO>().Add(new ConferenceDescriptionDTO(@event.SourceId, @event.Slug, @event.Name, @event.Description));
-                repository.Set<ConferenceDTO>().Add(new ConferenceDTO(@event.SourceId, @event.Slug, @event.Name, @event.Description, Enumerable.Empty<ConferenceSeatTypeDTO>()));
+                repository.Set<ConferenceDTO>().Add(new ConferenceDTO(@event.SourceId, @event.Slug, @event.Name, @event.Description, @event.StartDate, Enumerable.Empty<ConferenceSeatTypeDTO>()));
 
                 repository.SaveChanges();
             }
@@ -52,28 +50,13 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var aliasDto = repository.Find<ConferenceAliasDTO>(@event.SourceId);
-                // TODO: replace with AutoMapper one-liner!
-                if (aliasDto != null)
-                {
-                    aliasDto.Code = @event.Slug;
-                    aliasDto.Name = @event.Name;
-                }
-
-                var descDto = repository.Find<ConferenceDescriptionDTO>(@event.SourceId);
-                if (descDto != null)
-                {
-                    descDto.Code = @event.Slug;
-                    descDto.Description = @event.Description;
-                    descDto.Name = @event.Name;
-                }
-
                 var confDto = repository.Find<ConferenceDTO>(@event.SourceId);
                 if (confDto != null)
                 {
                     confDto.Code = @event.Slug;
                     confDto.Description = @event.Description;
                     confDto.Name = @event.Name;
+                    confDto.StartDate = @event.StartDate;
                 }
 
                 repository.SaveChanges();
@@ -84,7 +67,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<ConferenceAliasDTO>(@event.SourceId);
+                var dto = repository.Find<ConferenceDTO>(@event.SourceId);
                 if (dto != null)
                 {
                     dto.IsPublished = true;
@@ -98,7 +81,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<ConferenceAliasDTO>(@event.SourceId);
+                var dto = repository.Find<ConferenceDTO>(@event.SourceId);
                 if (dto != null)
                 {
                     dto.IsPublished = false;

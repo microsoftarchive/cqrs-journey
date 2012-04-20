@@ -52,69 +52,6 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
     public class given_no_conference : given_a_database
     {
         [Fact]
-        public void when_conference_created_then_alias_dto_populated()
-        {
-            var conferenceId = Guid.NewGuid();
-
-            this.sut.Handle(new ConferenceCreated
-            {
-                Name = "name",
-                Description = "description",
-                Slug = "test",
-                Owner = new Owner
-                {
-                    Name = "owner",
-                    Email = "owner@email.com",
-                },
-                SourceId = conferenceId,
-                StartDate = DateTime.UtcNow.Date,
-                EndDate = DateTime.UtcNow.Date,
-            });
-
-            using (var context = new ConferenceRegistrationDbContext(dbName))
-            {
-                var dto = context.Find<ConferenceAliasDTO>(conferenceId);
-
-                Assert.NotNull(dto);
-                Assert.Equal("name", dto.Name);
-                Assert.Equal("test", dto.Code);
-            }
-
-        }
-
-        [Fact]
-        public void when_conference_created_then_description_dto_populated()
-        {
-            var conferenceId = Guid.NewGuid();
-
-            this.sut.Handle(new ConferenceCreated
-            {
-                Name = "name",
-                Description = "description",
-                Slug = "test",
-                Owner = new Owner
-                {
-                    Name = "owner",
-                    Email = "owner@email.com",
-                },
-                SourceId = conferenceId,
-                StartDate = DateTime.UtcNow.Date,
-                EndDate = DateTime.UtcNow.Date,
-            });
-
-            using (var context = new ConferenceRegistrationDbContext(dbName))
-            {
-                var dto = context.Find<ConferenceDescriptionDTO>(conferenceId);
-
-                Assert.NotNull(dto);
-                Assert.Equal("name", dto.Name);
-                Assert.Equal("description", dto.Description);
-                Assert.Equal("test", dto.Code);
-            }
-
-        }
-
-        [Fact]
         public void when_conference_created_then_conference_dto_populated()
         {
             var conferenceId = Guid.NewGuid();
@@ -170,67 +107,9 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_conference_updated_then_alias_dto_populated()
-        {
-            this.sut.Handle(new ConferenceUpdated
-            {
-                Name = "newname",
-                Description = "newdescription",
-                Slug = "newtest",
-                Owner = new Owner
-                {
-                    Name = "owner",
-                    Email = "owner@email.com",
-                },
-                SourceId = conferenceId,
-                StartDate = DateTime.UtcNow.Date,
-                EndDate = DateTime.UtcNow.Date,
-            });
-
-            using (var context = new ConferenceRegistrationDbContext(dbName))
-            {
-                var dto = context.Find<ConferenceAliasDTO>(conferenceId);
-
-                Assert.NotNull(dto);
-                Assert.Equal("newname", dto.Name);
-                Assert.Equal("newtest", dto.Code);
-            }
-
-        }
-
-        [Fact]
-        public void when_conference_updated_then_description_dto_populated()
-        {
-            this.sut.Handle(new ConferenceUpdated
-            {
-                Name = "newname",
-                Description = "newdescription",
-                Slug = "newtest",
-                Owner = new Owner
-                {
-                    Name = "owner",
-                    Email = "owner@email.com",
-                },
-                SourceId = conferenceId,
-                StartDate = DateTime.UtcNow.Date,
-                EndDate = DateTime.UtcNow.Date,
-            });
-
-            using (var context = new ConferenceRegistrationDbContext(dbName))
-            {
-                var dto = context.Find<ConferenceDescriptionDTO>(conferenceId);
-
-                Assert.NotNull(dto);
-                Assert.Equal("newname", dto.Name);
-                Assert.Equal("newdescription", dto.Description);
-                Assert.Equal("newtest", dto.Code);
-            }
-
-        }
-
-        [Fact]
         public void when_conference_updated_then_conference_dto_populated()
         {
+            var startDate = new DateTimeOffset(2012, 04, 20, 15, 0, 0, TimeSpan.FromHours(-8));
             this.sut.Handle(new ConferenceUpdated
             {
                 Name = "newname",
@@ -242,7 +121,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                     Email = "owner@email.com",
                 },
                 SourceId = conferenceId,
-                StartDate = DateTime.UtcNow.Date,
+                StartDate = startDate.UtcDateTime,
                 EndDate = DateTime.UtcNow.Date,
             });
 
@@ -254,6 +133,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                 Assert.Equal("newname", dto.Name);
                 Assert.Equal("newdescription", dto.Description);
                 Assert.Equal("newtest", dto.Code);
+                Assert.Equal(startDate, dto.StartDate);
                 Assert.Equal(0, dto.Seats.Count);
             }
         }

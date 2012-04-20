@@ -34,7 +34,7 @@ namespace Conference.Web.Public.Tests.Controllers.ThirdPartyProcessorPaymentCont
             Assert.Equal(this.sut.ViewBag.ReturnUrl, "return");
             Assert.Equal(this.sut.ViewBag.CancelReturnUrl, "cancelreturn");
             Assert.Equal(this.sut.ViewBag.ItemName, "item");
-            Assert.Equal(this.sut.ViewBag.ItemAmount, 100d);
+            Assert.Equal(this.sut.ViewBag.ItemAmount, 100m);
 
         }
         [Fact]
