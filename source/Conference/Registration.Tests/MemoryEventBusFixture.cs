@@ -13,86 +13,83 @@
 
 namespace Registration.Tests
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using Xunit;
-	using Moq;
-	using Common;
-	using System.Threading;
+    using System;
+    using System.Threading;
+    using Common;
+    using Moq;
+    using Xunit;
 
-	public class MemoryEventBusFixture
-	{
-		[Fact]
-		public void WhenPublishingEvent_ThenInvokesCompatibleHandler()
-		{
-			var handler = new Mock<IEventHandler<TestEvent>>();
-			var e = new ManualResetEventSlim();
-			handler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
-				.Callback(() => e.Set());
+    public class MemoryEventBusFixture
+    {
+        [Fact]
+        public void WhenPublishingEvent_ThenInvokesCompatibleHandler()
+        {
+            var handler = new Mock<IEventHandler<TestEvent>>();
+            var e = new ManualResetEventSlim();
+            handler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
+                .Callback(() => e.Set());
 
-			var bus = new MemoryEventBus(handler.Object);
+            var bus = new MemoryEventBus(handler.Object);
 
-			bus.Publish(new TestEvent());
+            bus.Publish(new TestEvent());
 
-			e.Wait(3000);
+            e.Wait(3000);
 
-			handler.Verify(x => x.Handle(It.IsAny<TestEvent>()));
-		}
+            handler.Verify(x => x.Handle(It.IsAny<TestEvent>()));
+        }
 
-		[Fact]
-		public void WhenPublishingEvent_ThenDoesNotInvokeIncompatibleHandler()
-		{
-			var compatibleHandler = new Mock<IEventHandler<TestEvent>>();
-			var incompatibleHandler = new Mock<IEventHandler<FooEvent>>();
-			var e = new ManualResetEventSlim();
+        [Fact]
+        public void WhenPublishingEvent_ThenDoesNotInvokeIncompatibleHandler()
+        {
+            var compatibleHandler = new Mock<IEventHandler<TestEvent>>();
+            var incompatibleHandler = new Mock<IEventHandler<FooEvent>>();
+            var e = new ManualResetEventSlim();
 
-			compatibleHandler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
-				.Callback(() => e.Set());
+            compatibleHandler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
+                .Callback(() => e.Set());
 
-			var bus = new MemoryEventBus(incompatibleHandler.Object, compatibleHandler.Object);
+            var bus = new MemoryEventBus(incompatibleHandler.Object, compatibleHandler.Object);
 
-			bus.Publish(new TestEvent());
+            bus.Publish(new TestEvent());
 
-			e.Wait(3000);
+            e.Wait(3000);
 
-			incompatibleHandler.Verify(x => x.Handle(It.IsAny<FooEvent>()), Times.Never());
-		}
+            incompatibleHandler.Verify(x => x.Handle(It.IsAny<FooEvent>()), Times.Never());
+        }
 
-		[Fact]
-		public void WhenPublishingMultipleEvents_ThenInvokesCompatibleHandlerMultipleTimes()
-		{
-			var handler = new Mock<IEventHandler<TestEvent>>();
-			var e = new ManualResetEventSlim();
-			
-			var called = 0;
-			handler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
-				.Callback(() => { if (Interlocked.Increment(ref called) == 4) e.Set(); });
+        [Fact]
+        public void WhenPublishingMultipleEvents_ThenInvokesCompatibleHandlerMultipleTimes()
+        {
+            var handler = new Mock<IEventHandler<TestEvent>>();
+            var e = new ManualResetEventSlim();
 
-			var bus = new MemoryEventBus(handler.Object);
+            var called = 0;
+            handler.Setup(x => x.Handle(It.IsAny<TestEvent>()))
+                .Callback(() => { if (Interlocked.Increment(ref called) == 4) e.Set(); });
 
-			bus.Publish(new [] { new TestEvent(), new TestEvent(), new TestEvent(), new TestEvent() });
+            var bus = new MemoryEventBus(handler.Object);
 
-			e.Wait(10000);
+            bus.Publish(new[] { new TestEvent(), new TestEvent(), new TestEvent(), new TestEvent() });
 
-			Assert.Equal(4, called);
-		}
+            e.Wait(10000);
 
-		public class TestEvent : IEvent
-		{
+            Assert.Equal(4, called);
+        }
+
+        public class TestEvent : IEvent
+        {
             public Guid SourceId
             {
                 get { throw new NotImplementedException(); }
             }
         }
 
-		public class FooEvent : IEvent
-		{
+        public class FooEvent : IEvent
+        {
             public Guid SourceId
             {
                 get { throw new NotImplementedException(); }
             }
         }
-	}
+    }
 }

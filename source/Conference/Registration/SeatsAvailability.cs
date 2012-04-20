@@ -23,39 +23,36 @@ namespace Registration
     /// <summary>
     /// Manages the availability of conference seats.
     /// </summary>
-    public class SeatsAvailability : EventSourcedAggregateRoot
+    public class SeatsAvailability : EventSourced
     {
-        private Guid id;
         private readonly ConcurrentDictionary<Guid, int> remainingSeats = new ConcurrentDictionary<Guid, int>();
         private readonly ConcurrentDictionary<Guid, List<SeatQuantity>> pendingReservations = new ConcurrentDictionary<Guid, List<SeatQuantity>>();
 
-        protected SeatsAvailability()
+        public SeatsAvailability(Guid id)
+            : base(id)
         {
             base.Handles<AvailableSeatsChanged>(this.OnAvailableSeatsChanged);
             base.Handles<SeatsReserved>(this.OnSeatsReserved);
             base.Handles<SeatsReservationCommitted>(this.OnSeatsReservationCommitted);
             base.Handles<SeatsReservationCancelled>(this.OnSeatsReservationCancelled);
-        }
-
-        public SeatsAvailability(Guid id)
-            : this()
-        {
-            this.id = id;
             // TODO: raise event
             // TODO: We are assuming SeatsAvailability.Id correlates directly to ConferenceId. We should avoid re-using the same Id for different aggregates!
         }
 
-        public SeatsAvailability(IEnumerable<IDomainEvent> history)
-            : this()
+        public SeatsAvailability(Guid id, IEnumerable<IVersionedEvent> history)
+            : this(id)
         {
-            this.Rehydrate(history);
+            this.LoadFrom(history);
         }
-
-        public override Guid Id { get { return this.id; } }
 
         public void AddSeats(Guid seatType, int quantity)
         {
-            base.Update(new AvailableSeatsChanged(this.id, this.Version + 1, new [] { new SeatQuantity(seatType, quantity) }));
+            base.Update(new AvailableSeatsChanged { Seats = new[] { new SeatQuantity(seatType, quantity) } });
+        }
+
+        public void RemoveSeats(Guid seatType, int quantity)
+        {
+            base.Update(new AvailableSeatsChanged { Seats = new[] { new SeatQuantity(seatType, -quantity) } });
         }
 
         public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> wantedSeats)
@@ -84,12 +81,12 @@ namespace Registration
                 }
             }
 
-            var reservation = new SeatsReserved(
-                this.id,
-                this.Version + 1,
-                reservationId,
-                difference.Select(x => new SeatQuantity(x.Key, x.Value.Actual)).Where(x => x.Quantity != 0),
-                difference.Select(x => new SeatQuantity(x.Key, -x.Value.DeltaSinceLast)).Where(x => x.Quantity != 0));
+            var reservation = new SeatsReserved
+            {
+                ReservationId = reservationId,
+                ReservationDetails = difference.Select(x => new SeatQuantity(x.Key, x.Value.Actual)).Where(x => x.Quantity != 0).ToList(),
+                AvailableSeatsChanged = difference.Select(x => new SeatQuantity(x.Key, -x.Value.DeltaSinceLast)).Where(x => x.Quantity != 0).ToList()
+            };
 
             base.Update(reservation);
         }
@@ -99,7 +96,11 @@ namespace Registration
             List<SeatQuantity> reservation;
             if (this.pendingReservations.TryGetValue(reservationId, out reservation))
             {
-                base.Update(new SeatsReservationCancelled(this.id, this.Version + 1, reservationId, reservation.Select(x => new SeatQuantity(x.SeatType, x.Quantity))));
+                base.Update(new SeatsReservationCancelled
+                {
+                    ReservationId = reservationId,
+                    AvailableSeatsChanged = reservation.Select(x => new SeatQuantity(x.SeatType, x.Quantity)).ToList()
+                });
             }
         }
 
@@ -107,7 +108,7 @@ namespace Registration
         {
             if (this.pendingReservations.ContainsKey(reservationId))
             {
-                base.Update(new SeatsReservationCommitted(this.id, this.Version + 1, reservationId));
+                base.Update(new SeatsReservationCommitted { ReservationId = reservationId });
             }
         }
 
@@ -140,7 +141,6 @@ namespace Registration
 
         private void OnAvailableSeatsChanged(AvailableSeatsChanged e)
         {
-            this.id = e.SourceId;
             foreach (var seat in e.Seats)
             {
                 int newValue = seat.Quantity;

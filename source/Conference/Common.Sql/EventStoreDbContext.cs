@@ -35,6 +35,8 @@ namespace Common.Sql
     {
         public Guid AggregateId { get; set; }
         public int Version { get; set; }
+
+        // what if we assume string? It's easier to debug
         public byte[] Payload { get; set; }
 
         // TODO: Following could be very useful for when rebuilding the read model from the event store, 

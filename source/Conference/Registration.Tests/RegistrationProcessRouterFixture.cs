@@ -18,6 +18,7 @@ namespace Registration.Tests
     using System.Linq;
     using System.Linq.Expressions;
     using Common;
+    using Payments.Contracts.Events;
     using Registration.Events;
     using Xunit;
 
@@ -26,13 +27,13 @@ namespace Registration.Tests
         [Fact]
         public void when_order_placed_then_routes_and_saves()
         {
-            var repo = new StubProcessRepositorySession<RegistrationProcess>();
-            var router = new RegistrationProcessRouter(() => repo);
+            var context = new StubProcessDataContext<RegistrationProcess>();
+            var router = new RegistrationProcessRouter(() => context);
 
-            router.Handle(new OrderPlaced(Guid.NewGuid(), -1, Guid.NewGuid(), new SeatQuantity[0], DateTime.UtcNow, null));
+            router.Handle(new OrderPlaced { SourceId = Guid.NewGuid(), ConferenceId = Guid.NewGuid(), Seats = new SeatQuantity[0] });
 
-            Assert.Equal(1, repo.SavedProcesses.Count);
-            Assert.True(repo.DisposeCalled);
+            Assert.Equal(1, context.SavedProcesses.Count);
+            Assert.True(context.DisposeCalled);
         }
 
         [Fact]
@@ -45,13 +46,13 @@ namespace Registration.Tests
                 ConferenceId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
-            var router = new RegistrationProcessRouter(() => repo);
+            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
+            var router = new RegistrationProcessRouter(() => context);
 
-            router.Handle(new SeatsReserved(process.ConferenceId, -1, process.ReservationId, new SeatQuantity[0], new SeatQuantity[0]));
+            router.Handle(new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] });
 
-            Assert.Equal(1, repo.SavedProcesses.Count);
-            Assert.True(repo.DisposeCalled);
+            Assert.Equal(1, context.SavedProcesses.Count);
+            Assert.True(context.DisposeCalled);
         }
 
         [Fact]
@@ -64,14 +65,14 @@ namespace Registration.Tests
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
+            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
 
-            var router = new RegistrationProcessRouter(() => repo);
+            var router = new RegistrationProcessRouter(() => context);
 
             router.Handle(new Commands.ExpireRegistrationProcess { ProcessId = process.Id });
 
-            Assert.Equal(1, repo.SavedProcesses.Count);
-            Assert.True(repo.DisposeCalled);
+            Assert.Equal(1, context.SavedProcesses.Count);
+            Assert.True(context.DisposeCalled);
         }
 
         [Fact]
@@ -83,17 +84,17 @@ namespace Registration.Tests
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
-            var repo = new StubProcessRepositorySession<RegistrationProcess> { Store = { process } };
-            var router = new RegistrationProcessRouter(() => repo);
+            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
+            var router = new RegistrationProcessRouter(() => context);
 
-            router.Handle(new PaymentReceived { OrderId = process.OrderId });
+            router.Handle(new PaymentCompleted { PaymentSourceId = process.OrderId });
 
-            Assert.Equal(1, repo.SavedProcesses.Count);
-            Assert.True(repo.DisposeCalled);
+            Assert.Equal(1, context.SavedProcesses.Count);
+            Assert.True(context.DisposeCalled);
         }
     }
 
-    class StubProcessRepositorySession<T> : IProcessRepositorySession<T> where T : class, IAggregateRoot
+    class StubProcessDataContext<T> : IProcessDataContext<T> where T : class, IAggregateRoot
     {
         public readonly List<T> SavedProcesses = new List<T>();
 

@@ -28,6 +28,9 @@ namespace Common
         public void Serialize(Stream stream, object graph)
         {
             var writer = new JsonTextWriter(new StreamWriter(stream));
+#if DEBUG
+            writer.Formatting = Formatting.Indented;
+#endif
 
             this.serializer.Serialize(writer, graph);
 

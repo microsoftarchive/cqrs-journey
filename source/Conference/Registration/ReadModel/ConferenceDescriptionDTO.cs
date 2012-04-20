@@ -14,29 +14,13 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
 
     public class ConferenceDescriptionDTO
     {
-        public ConferenceDescriptionDTO(Guid id, string code, string name, string description)
-        {
-            this.Id = id;
-            this.Code = code;
-            this.Name = name;
-            this.Description = description;
-        }
-
-        protected ConferenceDescriptionDTO()
-        {
-        }
-
-        [Key]
-        public virtual Guid Id { get; private set; }
-
-        public virtual string Code { get; private set; }
-
-        public virtual string Name { get; private set; }
-
-        public virtual string Description { get; private set; }
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTimeOffset StartDate { get; set; }
     }
 }

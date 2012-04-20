@@ -20,6 +20,8 @@ namespace Registration.ReadModel
     {
         ConferenceDescriptionDTO GetDescription(string conferenceCode);
         ConferenceAliasDTO GetConferenceAlias(string conferenceCode);
+
+        IList<ConferenceAliasDTO> GetPublishedConferences();
         IList<ConferenceSeatTypeDTO> GetPublishedSeatTypes(Guid conferenceId);
     }
 }

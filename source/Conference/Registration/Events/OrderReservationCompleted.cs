@@ -16,30 +16,12 @@ namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Common;
 
-    public class OrderReservationCompleted : IDomainEvent
+    public class OrderReservationCompleted : VersionedEvent
     {
-        private readonly Guid sourceId;
-        private readonly int version;
-        private readonly DateTime reservationExpiration;
-        private readonly IEnumerable<SeatQuantity> seats;
+        public DateTime ReservationExpiration { get; set; }
 
-        public OrderReservationCompleted(Guid sourceId, int version, DateTime reservationExpiration, IEnumerable<SeatQuantity> seats)
-        {
-            this.sourceId = sourceId;
-            this.version = version;
-            this.reservationExpiration = reservationExpiration;
-            this.seats = seats.ToArray();
-        }
-
-        public Guid SourceId { get { return this.sourceId; } }
-
-        public int Version { get { return this.version; } }
-
-        public DateTime ReservationExpiration { get { return this.reservationExpiration; } }
-
-        public IEnumerable<SeatQuantity> Seats { get { return this.seats; } }
+        public IEnumerable<SeatQuantity> Seats { get; set; }
     }
 }

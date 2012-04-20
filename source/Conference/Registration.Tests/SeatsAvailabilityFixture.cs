@@ -44,7 +44,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 
         public given_available_seats()
         {
-            this.sut = new SeatsAvailability(new[] { new AvailableSeatsChanged(ConferenceId, 0, new[] { new SeatQuantity(SeatTypeId, 10) }) });
+            this.sut = new SeatsAvailability(ConferenceId, new[] { new AvailableSeatsChanged { Seats = new[] { new SeatQuantity(SeatTypeId, 10) } } });
         }
 
         [Fact]
@@ -64,6 +64,18 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 
             Assert.Equal(SeatTypeId, ((AvailableSeatsChanged)sut.Events.Single()).Seats.Single().SeatType);
             Assert.Equal(10, ((AvailableSeatsChanged)sut.Events.Single()).Seats.Single().Quantity);
+        }
+
+        [Fact]
+        public void when_removing_seats_to_existing_seat_type_then_removes_remaining_seats()
+        {
+            this.sut.RemoveSeats(SeatTypeId, 5);
+
+            this.sut.MakeReservation(Guid.NewGuid(), new[] { new SeatQuantity(SeatTypeId, 10) });
+
+            Assert.Equal(SeatTypeId, sut.Events.OfType<AvailableSeatsChanged>().Last().Seats.Single().SeatType);
+            Assert.Equal(-5, sut.Events.OfType<AvailableSeatsChanged>().Last().Seats.Single().Quantity);
+            Assert.Equal(5, this.sut.Events.OfType<SeatsReserved>().Single().ReservationDetails.ElementAt(0).Quantity);
         }
 
         [Fact]
@@ -127,11 +139,19 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 
         public given_some_avilable_seats_and_some_taken()
         {
-            this.sut = new SeatsAvailability(
-                new IDomainEvent[]
+            this.sut = new SeatsAvailability(ConferenceId, 
+                new IVersionedEvent[]
                     {
-                        new AvailableSeatsChanged(ConferenceId, 0, new[] { new SeatQuantity(SeatTypeId, 10), new SeatQuantity(OtherSeatTypeId, 12) }),
-                        new SeatsReserved(ConferenceId, 1, ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) }, new[] { new SeatQuantity(SeatTypeId, -6) }) 
+                        new AvailableSeatsChanged
+                            {
+                                Seats = new[] { new SeatQuantity(SeatTypeId, 10) , new SeatQuantity(OtherSeatTypeId, 12) }
+                            },
+                        new SeatsReserved 
+                        { 
+                            ReservationId = ReservationId, 
+                            ReservationDetails = new[] { new SeatQuantity(SeatTypeId, 6) }, 
+                            AvailableSeatsChanged = new[] { new SeatQuantity(SeatTypeId, -6) }
+                        }
                     });
         }
 
@@ -186,10 +206,19 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         public given_an_existing_reservation()
         {
             this.sut = new SeatsAvailability(
-                new IDomainEvent[]
+                ConferenceId,
+                new IVersionedEvent[]
                     {
-                        new AvailableSeatsChanged(ConferenceId, 0, new[] { new SeatQuantity(SeatTypeId, 10), new SeatQuantity(OtherSeatTypeId, 12) }),
-                        new SeatsReserved(ConferenceId, 1, ReservationId, new[] { new SeatQuantity(SeatTypeId, 6) }, new[] { new SeatQuantity(SeatTypeId, -6) }) 
+                        new AvailableSeatsChanged
+                            {
+                                Seats = new[] { new SeatQuantity(SeatTypeId, 10) , new SeatQuantity(OtherSeatTypeId, 12) }
+                            },
+                        new SeatsReserved 
+                        { 
+                            ReservationId = ReservationId, 
+                            ReservationDetails = new[] { new SeatQuantity(SeatTypeId, 6) }, 
+                            AvailableSeatsChanged = new[] { new SeatQuantity(SeatTypeId, -6) }
+                        }
                     });
         }
 
@@ -221,7 +250,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
         [Fact]
         public void when_updating_reservation_with_more_seats_then_reserves_all_requested()
         {
-            sut.MakeReservation(ReservationId, new[] {  new SeatQuantity(SeatTypeId, 8) });
+            sut.MakeReservation(ReservationId, new[] { new SeatQuantity(SeatTypeId, 8) });
 
             Assert.Equal(ReservationId, sut.SingleEvent<SeatsReserved>().ReservationId);
             Assert.Equal(SeatTypeId, sut.SingleEvent<SeatsReserved>().ReservationDetails.Single().SeatType);

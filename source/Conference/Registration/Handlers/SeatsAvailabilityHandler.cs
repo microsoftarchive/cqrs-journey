@@ -13,8 +13,8 @@
 
 namespace Registration.Handlers
 {
-    using System;
     using Common;
+    using Conference;
     using Registration.Commands;
 
     /// <summary>
@@ -23,11 +23,13 @@ namespace Registration.Handlers
     public class SeatsAvailabilityHandler :
         ICommandHandler<MakeSeatReservation>,
         ICommandHandler<CancelSeatReservation>,
-        ICommandHandler<CommitSeatReservation>
+        ICommandHandler<CommitSeatReservation>,
+        IEventHandler<SeatsAdded>,
+        IEventHandler<SeatsRemoved>
     {
-        private readonly IRepository<SeatsAvailability> repository;
+        private readonly IEventSourcedRepository<SeatsAvailability> repository;
 
-        public SeatsAvailabilityHandler(IRepository<SeatsAvailability> repository)
+        public SeatsAvailabilityHandler(IEventSourcedRepository<SeatsAvailability> repository)
         {
             this.repository = repository;
         }
@@ -63,6 +65,28 @@ namespace Registration.Handlers
                 this.repository.Save(availability);
             }
             // TODO: what if there's no aggregate? how do we tell the process?
+        }
+
+        // Events from the conference BC
+
+        public void Handle(SeatsAdded @event)
+        {
+            var availability = this.repository.Find(@event.ConferenceId);
+            if (availability == null)
+                availability = new SeatsAvailability(@event.ConferenceId);
+
+            availability.AddSeats(@event.SourceId, @event.AddedQuantity);
+            this.repository.Save(availability);
+        }
+
+        public void Handle(SeatsRemoved @event)
+        {
+            var availability = this.repository.Find(@event.ConferenceId);
+            if (availability == null)
+                availability = new SeatsAvailability(@event.ConferenceId);
+
+            availability.RemoveSeats(@event.SourceId, @event.RemovedQuantity);
+            this.repository.Save(availability);
         }
     }
 }

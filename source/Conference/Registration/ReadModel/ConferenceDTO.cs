@@ -20,12 +20,13 @@ namespace Registration.ReadModel
 
     public class ConferenceDTO
     {
-        public ConferenceDTO(Guid id, string code, string name, string description, IEnumerable<ConferenceSeatTypeDTO> seats)
+        public ConferenceDTO(Guid id, string code, string name, string description, DateTimeOffset startDate, IEnumerable<ConferenceSeatTypeDTO> seats)
         {
             this.Id = id;
             this.Code = code;
             this.Name = name;
             this.Description = description;
+            this.StartDate = startDate;
             this.Seats = new ObservableCollection<ConferenceSeatTypeDTO>(seats);
         }
 
@@ -35,14 +36,13 @@ namespace Registration.ReadModel
         }
 
         [Key]
-        public virtual Guid Id { get; private set; }
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public ICollection<ConferenceSeatTypeDTO> Seats { get; set; }
 
-        public virtual string Code { get; private set; }
-
-        public virtual string Name { get; private set; }
-
-        public virtual string Description { get; private set; }
-
-        public virtual ObservableCollection<ConferenceSeatTypeDTO> Seats { get; private set; }
+        public bool IsPublished { get; set; }
     }
 }

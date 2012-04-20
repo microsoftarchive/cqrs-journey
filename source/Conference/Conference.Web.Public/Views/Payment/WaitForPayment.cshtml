@@ -1,0 +1,14 @@
+﻿@{
+    ViewBag.Title = "WaitForPayment";
+}
+
+<h2>Cannot determine the state of the payment</h2>
+
+<p>Please wait until the request is processed. </p> 
+<p>The page will refresh automatically in 5 seconds. If this does not happen, please refresh the page by clicking the refresh button in your browser.</p>
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () { window.location.reload(); }, 5000);
+    });
+</script>
