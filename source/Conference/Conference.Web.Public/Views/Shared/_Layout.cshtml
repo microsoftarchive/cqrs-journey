@@ -19,7 +19,8 @@
             <li class="quick__item"><a href="#">Contact Us</a></li>
             <li class="quick__item"><a href="#">Help Centre</a></li>
         </ul>
-        <a class="quick__login" href="#">Login or Register </a>
+        @RenderSection("Navigation", required: false)
+        @*<a class="quick__login" href="#">Login or Register </a>*@
     </div>
 </nav>
     @RenderBody()
@@ -27,7 +28,8 @@
 <footer>
     <a class="footer__logo" href="#"><img src="@Url.Content("~/Content/footer/footer__logo.png")" alt="Microsoft® pattern & practices" title=""></a>
     <div class="footer__content">
-        <p>Powered by&nbsp;Contoso Conference Managament System, CQRS Journey Project, Microsoft patterns &amp;&nbsp;practices.<br>
+        <p>Powered by&nbsp;Contoso Conference Managament System, CQRS Journey Project, Microsoft patterns &amp;&nbsp;practices.<br />
+        <span class="footer__disclaimer">This is a sample application for learning purposes, not a production system!</span><br />
             All Rights Reserved, 2012. <a href="#">Terms of&nbsp;Service</a>. <a href="#">Privacy Policy</a>.</p>
 
         <p>Contact the <a href="#">Host</a> for event and ticket information.</p>

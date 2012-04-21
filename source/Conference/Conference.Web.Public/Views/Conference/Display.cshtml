@@ -129,15 +129,10 @@
 
 
 
-
-
-
-
-@Html.ActionLink("Find Order", "Find", "Order")
-
-<p>
-@Html.DisplayFor(model => model.Description)
-</p>
+@section Navigation
+{
+    <a class="quick__login" href="@Url.Action("Find", "Order")">Find Order</a>
+}
 
 @section Scripts
 {

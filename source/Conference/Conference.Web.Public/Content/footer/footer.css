@@ -17,3 +17,8 @@ footer {
     text-decoration: none;
     border-bottom: 1px solid;
 }
+.footer__disclaimer {
+    text-transform: uppercase;
+    color:bisque;
+    font-weight: bold;
+}
