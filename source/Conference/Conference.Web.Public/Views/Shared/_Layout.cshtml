@@ -23,6 +23,8 @@
         @*<a class="quick__login" href="#">Login or Register </a>*@
     </div>
 </nav>
+    @RenderSection("PageNavigation", required: false)  @*TODO: check wrapping*@
+
     @RenderBody()
 
 <footer>

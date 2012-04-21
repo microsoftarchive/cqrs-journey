@@ -22,6 +22,11 @@
 	color: #33ccff;
 	}
 .nav__right {
+    border-width: 0;
+    border-style: none;
+    overflow: hidden;
+    font-family: "Segoe UI light";
+    font-size: 36px;
     background:no-repeat right top url(nav__right.png);
     padding-right: 48px;
     float: right;
