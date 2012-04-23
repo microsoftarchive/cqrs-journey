@@ -16,8 +16,9 @@ namespace Infrastructure.Sql.IntegrationTests
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
-    using Infrastructure.Messaging;
     using Infrastructure.Database;
+    using Infrastructure.Messaging;
+    using Infrastructure.Sql.Database;
     using Moq;
     using Xunit;
 

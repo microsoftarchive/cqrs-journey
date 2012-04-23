@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.Tests
 {
     using System;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;

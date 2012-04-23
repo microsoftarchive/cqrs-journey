@@ -19,6 +19,7 @@ namespace Infrastructure.Sql.IntegrationTests
     using System.Linq;
     using Infrastructure.Messaging;
     using Infrastructure.Processes;
+    using Infrastructure.Sql.Processes;
     using Moq;
     using Xunit;
 

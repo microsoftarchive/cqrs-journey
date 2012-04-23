@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Collections.Generic;
@@ -23,21 +23,18 @@ namespace Infrastructure.Azure
     using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
-    /// An event bus that sends serialized object payloads through a <see cref="IMessageSender"/>.
+    /// A command bus that sends serialized object payloads through a <see cref="IMessageSender"/>.
     /// </summary>
-    public class EventBus : IEventBus
+    public class CommandBus : ICommandBus
     {
         private readonly IMessageSender sender;
         private readonly IMetadataProvider metadata;
-        private readonly ISerializer serializer;
+        private ISerializer serializer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventBus"/> class.
+        /// Initializes a new instance of the <see cref="CommandBus"/> class.
         /// </summary>
-        /// <param name="receiver">The receiver to use. If the receiver is <see cref="IDisposable"/>, it will be disposed when the processor is 
-        /// disposed.</param>
-        /// <param name="serializer">The serializer to use for the message body.</param>
-        public EventBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
+        public CommandBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
         {
             this.sender = sender;
             this.metadata = metadata;
@@ -45,35 +42,35 @@ namespace Infrastructure.Azure
         }
 
         /// <summary>
-        /// Sends the specified event.
+        /// Sends the specified command.
         /// </summary>
-        public void Publish(IEvent @event)
+        public void Send(Envelope<ICommand> command)
         {
-            var message = BuildMessage(@event);
+            var message = BuildMessage(command);
 
             this.sender.Send(message);
         }
 
-        /// <summary>
-        /// Publishes the specified events.
-        /// </summary>
-        public void Publish(IEnumerable<IEvent> events)
+        public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
-            this.sender.Send(events.Select(e => BuildMessage(e)));
+            this.sender.Send(commands.Select(command => BuildMessage(command)));
         }
 
-        private BrokeredMessage BuildMessage(IEvent @event)
+        private BrokeredMessage BuildMessage(Envelope<ICommand> command)
         {
             var stream = new MemoryStream();
-            this.serializer.Serialize(stream, @event);
+            this.serializer.Serialize(stream, command.Body);
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);
 
-            foreach (var pair in this.metadata.GetMetadata(@event))
+            foreach (var pair in this.metadata.GetMetadata(command.Body))
             {
                 message.Properties[pair.Key] = pair.Value;
             }
+
+            if (command.Delay != TimeSpan.Zero)
+                message.ScheduledEnqueueTimeUtc = DateTime.UtcNow.Add(command.Delay);
 
             return message;
         }

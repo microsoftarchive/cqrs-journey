@@ -17,6 +17,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
     using System.Threading;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;

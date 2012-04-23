@@ -43,11 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
-    <Compile Include="CommandBus.cs" />
-    <Compile Include="CommandProcessor.cs" />
+    <Compile Include="Messaging\CommandBus.cs" />
+    <Compile Include="Messaging\EventBus.cs" />
+    <Compile Include="Messaging\Handling\CommandProcessor.cs" />
+    <Compile Include="Messaging\Handling\EventProcessor.cs" />
     <Compile Include="MetadataProvider.cs" />
-    <Compile Include="EventBus.cs" />
-    <Compile Include="EventProcessor.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="MessageProcessor.cs" />
     <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />

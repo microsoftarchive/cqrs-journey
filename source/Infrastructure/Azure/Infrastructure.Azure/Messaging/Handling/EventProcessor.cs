@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.Azure.Messaging.Handling
 {
     using System.Collections.Generic;
     using System.Diagnostics;
