@@ -45,7 +45,7 @@ namespace Infrastructure.EventSourcing
         /// <summary>
         /// Configures a handler for an event. 
         /// </summary>
-        protected virtual void Handles<TEvent>(Action<TEvent> handler)
+        protected void Handles<TEvent>(Action<TEvent> handler)
             where TEvent : IEvent
         {
             this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
