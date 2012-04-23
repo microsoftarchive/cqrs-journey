@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common.Utils
+namespace Conference.Common.Utils
 {
     using System;
 

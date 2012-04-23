@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Database\IAggregateRoot.cs" />
     <Compile Include="Database\IDataContext.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
@@ -72,7 +71,6 @@
     <Compile Include="Serialization\BinarySerializer.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\JsonSerializerAdapter.cs" />
-    <Compile Include="Utils\HandleGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
