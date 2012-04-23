@@ -90,14 +90,14 @@ $(function() {
         });
     });
 	
-	$('.js-radiobutton').click(function(){
-		$('.form__rb__item').removeClass('form__rb__item_a');
-		$(this).addClass('form__rb__item_a');
-		
+	$('.js-radiobutton input').change(function(){
 		$('.js-radiobutton-box').hide();
 		$('.nav__right-small').hide();
-		$('.' + $(this).attr('name') + '-box').show();
-		$('.' + $(this).attr('name') + '-proceed').show();
+		$('.js-radiobutton input:checked').each(function () {
+		    var name = $(this).parent().attr('name');
+		    $('.' + name + '-box').show();
+		    $('.' + name + '-proceed').show();
+		});
 	});
 	
 	$('.js-checkbox').click(function(){

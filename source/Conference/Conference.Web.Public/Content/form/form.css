@@ -43,13 +43,18 @@
 	padding: 0 20px 0 0;
 	}
 .form__rb__item {
-	background: url(form__rb__item.png) left 2px no-repeat;
 	padding: 0 15px 0 25px;
 	font-size: 15px;
-	}
-.form__rb__item_a {
+}
+.form__rb__item input {
+    width: 16px;
+    height: 16px;
+	background: url(form__rb__item.png) left 2px no-repeat;
+    padding: 3px 5px 3px 0;
+}
+.form__rb__item input:checked {
 	background: url(form__rb__item_a.png) left 2px no-repeat;
-	}
+}
 .form__chb {
 	margin: 15px 0 0;
 	}
