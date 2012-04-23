@@ -20,17 +20,19 @@ namespace Conference.Web.Public
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            routes.IgnoreRoute("{*favicon}", new { favicon = @"(.*/)?favicon.ico(/.*)?" });
+
             routes.MapRoute(
                 "Home",
                 string.Empty,
                 new { controller = "Default", action = "Index" });
 
-
             // Registration routes
 
             routes.MapRoute(
                 "ViewConference",
-                "{conferenceCode}",
+                "{conferenceCode}/",
                 new { controller = "Conference", action = "Display" });
 
             routes.MapRoute(
