@@ -157,6 +157,14 @@ namespace Conference
                 context.SaveChanges();
 
                 this.eventBus.Publish(e);
+                this.eventBus.Publish(new SeatUpdated
+                {
+                    ConferenceId = conferenceId,
+                    SourceId = seat.Id,
+                    Name = seat.Name,
+                    Description = seat.Description,
+                    Price = seat.Price
+                });
             }
         }
 
