@@ -18,8 +18,8 @@ namespace Conference.Web.Public
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
-    using Azure;
-    using Azure.Messaging;
+    using Infrastructure.Azure;
+    using Infrastructure.Azure.Messaging;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;

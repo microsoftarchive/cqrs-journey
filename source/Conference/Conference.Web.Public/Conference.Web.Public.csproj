@@ -160,13 +160,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Infrastructure\Azure\Azure.Common\Azure.Common.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
       <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
-      <Name>Azure.Common</Name>
+      <Name>Infrastructure.Azure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Infrastructure\Sql\Common.Sql\Common.Sql.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
       <Project>{f038f286-5aef-4341-83ec-9f72f42d06d6}</Project>
-      <Name>Common.Sql</Name>
+      <Name>Infrastructure.Sql</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>

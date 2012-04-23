@@ -19,15 +19,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{DCB62F05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleCommandProcessor", "..\Infrastructure\Azure\ConsoleCommandProcessor\ConsoleCommandProcessor.csproj", "{6FAD54FF-F1C8-47CD-8D98-860DF88D6A2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common", "..\Infrastructure\Azure\Azure.Common\Azure.Common.csproj", "{56A53790-2571-4EA6-8742-2FA00E893B21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure", "..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj", "{56A53790-2571-4EA6-8742-2FA00E893B21}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Web.Public", "Conference.Web.Public\Conference.Web.Public.csproj", "{32E3E4D7-D887-4BE1-A84F-130BF80533D0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Web.Public.Tests", "Conference.Web.Public.Tests\Conference.Web.Public.Tests.csproj", "{354FEDBD-DDAD-4242-8D39-7373001480CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common.Tests", "..\Infrastructure\Azure\Azure.Common.Tests\Azure.Common.Tests.csproj", "{60AF76A9-0891-400F-8F87-A5978D3F3744}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure.Tests", "..\Infrastructure\Azure\Infrastructure.Azure.Tests\Infrastructure.Azure.Tests.csproj", "{60AF76A9-0891-400F-8F87-A5978D3F3744}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Common.IntegrationTests", "..\Infrastructure\Azure\Azure.Common.IntegrationTests\Azure.Common.IntegrationTests.csproj", "{85C85861-B89C-44E8-94DB-90B5751B3781}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure.IntegrationTests", "..\Infrastructure\Azure\Infrastructure.Azure.IntegrationTests\Infrastructure.Azure.IntegrationTests.csproj", "{85C85861-B89C-44E8-94DB-90B5751B3781}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Web.Admin", "Conference.Web\Conference.Web.Admin.csproj", "{55C34F60-8B4D-428E-9340-2A6C4800E7B5}"
 EndProject
@@ -49,9 +49,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.Contracts", "Payme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "..\Infrastructure\Infrastructure\Infrastructure.csproj", "{B5786D07-5888-4DF5-B295-3FEA593F3BFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Sql", "..\Infrastructure\Sql\Common.Sql\Common.Sql.csproj", "{F038F286-5AEF-4341-83EC-9F72F42D06D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Sql", "..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj", "{F038F286-5AEF-4341-83EC-9F72F42D06D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Sql.IntegrationTests", "..\Infrastructure\Common.Sql.IntegrationTests\Common.Sql.IntegrationTests.csproj", "{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Sql.IntegrationTests", "..\Infrastructure\Sql\Infrastructure.Sql.IntegrationTests\Infrastructure.Sql.IntegrationTests.csproj", "{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure Projects", "Infrastructure Projects", "{54C8F050-8BE6-4218-BE66-A063F4BB3568}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sql", "Sql", "{E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -182,13 +186,18 @@ Global
 		{1F861D4D-FD0C-4CA3-BEDB-EDD276CB0248} = {289E1705-3E80-4962-A46B-E31509CC1C8C}
 		{302F4F0E-E277-45AC-A9F6-3D0D4CF75749} = {289E1705-3E80-4962-A46B-E31509CC1C8C}
 		{D93CC146-0A5B-4367-B356-CB0FC4B65E2B} = {289E1705-3E80-4962-A46B-E31509CC1C8C}
-		{6FAD54FF-F1C8-47CD-8D98-860DF88D6A2C} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
+		{DCB62F05-E128-4944-AC53-A3E6848AF370} = {54C8F050-8BE6-4218-BE66-A063F4BB3568}
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE} = {54C8F050-8BE6-4218-BE66-A063F4BB3568}
+		{E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6} = {54C8F050-8BE6-4218-BE66-A063F4BB3568}
 		{56A53790-2571-4EA6-8742-2FA00E893B21} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
 		{60AF76A9-0891-400F-8F87-A5978D3F3744} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
 		{85C85861-B89C-44E8-94DB-90B5751B3781} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
+		{6FAD54FF-F1C8-47CD-8D98-860DF88D6A2C} = {DCB62F05-E128-4944-AC53-A3E6848AF370}
 		{DACB93E1-1015-4D08-ABF5-D41C74F526DC} = {3EFD47F6-EC13-430F-8232-A3A51FD95A70}
 		{0DDDA8DF-58EA-4682-887E-955C8EDB0AA5} = {3EFD47F6-EC13-430F-8232-A3A51FD95A70}
 		{55C34F60-8B4D-428E-9340-2A6C4800E7B5} = {3EFD47F6-EC13-430F-8232-A3A51FD95A70}
 		{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA} = {3EFD47F6-EC13-430F-8232-A3A51FD95A70}
+		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D} = {E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6} = {E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}
 	EndGlobalSection
 EndGlobal
