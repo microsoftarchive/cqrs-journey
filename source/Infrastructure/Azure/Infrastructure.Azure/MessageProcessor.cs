@@ -130,8 +130,8 @@ namespace Infrastructure.Azure
                 catch (Exception)
                 {
                     // TODO: retries, retry count, Abandon vs DeadLetter?
-                    // Just: if (args.Message.DeliveryCount > 5) ?
-                    args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
+                    if (args.Message.DeliveryCount >= 5)
+                        args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
                 }
             }
         }
