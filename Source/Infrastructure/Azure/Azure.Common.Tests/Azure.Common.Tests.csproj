@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{56A53790-2571-4EA6-8742-2FA00E893B21}</ProjectGuid>
+    <ProjectGuid>{60AF76A9-0891-400F-8F87-A5978D3F3744}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Infra</RootNamespace>
-    <AssemblyName>Azure.Common</AssemblyName>
+    <RootNamespace>Azure.Tests</RootNamespace>
+    <AssemblyName>Azure.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,48 +34,54 @@
     <Reference Include="Microsoft.ServiceBus, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\WindowsAzure.ServiceBus.1.6.0.0\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="Moq">
+      <HintPath>..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.XML" />
+    <Reference Include="xunit">
+      <HintPath>..\..\packages\xunit.1.9.0.1566\lib\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncExtensions.cs" />
-    <Compile Include="CommandBus.cs" />
-    <Compile Include="CommandProcessor.cs" />
-    <Compile Include="MetadataProvider.cs" />
-    <Compile Include="EventBus.cs" />
-    <Compile Include="EventProcessor.cs" />
-    <Compile Include="IMetadataProvider.cs" />
-    <Compile Include="MessageProcessor.cs" />
-    <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
-    <Compile Include="Messaging\IMessageReceiver.cs" />
-    <Compile Include="Messaging\IMessageSender.cs" />
-    <Compile Include="Messaging\SubscriptionReceiver.cs" />
-    <Compile Include="Messaging\MessagingSettings.cs" />
-    <Compile Include="Messaging\TopicSender.cs" />
+    <Compile Include="CommandProcessorFixture.cs" />
+    <Compile Include="MessageProcessorFixture.cs" />
+    <Compile Include="MessagingSettingsFixture.cs" />
+    <Compile Include="MetadataProviderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Conference.licenseheader">
-      <Link>Conference.licenseheader</Link>
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj">
+      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
+      <Name>Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Azure.Common\Azure.Common.csproj">
+      <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
+      <Name>Azure.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\CQRS-journey.licenseheader">
+      <Link>CQRS-journey.licenseheader</Link>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Common.csproj">
-      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
+    <Content Include="..\Settings.Template.xml">
+      <Link>Settings.Template.xml</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Settings.xml">
+      <Link>Settings.xml</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
+    <Error Condition="!Exists('..\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..')) directory) and replace the placeholders with your Azure credentials." />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

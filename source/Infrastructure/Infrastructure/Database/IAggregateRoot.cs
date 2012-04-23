@@ -11,15 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Relational
+namespace Infrastructure.Database
 {
     using System;
 
-    public interface IDataContext<T> : IDisposable
-        where T : IAggregateRoot
+    public interface IAggregateRoot
     {
-        T Find(Guid id);
-
-        void Save(T aggregate);
+        Guid Id { get; }
     }
 }

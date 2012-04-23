@@ -24,7 +24,7 @@ namespace Conference.Web.Public
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
-    using Infrastructure.Relational;
+    using Infrastructure.Database;
     using Infrastructure.Serialization;
     using Infrastructure.Sql;
     using Microsoft.Practices.Unity;

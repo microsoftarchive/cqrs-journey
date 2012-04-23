@@ -16,7 +16,7 @@ param (
 )
 
 # list all the solution folders where the "packages" folder will be placed.
-$solutionRelativePaths = @('source\Conference', 'source\Conference.AcceptanceTests')
+$solutionRelativePaths = @('source\Infrastructure', 'source\Conference', 'source\Conference.AcceptanceTests')
 
 
 $scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path 

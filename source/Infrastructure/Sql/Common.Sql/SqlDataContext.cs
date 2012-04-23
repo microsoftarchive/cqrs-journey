@@ -16,7 +16,7 @@ namespace Infrastructure.Sql
     using System;
     using System.Data.Entity;
     using Infrastructure.Messaging;
-    using Infrastructure.Relational;
+    using Infrastructure.Database;
 
     public class SqlDataContext<T> : IDataContext<T> where T : class, IAggregateRoot
     {

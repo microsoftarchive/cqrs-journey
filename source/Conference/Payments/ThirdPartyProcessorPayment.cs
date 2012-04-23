@@ -18,7 +18,7 @@ namespace Payments
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
     using Infrastructure.Messaging;
-    using Infrastructure.Relational;
+    using Infrastructure.Database;
     using Payments.Contracts.Events;
 
     public class ThirdPartyProcessorPayment : IAggregateRoot, IEventPublisher
