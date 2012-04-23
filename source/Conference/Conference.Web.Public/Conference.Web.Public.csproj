@@ -178,7 +178,7 @@
     </ProjectReference>
     <ProjectReference Include="..\Payments\Payments.csproj">
       <Project>{DB59488E-0358-468D-B074-09A3BD4721BF}</Project>
-      <Name>Payments</Name>
+      <Name>Payments %28Payments\Payments%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
