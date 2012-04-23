@@ -11,11 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common.Sql
+namespace Infrastructure.Sql
 {
     using System;
     using System.Data.Entity;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Relational;
 
     public class SqlDataContext<T> : IDataContext<T> where T : class, IAggregateRoot
     {

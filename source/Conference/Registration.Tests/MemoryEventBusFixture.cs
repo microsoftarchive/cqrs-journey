@@ -15,7 +15,9 @@ namespace Registration.Tests
 {
     using System;
     using System.Threading;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Messaging.InMemory;
     using Moq;
     using Xunit;
 

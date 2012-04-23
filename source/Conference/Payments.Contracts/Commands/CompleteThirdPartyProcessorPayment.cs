@@ -14,7 +14,7 @@
 namespace Payments.Contracts.Commands
 {
     using System;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class CompleteThirdPartyProcessorPayment : ICommand
     {

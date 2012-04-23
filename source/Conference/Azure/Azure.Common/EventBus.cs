@@ -13,11 +13,13 @@
 
 namespace Azure
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
@@ -25,9 +27,9 @@ namespace Azure
     /// </summary>
     public class EventBus : IEventBus
     {
-        private IMessageSender sender;
-        private IMetadataProvider metadata;
-        private ISerializer serializer;
+        private readonly IMessageSender sender;
+        private readonly IMetadataProvider metadata;
+        private readonly ISerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventBus"/> class.

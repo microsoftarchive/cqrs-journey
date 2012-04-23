@@ -17,7 +17,8 @@ namespace Registration
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Processes;
     using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;

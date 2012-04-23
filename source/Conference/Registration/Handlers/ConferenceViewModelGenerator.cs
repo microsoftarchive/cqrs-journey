@@ -16,8 +16,8 @@ namespace Registration.Handlers
     using System;
     using System.Data.Entity;
     using System.Linq;
-    using Common;
     using Conference;
+    using Infrastructure.Messaging.Handling;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 

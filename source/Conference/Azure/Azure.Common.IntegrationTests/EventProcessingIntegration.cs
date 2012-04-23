@@ -17,7 +17,9 @@ namespace Azure.IntegrationTests.EventBusIntegration
     using System.Threading;
     using Azure;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Xunit;
 
     public class given_an_azure_event_bus : given_a_topic_and_subscription

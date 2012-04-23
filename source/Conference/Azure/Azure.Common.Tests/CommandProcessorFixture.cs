@@ -15,7 +15,9 @@ namespace Azure.Tests
 {
     using System;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Moq;
     using Xunit;
 

@@ -19,7 +19,9 @@ namespace Azure.IntegrationTests.CommandProcessingIntegration
     using System.Threading;
     using Azure;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
     using Moq;
     using Xunit;

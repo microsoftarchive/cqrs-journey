@@ -11,8 +11,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Infrastructure.EventSourcing
 {
+    using Infrastructure.Messaging;
+
     public interface IVersionedEvent : IEvent
     {
         int Version { get; }

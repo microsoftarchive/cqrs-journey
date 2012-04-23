@@ -14,7 +14,7 @@
 namespace Payments.Contracts.Events
 {
     using System;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class PaymentCompleted : IEvent
     {

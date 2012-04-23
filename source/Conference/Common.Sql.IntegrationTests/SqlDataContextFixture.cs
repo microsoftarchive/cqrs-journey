@@ -11,13 +11,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common.Sql.IntegrationTests
+namespace Infrastructure.Sql.IntegrationTests
 {
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
-    using Common;
-    using Common.Sql;
+    using Infrastructure.Messaging;
+    using Infrastructure.Relational;
     using Moq;
     using Xunit;
 

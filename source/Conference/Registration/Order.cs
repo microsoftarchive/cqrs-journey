@@ -16,8 +16,8 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Common;
     using Common.Utils;
+    using Infrastructure.EventSourcing;
     using Registration.Events;
 
     public class Order : EventSourced

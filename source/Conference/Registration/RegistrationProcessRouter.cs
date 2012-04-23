@@ -14,7 +14,8 @@
 namespace Registration
 {
     using System;
-    using Common;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Processes;
     using Registration.Commands;
     using Registration.Events;
     using Payments.Contracts.Events;

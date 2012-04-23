@@ -15,7 +15,7 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
 {
     using System;
     using System.Linq;
-    using Common;
+    using Infrastructure.EventSourcing;
     using Registration.Events;
     using Xunit;
 

@@ -16,7 +16,7 @@ namespace Azure
     using System;
     using System.IO;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Serialization;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
@@ -26,9 +26,9 @@ namespace Azure
     {
         private bool disposed;
         private bool started = false;
-        private IMessageReceiver receiver;
-        private ISerializer serializer;
-        private object lockObject = new object();
+        private readonly IMessageReceiver receiver;
+        private readonly ISerializer serializer;
+        private readonly object lockObject = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageProcessor"/> class.

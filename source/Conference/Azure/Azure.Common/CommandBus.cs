@@ -18,7 +18,8 @@ namespace Azure
     using System.IO;
     using System.Linq;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
@@ -26,8 +27,8 @@ namespace Azure
     /// </summary>
     public class CommandBus : ICommandBus
     {
-        private IMessageSender sender;
-        private IMetadataProvider metadata;
+        private readonly IMessageSender sender;
+        private readonly IMetadataProvider metadata;
         private ISerializer serializer;
 
         /// <summary>

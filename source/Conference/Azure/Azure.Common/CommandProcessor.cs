@@ -19,7 +19,8 @@ namespace Azure
     using System.IO;
     using System.Linq;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
 
     /// <summary>
     /// Processes incoming commands from the bus and routes them to the appropriate 

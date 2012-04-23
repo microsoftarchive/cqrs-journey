@@ -14,7 +14,6 @@
 namespace Common.Utils
 {
     using System;
-    using System.Text;
 
     /// <summary>
     /// Generates random alphnumerical strings.

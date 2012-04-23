@@ -14,14 +14,12 @@
 namespace Registration.Tests
 {
 	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
+	using Infrastructure.Messaging;
+	using Infrastructure.Messaging.Handling;
+	using Infrastructure.Messaging.InMemory;
 	using Xunit;
 	using Moq;
-	using Common;
 	using System.Threading;
-	using Registration.Commands;
 
 	public class MemoryCommandBusFixture
 	{

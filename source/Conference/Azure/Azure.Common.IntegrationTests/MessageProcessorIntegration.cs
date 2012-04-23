@@ -17,7 +17,7 @@ namespace Azure.IntegrationTests.MessageProcessorIntegration
     using System.IO;
     using System.Threading;
     using Azure.Messaging;
-    using Common;
+    using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
     using Moq;
     using Moq.Protected;

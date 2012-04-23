@@ -13,7 +13,7 @@
 
 namespace Registration.Events
 {
-    using Common;
+    using Infrastructure.EventSourcing;
 
     public class OrderExpired : VersionedEvent
     {

@@ -14,7 +14,7 @@
 namespace Conference
 {
     using System;
-    using Common;
+    using Infrastructure.Messaging;
 
     public abstract class ConferenceEvent : IEvent
     {

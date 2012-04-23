@@ -11,13 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common.Sql
+namespace Infrastructure.Sql
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
+    using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
 
     // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
     // It does not check for event versions before committing, nor is transactional with the event bus.

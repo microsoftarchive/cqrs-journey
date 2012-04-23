@@ -17,8 +17,8 @@ namespace Conference.Web.Public.Controllers
     using System.Linq;
     using System.Threading;
     using System.Web.Mvc;
-    using Common;
     using Conference.Web.Public.Models;
+    using Infrastructure.Messaging;
     using Payments.Contracts.Commands;
     using Registration.Commands;
     using Registration.ReadModel;

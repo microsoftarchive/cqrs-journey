@@ -20,8 +20,13 @@ namespace Conference.Web.Public
     using System.Web.Routing;
     using Azure;
     using Azure.Messaging;
-    using Common;
-    using Common.Sql;
+    using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Processes;
+    using Infrastructure.Relational;
+    using Infrastructure.Serialization;
+    using Infrastructure.Sql;
     using Microsoft.Practices.Unity;
     using Newtonsoft.Json;
     using Payments;

@@ -15,7 +15,7 @@ namespace Registration.Commands
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class MakeSeatReservation : ICommand
     {

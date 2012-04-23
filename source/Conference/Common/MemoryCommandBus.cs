@@ -11,13 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Infrastructure.Messaging.InMemory
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Infrastructure.Messaging.Handling;
 
     /// <summary>
     /// Sample in-memory command bus that is asynchronous.

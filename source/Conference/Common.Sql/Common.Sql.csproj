@@ -9,7 +9,7 @@
     <ProjectGuid>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common.Sql</RootNamespace>
+    <RootNamespace>Infrastructure.Sql</RootNamespace>
     <AssemblyName>Common.Sql</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Infrastructure.Messaging
 {
     using System.Collections.Generic;
     using System.Linq;

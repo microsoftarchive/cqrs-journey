@@ -11,10 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Common
+namespace Infrastructure.Processes
 {
     using System;
     using System.Collections.Generic;
+    using Infrastructure.Messaging;
 
     /// <summary>
     /// Interface implemented by processes (also known as Sagas in the CQRS community) that publish commands to the command bus.
