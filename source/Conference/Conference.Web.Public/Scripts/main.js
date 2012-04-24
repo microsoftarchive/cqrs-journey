@@ -23,13 +23,13 @@ $(document).ready(function(){
 			fx:      'scrollDown', 
 			speed:    400, 
 			timeout:  0
-		});
-	});
+        });
+    });
 	
 	AnimateTile();
 	
 	function AnimateTile() {
-		RSec = Math.floor(Math.random() *3000) + 1000;
+		RSec = Math.floor(Math.random() *5000) + 1000;
 		RTile = Math.floor(Math.random() *5);
 		setTimeout(function() {						  
 			  $('.tile-slide').eq(RTile).cycle('next');
@@ -40,7 +40,7 @@ $(document).ready(function(){
 	/*
 	var RSec = 0;
 	$('.tile-slide').each(function(index) {
-		RSec = Math.floor(Math.random() *10000) + 3000
+		RSec = Math.floor(Math.random() *20000) + 3000
 		$(this).cycle({
 			fx:      'scrollDown', 
 			speed:    400, 
@@ -98,4 +98,40 @@ $(document).ready(function(){
 
 	});*/
 
+});
+
+$(function () {
+    function getTweets() {
+        var $tweets = $("#tweets");
+        if ($tweets.length > 0) {
+            var user = $tweets.attr("data-user");
+            var url = 'http://search.twitter.com/search.json?callback=?&q=' + user;
+            $.getJSON(url, function(json) {
+                var output = [];
+                if (json.results) {
+                    for (var i = 0, len = json.results.length; i < len; i++) {
+
+                        //instead of appending each result, add each to the buffer array
+                        //output.push('<p><img src="' + json.results[i].profile_image_url + '" widt="48" height="48" />' + json.results[i].text + '</p>');
+                        var timeDifference = new Date().getTime() - Date.parse(json.results[i].created_at);
+                        var hours = Math.round(timeDifference / (60 * 60 * 1000));
+                        output.push('<span class="tile__tweet"><span class="tile__nick"><span class="tile__time">' + hours + 'h ago</span>@' + json.results[i].from_user + '</span>' + json.results[i].text + '</span>');
+                    }
+                }
+
+                //now select the #results element only once and append all the output at once, then slide it into view
+                $("#tweets").html(output.join('')).slideDown('slow');
+                $('.tile_twitter .tile-slide').cycle({
+                    fx: 'scrollUp',
+                    speed: 400,
+                    timeout: 0
+                });
+            });
+        }
+
+        setInterval(getTweets, 20000);
+    }
+
+    //run the getTweets function on document.ready
+    getTweets();
 });

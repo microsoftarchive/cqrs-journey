@@ -155,7 +155,26 @@
             text-align: right;
             margin-right: -65px;
         }
-
+.tile_twitter .tile-slide{
+	width: 209px;
+	height:105px;
+	position: relative;
+	display: block;
+	}
+.tile-slide .tile__tweet {
+	width: 209px;
+	height: 81px;
+	
+	font-size: 13px;
+    position: absolute;
+    bottom: auto;
+    overflow: hidden;
+    right: 20px;
+    left: 11px;
+    top: 50px;
+    line-height: 16px;
+	padding: 10px 0 0;
+	}
 
 .tile_event {}
 .tile__topic {
