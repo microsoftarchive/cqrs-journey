@@ -1,0 +1,179 @@
+.form {
+	
+	}
+.form__fieldset {
+	margin: 0; padding: 0;
+	width: 320px;
+	}
+.form__fieldset:nth-child(odd) {
+	float: left;
+	}
+.form__fieldset:nth-child(even) {
+	float: right;
+	}
+.form__label {
+	font-size: 15px;
+	padding: 15px 0 0;
+	display: block;
+	}
+.form__field {
+	border: solid 1px #abadb3;
+	padding: 0 7px 0;
+	background: #fff;
+	margin: 3px 0 0;
+	}
+.form__field input {
+	width: 100%;
+	margin: 0 0 0 0;
+	text-align: left;
+	border: none; padding: 0;
+	font-size: 15px;
+	color: #333333;
+	height: 24px; line-height: 24px;
+	}
+.form__rb_m {
+	margin: 10px 0 15px 0;
+	}
+.form__rb {
+	
+	}
+.form__rb__title {
+	display: inline;
+	font-size: 15px;
+	padding: 0 20px 0 0;
+	}
+.form__rb__item {
+	padding: 0 15px 0 25px;
+	font-size: 15px;
+}
+.form__rb__item input {
+    width: 16px;
+    height: 16px;
+	background: url(form__rb__item.png) left 2px no-repeat;
+    padding: 3px 5px 3px 0;
+}
+.form__rb__item input:checked {
+	background: url(form__rb__item_a.png) left 2px no-repeat;
+}
+.form__chb {
+	margin: 15px 0 0;
+	}
+.form__chb__item {
+	background: url(form__chb__item.png) left 0 no-repeat;
+	padding: 0 0 0 35px;
+	line-height: 20px;
+	font-size: 15px;
+	}
+div.form__chb__item {
+	background: url(form__chb__item.png) left 0 no-repeat;
+	cursor: pointer;
+	display: inline;
+	}
+.form__chb__item_a {
+	background: url(form__chb__item_a.png) left 0 no-repeat;
+	}
+div.form__chb__item_a {
+	background: url(form__chb__item_a.png) left 0 no-repeat;
+	}
+.form__chb_seats {
+	padding: 0 0 0;
+	height: 31px;
+	line-height: 40px;
+	}
+.form__seats-select {
+	display: inline;
+	line-height: 20px;
+	font-size: 15px;
+	display: none;
+	}
+.form .form-select-pad {
+	top: 0;
+	margin: 3px 0 0;
+	}
+.form-select-pad {
+	position: relative;
+	top: -5px;
+	}
+.form__seats-select .form-select-pad {
+	top: 0;
+	display: inline-block;
+	}
+.form-select {
+	border: solid 1px #abadb3;
+	position: relative;
+	height: 24px;
+	min-width: 59px;
+	background: #ffffff;
+	}
+.form__seats-select .form-select {
+	display: inline-block;
+	}
+.form-select__drop-down {
+	position: absolute;
+	right: 1px;
+	top: 1px;
+	width: 22px; height: 22px;
+	background: #205501 url(form-select__drop-down.png) 50% 9px no-repeat;
+	cursor: pointer;
+	}
+.form__seats-select .form-select__drop-down {
+	background: #b42f03 url(form-select__drop-down.png) 50% 9px no-repeat;
+	}
+.form-select__active {
+	height: 24px;
+	line-height: 24px;
+	color: #1c2126;
+	font-size: 15px;
+	padding: 0 30px 0 5px;
+	cursor: pointer;
+	}
+div.form-select__options {
+	background: #fff;
+	border: solid 1px #abadb3;
+	position: absolute;
+	left: -1px;
+	top: 24px;
+	width: 100%;
+	max-height: 124px;
+	overflow: auto;
+	}
+.form-select__options__active-item,.form-select__options__item {
+	height: 24px;
+	line-height: 24px;
+	color: #1c2126;
+	font-size: 15px;
+	padding: 0 5px 0 5px;
+	}
+.form-select__options__active-item:hover,.form-select__options__item:hover {
+	background: #ddd;
+	}
+.form-select__options__active-item {
+	display: none;
+	}
+	
+.form-promo {
+	display: none;
+	height: 26px;
+	margin: -3px 0 0;
+	}
+.form-promo__txt {
+	width: 175px;
+	height: 24px;
+	border: solid 1px #abadb3;
+	font-size: 15px;
+	line-height: 24px;
+	color: #1c2126;
+	float: left;
+	margin-right: 5px;
+	padding: 0 7px;
+	text-align: left;
+	}
+.form-promo__but {
+	width: 66px;
+	height: 26px;
+	color: #fff;
+	background: #205501;
+	font-size: 15px;
+	line-height: 26px;
+	border: none;
+	}
