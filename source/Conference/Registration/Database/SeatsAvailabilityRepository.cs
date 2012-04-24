@@ -14,7 +14,7 @@
 namespace Registration.Database
 {
     using System;
-    using Common;
+    using Infrastructure.EventSourcing;
 
     public sealed class FakeSeatsAvailabilityInitializer
     {

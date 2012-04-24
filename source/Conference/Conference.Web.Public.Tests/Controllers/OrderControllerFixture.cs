@@ -14,13 +14,9 @@
 namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
 {
     using System;
-    using System.Linq;
     using System.Web.Mvc;
-    using Common;
     using Conference.Web.Public.Controllers;
-    using Conference.Web.Public.Models;
     using Moq;
-    using Registration;
     using Registration.ReadModel;
     using Xunit;
 

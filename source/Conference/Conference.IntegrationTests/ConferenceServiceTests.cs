@@ -17,7 +17,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
     using System.Data;
     using System.Data.Entity;
     using System.Linq;
-    using Common;
+    using Infrastructure.Messaging.InMemory;
     using Xunit;
 
     public class given_no_conference

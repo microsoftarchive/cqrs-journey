@@ -13,8 +13,9 @@
 
 namespace Registration.Handlers
 {
-    using Common;
     using Conference;
+    using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging.Handling;
     using Registration.Commands;
 
     /// <summary>

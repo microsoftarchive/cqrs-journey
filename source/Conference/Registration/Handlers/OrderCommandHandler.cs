@@ -13,9 +13,9 @@
 
 namespace Registration.Handlers
 {
-    using System;
     using System.Linq;
-    using Common;
+    using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging.Handling;
     using Registration.Commands;
 
     public class OrderCommandHandler :

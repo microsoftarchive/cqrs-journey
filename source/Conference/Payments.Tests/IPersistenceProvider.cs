@@ -14,7 +14,7 @@
 namespace Payments.Tests
 {
     using System;
-    using Common;
+    using Infrastructure.Database;
 
     /// <summary>
     /// Provides a way to abstract the work a persistence layer would perform 

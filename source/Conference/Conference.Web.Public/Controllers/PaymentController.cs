@@ -16,7 +16,7 @@ namespace Conference.Web.Public.Controllers
     using System;
     using System.Threading;
     using System.Web.Mvc;
-    using Common;
+    using Infrastructure.Messaging;
     using Payments.Contracts.Commands;
     using Payments.ReadModel;
 
@@ -24,8 +24,8 @@ namespace Conference.Web.Public.Controllers
     {
         private const int WaitTimeoutInSeconds = 5;
 
-        private ICommandBus commandBus;
-        private IPaymentDao paymentDao;
+        private readonly ICommandBus commandBus;
+        private readonly IPaymentDao paymentDao;
 
         public PaymentController(ICommandBus commandBus, IPaymentDao paymentDao)
         {

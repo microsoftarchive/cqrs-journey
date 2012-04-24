@@ -14,7 +14,8 @@
 namespace Registration.Tests
 {
     using System.Linq;
-    using Common;
+    using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging;
 
     public static class EnumerableEventsExtensions
     {

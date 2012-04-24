@@ -15,13 +15,15 @@ using System.Data.Entity;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using Azure;
-using Azure.Messaging;
-using Common;
+using Infrastructure.Azure;
+using Infrastructure.Azure.Messaging;
 using Newtonsoft.Json;
 
 namespace Conference.Web.Admin
 {
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
+
     public class MvcApplication : System.Web.HttpApplication
     {
         public static IEventBus EventBus { get; private set; }

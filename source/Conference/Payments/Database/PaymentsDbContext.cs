@@ -14,7 +14,6 @@
 namespace Payments.Database
 {
     using System.Data.Entity;
-    using Common;
 
     public class PaymentsDbContext : DbContext
     {

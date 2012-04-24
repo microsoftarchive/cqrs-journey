@@ -53,21 +53,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
+      <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
+      <HintPath>..\..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity.Configuration, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <HintPath>..\..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -130,8 +130,8 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Conference.licenseheader">
-      <Link>Conference.licenseheader</Link>
+    <None Include="..\..\CQRS-journey.licenseheader">
+      <Link>CQRS-journey.licenseheader</Link>
     </None>
     <Content Include="Views\Registration\ReservationUnknown.cshtml" />
     <Content Include="Views\Registration\ReservationRejected.cshtml" />
@@ -154,23 +154,23 @@
     <Content Include="Views\Conference\Display.cshtml" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
-    <Content Include="..\Azure\Settings.xml">
+    <Content Include="..\..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Azure\Azure.Common\Azure.Common.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
       <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
-      <Name>Azure.Common</Name>
+      <Name>Infrastructure.Azure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common.Sql\Common.Sql.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
       <Project>{f038f286-5aef-4341-83ec-9f72f42d06d6}</Project>
-      <Name>Common.Sql</Name>
+      <Name>Infrastructure.Sql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common\Common.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Common</Name>
+      <Name>Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\Payments.Contracts\Payments.Contracts.csproj">
       <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
@@ -200,7 +200,7 @@
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <Target Name="BeforeBuild" Condition=" '$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">
-    <Error Condition="!Exists('..\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\Azure')) directory) and replace the placeholders with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
+    <Error Condition="!Exists('..\..\Infrastructure\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\Infrastructure\Azure')) directory) and replace the placeholders with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
   </Target>
   <ProjectExtensions>
     <VisualStudio>
