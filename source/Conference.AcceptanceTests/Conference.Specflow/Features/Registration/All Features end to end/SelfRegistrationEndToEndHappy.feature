@@ -24,6 +24,8 @@ Scenario: Make a reservation with the selected Order Items
 	And the total should read $249
 	And the countdown started
 
+#Promo code not implemented yet
+@ignore
 Scenario: Make a reservation with the selected Order Items and a Promo Code
 	Given the Registrant apply the 'COPRESENTER' Promotional Code
 	And the 'COPRESENTER' Promo code should show a value of -$5
@@ -33,14 +35,14 @@ Scenario: Make a reservation with the selected Order Items and a Promo Code
 	And the countdown started
 
 Scenario: Checkout:Registrant Details
-	Given the Registrant enter these details
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
 	| First name | Last name | email address         |
 	| John       | Smith     | johnsmith@contoso.com |
 	And the Registrant details are valid
 	# valid = non-empty, email address is valid as per email conventional verification
 	When the Registrant proceed to Checkout:Payment
-	Then the payment options shoule be offered
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
+	Then the payment options should be offered for a total of $249
 
 Scenario: Checkout:Payment and sucessfull Order completed
 	Given Checkout:Registrant Details completed
@@ -51,6 +53,8 @@ Scenario: Checkout:Payment and sucessfull Order completed
 	And a Registration confirmation with the Access code should be displayed
 	And an email with the Access Code will be send to the registered email. 
 
+#Seat allocation not implemented yet
+@ignore
 Scenario: AllocateSeats
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789

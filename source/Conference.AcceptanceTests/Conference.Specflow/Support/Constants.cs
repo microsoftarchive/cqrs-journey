@@ -13,8 +13,11 @@ namespace Conference.Specflow
 
         public static class UI
         {
-            public const string RegistrationOrderButtonID = "finish";
-            public const string RegistrationSucessfull = "Complete the registration before the count down expires";
+            public const string NextStepButtonID = "Next";
+            public const string ReservationSucessfull = "Seats information";
+            public const string RegistrationSucessfull = "You will receive a confirmation e-mail in a few minutes.";
+            public const string AcceptPaymentInputValue = "accepted";
+            public const string RejectPaymentInputValue = "rejected";
         }
     }
 }

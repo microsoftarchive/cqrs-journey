@@ -1,31 +1,21 @@
 ﻿using System;
-using System.Linq;
+using System.Threading;
+using Infrastructure.Azure;
+using Infrastructure.Azure.Messaging;
+using Infrastructure.Messaging;
+using Infrastructure.Serialization;
+using Newtonsoft.Json;
 using TechTalk.SpecFlow;
-using Registration.ReadModel.Implementation;
-using Registration.ReadModel;
-using System.Transactions;
 
 namespace Conference.Specflow
 {
     static class ConferenceHelper
     {
+        private static object syncLock = new object();
+
         public static void PopulateConfereceData(Table table)
         {
-            if (IsConferenceCreated())
-                return;
-
-            ConferenceInfo conference = new ConferenceInfo()
-            {
-                Description = "CQRS summit 2012 conference",
-                Name = "test",
-                Slug = Constants.ConferenceSlug,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(1),
-                OwnerName = "test",
-                OwnerEmail = "testEmail",
-                IsPublished = true,
-                WasEverPublished = true
-            };
+            ConferenceInfo conference = BuildConferenceInfo();
 
             foreach (var row in table.Rows)
             {
@@ -40,66 +30,55 @@ namespace Conference.Specflow
                 conference.Seats.Add(seat);
             }
 
-            CreateConference(conference);
+            SaveConferenceInfo(conference);
         }
 
-        private static void CreateConference(ConferenceInfo conference)
+        private static void SaveConferenceInfo(ConferenceInfo conference)
         {
-            using (var transaction = new TransactionScope(TransactionScopeOption.Required, 
-                new TransactionOptions() { IsolationLevel = IsolationLevel.ReadCommitted }))
+            ConferenceService svc = new ConferenceService(BuildEventBus());
+
+            lock (syncLock)
             {
-                using (var context = new ConferenceContext())
+                if (null == svc.FindConference(Constants.ConferenceSlug))
                 {
-                    context.Conferences.Add(conference);
-                    context.SaveChanges();
+                    svc.CreateConference(conference);
+                    svc.Publish(conference.Id);
+                    // Wait for the events to be processed
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
                 }
-                using (var repository = new ConferenceRegistrationDbContext())
-                {
-                    if (null == repository.Find<ConferenceDTO>(conference.Id))
-                    {
-                        var entity = new ConferenceDTO(
-                                conference.Id,
-                                conference.Slug,
-                                conference.Name,
-                                conference.Description,
-                                conference.StartDate,
-                                conference.Seats.Select(s => new ConferenceSeatTypeDTO(s.Id, s.Name, s.Description, s.Price)));
-                        entity.IsPublished = conference.IsPublished;
-
-                        repository.Save<ConferenceDTO>(entity);
-                    }
-                }
-                transaction.Complete();
             }
+        }
 
+        private static ConferenceInfo BuildConferenceInfo()
+        {
+            return new ConferenceInfo()
+            {
+                Description = "CQRS summit 2012 conference",
+                Name = "test",
+                Slug = Constants.ConferenceSlug,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1),
+                OwnerName = "test",
+                OwnerEmail = "testEmail",
+                IsPublished = true,
+                WasEverPublished = true
+            };
+        }
+
+        private static IEventBus BuildEventBus()
+        {
             // Using ConferenceService
-            //var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            //{
-            //    // Allows deserializing to the actual runtime type
-            //    TypeNameHandling = TypeNameHandling.Objects,
-            //    // In a version resilient way
-            //    TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            //}));
-            //var settings = MessagingSettings.Read("Settings.xml");
-            //IEventBus eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
-            //ConferenceService svc = new ConferenceService(eventBus);
-
-            //if (null == svc.FindConference(Constants.ConferenceSlug))
-            //{
-            //    svc.CreateConference(conference);
-            //    svc.Publish(conference.Id);
-            //}
-        }
-
-        private static bool IsConferenceCreated()
-        {
-            using (var context = new ConferenceContext())
+            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
             {
-                return context.Conferences
-                    .Where(c => c.Slug == Constants.ConferenceSlug)
-                    .Select(c => c.Slug)
-                    .Any();
-            }
+                // Allows deserializing to the actual runtime type
+                TypeNameHandling = TypeNameHandling.Objects,
+                // In a version resilient way
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            }));
+
+            var settings = MessagingSettings.Read("Settings.xml");
+
+            return new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
         }
     }
 }

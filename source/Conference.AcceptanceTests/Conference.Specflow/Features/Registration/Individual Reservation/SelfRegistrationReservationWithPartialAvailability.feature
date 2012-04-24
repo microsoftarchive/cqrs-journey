@@ -11,10 +11,6 @@ Background:
 	| Additional cocktail party		   | $50  |	
 
 
-Scenario: No selected Seat Type
-When the Registrant proceed to make the Reservation		
-Then the message 'One or more items are required' will show up
-
 #1
 #Initial state	: 3 waitlisted and 3 selected
 #End state		: 3 waitlisted confirmed  
@@ -129,5 +125,18 @@ Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlis
 	| General admission | 1        |
 
 
+#7
+Scenario: No selected Seat Type
+When the Registrant proceed to make the Reservation		
+Then the message 'One or more items are required' will show up
+
+
+#8
+Scenario: Zero seats selected
+Given the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 0        |
+When the Registrant proceed to make the Reservation		
+Then the message 'The Quantity field is required.' will show up
 
 

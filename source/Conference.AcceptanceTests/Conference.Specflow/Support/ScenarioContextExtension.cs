@@ -15,8 +15,9 @@ namespace Conference.Specflow
         public static IE Browser(this ScenarioContext context)
         {
             if (!context.ContainsKey(key))
-            {
-                context[key] = new IE() { AutoClose = true, Visible = false };
+            {   
+                //TODO: Set Visible false for production
+                context[key] = new IE() { AutoClose = true, Visible = true };
             }
             return context[key] as IE;
         }

@@ -28,8 +28,14 @@ namespace Conference.Specflow
         {
             //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
             var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
-            if(tr != null)
-                tr.SelectLists.First().Select(value);
+            if (tr != null && tr.Lists.Count > 0)
+            {
+                //tr.SelectLists.First().Select(value);
+                var list = tr.Lists.First();
+                var item = list.OwnListItem(Find.ByText(value));
+                if (item.Exists)
+                    item.Click();
+            }
         }
 
         public static bool SafeContainsText(this IE browser, string text)

@@ -21,5 +21,11 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             //ScenarioContext.Current.Pending();
         }
 
+        [Given(@"the Registrant enter these details")]
+        public void GivenTheRegistrantEnterTheseDetails(Table table)
+        {
+            ScenarioContext.Current.Pending();
+        }
+
     }
 }
