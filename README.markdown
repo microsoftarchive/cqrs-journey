@@ -131,7 +131,7 @@ Before you start working on bug fixes and features it is good idea to discuss th
 
 Before submitting your changes make sure you followed the guidelines below:
 
-* For every new code file, include the file header with license information that is included in all other files (see [https://github.com/mspnp/cqrs-journey-code/blob/dev/source/Conference/Conference.licenseheader](https://github.com/mspnp/cqrs-journey-code/blob/dev/source/Conference/Conference.licenseheader), for example).
+* For every new code file, include the file header with license information that is included in all other files (see [https://github.com/mspnp/cqrs-journey-code/blob/dev/source/Conference/..\CQRS-journey.licenseheader](https://github.com/mspnp/cqrs-journey-code/blob/dev/source/CQRS-journey.licenseheader), for example).
 * You have properly documented any new functionality using the documentation standards for the language (this includes classes, methods and functions, properties etc.). For any change you make proper inline documentation is included.
 * For any new functionality or updates, you have written complete unit tests.
 * You have run all unit tests and they pass.

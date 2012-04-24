@@ -15,7 +15,7 @@ namespace Payments.Contracts.Commands
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class InitiateThirdPartyProcessorPayment : ICommand
     {

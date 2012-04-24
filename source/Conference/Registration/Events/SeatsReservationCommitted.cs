@@ -14,7 +14,7 @@
 namespace Registration.Events
 {
     using System;
-    using Common;
+    using Infrastructure.EventSourcing;
 
     public class SeatsReservationCommitted : VersionedEvent
     {

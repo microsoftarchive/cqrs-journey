@@ -18,7 +18,7 @@ namespace Registration.Commands
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class RegisterToConference : ICommand, IValidatableObject
     {

@@ -20,8 +20,8 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
-    using Common;
     using Conference.Web.Public.Controllers;
+    using Infrastructure.Messaging;
     using Moq;
     using Payments.Contracts.Commands;
     using Registration;
