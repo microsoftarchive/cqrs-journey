@@ -136,6 +136,7 @@ div.form-select__options {
 	width: 100%;
 	max-height: 124px;
 	overflow: auto;
+    z-index: 50;
 	}
 .form-select__options__active-item,.form-select__options__item {
 	height: 24px;
