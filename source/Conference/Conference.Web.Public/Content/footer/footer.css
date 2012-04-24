@@ -1,0 +1,24 @@
+footer {
+	font-size: 11px;
+	min-height: 100px;
+    width: 1130px;
+    margin: 55px auto 0;
+}
+.footer__logo {
+    margin: 1px 0 0 -2px;
+    float: left;
+}
+.footer__content {
+    margin-left: 250px;
+}
+.footer__content p {padding-top: 12px;}
+.footer__content p:first-child {padding-top: 0;}
+.footer__content a {
+    text-decoration: none;
+    border-bottom: 1px solid;
+}
+.footer__disclaimer {
+    text-transform: uppercase;
+    color:bisque;
+    font-weight: bold;
+}

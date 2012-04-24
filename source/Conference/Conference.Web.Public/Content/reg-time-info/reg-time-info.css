@@ -1,0 +1,23 @@
+.reg-time-info {
+	background: #0087b5 url(reg-time-info.png) 20px 20px no-repeat;
+	padding: 10px 30px 18px 20px;
+	min-height: 88px;
+	position: absolute;
+	left: 50%;
+	top: 0px;
+	width: 210px;
+	margin: 79px 0 0 265px;
+	}
+.reg-time-info_fixed {
+	position: fixed;
+	left: 50%;
+	top: 0;
+	}
+.reg-time-info__title {
+	font-size: 45px;
+	line-height: 45px;
+	padding: 10px 0 8px 65px;
+	}
+.reg-time-info__txt p {
+	margin: 10px 0 0; padding: 0;
+	}
