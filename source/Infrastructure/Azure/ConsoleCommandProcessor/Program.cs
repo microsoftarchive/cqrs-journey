@@ -15,12 +15,24 @@ namespace ConsoleCommandProcessor
 {
     using System;
     using System.Data.Entity;
-    using Azure;
-    using Azure.Messaging;
-    using Common;
-    using Common.Sql;
+    using Infrastructure.Azure;
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Database;
+    using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Processes;
+    using Infrastructure.Serialization;
+    using Infrastructure.Sql.Database;
+    using Infrastructure.Sql.EventSourcing;
+    using Infrastructure.Sql.Processes;
     using Microsoft.Practices.Unity;
     using Newtonsoft.Json;
+    using Payments;
+    using Payments.Database;
+    using Payments.Handlers;
+    using Payments.ReadModel.Implementation;
     using Registration;
     using Registration.Database;
     using Registration.Handlers;
@@ -38,6 +50,10 @@ namespace ConsoleCommandProcessor
                 Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
                 Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
 
+                Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
+                // Views repository is currently the same as the domain DB. No initializer needed.
+                Database.SetInitializer<PaymentsReadDbContext>(null);
+
                 using (var context = container.Resolve<ConferenceRegistrationDbContext>())
                 {
                     context.Database.Initialize(true);
@@ -49,6 +65,11 @@ namespace ConsoleCommandProcessor
                 }
 
                 using (var context = container.Resolve<EventStoreDbContext>())
+                {
+                    context.Database.Initialize(true);
+                }
+
+                using (var context = container.Resolve<PaymentsDbContext>("payments"))
                 {
                     context.Database.Initialize(true);
                 }
@@ -67,6 +88,7 @@ namespace ConsoleCommandProcessor
         private static UnityContainer CreateContainer()
         {
             var container = new UnityContainer();
+
             // infrastructure
             var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
             {
@@ -101,6 +123,11 @@ namespace ConsoleCommandProcessor
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus)));
 
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
+                new TransientLifetimeManager(),
+                new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
+
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
 
@@ -111,6 +138,9 @@ namespace ConsoleCommandProcessor
 
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
+            container.RegisterType<IEventHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
+
+            container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
             container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");

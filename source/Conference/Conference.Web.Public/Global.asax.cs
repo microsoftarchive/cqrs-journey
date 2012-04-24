@@ -72,15 +72,15 @@ namespace Conference.Web.Public
             Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
 
+            Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
+            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<PaymentsReadDbContext>(null);
+
+
             using (var context = this.container.Resolve<ConferenceRegistrationDbContext>())
             {
                 context.Database.Initialize(true);
             }
-
-            Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
-
-            // Views repository is currently the same as the domain DB. No initializer needed.
-            Database.SetInitializer<PaymentsReadDbContext>(null);
 
             using (var context = this.container.Resolve<DbContext>("registration"))
             {
@@ -98,6 +98,9 @@ namespace Conference.Web.Public
             }
 
             container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
+#else
+            Database.SetInitializer<PaymentsReadDbContext>(null);
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
 #endif
         }
 
@@ -169,6 +172,7 @@ namespace Conference.Web.Public
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
+            container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");
 #endif
 
             return container;
