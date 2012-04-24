@@ -42,44 +42,7 @@
                 </div>
                 @using (Html.BeginForm())
                 {
-                    @Html.HiddenFor(model => model.RegistrantDetails.OrderId)
-
-				    <div class="content-main__header">Register</div>
-                    <div class="content">
-                        @*TODO: fix styling for validation*@
-                        @Html.ValidationSummary()
-                        
-                        @*<p>Hi, Anton@mail.com!&nbsp;&nbsp;&nbsp;&nbsp;<a href="">Sign Out</a> if not you.</p>*@
-                        <div class="form">
-                            @*TODO: Use label for attribute*@
-                            <fieldset class="form__fieldset">
-                                <label class="form__label">First Name:<span>*</span></label>
-                                <div class="form__field">
-                                    @Html.EditorFor(model => model.RegistrantDetails.FirstName)
-                                </div>
-                            </fieldset>
-                            <fieldset class="form__fieldset">
-                                <label class="form__label">Email address:<span>*</span></label>
-                                <div class="form__field">
-                                    @Html.EditorFor(model => model.RegistrantDetails.Email)
-                                </div>
-                            </fieldset>
-                            <fieldset class="form__fieldset">
-                                <label class="form__label">Last Name:<span>*</span></label>
-                                <div class="form__field">
-                                    @Html.EditorFor(model => model.RegistrantDetails.LastName)
-                                </div>
-                            </fieldset>
-                            <fieldset class="form__fieldset">
-                                <label class="form__label">Confirm e-mail:<span>*</span></label>
-                                <div class="form__field">
-                                    <input type="text" data-val="true" data-val-equalto="E-Mail addresses do not match."
-                                           data-val-equalto-other="Email" data-val-required="Please confirm the e-mail address." />
-                                </div>
-                            </fieldset>
-                            <div class="g-clear"></div>
-                        </div>
-                    </div>
+                    @Html.Partial("_RegistrationDetailsEditor", Model.RegistrantDetails)
                     <div class="content-main__header">Billing information</div>
                     <div class="content">
                         <div class="form">
@@ -179,7 +142,6 @@
         <div class="g-clear"></div>
     </div>
 </div>
-
 
 @section Scripts
 {

@@ -193,6 +193,7 @@
     <Content Include="Areas\ThirdPartyProcessor\Views\Web.config" />
     <Content Include="Areas\ThirdPartyProcessor\Views\ThirdPartyProcessorPayment\Pay.cshtml" />
     <Content Include="Views\Payment\WaitForPayment.cshtml" />
+    <Content Include="Views\Registration\_RegistrationDetailsEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
