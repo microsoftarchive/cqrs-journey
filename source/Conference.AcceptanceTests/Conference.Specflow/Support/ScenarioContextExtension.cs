@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using TechTalk.SpecFlow;
 using WatiN.Core;
-using Xunit;
 
 namespace Conference.Specflow
 {
+    [Binding]
     public static class ScenarioContextExtension
     {
         static readonly string key = Guid.NewGuid().ToString();
@@ -16,20 +16,19 @@ namespace Conference.Specflow
         {
             if (!context.ContainsKey(key))
             {
-                context[key] = new IE();
+                context[key] = new IE() { AutoClose = true, Visible = false };
             }
             return context[key] as IE;
         }
 
-        //[AfterScenario]
-        //static void CloseBrowser()
-        //{
-        //    if (ScenarioContext.Current.ContainsKey(key))
-        //    {
-        //        var instance = (IE)ScenarioContext.Current[key];
-        //        instance.ForceClose();
-        //        instance.Dispose();
-        //    }
-        //}
+        [AfterScenario]
+        static void CloseBrowser()
+        {
+            if (ScenarioContext.Current.ContainsKey(key))
+            {
+                var instance = (IE)ScenarioContext.Current[key];
+                instance.Close();
+            }
+        }
     }
 }

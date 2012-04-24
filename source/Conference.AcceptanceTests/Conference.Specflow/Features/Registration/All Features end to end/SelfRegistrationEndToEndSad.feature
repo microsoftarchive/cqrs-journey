@@ -25,7 +25,7 @@ Scenario: Partial Promotional Code for none of the selected items
 	| Pre-con Workshop with Greg Young | 1        |
 	And the total amount should be of $500
 	When the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Coupon will not be applied and an error message will inform about the problem
+	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $500
 
 
@@ -66,7 +66,7 @@ Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlis
 	| General admission | 1        |	
 	And the countdown has decreased within the allowed timeslot for holding the Reservation
 
-  
+
 Scenario: Checkout:Registrant Invalid Details
 	Given the Registrant enter these details
 	| First name | Last name | email address     |
@@ -87,7 +87,7 @@ Scenario: Checkout:Payment with cancellation
 	When the Registrant decides to cancel the payment
     Then a cancelation message will be shown to the Registrant and will get back to the payment options
 
-	
+
 Scenario: Checkout:Payment and place Order
 	Given the Registrant enter these details
 	| First name | Last name | email address         |

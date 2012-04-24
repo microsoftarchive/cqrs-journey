@@ -16,7 +16,7 @@ Background:
 
 
 Scenario: Make a reservation with the selected Order Items
-	When the Registrant proceed to make the Reservation	for the selected Order Items		
+	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And the total should read $249
 	And the countdown started for these Order Items

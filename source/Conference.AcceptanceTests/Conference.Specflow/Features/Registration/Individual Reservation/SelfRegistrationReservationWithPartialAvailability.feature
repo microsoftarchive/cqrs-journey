@@ -3,10 +3,22 @@
 	As an Attendee
 	I want to be able to select an Order Item from one or many of the available and or waitlisted Order Items and make a Reservation
 
+Background: 
+	Given the list of the available Order Items for the CQRS summit 2012 conference
+	| seat type                        | rate |
+	| General admission                | $199 |
+	| Pre-con Workshop with Greg Young | $500 |
+	| Additional cocktail party		   | $50  |	
+
+
+Scenario: No selected Seat Type
+When the Registrant proceed to make the Reservation		
+Then the message 'One or more items are required' will show up
+
 #1
 #Initial state	: 3 waitlisted and 3 selected
 #End state		: 3 waitlisted confirmed  
-Scenario: All the Order Items are offered to be waitlisted and all are selected, then all get confirmed	
+ Scenario: All the Order Items are offered to be waitlisted and all are selected, then all get confirmed	
 	Given the list of Order Items offered to be waitlisted and selected by the Registrant
 	| seat type                        | quantity |
 	| General admission                | 1		  |

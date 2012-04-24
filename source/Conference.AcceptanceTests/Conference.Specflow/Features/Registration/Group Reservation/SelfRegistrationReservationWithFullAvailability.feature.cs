@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Registration.IndividualReservation
+namespace Conference.Specflow.Features.Registration.GroupReservation
 {
     using TechTalk.SpecFlow;
     
@@ -52,7 +52,7 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
                         && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Self Registrant scenarios for making a Reservation for a Conference site with all" +
                             " Order Items initially available")))
             {
-                Conference.Specflow.Features.Registration.IndividualReservation.SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FeatureSetup(null);
+                Conference.Specflow.Features.Registration.GroupReservation.SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FeatureSetup(null);
             }
         }
         

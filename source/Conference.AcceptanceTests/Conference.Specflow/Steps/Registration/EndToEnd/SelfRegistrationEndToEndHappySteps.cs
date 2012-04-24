@@ -15,8 +15,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             //ScenarioContext.Current.Pending();
         }
 
-        [Given(@"the '(.*)' Coupon item should show a value of -\$(.*)")]
-        public void GivenTheCouponItemShouldShowAValue(string code, int value)
+        [Given(@"the '(.*)' Promo code should show a value of -\$(.*)")]
+        public void GivenThePromocodeItemShouldShowAValue(string code, int value)
         {
             //ScenarioContext.Current.Pending();
         }

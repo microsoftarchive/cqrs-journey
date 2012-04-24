@@ -8,7 +8,8 @@ namespace Conference.Specflow
 {
     static class Constants
     {
-        public static readonly string RegistrationPage = ConfigurationManager.AppSettings["registrationUrl"];
+        public static readonly string RegistrationPage = string.Format(ConfigurationManager.AppSettings["registrationUrl"], ConferenceSlug);
+        public const string ConferenceSlug = "testsite";
 
         public static class UI
         {

@@ -27,7 +27,7 @@ Scenario: Full Promotional Code for all selected items
 	| Additional cocktail party        | 2        |
 	And the total amount should be of $1197
 	When the Registrant apply the 'SPEAKER123' Promotional Code
-	Then the 'SPEAKER123' Coupon item should show a value of -$1197
+	Then the 'SPEAKER123' Promo code should show a value of -$1197
 	And the total amount should be of $0
 
 	
@@ -39,7 +39,7 @@ Scenario: Partial Promotional Code for all selected items
 	| Additional cocktail party        | 2        |
 	And the total amount should be of $1197
 	When the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Coupon item should show a value of -$597
+	Then the 'VOLUNTEER' Promo code should show a value of -$597
 	And the total amount should be of $600
 
 
@@ -50,7 +50,7 @@ Scenario: Partial Promotional Code for none of the selected items
 	| Additional cocktail party        | 2        |
 	And the total amount should be of $600
 	When the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Coupon will not be applied and an error message will inform about the problem
+	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $600
 
 
@@ -79,7 +79,7 @@ Scenario: Single use Promotional Code
 	And the Registrant proceed to complete the registration
 	And the Registrant selects the Event Registration
 	When the Registrant apply the '1TIMEPRECON' Promotional Code
-	Then the '1TIMEPRECON' Coupon will not be applied and an error message will inform about the problem
+	Then the '1TIMEPRECON' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $600
 
 
@@ -92,7 +92,7 @@ Scenario: Mutually exclusive Promotional Code
 	And the total amount should be of $1197
 	When the Registrant apply the 'COPRESENTER' Promotional Code
 	And the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Coupon will not be applied and an error message will inform about the problem
+	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
 	And the 'COPRESENTER' Promotional Code item should show a value of -$10
 	And the total amount should be of $1187
 
@@ -106,7 +106,7 @@ Scenario: Combine only Promotional Code
 	And the total amount should be of $1197
 	When the Registrant apply the 'WS10' Promotional Code
 	And the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Coupon item should show a value of -$597
+	Then the 'VOLUNTEER' Promo code should show a value of -$597
 	And the 'WS10' Promotional Code item should show a value of -$10
 	And the total amount should be of $590
 
@@ -119,5 +119,5 @@ Scenario: Partial scope
 	| Additional cocktail party        | 1        |
 	And the total amount should be of $749
 	When the Registrant apply the 'CONFONLY' Promotional Code
-	Then the 'CONFONLY' Coupon item should show a value of -$50
+	Then the 'CONFONLY' Promo code should show a value of -$50
 	And the total amount should be of $699

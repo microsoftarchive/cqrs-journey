@@ -17,14 +17,20 @@ Background:
 	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
 	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
+
 Scenario: Make a reservation with the selected Order Items
+	When the Registrant proceed to make the Reservation		
+	Then the Reservation is confirmed for all the selected Order Items
+	And the total should read $249
+	And the countdown started
+
+Scenario: Make a reservation with the selected Order Items and a Promo Code
 	Given the Registrant apply the 'COPRESENTER' Promotional Code
-	And the 'COPRESENTER' Coupon item should show a value of -$5
-	When the Registrant proceed to make the Reservation	for the selected Order Items		
+	And the 'COPRESENTER' Promo code should show a value of -$5
+	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And the total should read $244
 	And the countdown started
-
 
 Scenario: Checkout:Registrant Details
 	Given the Registrant enter these details
@@ -44,7 +50,6 @@ Scenario: Checkout:Payment and sucessfull Order completed
     Then a receipt will be received from the payment provider indicating success with some transaction id
 	And a Registration confirmation with the Access code should be displayed
 	And an email with the Access Code will be send to the registered email. 
-
 
 Scenario: AllocateSeats
 Given the ConfirmSuccessfulRegistration for the selected Order Items

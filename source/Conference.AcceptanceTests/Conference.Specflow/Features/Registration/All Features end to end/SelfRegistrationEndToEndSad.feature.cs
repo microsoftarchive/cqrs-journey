@@ -18,7 +18,8 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature : Xunit.IUseFixture<SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature.FixtureData>, System.IDisposable
+    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
+    public partial class SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,12 +27,8 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
 #line 1 "SelfRegistrationEndToEndSad.feature"
 #line hidden
         
-        public SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature()
-        {
-            this.TestInitialize();
-        }
-        
-        public static void FeatureSetup()
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
+        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Self Registrant end to end scenario for making a Registration for a Conference (s" +
@@ -41,16 +38,25 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
             testRunner.OnFeatureStart(featureInfo);
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
+            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
+                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+                            "ad path)")))
+            {
+                Conference.Specflow.Features.Registration.AllFeaturesEndToEnd.SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature.FeatureSetup(null);
+            }
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -117,19 +123,10 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
 #line hidden
         }
         
-        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature.FixtureData fixtureData)
-        {
-        }
-        
-        void System.IDisposable.Dispose()
-        {
-            this.ScenarioTearDown();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial Promotional Code for none of the selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "Partial Promotional Code for none of the selected items")]
         public virtual void PartialPromotionalCodeForNoneOfTheSelectedItems()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for none of the selected items", ((string[])(null)));
@@ -151,18 +148,18 @@ this.FeatureBackground();
 #line 27
  testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
 #line 28
- testRunner.Then("the \'VOLUNTEER\' Coupon will not be applied and an error message will inform about" +
-                    " the problem");
+ testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
+                    "bout the problem");
 #line 29
  testRunner.And("the total amount should be of $500");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All Seat Types are available, one get reserved and two get waitlisted")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "All Seat Types are available, one get reserved and two get waitlisted")]
         public virtual void AllSeatTypesAreAvailableOneGetReservedAndTwoGetWaitlisted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All Seat Types are available, one get reserved and two get waitlisted", ((string[])(null)));
@@ -208,11 +205,11 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
-            "ad path)")]
-        [Xunit.TraitAttribute("Description", "1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are sel" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are sel" +
             "ected, then 1 get reserved and 1 get waitlisted")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+            "ad path)")]
         public virtual void _1OrderItemIsAvailable2AreWaitlisted1AvailableAnd1WaitlistedAreSelectedThen1GetReservedAnd1GetWaitlisted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are sel" +
@@ -270,10 +267,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Checkout:Registrant Invalid Details")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "Checkout:Registrant Invalid Details")]
         public virtual void CheckoutRegistrantInvalidDetails()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Checkout:Registrant Invalid Details", ((string[])(null)));
@@ -305,10 +302,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Checkout:Payment with cancellation")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "Checkout:Payment with cancellation")]
         public virtual void CheckoutPaymentWithCancellation()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Checkout:Payment with cancellation", ((string[])(null)));
@@ -341,10 +338,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Checkout:Payment and place Order")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "Checkout:Payment and place Order")]
         public virtual void CheckoutPaymentAndPlaceOrder()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Checkout:Payment and place Order", ((string[])(null)));
@@ -381,10 +378,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partiall Seats allocation")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "Partiall Seats allocation")]
         public virtual void PartiallSeatsAllocation()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partiall Seats allocation", ((string[])(null)));
@@ -451,10 +448,10 @@ testRunner.And("the Attendees should get an email informing about the conference
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Complete Seats allocation")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
-        [Xunit.TraitAttribute("Description", "Complete Seats allocation")]
         public virtual void CompleteSeatsAllocation()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Complete Seats allocation", ((string[])(null)));
@@ -495,22 +492,6 @@ testRunner.And("the Attendees should get an email informing about the conference
                     "e with Seat Access Code", ((string)(null)), table20);
 #line hidden
             this.ScenarioCleanup();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : System.IDisposable
-        {
-            
-            public FixtureData()
-            {
-                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature.FeatureSetup();
-            }
-            
-            void System.IDisposable.Dispose()
-            {
-                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSadPathFeature.FeatureTearDown();
-            }
         }
     }
 }

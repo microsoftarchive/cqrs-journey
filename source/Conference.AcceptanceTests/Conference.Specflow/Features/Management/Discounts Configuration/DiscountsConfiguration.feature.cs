@@ -11,27 +11,24 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Conference.DiscountsConfiguration
+namespace Conference.Specflow.Features.Management.DiscountsConfiguration
 {
     using TechTalk.SpecFlow;
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature : Xunit.IUseFixture<PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature.FixtureData>, System.IDisposable
+    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
+    public partial class PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "Discounts Configuration.feature"
+#line 1 "DiscountsConfiguration.feature"
 #line hidden
         
-        public PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature()
-        {
-            this.TestInitialize();
-        }
-        
-        public static void FeatureSetup()
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
+        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
@@ -40,16 +37,25 @@ namespace Conference.Specflow.Features.Conference.DiscountsConfiguration
             testRunner.OnFeatureStart(featureInfo);
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
+            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
+                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+                            "des settings")))
+            {
+                Conference.Specflow.Features.Management.DiscountsConfiguration.PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature.FeatureSetup(null);
+            }
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -101,27 +107,18 @@ testRunner.And("the Seat Types configuration", ((string)(null)), table2);
 #line hidden
         }
         
-        public virtual void SetFixture(PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature.FixtureData fixtureData)
-        {
-        }
-        
-        void System.IDisposable.Dispose()
-        {
-            this.ScenarioTearDown();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Create a new Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Xunit.TraitAttribute("Description", "Create a new Promotional Code")]
         public virtual void CreateANewPromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code", ((string[])(null)));
-#line 19
+#line 17
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 20
+#line 18
 testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -134,28 +131,28 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
                         "Unlimited",
                         "General admission",
                         "SPEAKER123"});
-#line 21
+#line 19
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table3);
-#line 24
+#line 22
 testRunner.When("the \'Save\' option is selected");
-#line 25
+#line 23
 testRunner.Then("the new Promotional Code is added to the list of existing codes");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Create a new Promotional Code with with exceeding quota")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Xunit.TraitAttribute("Description", "Create a new Promotional Code with with exceeding quota")]
         public virtual void CreateANewPromotionalCodeWithWithExceedingQuota()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code with with exceeding quota", ((string[])(null)));
-#line 29
+#line 27
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 30
+#line 28
 testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -168,82 +165,66 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
                         "1000",
                         "General admission",
                         "SPEAKER123"});
-#line 31
+#line 29
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table4);
-#line 34
+#line 32
 testRunner.When("the \'Save\' option is selected");
-#line 35
+#line 33
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Update an existing Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Xunit.TraitAttribute("Description", "Update an existing Promotional Code")]
         public virtual void UpdateAnExistingPromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code", ((string[])(null)));
-#line 39
+#line 37
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 40
+#line 38
 testRunner.Given("the Business Customer selects \'SPEAKER123\' Promotional Code");
-#line 41
+#line 39
 testRunner.And("the Scope is updated with value \'Pre-con Workshop with Greg Young\'");
-#line 42
+#line 40
 testRunner.And("the Quota is updated with the value \'50\'");
-#line 43
+#line 41
 testRunner.When("the \'Save\' option is selected");
-#line 44
+#line 42
 testRunner.Then("updated values are reflected in the selected Promotional Code");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Update an existing Promotional Code with exceeding quota")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Xunit.TraitAttribute("Description", "Update an existing Promotional Code with exceeding quota")]
         public virtual void UpdateAnExistingPromotionalCodeWithExceedingQuota()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code with exceeding quota", ((string[])(null)));
-#line 48
+#line 46
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 49
+#line 47
 testRunner.Given("the Business Customer selects \'SPEAKER123\' Promotional Code");
-#line 50
+#line 48
 testRunner.And("the Scope is updated with value \'Pre-con Workshop with Greg Young\'");
-#line 51
+#line 49
 testRunner.And("the Quota is updated with the value \'200\'");
-#line 52
+#line 50
 testRunner.When("the \'Save\' option is selected");
-#line 53
+#line 51
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
 #line hidden
             this.ScenarioCleanup();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : System.IDisposable
-        {
-            
-            public FixtureData()
-            {
-                PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature.FeatureSetup();
-            }
-            
-            void System.IDisposable.Dispose()
-            {
-                PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature.FeatureTearDown();
-            }
         }
     }
 }

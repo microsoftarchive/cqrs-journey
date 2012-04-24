@@ -18,7 +18,8 @@ namespace Conference.Specflow.Features.Registration.Discounts
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature : Xunit.IUseFixture<PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature.FixtureData>, System.IDisposable
+    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
+    public partial class PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,12 +27,8 @@ namespace Conference.Specflow.Features.Registration.Discounts
 #line 1 "Discounts.feature"
 #line hidden
         
-        public PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature()
-        {
-            this.TestInitialize();
-        }
-        
-        public static void FeatureSetup()
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
+        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Code scenarios for applying Promotional Codes to Seat Types", "In order to apply a Promotional Code for one ore more Seat Types\r\nAs a Registrant" +
@@ -40,16 +37,24 @@ namespace Conference.Specflow.Features.Registration.Discounts
             testRunner.OnFeatureStart(featureInfo);
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
+            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
+                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Promotional Code scenarios for applying Promotional Codes to Seat Types")))
+            {
+                Conference.Specflow.Features.Registration.Discounts.PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature.FeatureSetup(null);
+            }
         }
         
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -131,18 +136,9 @@ namespace Conference.Specflow.Features.Registration.Discounts
 #line hidden
         }
         
-        public virtual void SetFixture(PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature.FixtureData fixtureData)
-        {
-        }
-        
-        void System.IDisposable.Dispose()
-        {
-            this.ScenarioTearDown();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Full Promotional Code for all selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Full Promotional Code for all selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void FullPromotionalCodeForAllSelectedItems()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Full Promotional Code for all selected items", ((string[])(null)));
@@ -170,16 +166,16 @@ this.FeatureBackground();
 #line 29
  testRunner.When("the Registrant apply the \'SPEAKER123\' Promotional Code");
 #line 30
- testRunner.Then("the \'SPEAKER123\' Coupon item should show a value of -$1197");
+ testRunner.Then("the \'SPEAKER123\' Promo code should show a value of -$1197");
 #line 31
  testRunner.And("the total amount should be of $0");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Partial Promotional Code for all selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial Promotional Code for all selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void PartialPromotionalCodeForAllSelectedItems()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for all selected items", ((string[])(null)));
@@ -207,16 +203,16 @@ this.FeatureBackground();
 #line 41
  testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
 #line 42
- testRunner.Then("the \'VOLUNTEER\' Coupon item should show a value of -$597");
+ testRunner.Then("the \'VOLUNTEER\' Promo code should show a value of -$597");
 #line 43
  testRunner.And("the total amount should be of $600");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Partial Promotional Code for none of the selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial Promotional Code for none of the selected items")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void PartialPromotionalCodeForNoneOfTheSelectedItems()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for none of the selected items", ((string[])(null)));
@@ -241,17 +237,17 @@ this.FeatureBackground();
 #line 52
  testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
 #line 53
- testRunner.Then("the \'VOLUNTEER\' Coupon will not be applied and an error message will inform about" +
-                    " the problem");
+ testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
+                    "bout the problem");
 #line 54
  testRunner.And("the total amount should be of $600");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Cumulative Promotional Codes")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Cumulative Promotional Codes")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void CumulativePromotionalCodes()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Cumulative Promotional Codes", ((string[])(null)));
@@ -290,9 +286,9 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Single use Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Single use Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void SingleUsePromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Single use Promotional Code", ((string[])(null)));
@@ -325,17 +321,17 @@ this.FeatureBackground();
 #line 81
  testRunner.When("the Registrant apply the \'1TIMEPRECON\' Promotional Code");
 #line 82
- testRunner.Then("the \'1TIMEPRECON\' Coupon will not be applied and an error message will inform abo" +
-                    "ut the problem");
+ testRunner.Then("the \'1TIMEPRECON\' Promo code will not be applied and an error message will inform" +
+                    " about the problem");
 #line 83
  testRunner.And("the total amount should be of $600");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Mutually exclusive Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Mutually exclusive Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void MutuallyExclusivePromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Mutually exclusive Promotional Code", ((string[])(null)));
@@ -365,8 +361,8 @@ this.FeatureBackground();
 #line 94
  testRunner.And("the Registrant apply the \'VOLUNTEER\' Promotional Code");
 #line 95
- testRunner.Then("the \'VOLUNTEER\' Coupon will not be applied and an error message will inform about" +
-                    " the problem");
+ testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
+                    "bout the problem");
 #line 96
  testRunner.And("the \'COPRESENTER\' Promotional Code item should show a value of -$10");
 #line 97
@@ -375,9 +371,9 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Combine only Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Combine only Promotional Code")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void CombineOnlyPromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Combine only Promotional Code", ((string[])(null)));
@@ -407,7 +403,7 @@ this.FeatureBackground();
 #line 108
  testRunner.And("the Registrant apply the \'VOLUNTEER\' Promotional Code");
 #line 109
- testRunner.Then("the \'VOLUNTEER\' Coupon item should show a value of -$597");
+ testRunner.Then("the \'VOLUNTEER\' Promo code should show a value of -$597");
 #line 110
  testRunner.And("the \'WS10\' Promotional Code item should show a value of -$10");
 #line 111
@@ -416,9 +412,9 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Xunit.TraitAttribute("Description", "Partial scope")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial scope")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
         public virtual void PartialScope()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial scope", ((string[])(null)));
@@ -446,27 +442,11 @@ this.FeatureBackground();
 #line 121
  testRunner.When("the Registrant apply the \'CONFONLY\' Promotional Code");
 #line 122
- testRunner.Then("the \'CONFONLY\' Coupon item should show a value of -$50");
+ testRunner.Then("the \'CONFONLY\' Promo code should show a value of -$50");
 #line 123
  testRunner.And("the total amount should be of $699");
 #line hidden
             this.ScenarioCleanup();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : System.IDisposable
-        {
-            
-            public FixtureData()
-            {
-                PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature.FeatureSetup();
-            }
-            
-            void System.IDisposable.Dispose()
-            {
-                PromotionalCodeScenariosForApplyingPromotionalCodesToSeatTypesFeature.FeatureTearDown();
-            }
         }
     }
 }

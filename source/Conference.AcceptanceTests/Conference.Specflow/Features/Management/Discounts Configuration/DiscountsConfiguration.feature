@@ -13,8 +13,6 @@ And the Seat Types configuration
 	| Pre-con Workshop with Greg Young | 100   |
 	| Additional cocktail party        | 600   |
 
-
-
 # New Promo Code  Happy path
 Scenario: Create a new Promotional Code
 Given the Business Customer selects 'Add new Promotional code' option
@@ -51,4 +49,5 @@ And the Scope is updated with value 'Pre-con Workshop with Greg Young'
 And the Quota is updated with the value '200'
 When the 'Save' option is selected
 Then an error message will show up describing that the quota value exceeds the total seats for the specified Seat Type
+
 

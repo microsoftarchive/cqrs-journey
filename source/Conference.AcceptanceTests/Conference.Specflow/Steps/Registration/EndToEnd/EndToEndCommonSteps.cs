@@ -1,5 +1,5 @@
 ﻿using TechTalk.SpecFlow;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Conference.Specflow.Steps.Registration.EndToEnd
 {
@@ -21,20 +21,19 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         {
             foreach (var row in table.Rows)
             {
-
+                ScenarioContext.Current.Browser().SelectListInTableRow(row["seat type"], row["quantity"]);
             }
-            //ScenarioContext.Current.Pending();
-            //ScenarioContext.Current.Browser()
         }
 
         [Given(@"the Promotional Codes")]
         public void GivenThePromotionalCodes(Table table)
         {
+            //TODO: Add promo code selection
             //ScenarioContext.Current.Pending();
         }
 
-        [When(@"the Registrant proceed to make the Reservation\tfor the selected Order Items")]
-        public void WhenTheRegistrantProceedToMakeTheReservationForTheSelectedOrderItems()
+        [When(@"the Registrant proceed to make the Reservation")]
+        public void WhenTheRegistrantProceedToMakeTheReservation()
         {
             ScenarioContext.Current.Browser().Click(Constants.UI.RegistrationOrderButtonID);
         }
@@ -43,15 +42,22 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
         public void ThenTheReservationIsConfirmedForAllTheSelectedOrderItems()
         {
-            Assert.True(ScenarioContext.Current.Browser().ContainsText(Constants.UI.RegistrationSucessfull),
+            Assert.IsTrue(ScenarioContext.Current.Browser().SafeContainsText(Constants.UI.RegistrationSucessfull),
                 string.Format("The following text was not found on the page: {0}", Constants.UI.RegistrationSucessfull)); 
         }
 
         [Then(@"the total should read \$(.*)")]
         public void ThenTheTotalShouldRead(int value)
         {
-            Assert.True(ScenarioContext.Current.Browser().ContainsText(value.ToString()),
-                string.Format("The following value text was not found on the page: {0}", value)); 
+            Assert.IsTrue(ScenarioContext.Current.Browser().SafeContainsText(value.ToString()),
+                string.Format("The following text was not found on the page: {0}", value)); 
+        }
+
+        [Then(@"the message '(.*)' will show up")]
+        public void ThenTheMessageWillShowUp(string message)
+        {
+            Assert.IsTrue(ScenarioContext.Current.Browser().SafeContainsText(message),
+                string.Format("The following text was not found on the page: {0}", message)); 
         }
 
         [Then(@"the countdown started")]
