@@ -329,6 +329,25 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         }
 
         [Fact]
+        public void when_updating_seat_then_seat_updated_event_is_published()
+        {
+            var seat = this.conference.Seats.First();
+            seat.Name = "precon";
+            seat.Description = "precon desc";
+            seat.Price = 200;
+
+            service.UpdateSeat(this.conference.Id, seat);
+
+            var e = bus.Events.OfType<SeatUpdated>().LastOrDefault();
+
+            Assert.Equal(this.conference.Id, e.ConferenceId);
+            Assert.Equal(seat.Id, e.SourceId);
+            Assert.Equal("precon", e.Name);
+            Assert.Equal("precon desc", e.Description);
+            Assert.Equal(200, e.Price);
+        }
+
+        [Fact]
         public void when_updating_seat_adds_then_seats_added_is_published()
         {
             var seat = this.conference.Seats.First();
