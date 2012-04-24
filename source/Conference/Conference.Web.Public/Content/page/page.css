@@ -1,0 +1,46 @@
+.page {
+    min-height: 100%;
+    color: #fff;
+    background: #183b56;
+}
+.page__wrapper {
+    width: 1130px;
+    margin: 0 auto;
+}
+.page_registration .page__wrapper {
+    width: 1070px;
+    padding-left: 60px;
+}
+nav {
+    height: 22px;
+    background: #0e2d44;
+    padding-top: 4px;
+}
+.page__head {
+    padding-top: 37px;
+    padding-bottom: 13px;
+    overflow: hidden;
+    position: relative;
+    left: -2px;
+    min-height: 75px;
+    font-size: 45px;
+    font-family: "Segoe UI light", Arial, sans-serif;
+    line-height: 32px;
+    }
+    .page__head-note {
+        font-size: 28px;
+        }
+.page__content {}
+
+.page__likes {
+    margin-top: 20px;
+    }
+    .page__likes .page__wrapper {
+        width: 943px;
+        padding-right: 187px;
+        text-align: right;
+    }
+.page__menu {
+    margin: 23px auto -10px;
+    width: 1130px;
+}

@@ -1,15 +1,142 @@
 ﻿@model Registration.ReadModel.ConferenceDescriptionDTO
 @{
-    ViewBag.Title = "Display";
+    ViewBag.Title = Model.Name;
 }
-<h2>
-    Welcome to the home page of @Html.DisplayFor(model => model.Name)</h2>
+
+<h1 class="page__head page__wrapper"> @*TODO extract into partial view*@
+    @Model.Name
+    <br /><span class="page__head-note">(Experience & Practice)</span>
+</h1>
+
+<div class="page__content">
+    <div class="page__wrapper content-main">
+        <div class="content-main__wrapper">
+            <div class="content-main__main">
+                <div class="content-main__header"></div>
+                <a class="tile" href="#">
+                    <span class="tile__imgs tile-slide">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_.jpg")" alt="" style="width: 250px;">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_1.jpg")" alt="" style="width: 250px;">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_2.jpg")" alt="" style="width: 250px;">
+					</span>
+                    <span class="tile__header">Speakers</span>
+                </a>
+                <a class="tile tile_narrow" href="#">
+                    <span class="tile__img-container">
+                        <img src="@Url.Content("~/Content/Conference/date.png")" alt="About event">
+                    </span>
+                    <span class="tile__header">About event</span>
+                </a>
+                <a class="tile" href="#">
+					<span class="tile__imgs tile-slide">
+						<img class="tile__img" src="@Url.Content("~/Content/Conference/sessions.png")" alt="" style="z-index: 10;">
+						<span style="display: none;">
+							<span class="tile__topic">Get the .NET Framework 1.1 – MSDN
+								Explore Windows, Web, Cloud
+							</span>
+							<span class="tile__span">11:00 am – 12:00 am</span>
+						</span>
+					</span>
+                    <span class="tile__header">Sessions</span>
+                </a>
+                <a class="tile tile_narrow" href="#">
+					<span class="tile__imgs tile-slide">
+						<img class="tile__img" src="@Url.Content("~/Content/Conference/destination.png")" alt="" style="z-index: 10;">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_1.jpg")" alt="">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_2.jpg")" alt="">
+					</span>
+                    <span class="tile__header">Destination</span>
+                </a>
+                <a class="tile" href="#">
+                    <span class="tile__topic">Get the .NET Framework 1.1 – MSDN
+                        Explore Windows, Web, Cloud
+                    </span>
+                    <span class="tile__span">11:00 am – 12:00 am</span>
+                    <span class="tile__header">Event topics <span class="tile__nav"><span
+                            class="tile__nav-item tile__nav-item_active"><i></i></span><span
+                            class="tile__nav-item"><i></i></span><span
+                            class="tile__nav-item"><i></i></span><span
+                            class="tile__nav-item"><i></i></span></span></span>
+                </a>
+                <a class="tile tile_narrow" href="#">
+					<span class="tile__imgs tile-slide">
+						<img class="tile__img" src="@Url.Content("~/Content/Conference/organizers.png")" alt="" style="z-index: 10;">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_1.jpg")" alt="">
+						<img class="tile__img" src="@Url.Content("~/Content/tmp/pic_2.jpg")" alt="">
+					</span>
+                    <span class="tile__header">Organizers</span>
+                </a>
+            </div>
+        </div>
+        <div class="content-main__aside">
+            <div class="content-main__header"></div>
+            <a class="tile tile_register" href="@Url.Action("StartRegistration", "Registration")">
+                <span class="tile__header">Register <i></i></span>
+                <span class="tile__note">It’s only <strong>50 seats available</strong>!<br>
+                    You need register until March 25 //TODO
+                </span>
+            </a>
+        </div>
+        <div class="content-main__extra">
+            <div class="content-main__header">Media</div>
+            <div class="content-main__extra-right">
+                <a class="tile tile_small" href="#">
+                    <img src="@Url.Content("~/Content/Conference/plus.png")" alt="">
+                    <span class="tile__header">Add to my calendar</span>
+                </a>
+            </div>
+            <div class="content-main__extra-left">
+                <a class="tile" href="#">
+                    <span class="tile__img-container">
+                        <img src="@Url.Content("~/Content/Conference/sponsors.png")" alt="">
+                    </span>
+                    <span class="tile__header">Sponsor</span>
+                </a>
+                <a class="tile" href="#">
+                    <span class="tile__img-container">
+                        <img src="@Url.Content("~/Content/Conference/press.png")" alt="">
+                    </span>
+                    <span class="tile__header">Press</span>
+                </a>
+                <a class="tile tile_twitter" href="#">
+                    <span class="tile__header">Twitter</span>
+                    <div id="tweets" data-user="mspnp">
+                        @*<span class="tile__tweet">
+                            <span class="tile__nick">
+                                <span class="tile__time">4h ago</span>
+                                @@AltaModaTech
+                            </span>
+                            <strong>RT @@buckwoody:</strong> Amazing work by Patterns and Practices team - Building Hybrid Cloud Applications with Windows Azure
+                        </span>*@
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="g-clear"></div>
+        <div class="content-main__time-n-place time-n-place">
+            <div class="time-n-place__date">@Model.StartDate.ToString("MMM d")</div>
+            <div class="time-n-place__time">@Model.StartDate.ToString("hh:mm tt")</div>
+            <div class="time-n-place__place">San Diego, US</div>
+        </div>
+
+    </div>
+</div>
+<div class="page__likes page__wrapper">
+    <div class="page__wrapper likes">
+        <a class="likes__link likes__link_facebook" href="#"></a><a class="likes__link likes__link_mail" href="#"></a><a class="likes__link likes__link_twitter" href="#"></a>
+    </div>
+</div>
 
 
-@Html.ActionLink("Register", "StartRegistration", "Registration")
-@Html.ActionLink("Find Order", "Find", "Order")
 
-<p>
-@Html.DisplayFor(model => model.Description)
-</p>
+@section Navigation
+{
+    <a class="quick__login" href="@Url.Action("Find", "Order")">Find Order</a>
+}
 
+@section Scripts
+{
+<script src="//ajax.aspnetcdn.com/ajax/jquery.cycle/2.99/jquery.cycle.all.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/main.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/tweeter.js")"></script>
+}

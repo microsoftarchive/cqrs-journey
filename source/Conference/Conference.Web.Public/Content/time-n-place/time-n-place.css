@@ -1,0 +1,20 @@
+.time-n-place {
+    width: 240px;
+    overflow: hidden;
+    font-family: "Segoe UI light", Arial, sans-serif;
+    margin-left: -6px;
+}
+.time-n-place__date {
+    font-size: 70px;
+    line-height: 1;
+}
+.time-n-place__time {
+    font-size: 50px;
+    line-height: 49px;
+    margin-left: 1px;
+}
+.time-n-place__place {
+    font-size: 32px;
+    line-height: 66px;
+    margin-left: 2px;
+}
