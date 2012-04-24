@@ -15,8 +15,8 @@ namespace Registration.Tests
 {
     using System;
     using System.IO;
+    using Infrastructure.Serialization;
     using Xunit;
-    using Common;
 
     public class BinarySerializerFixture
     {

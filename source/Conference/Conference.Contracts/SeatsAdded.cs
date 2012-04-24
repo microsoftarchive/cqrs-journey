@@ -14,7 +14,7 @@
 namespace Conference
 {
     using System;
-    using Common;
+    using Infrastructure.Messaging;
 
     /// <summary>
     /// Event raised when seats are added to an existing 

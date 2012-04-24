@@ -15,9 +15,8 @@ namespace Registration.Tests.OrderFixture
 {
     using System;
     using System.Linq;
-    using Common;
+    using Infrastructure.EventSourcing;
     using Registration.Events;
-    using Registration.Tests;
     using Xunit;
 
     public class given_no_order

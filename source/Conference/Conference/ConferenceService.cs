@@ -18,7 +18,7 @@ namespace Conference
     using System.Data;
     using System.Data.Entity;
     using System.Linq;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class ConferenceService
     {

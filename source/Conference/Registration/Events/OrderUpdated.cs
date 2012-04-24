@@ -14,7 +14,7 @@
 namespace Registration.Events
 {
     using System.Collections.Generic;
-    using Common;
+    using Infrastructure.EventSourcing;
 
     public class OrderUpdated : VersionedEvent
     {

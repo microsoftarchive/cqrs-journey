@@ -204,7 +204,7 @@ namespace Registration.Tests.RegistrationProcessFixture
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.Completed, sut.State);
+            Assert.Equal(true, sut.Completed);
         }
     }
 
@@ -236,7 +236,7 @@ namespace Registration.Tests.RegistrationProcessFixture
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.Completed, sut.State);
+            Assert.Equal(true, sut.Completed);
         }
     }
 }

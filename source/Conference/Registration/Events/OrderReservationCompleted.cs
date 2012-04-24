@@ -16,7 +16,7 @@ namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
-    using Common;
+    using Infrastructure.EventSourcing;
 
     public class OrderReservationCompleted : VersionedEvent
     {

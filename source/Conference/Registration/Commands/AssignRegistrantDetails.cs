@@ -15,7 +15,7 @@ namespace Registration.Commands
 {
     using System;
     using System.ComponentModel.DataAnnotations;
-    using Common;
+    using Infrastructure.Messaging;
 
     public class AssignRegistrantDetails : ICommand
     {
