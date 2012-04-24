@@ -24,6 +24,7 @@ namespace Conference.Web.Public
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
+    using Infrastructure.Messaging.InMemory;
     using Infrastructure.Processes;
     using Infrastructure.Database;
     using Infrastructure.Serialization;
