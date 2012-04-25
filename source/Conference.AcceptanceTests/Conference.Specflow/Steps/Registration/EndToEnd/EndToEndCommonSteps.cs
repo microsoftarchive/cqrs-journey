@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TechTalk.SpecFlow;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Conference.Specflow.Steps.Registration.EndToEnd
 {
@@ -29,8 +31,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [Given(@"the Promotional Codes")]
         public void GivenThePromotionalCodes(Table table)
         {
-            //TODO: Add promo code selection
-            //ScenarioContext.Current.Pending();
+            ScenarioContext.Current.Pending();
         }
 
         [Given(@"the Registrant proceed to make the Reservation")]
@@ -39,10 +40,10 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             WhenTheRegistrantProceedToMakeTheReservation();
         }
 
-        [Given(@"the Registrant details are valid")]
-        public void GivenTheRegistrantDetailsAreValid()
+        [Given(@"the Registrant proceed to Checkout:Payment")]
+        public void GivenTheRegistrantProceedToCheckoutPayment()
         {
-            //ScenarioContext.Current.Pending();
+            WhenTheRegistrantProceedToCheckoutPayment();
         }
 
         [When(@"the Registrant proceed to make the Reservation")]
@@ -83,9 +84,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         {
             var countdown = ScenarioContext.Current.Browser().Div("countdown_time").Text;
 
-            Assert.IsNotNull(countdown);
-            TimeSpan countdownTime;
-            Assert.IsTrue(TimeSpan.TryParse(countdown, out countdownTime));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(countdown));
+            TimeSpan countdownTime = TimeSpan.ParseExact(countdown, @"mm\:ss", CultureInfo.InvariantCulture);
             Assert.IsTrue(countdownTime.Minutes > 0 && countdownTime.Minutes < 15);
         }
 
@@ -94,6 +94,39 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         {
             Assert.IsTrue(ScenarioContext.Current.Browser().SafeContainsText(value.ToString()),
                 string.Format("The following text was not found on the page: {0}", value)); 
+        }
+
+        [Then(@"these Order Items should be listed")]
+        public void ThenTheseOrderItemsShouldBeListed(Table table)
+        {
+            foreach (var row in table.Rows)
+            {
+                string value = row["seat type"];
+                Assert.IsTrue(ScenarioContext.Current.Browser().SafeContainsText(value),
+                    string.Format("The following text was not found on the page: {0}", value)); 
+            }
+        }
+
+        [Then(@"these Order Items should not be listed")]
+        public void ThenTheseOrderItemsShouldNotBeListed(Table table)
+        {
+            foreach (var row in table.Rows)
+            {
+                string value = row["seat type"];
+                Assert.IsFalse(ScenarioContext.Current.Browser().SafeContainsText(value),
+                    string.Format("The following text was found on the page and not expected: {0}", value));
+            }
+        }
+
+        [Then(@"an email with the Access Code will be send to the registered email\.")]
+        public void ThenAnEmailWithTheAccessCodeWillBeSendToTheRegisteredEmail_()
+        {
+            //ScenarioContext.Current.Pending();
+            //TODO: Check email sent with access code
+            // Read access code from the page
+            string accessCode = ScenarioContext.Current.Browser().FindText(new Regex("[A-Z0-9]{6}"));
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accessCode));
         }
 
     }

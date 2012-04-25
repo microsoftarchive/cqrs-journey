@@ -13,14 +13,21 @@ Background:
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-	And the Promotional Codes
-	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
-	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
+#	And the Promotional Codes
+#	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
+#	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
 
 Scenario: Make a reservation with the selected Order Items
 	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
+	And these Order Items should be listed
+		| seat type                 |
+		| General admission         |
+		| Additional cocktail party |
+	And these Order Items should not be listed
+		| seat type                        |
+		| Pre-con Workshop with Greg Young |
 	And the total should read $249
 	And the countdown started
 
@@ -39,18 +46,17 @@ Scenario: Checkout:Registrant Details
 	And the Registrant enter these details
 	| First name | Last name | email address         |
 	| John       | Smith     | johnsmith@contoso.com |
-	And the Registrant details are valid
-	# valid = non-empty, email address is valid as per email conventional verification
 	When the Registrant proceed to Checkout:Payment
 	Then the payment options should be offered for a total of $249
 
 Scenario: Checkout:Payment and sucessfull Order completed
-	Given Checkout:Registrant Details completed
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-	And the Registrant select one of the offered payment options
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| First name | Last name | email address         |
+	| John       | Smith     | johnsmith@contoso.com |
+	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
-    Then a receipt will be received from the payment provider indicating success with some transaction id
-	And a Registration confirmation with the Access code should be displayed
+    Then the message 'You will receive a confirmation e-mail in a few minutes.' will show up
 	And an email with the Access Code will be send to the registered email. 
 
 #Seat allocation not implemented yet

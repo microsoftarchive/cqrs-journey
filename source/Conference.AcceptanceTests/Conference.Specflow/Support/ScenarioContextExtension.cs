@@ -16,8 +16,7 @@ namespace Conference.Specflow
         {
             if (!context.ContainsKey(key))
             {   
-                //TODO: Set Visible false for production
-                context[key] = new IE() { AutoClose = true, Visible = true };
+                context[key] = new IE() { Visible = false };
             }
             return context[key] as IE;
         }
@@ -28,7 +27,7 @@ namespace Conference.Specflow
             if (ScenarioContext.Current.ContainsKey(key))
             {
                 var instance = (IE)ScenarioContext.Current[key];
-                instance.Close();
+                instance.Dispose();
             }
         }
     }

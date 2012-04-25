@@ -10,18 +10,22 @@ namespace Conference.Specflow
     {
         public static void Click(this IE browser, string controlId)
         {
-            var link = browser.Link(Find.ById(controlId));
+            var element = browser.Link(Find.ById(controlId)) as Element;
 
-            if (!link.Exists)
+            if (!element.Exists)
             {
-                var button = browser.Button(Find.ById(controlId));
-                if(!button.Exists)
-                    throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
-                button.Click();
-                return;
+                element = browser.Button(Find.ById(controlId));
+                if (!element.Exists)
+                {
+                    element = browser.Button(Find.ByValue(controlId));
+                    if (!element.Exists)
+                    {
+                        throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
+                    }
+                }
             }
 
-            link.Click();
+            element.Click();
         }
 
         public static void SelectListInTableRow(this IE browser, string rowName, string value)
@@ -34,7 +38,21 @@ namespace Conference.Specflow
                 var list = tr.Lists.First();
                 var item = list.OwnListItem(Find.ByText(value));
                 if (item.Exists)
+                {
                     item.Click();
+                }
+            }
+        }
+
+        public static void SetInputvalue(this IE browser, string inputId, string value, string attributeValue = null)
+        {
+            var input = browser.TextField(inputId);
+            if (!input.Exists)
+                input = browser.TextFields.FirstOrDefault(t => t.GetAttributeValue(inputId) == attributeValue);
+
+            if (input != null && input.Exists)
+            {
+                input.TypeText(value);
             }
         }
 
@@ -44,10 +62,7 @@ namespace Conference.Specflow
             {
                 return browser.ContainsText(text);
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
     }
 }
