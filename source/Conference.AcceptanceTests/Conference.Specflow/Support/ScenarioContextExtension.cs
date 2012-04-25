@@ -10,25 +10,18 @@ namespace Conference.Specflow
     [Binding]
     public static class ScenarioContextExtension
     {
-        static readonly string key = Guid.NewGuid().ToString();
-
-        public static IE Browser(this ScenarioContext context)
+        [BeforeScenario]
+        public static void BeforeScenario()
         {
-            if (!context.ContainsKey(key))
-            {   
-                context[key] = new IE() { Visible = false };
-            }
-            return context[key] as IE;
+            Browser browser = new IE() { Visible = true };
+            ScenarioContext.Current.Set(browser);
         }
 
         [AfterScenario]
-        static void CloseBrowser()
+        public static void AfterScenario()
         {
-            if (ScenarioContext.Current.ContainsKey(key))
-            {
-                var instance = (IE)ScenarioContext.Current[key];
-                instance.Dispose();
-            }
+            Browser browser = ScenarioContext.Current.Get<Browser>();            
+            browser.Close();
         }
     }
 }

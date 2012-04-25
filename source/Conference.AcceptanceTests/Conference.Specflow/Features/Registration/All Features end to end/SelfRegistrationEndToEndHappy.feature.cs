@@ -78,18 +78,23 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
-                        "rate"});
+                        "rate",
+                        "quota"});
             table1.AddRow(new string[] {
                         "General admission",
-                        "$199"});
+                        "$199",
+                        "100"});
             table1.AddRow(new string[] {
                         "Pre-con Workshop with Greg Young",
-                        "$500"});
+                        "$500",
+                        "100"});
             table1.AddRow(new string[] {
                         "Additional cocktail party",
-                        "$50"});
+                        "$50",
+                        "100"});
 #line 7
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference SelfReg" +
+                    "E2Ehappy", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -129,15 +134,6 @@ this.FeatureBackground();
                         "Additional cocktail party"});
 #line 24
  testRunner.And("these Order Items should be listed", ((string)(null)), table3);
-#line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type"});
-            table4.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young"});
-#line 28
- testRunner.And("these Order Items should not be listed", ((string)(null)), table4);
-#line 31
- testRunner.And("the total should read $249");
 #line 32
  testRunner.And("the countdown started");
 #line hidden
@@ -187,16 +183,16 @@ this.FeatureBackground();
 #line 45
  testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
-            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
                         "Last name",
                         "email address"});
-            table5.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "John",
                         "Smith",
                         "johnsmith@contoso.com"});
 #line 46
- testRunner.And("the Registrant enter these details", ((string)(null)), table5);
+ testRunner.And("the Registrant enter these details", ((string)(null)), table4);
 #line 49
  testRunner.When("the Registrant proceed to Checkout:Payment");
 #line 50
@@ -219,16 +215,16 @@ this.FeatureBackground();
 #line 53
  testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
-            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
                         "Last name",
                         "email address"});
-            table6.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "John",
                         "Smith",
                         "johnsmith@contoso.com"});
 #line 54
- testRunner.And("the Registrant enter these details", ((string)(null)), table6);
+ testRunner.And("the Registrant enter these details", ((string)(null)), table5);
 #line 57
  testRunner.And("the Registrant proceed to Checkout:Payment");
 #line 58
@@ -237,7 +233,7 @@ this.FeatureBackground();
     testRunner.Then("the message \'You will receive a confirmation e-mail in a few minutes.\' will show " +
                     "up");
 #line 60
- testRunner.And("an email with the Access Code will be send to the registered email.");
+ testRunner.And("the Order should be located from the Find Order page");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -260,41 +256,41 @@ testRunner.Given("the ConfirmSuccessfulRegistration for the selected Order Items
 #line 66
 testRunner.And("the Order Access code is 6789");
 #line hidden
-            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
                         "Last name",
                         "email address",
                         "Seat type"});
-            table7.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "John",
                         "Smith",
                         "johnsmith@contoso.com",
                         "General admission"});
-            table7.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "John",
                         "Smith",
                         "johnsmith@contoso.com",
                         "Additional cocktail party"});
 #line 67
-testRunner.And("the Registrant assign the purchased seats to attendees as following", ((string)(null)), table7);
+testRunner.And("the Registrant assign the purchased seats to attendees as following", ((string)(null)), table6);
 #line 71
 testRunner.Then("the Regsitrant should be get a Seat Assignment confirmation");
 #line hidden
-            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "Access code",
                         "email address",
                         "Seat type"});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "6789-1",
                         "johnsmith@contoso.com",
                         "General admission"});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "6789-2",
                         "johnsmith@contoso.com",
                         "Additional cocktail party"});
 #line 72
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
-                    "e with Seat Access Code", ((string)(null)), table8);
+                    "e with Seat Access Code", ((string)(null)), table7);
 #line hidden
             this.ScenarioCleanup();
         }

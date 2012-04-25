@@ -8,9 +8,6 @@ namespace Conference.Specflow
 {
     static class Constants
     {
-        public static readonly string RegistrationPage = string.Format(ConfigurationManager.AppSettings["registrationUrl"], ConferenceSlug);
-        public const string ConferenceSlug = "testsite";
-
         public static class UI
         {
             public const string NextStepButtonID = "Next";
@@ -18,6 +15,16 @@ namespace Conference.Specflow
             public const string RegistrationSucessfull = "You will receive a confirmation e-mail in a few minutes.";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
+        }
+
+        public static string RegistrationPage(string conferenceSlug)
+        {
+            return string.Format(ConfigurationManager.AppSettings["testConferenceUrl"], conferenceSlug, "register");
+        }
+
+        public static string FindOrderPage(string conferenceSlug)
+        {
+            return string.Format(ConfigurationManager.AppSettings["testConferenceUrl"], conferenceSlug, "order/find");
         }
     }
 }

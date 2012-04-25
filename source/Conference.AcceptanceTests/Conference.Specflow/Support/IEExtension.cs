@@ -8,7 +8,7 @@ namespace Conference.Specflow
 {
     public static class IEExtension
     {
-        public static void Click(this IE browser, string controlId)
+        public static void Click(this Browser browser, string controlId)
         {
             var element = browser.Link(Find.ById(controlId)) as Element;
 
@@ -28,7 +28,7 @@ namespace Conference.Specflow
             element.Click();
         }
 
-        public static void SelectListInTableRow(this IE browser, string rowName, string value)
+        public static void SelectListInTableRow(this Browser browser, string rowName, string value)
         {
             //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
             var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
@@ -44,7 +44,7 @@ namespace Conference.Specflow
             }
         }
 
-        public static void SetInputvalue(this IE browser, string inputId, string value, string attributeValue = null)
+        public static void SetInputvalue(this Browser browser, string inputId, string value, string attributeValue = null)
         {
             var input = browser.TextField(inputId);
             if (!input.Exists)
@@ -52,11 +52,11 @@ namespace Conference.Specflow
 
             if (input != null && input.Exists)
             {
-                input.TypeText(value);
+                input.SetAttributeValue("value", value);
             }
         }
 
-        public static bool SafeContainsText(this IE browser, string text)
+        public static bool SafeContainsText(this Browser browser, string text)
         {
             try
             {

@@ -4,11 +4,11 @@
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
-	| seat type                        | rate |
-	| General admission                | $199 |
-	| Pre-con Workshop with Greg Young | $500 |
-	| Additional cocktail party		   | $50  |	
+	Given the list of the available Order Items for the CQRS summit 2012 conference SelfRegE2Ehappy
+	| seat type                        | rate | quota |
+	| General admission                | $199 | 100   |
+	| Pre-con Workshop with Greg Young | $500 | 100   |
+	| Additional cocktail party        | $50  | 100   |
 	And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
@@ -25,10 +25,10 @@ Scenario: Make a reservation with the selected Order Items
 		| seat type                 |
 		| General admission         |
 		| Additional cocktail party |
-	And these Order Items should not be listed
-		| seat type                        |
-		| Pre-con Workshop with Greg Young |
-	And the total should read $249
+#	And these Order Items should not be listed
+#		| seat type                        |
+#		| Pre-con Workshop with Greg Young |
+#	And the total should read $249
 	And the countdown started
 
 #Promo code not implemented yet
@@ -57,7 +57,7 @@ Scenario: Checkout:Payment and sucessfull Order completed
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
     Then the message 'You will receive a confirmation e-mail in a few minutes.' will show up
-	And an email with the Access Code will be send to the registered email. 
+	And the Order should be located from the Find Order page 
 
 #Seat allocation not implemented yet
 @ignore

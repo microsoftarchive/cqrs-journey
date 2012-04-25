@@ -4,21 +4,22 @@
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
-	| seat type                        | rate |
-	| General admission                | $199 |
-	| Pre-con Workshop with Greg Young | $500 |
-	| Additional cocktail party		   | $50  |	
+	Given the list of the available Order Items for the CQRS summit 2012 conference SelfRegE2Esad
+	| seat type                        | rate | quota |
+	| General admission                | $199 | 10    |
+	| Pre-con Workshop with Greg Young | $500 | 10    |
+	| Additional cocktail party        | $50  | 10    |
 	And the selected Order Items
 	| seat type                        | quantity |
 	| General admission                | 1        |
 	| Pre-con Workshop with Greg Young | 1        |
 	| Additional cocktail party        | 1        |
-	And the Promotional Codes
-	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
-	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
+#	And the Promotional Codes
+#	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
+#	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
-
+#Promo code not impleented yet
+@ignore
 Scenario: Partial Promotional Code for none of the selected items
 	Given the selected Order Items
 	| seat type                        | quantity |

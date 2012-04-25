@@ -11,11 +11,9 @@ namespace Conference.Specflow
 {
     static class ConferenceHelper
     {
-        private static object syncLock = new object();
-
-        public static void PopulateConfereceData(Table table)
+        public static void PopulateConfereceData(Table table, string conferenceSlug)
         {
-            ConferenceInfo conference = BuildConferenceInfo();
+            ConferenceInfo conference = BuildConferenceInfo(conferenceSlug);
 
             foreach (var row in table.Rows)
             {
@@ -25,37 +23,28 @@ namespace Conference.Specflow
                     Description = row["seat type"],
                     Name = row["seat type"],
                     Price = Convert.ToDecimal(row["rate"].Replace("$", "")),
-                    Quantity = 500
+                    Quantity = Convert.ToInt32(row["quota"])
                 };
                 conference.Seats.Add(seat);
             }
 
-            SaveConferenceInfo(conference);
-        }
-
-        private static void SaveConferenceInfo(ConferenceInfo conference)
-        {
             ConferenceService svc = new ConferenceService(BuildEventBus());
-
-            lock (syncLock)
+            if (null == svc.FindConference(conferenceSlug))
             {
-                if (null == svc.FindConference(Constants.ConferenceSlug))
-                {
-                    svc.CreateConference(conference);
-                    svc.Publish(conference.Id);
-                    // Wait for the events to be processed
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
+                svc.CreateConference(conference);
+                svc.Publish(conference.Id);
+                // Wait for the events to be processed
+                Thread.Sleep(TimeSpan.FromSeconds(5));
             }
         }
 
-        private static ConferenceInfo BuildConferenceInfo()
+        private static ConferenceInfo BuildConferenceInfo(string conferenceSlug)
         {
             return new ConferenceInfo()
             {
-                Description = "CQRS summit 2012 conference",
-                Name = "test",
-                Slug = Constants.ConferenceSlug,
+                Description = "Acceptance Tests CQRS summit 2012 conference (" + conferenceSlug + ")",
+                Name = conferenceSlug,
+                Slug = conferenceSlug,
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(1),
                 OwnerName = "test",
