@@ -113,9 +113,14 @@ $(function () {
 
                         //instead of appending each result, add each to the buffer array
                         //output.push('<p><img src="' + json.results[i].profile_image_url + '" widt="48" height="48" />' + json.results[i].text + '</p>');
-                        var timeDifference = new Date().getTime() - Date.parse(json.results[i].created_at);
-                        var hours = Math.round(timeDifference / (60 * 60 * 1000));
-                        output.push('<span class="tile__tweet"><span class="tile__nick"><span class="tile__time">' + hours + 'h ago</span>@' + json.results[i].from_user + '</span>' + json.results[i].text + '</span>');
+                        var timeDifference = (new Date().getTime() - Date.parse(json.results[i].created_at)) / (60 * 1000);
+                        var time;
+                        if (timeDifference < 60) {
+                            time = Math.round(timeDifference) + "m ago";
+                        } else {
+                            time = Math.round(timeDifference / 60) + "h ago";
+                        }
+                        output.push('<span class="tile__tweet"><span class="tile__nick"><span class="tile__time">' + time + '</span>@' + json.results[i].from_user + '</span>' + json.results[i].text + '</span>');
                     }
                 }
 
