@@ -72,8 +72,8 @@
             <div class="content-main__header"></div>
             <a class="tile tile_register" href="@Url.Action("StartRegistration", "Registration")">
                 <span class="tile__header">Register <i></i></span>
-                <span class="tile__note">It’s only <strong>50 seats available</strong>!<br>
-                    You need register until March 25 //TODO
+                <span class="tile__note">Only <strong>50 seats available</strong>!<br>
+                    Register by March 25 //TODO
                 </span>
             </a>
         </div>
@@ -100,15 +100,17 @@
                 </a>
                 <a class="tile tile_twitter" href="#">
                     <span class="tile__header">Twitter</span>
-                    <div id="tweets" data-user="mspnp">
-                        @*<span class="tile__tweet">
-                            <span class="tile__nick">
-                                <span class="tile__time">4h ago</span>
-                                @@AltaModaTech
-                            </span>
-                            <strong>RT @@buckwoody:</strong> Amazing work by Patterns and Practices team - Building Hybrid Cloud Applications with Windows Azure
-                        </span>*@
-                    </div>
+                    <span id="tweets" class="tile-slide" data-user="@Url.Encode("#ch9live")">
+                  @*    <span class="tile__tweet">
+							<span class="tile__nick"><span class="tile__time">4h ago</span>@gmelnik</span>RT @jasondentler: The work coming out of @mspnp for CQRS is really useful. Nice 180 from the "enterprisey" app block days.
+						</span>
+						<span class="tile__tweet">
+							<span class="tile__nick"><span class="tile__time">4h ago</span>@ashic</span>RT @jasondentler: The work coming out of @mspnp for CQRS is really useful. Nice 180 from the "enterprisey" app block days.
+						</span>
+						<span class="tile__tweet">
+							<span class="tile__nick"><span class="tile__time">4h ago</span>@jasondentler</span>The work coming out of @mspnp for CQRS is really useful. Nice 180 from the "enterprisey" app block days.
+						</span>*@
+					</span>
                 </a>
             </div>
         </div>
@@ -131,12 +133,11 @@
 
 @section Navigation
 {
-    <a class="quick__login" href="@Url.Action("Find", "Order")">Find Order</a>
+    <a class="quick__login" href="@Url.Action("Find", "Order")">Locate Registration</a>
 }
 
 @section Scripts
 {
 <script src="//ajax.aspnetcdn.com/ajax/jquery.cycle/2.99/jquery.cycle.all.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="@Url.Content("~/Scripts/main.js")"></script>
-<script type="text/javascript" src="@Url.Content("~/Scripts/tweeter.js")"></script>
 }

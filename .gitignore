@@ -8,6 +8,7 @@
 *.log 
 *.DS_Store
 *.gpState
+*.userprefs
 [Tt]humbs.db 
 _ReSharper.*
 *.resharper
@@ -17,6 +18,5 @@ build/temp
 .nuget
 UpgradeLog*.XML
 _UpgradeReport_Files
-/source/Infrastructure/Azure/ConsoleCommandProcessor/Settings.xml
 /fix-line-endings.ps1
 /source/Infrastructure/Azure/Settings.xml

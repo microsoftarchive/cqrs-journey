@@ -166,7 +166,6 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\Conference.js" />
     <Content Include="Scripts\main.js" />
-    <Content Include="Scripts\tweeter.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -193,6 +192,7 @@
     <Content Include="Areas\ThirdPartyProcessor\Views\Web.config" />
     <Content Include="Areas\ThirdPartyProcessor\Views\ThirdPartyProcessorPayment\Pay.cshtml" />
     <Content Include="Views\Payment\WaitForPayment.cshtml" />
+    <Content Include="Views\Registration\_RegistrationDetailsEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -250,7 +250,7 @@
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <Target Name="BeforeBuild" Condition=" '$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">
-    <Error Condition="!Exists('..\..\Infrastructure\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\Infrastructure\Azure')) directory) and replace the placeholders with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
+    <Error Condition="!Exists('..\..\Infrastructure\Azure\Settings.xml')" Text="Before building this project, please copy Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\Infrastructure\Azure')) directory) and replace the placeholders in the copy with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
   </Target>
   <ProjectExtensions>
     <VisualStudio>

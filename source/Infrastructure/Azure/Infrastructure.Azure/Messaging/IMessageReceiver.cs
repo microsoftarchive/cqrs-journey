@@ -22,7 +22,9 @@ namespace Infrastructure.Azure.Messaging
     public interface IMessageReceiver
     {
         /// <summary>
-        /// Event raised whenever a message is received.
+        /// Event raised whenever a message is received. Consumer of 
+        /// the event is responsible for disposing the message when 
+        /// appropriate.
         /// </summary>
         event EventHandler<BrokeredMessageEventArgs> MessageReceived;
 

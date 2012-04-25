@@ -17,7 +17,6 @@ namespace Infrastructure.Azure.Messaging
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
@@ -53,7 +52,9 @@ namespace Infrastructure.Azure.Messaging
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
-            this.sender.Send(commands.Select(command => BuildMessage(command)));
+            var messages = commands.Select(command => BuildMessage(command));
+
+            this.sender.Send(messages);
         }
 
         private BrokeredMessage BuildMessage(Envelope<ICommand> command)
