@@ -166,7 +166,6 @@
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\Conference.js" />
     <Content Include="Scripts\main.js" />
-    <Content Include="Scripts\tweeter.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -193,6 +192,7 @@
     <Content Include="Areas\ThirdPartyProcessor\Views\Web.config" />
     <Content Include="Areas\ThirdPartyProcessor\Views\ThirdPartyProcessorPayment\Pay.cshtml" />
     <Content Include="Views\Payment\WaitForPayment.cshtml" />
+    <Content Include="Views\Registration\_RegistrationDetailsEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
