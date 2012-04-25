@@ -120,19 +120,29 @@ namespace Infrastructure.Azure
             using (var stream = message.GetBody<Stream>())
             {
                 var payload = this.serializer.Deserialize(stream);
-                // TODO: error handling if handlers fail?
                 try
                 {
                     ProcessMessage(payload);
-                    // TODO: exception between these two?
-                    message.Async(message.BeginComplete, message.EndComplete);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    // TODO: retries, retry count, Abandon vs DeadLetter?
-                    if (args.Message.DeliveryCount >= 5)
-                        args.Message.Async(args.Message.BeginDeadLetter, args.Message.EndDeadLetter);
+                    if (args.Message.DeliveryCount > 5)
+                    {
+                        message.BeginDeadLetter(e.Message, e.ToString(), ar =>
+                        {
+                            message.EndDeadLetter(ar);
+                            message.Dispose();
+                        }, null);
+                    }
+
+                    return;
                 }
+
+                message.BeginComplete(ar =>
+                {
+                    message.EndComplete(ar);
+                    message.Dispose();
+                }, null);
             }
         }
 
