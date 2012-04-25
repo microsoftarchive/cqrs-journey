@@ -250,7 +250,7 @@
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <Target Name="BeforeBuild" Condition=" '$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">
-    <Error Condition="!Exists('..\..\Infrastructure\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\Infrastructure\Azure')) directory) and replace the placeholders with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
+    <Error Condition="!Exists('..\..\Infrastructure\Azure\Settings.xml')" Text="Before building this project, please copy Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\Infrastructure\Azure')) directory) and replace the placeholders in the copy with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
   </Target>
   <ProjectExtensions>
     <VisualStudio>
