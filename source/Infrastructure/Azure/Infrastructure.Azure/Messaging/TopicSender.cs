@@ -65,12 +65,16 @@ namespace Infrastructure.Azure.Messaging
 
             // TODO: what about retries? Watch-out for message reuse. Need to recreate it before retry.
             // Always send async.
-            client.Async(message, client.BeginSend, client.EndSend);
+            client.BeginSend(message, ar =>
+            {
+                client.EndSend(ar);
+                message.Dispose();
+            }, null);
         }
 
         public void Send(IEnumerable<BrokeredMessage> messages)
         {
-            // TODO: batch/transactional sending? Is it just wrapping with a TransactionScope?
+            // TODO: batch/transactional sending?
             foreach (var message in messages)
             {
                 this.Send(message);

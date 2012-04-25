@@ -50,14 +50,7 @@ namespace Infrastructure.Azure.Messaging
         {
             var message = BuildMessage(@event);
 
-            try
-            {
-                this.sender.Send(message);
-            }
-            finally
-            {
-                message.Dispose();
-            }
+            this.sender.Send(message);
         }
 
         /// <summary>
@@ -65,16 +58,9 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void Publish(IEnumerable<IEvent> events)
         {
-            var messages = events.Select(e => BuildMessage(e)).ToList();
+            var messages = events.Select(e => BuildMessage(e));
 
-            try
-            {
-                this.sender.Send(messages);
-            }
-            finally
-            {
-                messages.ForEach(message => message.Dispose());
-            }
+            this.sender.Send(messages);
         }
 
         private BrokeredMessage BuildMessage(IEvent @event)
