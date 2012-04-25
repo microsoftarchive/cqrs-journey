@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{65F8047F-E3E6-4B2E-858C-1BE95C38FDFA}"
+	ProjectSection(SolutionItems) = preProject
+		Infrastructure\Azure\Settings.Template.xml = Infrastructure\Azure\Settings.Template.xml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sql", "Sql", "{4C72F685-CBCF-4D77-B44C-5A661A8235AB}"
 EndProject

@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registration.IntegrationTes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{DCB62F05-E128-4944-AC53-A3E6848AF370}"
 	ProjectSection(SolutionItems) = preProject
-		Azure\Settings.Template.xml = Azure\Settings.Template.xml
+		Infrastructure\Azure\Settings.Template.xml = Infrastructure\Azure\Settings.Template.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure", "Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj", "{56A53790-2571-4EA6-8742-2FA00E893B21}"
