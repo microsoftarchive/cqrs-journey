@@ -1,11 +1,37 @@
 ﻿@{
     ViewBag.Title = "Orders for " + ViewBag.ConferenceName;
 }
-<h2>Find order</h2>
-@using (Html.BeginForm()) {
-    <div class="fieldset">
-        <div><label class="editor-label">Email:</label><input type="text" class="" name="email" /></div>
-        <div><label class="editor-label">Order #:</label><input type="text" class="" name="accessCode" /></div>
-        <input id="find" type="submit" value="Find" />
+<h1 class="page__head page__wrapper">Locate registration</h1>
+<div class="page__content">
+    <div class="page__wrapper content-main content-main_register">
+        <div class="content-main__wrapper">
+            <div class="content-main__main">
+                @using (Html.BeginForm()) {
+                @*<div class="content-main__header"></div>*@
+                    <div class="content">
+                        <div class="form">
+                            <fieldset class="form__fieldset">
+                                <label class="form__label">Email address:<span>*</span></label>
+                                <div class="form__field">
+                                    <input type="text" class="" name="email" />
+                                </div>
+                            </fieldset>
+                            <fieldset class="form__fieldset">
+                                <label class="form__label">Order #:<span>*</span></label>
+                                <div class="form__field">
+                                    <input type="text" class="" name="accessCode" />
+                                </div>
+                            </fieldset>
+                            <div class="g-clear"></div>
+                        </div>
+                    </div>
+            
+                    <div class="nav content-main__nav">
+                        @*<a class="nav__left" href="#">Back</a>*@
+                        <button id="find" class="nav__right" type="submit">Find</button>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
-}
+</div>
