@@ -34,7 +34,9 @@ namespace Infrastructure.Azure.Messaging
         private object lockObject = new object();
 
         /// <summary>
-        /// Event raised whenever a message is received.
+        /// Event raised whenever a message is received. Consumer of 
+        /// the event is responsible for disposing the message when 
+        /// appropriate.
         /// </summary>
         public event EventHandler<BrokeredMessageEventArgs> MessageReceived = (sender, args) => { };
 
@@ -145,6 +147,5 @@ namespace Infrastructure.Azure.Messaging
                     this.MessageReceived(this, new BrokeredMessageEventArgs(message));
             }
         }
-
     }
 }
