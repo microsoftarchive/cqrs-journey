@@ -127,22 +127,8 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult TransactionCompleted(Guid orderId, string transactionResult)
+        public ActionResult ShowExpiredOrder(Guid orderId)
         {
-            if (transactionResult == "accepted")
-            {
-                return RedirectToAction("ThankYou", new { conferenceCode = this.Conference.Code, orderId = orderId });
-            }
-            else
-            {
-                return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = this.Conference.Code, orderId = orderId });
-            }
-        }
-
-        [HttpGet]
-        public ActionResult DisplayOrderStatus(string conferenceCode, Guid orderId)
-        {
-            // TODO: What is this? There is no backing view for this action!
             return View();
         }
 
@@ -161,7 +147,7 @@ namespace Conference.Web.Public.Controllers
             this.commandBus.Send(new ICommand[] { command, paymentCommand });
 
             var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.Conference.Code, orderId });
-            var paymentRejectedUrl = this.Url.Action("TransactionCompleted", new { conferenceCode = this.Conference.Code, orderId, transactionResult = "rejected" });
+            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.Conference.Code, orderId });
 
             return RedirectToAction(
                 "ThirdPartyProcessorPayment",

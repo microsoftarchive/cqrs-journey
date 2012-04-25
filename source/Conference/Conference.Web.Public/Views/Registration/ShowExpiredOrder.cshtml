@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "Reservation for " + ViewBag.Conference.Name + "has expired";
+}
+<h2 class="page__head page__wrapper">
+    Your order has expired</h2>
+<div class="page__content">
+    <div class="page__wrapper content-main">
+        <p>
+            Your order has expired and the seats reserved for it have been released.</p>
+        <p>
+            You can <a href="@Url.Action("StartRegistration", "Registration", new { conferenceCode = this.ViewBag.Conference.Code })">
+                start a new order</a> or go back to the <a href="@Url.Action("Display", "Conference", new { conferenceCode = this.ViewBag.Conference.Code })">
+                    conference home page</a>.</p>
+    </div>
+</div>
