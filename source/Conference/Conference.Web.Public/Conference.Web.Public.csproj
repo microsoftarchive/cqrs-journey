@@ -53,21 +53,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
+      <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
+      <HintPath>..\..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity.Configuration, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <HintPath>..\..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -114,9 +114,58 @@
     <Compile Include="Utils\DateTimeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\common\common.css" />
+    <Content Include="Content\content-main\content-main.css" />
+    <Content Include="Content\content\content.css" />
+    <Content Include="Content\content\content__table__error.gif" />
+    <Content Include="Content\content\content__table__info.png" />
+    <Content Include="Content\footer\footer.css" />
+    <Content Include="Content\footer\footer__logo.png" />
+    <Content Include="Content\form\form-select__drop-down.png" />
+    <Content Include="Content\form\form.css" />
+    <Content Include="Content\form\form.ie7.css" />
+    <Content Include="Content\form\form.js" />
+    <Content Include="Content\form\form__chb__item.png" />
+    <Content Include="Content\form\form__chb__item_a.png" />
+    <Content Include="Content\form\form__rb__item.png" />
+    <Content Include="Content\form\form__rb__item_a.png" />
+    <Content Include="Content\likes\likes.css" />
+    <Content Include="Content\likes\likes_sprite.png" />
+    <Content Include="Content\menu\menu.css" />
+    <Content Include="Content\menu\menu__back.png" />
+    <Content Include="Content\nav\nav.css" />
+    <Content Include="Content\nav\nav__left.png" />
+    <Content Include="Content\nav\nav__left_a.png" />
+    <Content Include="Content\nav\nav__right.png" />
+    <Content Include="Content\nav\nav__right_a.png" />
+    <Content Include="Content\page\page.css" />
+    <Content Include="Content\quick\quick.css" />
+    <Content Include="Content\reg-time-info\reg-time-info.css" />
+    <Content Include="Content\reg-time-info\reg-time-info.js" />
+    <Content Include="Content\reg-time-info\reg-time-info.png" />
+    <Content Include="Content\style.css" />
+    <Content Include="Content\style.ie7.css" />
+    <Content Include="Content\table\table.css" />
+    <Content Include="Content\tile\tile.css" />
+    <Content Include="Content\tile\tile_register.png" />
+    <Content Include="Content\tile\tile_twitter.png" />
+    <Content Include="Content\tile\tile__header.png" />
+    <Content Include="Content\time-n-place\time-n-place.css" />
+    <Content Include="Content\Conference\date.png" />
+    <Content Include="Content\Conference\destination.png" />
+    <Content Include="Content\Conference\organizers.png" />
+    <Content Include="Content\tmp\pic_.jpg" />
+    <Content Include="Content\tmp\pic_.png" />
+    <Content Include="Content\tmp\pic_1.jpg" />
+    <Content Include="Content\tmp\pic_2.jpg" />
+    <Content Include="Content\Conference\plus.png" />
+    <Content Include="Content\Conference\press.png" />
+    <Content Include="Content\Conference\sessions.png" />
+    <Content Include="Content\Conference\sponsors.png" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\Conference.js" />
+    <Content Include="Scripts\main.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -130,8 +179,8 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Conference.licenseheader">
-      <Link>Conference.licenseheader</Link>
+    <None Include="..\..\CQRS-journey.licenseheader">
+      <Link>CQRS-journey.licenseheader</Link>
     </None>
     <Content Include="Views\Registration\ReservationUnknown.cshtml" />
     <Content Include="Views\Registration\ReservationRejected.cshtml" />
@@ -143,6 +192,7 @@
     <Content Include="Areas\ThirdPartyProcessor\Views\Web.config" />
     <Content Include="Areas\ThirdPartyProcessor\Views\ThirdPartyProcessorPayment\Pay.cshtml" />
     <Content Include="Views\Payment\WaitForPayment.cshtml" />
+    <Content Include="Views\Registration\_RegistrationDetailsEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -154,23 +204,23 @@
     <Content Include="Views\Conference\Display.cshtml" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
-    <Content Include="..\Azure\Settings.xml">
+    <Content Include="..\..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Azure\Azure.Common\Azure.Common.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
       <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
-      <Name>Azure.Common</Name>
+      <Name>Infrastructure.Azure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common.Sql\Common.Sql.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
       <Project>{f038f286-5aef-4341-83ec-9f72f42d06d6}</Project>
-      <Name>Common.Sql</Name>
+      <Name>Infrastructure.Sql</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Common\Common.csproj">
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Common</Name>
+      <Name>Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\Payments.Contracts\Payments.Contracts.csproj">
       <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
@@ -178,11 +228,11 @@
     </ProjectReference>
     <ProjectReference Include="..\Payments\Payments.csproj">
       <Project>{DB59488E-0358-468D-B074-09A3BD4721BF}</Project>
-      <Name>Payments</Name>
+      <Name>Payments %28Payments\Payments%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
-      <Name>Registration</Name>
+      <Name>Registration %28Registration\Registration%29</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -200,15 +250,15 @@
     <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <Target Name="BeforeBuild" Condition=" '$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">
-    <Error Condition="!Exists('..\Azure\Settings.xml')" Text="Before building this project, please rename Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\Azure')) directory) and replace the placeholders with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
+    <Error Condition="!Exists('..\..\Infrastructure\Azure\Settings.xml')" Text="Before building this project, please copy Settings.Template.xml to Settings.xml (under $([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\Infrastructure\Azure')) directory) and replace the placeholders in the copy with your Azure credentials. If you prefer to use an in-memory non-persistent messaging infrastructure, please use the DebugLocal configuration instead." />
   </Target>
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
-          <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>41992</DevelopmentServerPort>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>43000</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:20321/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

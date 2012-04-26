@@ -17,8 +17,8 @@ namespace Conference.Web.Public.Controllers
     using System.Linq;
     using System.Threading;
     using System.Web.Mvc;
-    using Common;
     using Conference.Web.Public.Models;
+    using Infrastructure.Messaging;
     using Payments.Contracts.Commands;
     using Registration.Commands;
     using Registration.ReadModel;
@@ -78,7 +78,7 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationRejected");
             }
 
-            var orderViewModel = this.CreateViewModel(this.Conference.Code, order);
+            var orderViewModel = this.CreateViewModel(order);
 
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
@@ -93,20 +93,19 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantAndPaymentDetails([Bind(Prefix = "RegistrantDetails")] AssignRegistrantDetails command, string paymentType)
+        public ActionResult SpecifyRegistrantAndPaymentDetails(AssignRegistrantDetails command, string paymentType)
         {
             if (!ModelState.IsValid)
             {
                 return SpecifyRegistrantAndPaymentDetails(command.OrderId);
             }
 
-            var orderId = command.OrderId;
+            var order = this.orderDao.GetOrderDetails(command.OrderId);
 
-            var orderDTO = this.orderDao.GetOrderDetails(orderId);
+            // TODO check conference and order exist.
+            // TODO validate that order belongs to the user.
 
-            // TODO check conference and order exist
-
-            if (orderDTO == null)
+            if (order == null)
             {
                 throw new ArgumentException();
             }
@@ -115,7 +114,7 @@ namespace Conference.Web.Public.Controllers
             {
                 case ThirdPartyProcessorPayment:
 
-                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId);
+                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, command.OrderId);
 
                 case InvoicePayment:
                     break;
@@ -203,7 +202,7 @@ namespace Conference.Web.Public.Controllers
             return paymentCommand;
         }
 
-        private OrderViewModel CreateViewModel(string conferenceCode)
+        private OrderViewModel CreateViewModel()
         {
             var seats = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
             var viewModel =
@@ -218,13 +217,12 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private OrderViewModel CreateViewModel(string conferenceCode, OrderDTO order)
+        private OrderViewModel CreateViewModel(OrderDTO order)
         {
-            var viewModel = this.CreateViewModel(conferenceCode);
+            var viewModel = this.CreateViewModel();
             viewModel.Id = order.OrderId;
 
             // TODO check DTO matches view model
-
 
             foreach (var line in order.Lines)
             {

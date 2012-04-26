@@ -1,0 +1,38 @@
+/*
+==============================================================================================================
+Microsoft patterns & practices
+CQRS Journey project
+==============================================================================================================
+©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+http://cqrsjourney.github.com/contributors/members
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under the License is 
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+See the License for the specific language governing permissions and limitations under the License.
+==============================================================================================================
+*/
+
+.reg-time-info {
+	background: #0087b5 url(reg-time-info.png) 20px 20px no-repeat;
+	padding: 10px 30px 18px 20px;
+	min-height: 88px;
+	position: absolute;
+	left: 50%;
+	top: 0px;
+	width: 210px;
+	margin: 79px 0 0 265px;
+	}
+.reg-time-info_fixed {
+	position: fixed;
+	left: 50%;
+	top: 0;
+	}
+.reg-time-info__title {
+	font-size: 45px;
+	line-height: 45px;
+	padding: 10px 0 8px 65px;
+	}
+.reg-time-info__txt p {
+	margin: 10px 0 0; padding: 0;
+	}

@@ -17,7 +17,8 @@ namespace Payments
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
-    using Common;
+    using Infrastructure.Messaging;
+    using Infrastructure.Database;
     using Payments.Contracts.Events;
 
     public class ThirdPartyProcessorPayment : IAggregateRoot, IEventPublisher
@@ -32,7 +33,7 @@ namespace Payments
 
         private List<IEvent> events = new List<IEvent>();
 
-        public ThirdPartyProcessorPayment(Guid id, Guid paymentSourceId, string description, double totalAmount, IEnumerable<ThidPartyProcessorPaymentItem> items)
+        public ThirdPartyProcessorPayment(Guid id, Guid paymentSourceId, string description, decimal totalAmount, IEnumerable<ThidPartyProcessorPaymentItem> items)
             : this()
         {
             this.Id = id;
@@ -69,7 +70,7 @@ namespace Payments
 
         public string Description { get; private set; }
 
-        public double TotalAmount { get; private set; }
+        public decimal TotalAmount { get; private set; }
 
         public virtual ICollection<ThidPartyProcessorPaymentItem> Items { get; private set; }
 

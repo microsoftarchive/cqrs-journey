@@ -1,41 +1,96 @@
 ﻿@model IList<Registration.ReadModel.ConferenceSeatTypeDTO>
 @{
-    ViewBag.Title = "Registration for " + ViewBag.Conference.Name;
+    ViewBag.Title = "Register to " + ViewBag.Conference.Name;
 }
-<h2>Choose seats</h2>
-@Html.ValidationSummary()
 
-@using (Html.BeginForm("ChoosePayment", "Registration"))
-{
-    @Html.Hidden("OrderId")
-    <div id="tickets">
-        <table width="100%">
-            <tr>
-                <th align="left">
-                    Seat type
-                </th>
-                <th align="right">
-                    Price
-                </th>
-                <th align="right">
-                    Quantity
-                </th>
-            </tr>
-            @for (var i = 0; i < this.Model.Count; i++)
-            { 
-                <tr>
-                    <td align="left">@Html.DisplayFor(model => model[i].Description)
-                    </td>
-                    <td align="right">@Html.DisplayFor(model => model[i].Price)
-                    </td>
-                    <td align="right">@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)))
-                        @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
-                    </td>
+<h1 class="page__head page__wrapper"> @*TODO extract into partial view*@
+    @ViewBag.Conference.Name
+    <br /><span class="page__head-note">(Experience & Practice)</span>
+</h1>
+<div class="page__content">
+    <div class="page__wrapper content-main content-main_register">
+        <div class="content-main__wrapper">
+            <div class="content-main__main">
+                 @using (Html.BeginForm("ChoosePayment", "Registration"))
+                 {
+                     <div class="content-main__header">Register</div>
+                     <div class="content">
+                         @*TODO: fix styling for validation*@
+                         @Html.ValidationSummary()
 
-
-                </tr>
-            }
-        </table>
-        <input id="finish" type="submit" value="Next" />
+                         @Html.Hidden("OrderId")
+                         <p>Please make your selection. <br />
+                             @*You can enter promotional code below if you have one.*@
+                         </p>
+                         <h3>Event tickets</h3>
+                         <table class="content__table_first-cell-wide">
+                             <tr>
+                                 <th style="width: 75%">Registration type</th>
+                                 <th scope="col" style="text-align: right">Price</th>
+                                 @*<th scope="col">Available</th>*@
+                                 <th scope="col">Quantity</th>
+                             </tr>
+                             @for (var i = 0; i < this.Model.Count; i++)
+                             {
+                                 <tr>
+                                     <td>
+                                         @Html.DisplayFor(model => model[i].Name)
+                                         <p class="content__note">@Html.DisplayFor(model => model[i].Description)</p>
+                                     </td>
+                                     <td style="text-align: right">$@Html.DisplayFor(model => model[i].Price)
+                                     </td>
+                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)))
+                                         @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
+                                     </td>
+                                 </tr>
+                             }
+                             <tr>
+                                 <td>
+                                     @*								<a class="content__link_pseudo j-promocode-field" href="#">Enter promotional code</a>
+								    <div class="form-promo">
+									    <input class="form-promo__txt"><input class="form-promo__but" value="Submit" type="Submit">
+								    </div>*@
+                                 </td>
+                                 <td class="content__table-cell_right content__cell_total">Total:</td>
+                                 <td class="content__cell_total content__table-cell_left">$TODO</td>
+                             </tr>
+                         </table>
+                     </div>
+                     <div class="nav content-main__nav">
+                         <a class="nav__left" href="@Url.Action("Display", "Conference")">Back</a>
+                         <button id="Next" class="nav__right" type="submit">Order now</button> @*TODO: Fix alignment*@
+                         @*<a class="nav__right" href="#">Order now</a>*@
+                     </div>
+                 }
+            </div>
+        </div>
+        <div class="content-main__aside">
+            <div class="content-main__header"></div>
+        </div>
+        <div class="g-clear"></div>
     </div>
+</div>
+
+
+
+@section PageNavigation
+{
+<div class="page__menu menu">
+    <ul class="menu__list">
+        <li class="menu__item"><a class="menu__back" href="@Url.Action("Display", "Conference")"></a></li>
+        <li class="menu__item"><a href="#">About event</a></li>
+        <li class="menu__item menu__item_active">Register</li>
+        <li class="menu__item"><a href="#">Destination</a></li>
+        <li class="menu__item"><a href="#">Speakers</a></li>
+        <li class="menu__item"><a href="#">Sessions</a></li>
+        <li class="menu__item"><a href="#">Sponsors</a></li>
+        <li class="menu__item"><a href="#">Organizers</a></li>
+        <li class="menu__item"><a href="#">Press</a></li>
+    </ul>
+</div>
+}
+
+@section Scripts
+{
+<script type="text/javascript" src="@Url.Content("~/Content/form/form.js")"></script>
 }

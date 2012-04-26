@@ -16,7 +16,7 @@ namespace Registration.Tests
     using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading.Tasks;
-    using Common.Utils;
+    using Conference.Common.Utils;
     using Xunit;
 
     public class HandleGeneratorFixture

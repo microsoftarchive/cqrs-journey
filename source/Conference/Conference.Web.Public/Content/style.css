@@ -1,0 +1,28 @@
+/*
+==============================================================================================================
+Microsoft patterns & practices
+CQRS Journey project
+==============================================================================================================
+©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+http://cqrsjourney.github.com/contributors/members
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under the License is 
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+See the License for the specific language governing permissions and limitations under the License.
+==============================================================================================================
+*/
+
+@import "common/common.css";
+@import "page/page.css";
+@import "quick/quick.css";
+@import "footer/footer.css";
+@import "likes/likes.css";
+@import "content-main/content-main.css";
+@import "tile/tile.css";
+@import "time-n-place/time-n-place.css";
+@import "menu/menu.css";
+@import "content/content.css";
+@import "nav/nav.css";
+@import "form/form.css";
+@import "reg-time-info/reg-time-info.css";

@@ -13,7 +13,7 @@
 
 using System.Web.Mvc;
 
-namespace Conference.Web.Controllers
+namespace Conference.Web.Admin.Controllers
 {
     public class HomeController : Controller
     {

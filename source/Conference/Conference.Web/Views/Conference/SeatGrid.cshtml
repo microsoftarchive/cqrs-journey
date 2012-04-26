@@ -15,10 +15,12 @@
             @Html.DisplayFor(modelItem => item.Price)
         </td>
         <td class="rowControl">
-            <a href="#makeRowEditable" class="makeRowEditable">Edit</a>
-            <!-- TODO: only allow delete if the conference is not published
-            | <a href="#deleteRow" class="deleteRow">Delete</a>
-            -->
+            <a href="#makeRowEditable" class="makeRowEditable">Edit</a> | 
+            @if (ViewBag.WasEverPublished) {
+                <span title="The conference has been published at least once before. Cannot delete seat types.">Delete</span>
+            } else {
+                <a href="#deleteRow" class="deleteRow">Delete</a>
+            }
         </td>
     </tr>
 }

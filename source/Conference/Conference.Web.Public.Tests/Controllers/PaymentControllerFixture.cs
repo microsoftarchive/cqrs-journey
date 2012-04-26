@@ -18,8 +18,8 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
-    using Common;
     using Conference.Web.Public.Controllers;
+    using Infrastructure.Messaging;
     using Moq;
     using Payments.Contracts.Commands;
     using Payments.ReadModel;
@@ -62,7 +62,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
             var paymentId = Guid.NewGuid();
             this.paymentDaoMock
                 .Setup(pd => pd.GetThirdPartyProcessorPaymentDetails(It.IsAny<Guid>()))
-                .Returns(new ThirdPartyProcessorPaymentDetailsDTO(Guid.NewGuid(), Payments.ThirdPartyProcessorPayment.States.Initiated, Guid.NewGuid(), "payment", 100d));
+                .Returns(new ThirdPartyProcessorPaymentDetailsDTO(Guid.NewGuid(), Payments.ThirdPartyProcessorPayment.States.Initiated, Guid.NewGuid(), "payment", 100));
 
             // Act
             var result = (RedirectResult)this.sut.ThirdPartyProcessorPayment("conference", paymentId, "accept", "reject");

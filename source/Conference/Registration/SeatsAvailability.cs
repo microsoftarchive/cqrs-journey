@@ -17,7 +17,7 @@ namespace Registration
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using Common;
+    using Infrastructure.EventSourcing;
     using Registration.Events;
 
     /// <summary>
@@ -28,7 +28,8 @@ namespace Registration
         private readonly ConcurrentDictionary<Guid, int> remainingSeats = new ConcurrentDictionary<Guid, int>();
         private readonly ConcurrentDictionary<Guid, List<SeatQuantity>> pendingReservations = new ConcurrentDictionary<Guid, List<SeatQuantity>>();
 
-        public SeatsAvailability(Guid id) : base(id)
+        public SeatsAvailability(Guid id)
+            : base(id)
         {
             base.Handles<AvailableSeatsChanged>(this.OnAvailableSeatsChanged);
             base.Handles<SeatsReserved>(this.OnSeatsReserved);
@@ -46,7 +47,12 @@ namespace Registration
 
         public void AddSeats(Guid seatType, int quantity)
         {
-            base.Update(new AvailableSeatsChanged { Seats = new [] { new SeatQuantity(seatType, quantity) } });
+            base.Update(new AvailableSeatsChanged { Seats = new[] { new SeatQuantity(seatType, quantity) } });
+        }
+
+        public void RemoveSeats(Guid seatType, int quantity)
+        {
+            base.Update(new AvailableSeatsChanged { Seats = new[] { new SeatQuantity(seatType, -quantity) } });
         }
 
         public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> wantedSeats)
@@ -90,9 +96,9 @@ namespace Registration
             List<SeatQuantity> reservation;
             if (this.pendingReservations.TryGetValue(reservationId, out reservation))
             {
-                base.Update(new SeatsReservationCancelled 
-                { 
-                    ReservationId = reservationId, 
+                base.Update(new SeatsReservationCancelled
+                {
+                    ReservationId = reservationId,
                     AvailableSeatsChanged = reservation.Select(x => new SeatQuantity(x.SeatType, x.Quantity)).ToList()
                 });
             }
@@ -102,7 +108,7 @@ namespace Registration
         {
             if (this.pendingReservations.ContainsKey(reservationId))
             {
-                base.Update(new SeatsReservationCommitted {ReservationId = reservationId });
+                base.Update(new SeatsReservationCommitted { ReservationId = reservationId });
             }
         }
 

@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{65F8047F-E3E6-4B2E-858C-1BE95C38FDFA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sql", "Sql", "{4C72F685-CBCF-4D77-B44C-5A661A8235AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure\Infrastructure.csproj", "{B5786D07-5888-4DF5-B295-3FEA593F3BFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure", "Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj", "{56A53790-2571-4EA6-8742-2FA00E893B21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure.Tests", "Infrastructure\Azure\Infrastructure.Azure.Tests\Infrastructure.Azure.Tests.csproj", "{60AF76A9-0891-400F-8F87-A5978D3F3744}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Azure.IntegrationTests", "Infrastructure\Azure\Infrastructure.Azure.IntegrationTests\Infrastructure.Azure.IntegrationTests.csproj", "{85C85861-B89C-44E8-94DB-90B5751B3781}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Sql", "Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj", "{F038F286-5AEF-4341-83EC-9F72F42D06D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Sql.IntegrationTests", "Infrastructure\Sql\Infrastructure.Sql.IntegrationTests\Infrastructure.Sql.IntegrationTests.csproj", "{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5786D07-5888-4DF5-B295-3FEA593F3BFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56A53790-2571-4EA6-8742-2FA00E893B21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56A53790-2571-4EA6-8742-2FA00E893B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56A53790-2571-4EA6-8742-2FA00E893B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56A53790-2571-4EA6-8742-2FA00E893B21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{56A53790-2571-4EA6-8742-2FA00E893B21} = {65F8047F-E3E6-4B2E-858C-1BE95C38FDFA}
+		{60AF76A9-0891-400F-8F87-A5978D3F3744} = {65F8047F-E3E6-4B2E-858C-1BE95C38FDFA}
+		{85C85861-B89C-44E8-94DB-90B5751B3781} = {65F8047F-E3E6-4B2E-858C-1BE95C38FDFA}
+		{F038F286-5AEF-4341-83EC-9F72F42D06D6} = {4C72F685-CBCF-4D77-B44C-5A661A8235AB}
+		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D} = {4C72F685-CBCF-4D77-B44C-5A661A8235AB}
+	EndGlobalSection
+EndGlobal

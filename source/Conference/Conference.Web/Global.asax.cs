@@ -11,14 +11,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System.Data.Entity;
-using System.Web.Mvc;
-using System.Web.Routing;
-
-namespace Conference.Web
+namespace Conference.Web.Admin
 {
+    using System.Data.Entity;
+    using System.Web;
+    using System.Web.Mvc;
+    using System.Web.Routing;
+    using Infrastructure.Azure;
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.InMemory;
+    using Infrastructure.Serialization;
+    using Newtonsoft.Json;
+
     public class MvcApplication : System.Web.HttpApplication
     {
+        public static IEventBus EventBus { get; private set; }
+
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
@@ -58,10 +67,26 @@ namespace Conference.Web
         {
             AreaRegistration.RegisterAllAreas();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<DomainContext>());
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ConferenceContext>());
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
+
+#if LOCAL
+            // TODO: this WON'T work to integrate across both websites!
+            EventBus = new MemoryEventBus();
+#else
+            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("~\\bin\\Settings.xml"));
+            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
+            {
+                // Allows deserializing to the actual runtime type
+                TypeNameHandling = TypeNameHandling.Objects,
+                // In a version resilient way
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            }));
+
+            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
+#endif
         }
     }
 }
