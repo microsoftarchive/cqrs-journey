@@ -87,6 +87,12 @@ namespace Conference.Web.Admin
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 #endif
+
+            if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
+            {
+                System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
+                System.Diagnostics.Trace.AutoFlush = true;
+            }
         }
     }
 }

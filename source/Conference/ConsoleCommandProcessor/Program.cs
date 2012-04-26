@@ -54,6 +54,8 @@ namespace ConsoleCommandProcessor
                 // Views repository is currently the same as the domain DB. No initializer needed.
                 Database.SetInitializer<PaymentsReadDbContext>(null);
 
+                System.Data.Entity.Database.DefaultConnectionFactory = GetSqlConnectionFactory();
+
                 using (var context = container.Resolve<ConferenceRegistrationDbContext>())
                 {
                     context.Database.Initialize(true);
@@ -83,6 +85,11 @@ namespace ConsoleCommandProcessor
                 Console.WriteLine("Press enter to finish");
                 Console.ReadLine();
             }
+        }
+
+        private static System.Data.Entity.Infrastructure.SqlConnectionFactory GetSqlConnectionFactory()
+        {
+            return new System.Data.Entity.Infrastructure.SqlConnectionFactory();
         }
 
         private static UnityContainer CreateContainer()

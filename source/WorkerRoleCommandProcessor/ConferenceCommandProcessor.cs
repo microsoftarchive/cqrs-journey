@@ -11,22 +11,18 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public
+namespace WorkerRoleCommandProcessor
 {
     using System;
     using System.Data.Entity;
-    using System.Web;
-    using System.Web.Mvc;
-    using System.Web.Routing;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Database;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
-    using Infrastructure.Messaging.InMemory;
     using Infrastructure.Processes;
-    using Infrastructure.Database;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Database;
     using Infrastructure.Sql.EventSourcing;
@@ -36,38 +32,21 @@ namespace Conference.Web.Public
     using Payments;
     using Payments.Database;
     using Payments.Handlers;
-    using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
     using Registration;
     using Registration.Database;
     using Registration.Handlers;
-    using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
-    public class MvcApplication : System.Web.HttpApplication
+    public sealed class ConferenceCommandProcessor : IDisposable
     {
         private IUnityContainer container;
 
-        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
-        {
-            filters.Add(new HandleErrorAttribute());
-        }
-
-        protected void Application_Start()
+        public ConferenceCommandProcessor()
         {
             this.container = CreateContainer();
-#if LOCAL
-            RegisterHandlers(this.container);
-#endif
+            RegisterHandlers(container);
 
-            DependencyResolver.SetResolver(new UnityServiceLocator(this.container));
-
-            RegisterGlobalFilters(GlobalFilters.Filters);
-            RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            AreaRegistration.RegisterAllAreas();
-            AppRoutes.RegisterRoutes(RouteTable.Routes);
-
-#if LOCAL
             Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));
             Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
@@ -76,48 +55,57 @@ namespace Conference.Web.Public
             // Views repository is currently the same as the domain DB. No initializer needed.
             Database.SetInitializer<PaymentsReadDbContext>(null);
 
+            System.Data.Entity.Database.DefaultConnectionFactory = GetSqlConnectionFactory();
 
-            using (var context = this.container.Resolve<ConferenceRegistrationDbContext>())
+            using (var context = container.Resolve<ConferenceRegistrationDbContext>())
             {
                 context.Database.Initialize(true);
             }
 
-            using (var context = this.container.Resolve<DbContext>("registration"))
+            using (var context = container.Resolve<DbContext>("registration"))
             {
                 context.Database.Initialize(true);
             }
 
-            using (var context = this.container.Resolve<EventStoreDbContext>())
+            using (var context = container.Resolve<EventStoreDbContext>())
             {
                 context.Database.Initialize(true);
             }
 
-            using (var context = this.container.Resolve<PaymentsDbContext>("payments"))
+            using (var context = container.Resolve<PaymentsDbContext>("payments"))
             {
                 context.Database.Initialize(true);
             }
 
             container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
-#else
-            Database.SetInitializer<PaymentsReadDbContext>(null);
-            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
-#endif
-
-            if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
-            {
-                System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
-                System.Diagnostics.Trace.AutoFlush = true;
-            }
         }
 
-        protected void Application_Stop()
+        public void Start()
+        {
+            this.container.Resolve<CommandProcessor>().Start();
+            this.container.Resolve<EventProcessor>().Start();
+        }
+
+        public void Stop()
+        {
+            this.container.Resolve<CommandProcessor>().Stop();
+            this.container.Resolve<EventProcessor>().Stop();
+        }
+
+        public void Dispose()
         {
             this.container.Dispose();
+        }
+
+        private static System.Data.Entity.Infrastructure.SqlConnectionFactory GetSqlConnectionFactory()
+        {
+            return new System.Data.Entity.Infrastructure.SqlConnectionFactory();
         }
 
         private static UnityContainer CreateContainer()
         {
             var container = new UnityContainer();
+
             // infrastructure
             var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
             {
@@ -128,22 +116,23 @@ namespace Conference.Web.Public
             }));
             container.RegisterInstance<ISerializer>(serializer);
 
-#if LOCAL
-            container.RegisterType<ICommandBus, MemoryCommandBus>(new ContainerControlledLifetimeManager());
-            container.RegisterType<ICommandHandlerRegistry, MemoryCommandBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryCommandBus()));
-            container.RegisterType<IEventBus, MemoryEventBus>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IEventHandlerRegistry, MemoryEventBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryEventBus()));
-#else
-            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
+            var settings = MessagingSettings.Read("Settings.xml");
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
+            var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
+
+            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(settings, "conference/commands", "all"), serializer);
+            var eventProcessor = new EventProcessor(new SubscriptionReceiver(settings, "conference/events", "all"), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
-#endif
+            container.RegisterInstance<IEventBus>(eventBus);
+            container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
+            container.RegisterInstance(commandProcessor);
+            container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);
+            container.RegisterInstance(eventProcessor);
 
 
             // repository
 
-#if LOCAL
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
@@ -155,17 +144,10 @@ namespace Conference.Web.Public
             container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
-#endif
+
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
-            container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor());
-
-            container.RegisterType<IOrderDao, OrderDao>();
-            container.RegisterType<IConferenceDao, ConferenceDao>();
-            container.RegisterType<IPaymentDao, PaymentDao>();
 
 
-
-#if LOCAL
             // handlers
 
             container.RegisterType<IEventHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
@@ -179,12 +161,10 @@ namespace Conference.Web.Public
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
             container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");
-#endif
 
             return container;
         }
 
-#if LOCAL
         private static void RegisterHandlers(IUnityContainer unityContainer)
         {
             var commandHandlerRegistry = unityContainer.Resolve<ICommandHandlerRegistry>();
@@ -200,6 +180,5 @@ namespace Conference.Web.Public
                 eventHandlerRegistry.Register(eventHandler);
             }
         }
-#endif
     }
 }
