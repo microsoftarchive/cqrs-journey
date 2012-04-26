@@ -50,6 +50,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
         [Fact]
         public void when_processing_throws_then_sends_message_to_dead_letter()
         {
+            var failCount = 0;
             var waiter = new ManualResetEventSlim();
             var sender = new TopicSender(this.Settings, this.Topic);
             var processor = new Mock<MessageProcessor>(
@@ -59,7 +60,10 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
                 .Setup("ProcessMessage", ItExpr.IsAny<object>())
                 .Callback(() =>
                 {
-                    waiter.Set();
+                    failCount++;
+                    if (failCount == 5)
+                        waiter.Set();
+
                     throw new ArgumentException();
                 });
 
