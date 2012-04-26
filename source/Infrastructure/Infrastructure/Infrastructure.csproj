@@ -52,7 +52,7 @@
     <Compile Include="EventSourcing\IEventSourcedRepository.cs" />
     <Compile Include="EventSourcing\IVersionedEvent.cs" />
     <Compile Include="EventSourcing\VersionedEvent.cs" />
-    <Compile Include="Messaging\CommandBusExtensions.cs" />
+    <Compile Include="Messaging\MessagingExtensions.cs" />
     <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\Handling\ICommandHandler.cs" />
     <Compile Include="Messaging\Handling\ICommandHandlerRegistry.cs" />
