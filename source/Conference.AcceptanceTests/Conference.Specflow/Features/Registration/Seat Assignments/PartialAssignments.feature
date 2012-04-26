@@ -15,7 +15,8 @@ Background:
 	| Jim        | John      | Jim@John.com      | Additional cocktail party        |
 
 
-
+#Seat assigning pending
+@ignore
 Scenario: Allocate all purchased Seats for an individual
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789
@@ -32,6 +33,8 @@ And the Attendees should get an email informing about the conference and the Sea
 	| 6789-1      | johnsmith@contoso.com | General admission         |
 
 
+#Seat assigning pending
+@ignore
 Scenario: Allocate some purchased Seats for a group
 Given the ConfirmSuccessfulRegistration
 And the order access code is 6789

@@ -5,71 +5,37 @@
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
-	| seat type                        | rate |
-	| General admission                | $199 |
-	| Pre-con Workshop with Greg Young | $500 |
-	| Additional cocktail party		   | $50  |	
+	Given the list of the available Order Items for the CQRS summit 2012 conference GroupRegE2Esad
+	| seat type                        | rate | quota |
+	| General admission                | $199 | 2     |
+	| Pre-con Workshop with Greg Young | $500 | 2     |
+	| Additional cocktail party        | $50  | 2     |
 
 
-#Initial state	: 3 available items, 2 selected
-#End state		: 1 reserved and 1 offered waitlisted
+#Initial state	: 3 available items, 2 selected (q=4)
+#End state		: 2 reserved and 1 offered waitlisted
 Scenario: All the Order Items are available, then some get waitlisted and some reserved
-	Given the selected available Order Items
+	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	| Additional cocktail party | 2        |
 	And these Seat Types becomes unavailable before the Registrant make the reservation
-	| seat type         |
-	| General admission |
+	| seat type         | quantity |
+	| General admission | 1        |
 	When the Registrant proceed to make the Reservation			
 	Then the Registrant is offered to be waitlisted for these Order Items
 	| seat type         | quantity |
 	| General admission | 1        |
-	And These other Order Items get reserved
+	And these Order Items should be reserved
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 2        |
+	And the total should read $299
+	And the countdown started
 
 
-Scenario: Checkout:Registrant Invalid Details
-	Given the Registrant enter these details
-	| First name | Last name | email address     | Seat type                 |
-	| William    |           | William@Smith.com | General admission         |
-	| Mani       | Kris      | Mani@Kris.com     | Additional cocktail party |
-	| Jim        | John      | Jim@John.com      | Additional cocktail party |
-	And the Last name is empty
-	# valid = non-empty, email address is valid as per email conventional verification
-	When the Registrant proceed to select a payment option
-	Then the invalid field is highlighted with a hint of the error cause
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-
-
-Scenario: Checkout:Payment with cancellation
-	Given the Registrant enter these details
-	| First name | Last name | email address     | Seat type                 |
-	| William    | Smith     | William@Smith.com | General admission         |
-	| Mani       | Kris      | Mani@Kris.com     | Additional cocktail party |
-	| Jim        | John      | Jim@John.com      | Additional cocktail party |
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-	And the Registrant select one of the offered payment options
-	When the Registrant decides to cancel the payment
-    Then a cancelation message will be shown to the Registrant and will get back to the payment options
-
-	
-Scenario: Checkout:Partial Payment and place Order
-	Given the Registrant enter these details
-	| Mani    | Kris  | Mani@Kris.com     | Additional cocktail party |
-	| William | Smith | William@Smith.com | General admission         |
-	| Mani    | Kris  | Mani@Kris.com     | Additional cocktail party |
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-	And the Registrant select one of the offered payment options
-	When the Registrant proceed to confirm the payment
-    Then a receipt will be received from the payment provider indicating success with some transaction id
-	And a Registration confirmation with the Access code should be displayed
-	And an email with the Access Code will be send to the registered email. 
-
-
+#Seats Allocation pending
+@Ignore
 Scenario: Allocate some purchased Seats for a group
 Given the ConfirmSuccessfulRegistration
 And the order access code is 6789

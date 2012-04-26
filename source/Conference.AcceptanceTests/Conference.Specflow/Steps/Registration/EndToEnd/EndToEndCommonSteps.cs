@@ -4,6 +4,7 @@ using TechTalk.SpecFlow;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using W = WatiN.Core;
+using System.Threading;
 
 namespace Conference.Specflow.Steps.Registration.EndToEnd
 {
@@ -13,11 +14,11 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference (.*)")]
         public void GivenTheListOfTheAvailableOrderItemsForTheCQRSSummit2012Conference(string conferenceSlug, Table table)
         {
-            //Setinto Feature scope because this step should be Background 
-            FeatureContext.Current.Add("conferenceSlug", conferenceSlug);
-
             // Populate Conference data
-            ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
+            var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
+
+            // Store for later use
+            FeatureContext.Current.Set<ConferenceInfo>(conferenceInfo);
 
             // Navigate to Registration page
             ScenarioContext.Current.Get<W.Browser>().GoTo(Constants.RegistrationPage(conferenceSlug));
@@ -51,10 +52,45 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             WhenTheRegistrantProceedToCheckoutPayment();
         }
 
+        [Given(@"the Registrant enter these details")]
+        public void GivenTheRegistrantEnterTheseDetails(Table table)
+        {
+            // Allow some time for the events being processed
+            Thread.Sleep(TimeSpan.FromSeconds(4));
+
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+            browser.SetInputvalue("FirstName", table.Rows[0]["First name"]);
+            browser.SetInputvalue("LastName", table.Rows[0]["Last name"]);
+            browser.SetInputvalue("Email", table.Rows[0]["email address"]);
+            browser.SetInputvalue("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
+
+            ScenarioContext.Current.Add("email", table.Rows[0]["email address"]);
+        }
+
+        [Given(@"these Seat Types becomes unavailable before the Registrant make the reservation")]
+        public void GivenTheseSeatTypesBecomesUnavailableBeforeTheRegistrantMakeTheReservation(Table table)
+        {
+            var reservationId = ConferenceHelper.ReserveSeats(FeatureContext.Current.Get<ConferenceInfo>(), table);
+            // Store for revert the reservation after scenario ends
+            ScenarioContext.Current.Set<Guid>(reservationId, "reservationId");
+        }
+
+        [AfterScenario]
+        public static void AfterScenario()
+        {
+            // Restore the available setes previous to the reservation
+            Guid reservationId;
+            if (ScenarioContext.Current.TryGetValue<Guid>("reservationId", out reservationId))
+            {
+                ConferenceHelper.CancelSeatReservation(FeatureContext.Current.Get<ConferenceInfo>().Id, reservationId);
+            }
+        }
+
         [When(@"the Registrant proceed to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
             ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonID);
+            ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.ReservationSucessfull, Constants.UI.WaitTimeout.Seconds);
         }
 
         [When(@"the Registrant proceed to Checkout:Payment")]
@@ -101,8 +137,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
                 string.Format("The following text was not found on the page: {0}", value)); 
         }
 
-        [Then(@"these Order Items should be listed")]
-        public void ThenTheseOrderItemsShouldBeListed(Table table)
+        [Then(@"these Order Items should be reserved")]
+        public void ThenTheseOrderItemsShouldBeReserved(Table table)
         {
             var browser = ScenarioContext.Current.Get<W.Browser>(); 
             foreach (var row in table.Rows)
@@ -113,8 +149,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             }
         }
 
-        [Then(@"these Order Items should not be listed")]
-        public void ThenTheseOrderItemsShouldNotBeListed(Table table)
+        [Then(@"these Order Items should not be reserved")]
+        public void ThenTheseOrderItemsShouldNotBeReserved(Table table)
         {
             var browser = ScenarioContext.Current.Get<W.Browser>(); 
             foreach (var row in table.Rows)

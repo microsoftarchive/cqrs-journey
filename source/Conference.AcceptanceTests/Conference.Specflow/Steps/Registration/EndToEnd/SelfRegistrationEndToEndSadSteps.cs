@@ -10,22 +10,16 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
     [Binding]
     public class SelfRegistrationEndToEndSadSteps
     {
-        [Given(@"the Registrant enter these details")]
-        public void GivenTheRegistrantEnterTheseDetails(Table table)
+        [Then(@"the Registrant is offered to be waitlisted for these Order Items")]
+        public void ThenTheRegistrantIsOfferedToBeWaitlistedForTheseOrderItems(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>(); 
-            browser.SetInputvalue("RegistrantDetails_FirstName", table.Rows[0]["First name"]);
-            browser.SetInputvalue("RegistrantDetails_LastName", table.Rows[0]["Last name"]);
-            browser.SetInputvalue("RegistrantDetails_Email", table.Rows[0]["email address"]);
-            browser.SetInputvalue("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
-            
-            ScenarioContext.Current.Add("email", table.Rows[0]["email address"]);
+            //ScenarioContext.Current.Pending();
         }
 
-        [When(@"the Registrant proceed to confirm the payment")]
-        public void WhenTheRegistrantProceedToConfirmThePayment()
+        [When(@"the Registrant proceed to cancel the payment")]
+        public void WhenTheRegistrantProceedToCancelThePayment()
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.AcceptPaymentInputValue);
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.RejectPaymentInputValue);
         }
 
     }

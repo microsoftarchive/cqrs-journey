@@ -21,14 +21,14 @@ Background:
 Scenario: Make a reservation with the selected Order Items
 	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
-	And these Order Items should be listed
+	And these Order Items should be reserved
 		| seat type                 |
 		| General admission         |
 		| Additional cocktail party |
-#	And these Order Items should not be listed
-#		| seat type                        |
-#		| Pre-con Workshop with Greg Young |
-#	And the total should read $249
+	And these Order Items should not be reserved
+		| seat type                        |
+		| Pre-con Workshop with Greg Young |
+	And the total should read $249
 	And the countdown started
 
 #Promo code not implemented yet

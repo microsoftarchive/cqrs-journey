@@ -103,12 +103,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\Registration\Countdown\Countdown.feature.cs">
-      <DependentUpon>Countdown.feature</DependentUpon>
-      <SubType>Code</SubType>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
     <Compile Include="Features\Registration\Discounts\Discounts.feature.cs">
       <DependentUpon>Discounts.feature</DependentUpon>
       <SubType>Code</SubType>
@@ -185,10 +179,6 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationEndToEndSad.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\Registration\Countdown\Countdown.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Countdown.feature.cs</LastGenOutput>
-    </None>
     <None Include="Features\Registration\Discounts\Discounts.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Discounts.feature.cs</LastGenOutput>
@@ -238,6 +228,10 @@
     <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
       <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
       <Name>Conference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Registration\Registration.csproj">
+      <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
+      <Name>Registration</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
       <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>

@@ -5,52 +5,52 @@
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
-	| seat type                        | rate |
-	| General admission                | $199 |
-	| Pre-con Workshop with Greg Young | $500 |
-	| Additional cocktail party		   | $50  |	
-
+	Given the list of the available Order Items for the CQRS summit 2012 conference GroupRegE2Ehappy
+	| seat type                        | rate | quota |
+	| General admission                | $199 | 100   |
+	| Pre-con Workshop with Greg Young | $500 | 100   |
+	| Additional cocktail party        | $50  | 100   |
+	And the selected Order Items
+	| seat type                        | quantity |
+	| General admission                | 3        |
+	| Pre-con Workshop with Greg Young | 1        |
+	| Additional cocktail party        | 2        |
 
 #1
 #Initial state	: 3 available items, 3 selected
 #End state		: 3 reserved	
 Scenario: All the Order Items are available and all get selected, then all get reserved
-	Given the selected available Order Items
-	| seat type                        | quantity |
-	| General admission                | 3        |
-	| Pre-con Workshop with Greg Young | 1        |
-	| Additional cocktail party        | 2        |
 	When the Registrant proceed to make the Reservation
-	Then the Reservation is confirmed for all the selected Order Items.
-	And the total amount should be of $1197
-	
+	Then the Reservation is confirmed for all the selected Order Items
+	And these Order Items should be reserved
+		| seat type                        |
+		| General admission                |
+		| Pre-con Workshop with Greg Young |
+		| Additional cocktail party        |
+	And the total should read $1197
+	And the countdown started	
 
 Scenario: Checkout:Registrant Details
-	Given the Registrant enter these details
-	| First name | Last name | email address     | Seat type                        |
-	| William    | Smith     | William@Smith.com | General admission                |
-	| John       | Doe       | JohnDoe@live.com  | General admission                |
-	| Oliver     | Smith     | Oliver@Smith.com  | Pre-con Workshop with Greg Young |
-	| Tim        | Martin    | Tim@Martin.com    | Pre-con Workshop with Greg Young |
-	| Mani       | Kris      | Mani@Kris.com     | Additional cocktail party        |
-	| Jim        | John      | Jim@John.com      | Additional cocktail party        |
-	And the Registrant details are valid
-	# valid = non-empty, email address is valid as per email conventional verification
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| First name | Last name | email address         |
+	| William    | Smith     | William@Smith.com     |
 	When the Registrant proceed to Checkout:Payment
-	Then the payment options shoule be offered
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
+	Then the payment options should be offered for a total of $1197
 
 Scenario: Checkout:Payment and sucessfull Order completed
-	Given Checkout:Registrant Details completed
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-	And the Registrant select one of the offered payment options
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| First name | Last name | email address         |
+	| William    | Smith     | William@Smith.com     |
+	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
-    Then a receipt will be received from the payment provider indicating success with some transaction id
-	And a Registration confirmation with the Access code should be displayed
-	And an email with the Access Code will be send to the registered email. 
+    Then the message 'You will receive a confirmation e-mail in a few minutes.' will show up
+	And the Order should be located from the Find Order page 
 
 
+#Not implemented yet
+@ignore
 Scenario: Allocate all purchased Seats for a group
 Given the ConfirmSuccessfulRegistration
 And the order access code is 6789

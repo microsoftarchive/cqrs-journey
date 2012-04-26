@@ -190,9 +190,11 @@ this.FeatureBackground();
                         "General admission",
                         "1"});
 #line 45
- testRunner.And("These other Order Items get reserved", ((string)(null)), table6);
+ testRunner.And("these Order Items should be reserved", ((string)(null)), table6);
 #line 48
- testRunner.And("the countdown will start for the reserved Order Item");
+ testRunner.And("the total should read $199");
+#line 49
+ testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -202,11 +204,13 @@ this.FeatureBackground();
             "ected, then 1 get reserved and 1 get waitlisted")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void _1OrderItemIsAvailable2AreWaitlisted1AvailableAnd1WaitlistedAreSelectedThen1GetReservedAnd1GetWaitlisted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are sel" +
-                    "ected, then 1 get reserved and 1 get waitlisted", ((string[])(null)));
-#line 53
+                    "ected, then 1 get reserved and 1 get waitlisted", new string[] {
+                        "ignore"});
+#line 57
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -217,7 +221,7 @@ this.FeatureBackground();
             table7.AddRow(new string[] {
                         "General admission",
                         "1"});
-#line 54
+#line 58
  testRunner.Given("the list of available Order Items selected by the Registrant", ((string)(null)), table7);
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
@@ -229,10 +233,10 @@ this.FeatureBackground();
             table8.AddRow(new string[] {
                         "Additional cocktail party",
                         "0"});
-#line 57
+#line 61
  testRunner.And("the list of these Order Items offered to be waitlisted and selected by the Regist" +
                     "rant", ((string)(null)), table8);
-#line 61
+#line 65
  testRunner.When("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
@@ -241,7 +245,7 @@ this.FeatureBackground();
             table9.AddRow(new string[] {
                         "Pre-con Workshop with Greg Young",
                         "1"});
-#line 62
+#line 66
  testRunner.Then("these order itmes get confirmed being waitlisted", ((string)(null)), table9);
 #line hidden
             TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
@@ -250,11 +254,10 @@ this.FeatureBackground();
             table10.AddRow(new string[] {
                         "General admission",
                         "1"});
-#line 65
+#line 69
  testRunner.And("these other order items get reserved", ((string)(null)), table10);
-#line 68
- testRunner.And("the countdown has decreased within the allowed timeslot for holding the Reservati" +
-                    "on");
+#line 72
+ testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -266,10 +269,12 @@ this.FeatureBackground();
         public virtual void CheckoutRegistrantInvalidDetails()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Checkout:Registrant Invalid Details", ((string[])(null)));
-#line 71
+#line 75
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
+#line 76
+ testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
@@ -277,19 +282,14 @@ this.FeatureBackground();
                         "email address"});
             table11.AddRow(new string[] {
                         "John",
-                        "Smith",
+                        "",
                         "johnsmith@invalid"});
-#line 72
- testRunner.Given("the Registrant enter these details", ((string)(null)), table11);
-#line 75
- testRunner.And("the email address is not valid");
 #line 77
- testRunner.When("the Registrant proceed to select a payment option");
-#line 78
- testRunner.Then("the invalid field is highlighted with a hint of the error cause");
-#line 79
- testRunner.And("the countdown has decreased within the allowed timeslot for holding the Reservati" +
-                    "on");
+ testRunner.And("the Registrant enter these details", ((string)(null)), table11);
+#line 80
+ testRunner.When("the Registrant proceed to Checkout:Payment");
+#line 81
+ testRunner.Then("the message \'The LastName field is required.\' will show up");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -301,10 +301,12 @@ this.FeatureBackground();
         public virtual void CheckoutPaymentWithCancellation()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Checkout:Payment with cancellation", ((string[])(null)));
-#line 82
+#line 84
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
+#line 85
+ testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
@@ -314,58 +316,14 @@ this.FeatureBackground();
                         "John",
                         "Smith",
                         "johnsmith@contoso.com"});
-#line 83
- testRunner.Given("the Registrant enter these details", ((string)(null)), table12);
 #line 86
- testRunner.And("the countdown has decreased within the allowed timeslot for holding the Reservati" +
-                    "on");
-#line 87
- testRunner.And("the Registrant select one of the offered payment options");
-#line 88
- testRunner.When("the Registrant decides to cancel the payment");
+ testRunner.And("the Registrant enter these details", ((string)(null)), table12);
 #line 89
-    testRunner.Then("a cancelation message will be shown to the Registrant and will get back to the pa" +
-                    "yment options");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Checkout:Payment and place Order")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
-            "ad path)")]
-        public virtual void CheckoutPaymentAndPlaceOrder()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Checkout:Payment and place Order", ((string[])(null)));
-#line 92
-this.ScenarioSetup(scenarioInfo);
-#line 6
-this.FeatureBackground();
-#line hidden
-            TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
-                        "First name",
-                        "Last name",
-                        "email address"});
-            table13.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "johnsmith@contoso.com"});
-#line 93
- testRunner.Given("the Registrant enter these details", ((string)(null)), table13);
-#line 96
- testRunner.And("the countdown has decreased within the allowed timeslot for holding the Reservati" +
-                    "on");
-#line 97
- testRunner.And("the Registrant select one of the offered payment options");
-#line 98
- testRunner.When("the Registrant proceed to confirm the payment");
-#line 99
-    testRunner.Then("a receipt will be received from the payment provider indicating success with some" +
-                    " transaction id");
-#line 100
- testRunner.And("a Registration confirmation with the Access code should be displayed");
-#line 101
- testRunner.And("an email with the Access Code will be send to the registered email.");
+ testRunner.And("the Registrant proceed to Checkout:Payment");
+#line 90
+ testRunner.When("the Registrant proceed to cancel the payment");
+#line 91
+    testRunner.Then("the message \'Payment cancelled.\' will show up");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -374,17 +332,32 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partiall Seats allocation")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void PartiallSeatsAllocation()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partiall Seats allocation", ((string[])(null)));
-#line 104
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partiall Seats allocation", new string[] {
+                        "Ignore"});
+#line 95
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 105
+#line 96
 testRunner.Given("the ConfirmSuccessfulRegistration for the selected Order Items");
-#line 106
+#line 97
 testRunner.And("the Order Access code is 6789");
+#line hidden
+            TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
+                        "First name",
+                        "Last name",
+                        "email address",
+                        "Seat type"});
+            table13.AddRow(new string[] {
+                        "John",
+                        "Smith",
+                        "johnsmith@contoso.com",
+                        "General admission"});
+#line 98
+testRunner.And("I assign the purchased seats to attendees as following", ((string)(null)), table13);
 #line hidden
             TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
@@ -392,12 +365,12 @@ testRunner.And("the Order Access code is 6789");
                         "email address",
                         "Seat type"});
             table14.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "johnsmith@contoso.com",
-                        "General admission"});
-#line 107
-testRunner.And("I assign the purchased seats to attendees as following", ((string)(null)), table14);
+                        "",
+                        "",
+                        "",
+                        "Additional cocktail party"});
+#line 101
+testRunner.And("leave unassigned these seats", ((string)(null)), table14);
 #line hidden
             TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
@@ -405,37 +378,24 @@ testRunner.And("I assign the purchased seats to attendees as following", ((strin
                         "email address",
                         "Seat type"});
             table15.AddRow(new string[] {
-                        "",
-                        "",
-                        "",
-                        "Additional cocktail party"});
-#line 110
-testRunner.And("leave unassigned these seats", ((string)(null)), table15);
-#line hidden
-            TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
-                        "First name",
-                        "Last name",
-                        "email address",
-                        "Seat type"});
-            table16.AddRow(new string[] {
                         "John",
                         "Smith",
                         "johnsmith@contoso.com",
                         "General admission"});
-#line 113
-testRunner.Then("I should be getting a seat assignment confirmation for the seats", ((string)(null)), table16);
+#line 104
+testRunner.Then("I should be getting a seat assignment confirmation for the seats", ((string)(null)), table15);
 #line hidden
-            TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
                         "Access code",
                         "email address",
                         "Seat type"});
-            table17.AddRow(new string[] {
+            table16.AddRow(new string[] {
                         "6789-1",
                         "johnsmith@contoso.com",
                         "General admission"});
-#line 116
+#line 107
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
-                    "e with Seat Access Code", ((string)(null)), table17);
+                    "e with Seat Access Code", ((string)(null)), table16);
 #line hidden
             this.ScenarioCleanup();
         }
@@ -444,44 +404,46 @@ testRunner.And("the Attendees should get an email informing about the conference
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Complete Seats allocation")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
             "ad path)")]
+        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void CompleteSeatsAllocation()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Complete Seats allocation", ((string[])(null)));
-#line 121
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Complete Seats allocation", new string[] {
+                        "Ignore"});
+#line 113
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 122
+#line 114
 testRunner.Given("the ConfirmSuccessfulRegistration for the selected Order Items");
-#line 123
+#line 115
 testRunner.And("the Order Access code is 6789");
 #line hidden
-            TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
                         "Last name",
                         "email address",
                         "Seat type"});
-            table18.AddRow(new string[] {
+            table17.AddRow(new string[] {
                         "John",
                         "Smith",
                         "johnsmith@contoso.com",
                         "Additional cocktail party"});
-#line 124
-testRunner.And("the Registrant assign the purchased seats to attendees as following", ((string)(null)), table18);
-#line 127
+#line 116
+testRunner.And("the Registrant assign the purchased seats to attendees as following", ((string)(null)), table17);
+#line 119
 testRunner.Then("the Registrant should be get a Seat Assignment confirmation");
 #line hidden
-            TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
                         "Access code",
                         "email address",
                         "Seat type"});
-            table19.AddRow(new string[] {
+            table18.AddRow(new string[] {
                         "6789-2",
                         "johnsmith@contoso.com",
                         "Additional cocktail party"});
-#line 128
+#line 120
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
-                    "e with Seat Access Code", ((string)(null)), table19);
+                    "e with Seat Access Code", ((string)(null)), table18);
 #line hidden
             this.ScenarioCleanup();
         }

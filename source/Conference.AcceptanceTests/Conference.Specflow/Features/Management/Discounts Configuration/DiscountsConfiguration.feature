@@ -14,6 +14,8 @@ And the Seat Types configuration
 	| Additional cocktail party        | 600   |
 
 # New Promo Code  Happy path
+#Discounts pending
+@ignore
 Scenario: Create a new Promotional Code
 Given the Business Customer selects 'Add new Promotional code' option
 And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
@@ -24,6 +26,8 @@ Then the new Promotional Code is added to the list of existing codes
 
 
 # New Promo Code Sad path
+#Discounts pending
+@ignore
 Scenario: Create a new Promotional Code with with exceeding quota
 Given the Business Customer selects 'Add new Promotional code' option
 And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
@@ -34,6 +38,8 @@ Then an error message will show up describing that the quota value exceeds the t
 
 
 # Update Promo Code Happy path
+#Discounts pending
+@ignore
 Scenario: Update an existing Promotional Code
 Given the Business Customer selects 'SPEAKER123' Promotional Code
 And the Scope is updated with value 'Pre-con Workshop with Greg Young'
@@ -43,6 +49,8 @@ Then updated values are reflected in the selected Promotional Code
 
 
 # Update Promo Code Sad path
+#Discounts pending
+@ignore
 Scenario: Update an existing Promotional Code with exceeding quota
 Given the Business Customer selects 'SPEAKER123' Promotional Code
 And the Scope is updated with value 'Pre-con Workshop with Greg Young'

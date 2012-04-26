@@ -8,18 +8,6 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
     [Binding]
     public class SelfRegistrationEndToEndHappySteps
     {
-        [Given(@"the Registrant enter these details")]
-        public void GivenTheRegistrantEnterTheseDetails(Table table)
-        {
-            var browser = ScenarioContext.Current.Get<W.Browser>(); 
-            browser.SetInputvalue("RegistrantDetails_FirstName", table.Rows[0]["First name"]);
-            browser.SetInputvalue("RegistrantDetails_LastName", table.Rows[0]["Last name"]);
-            browser.SetInputvalue("RegistrantDetails_Email", table.Rows[0]["email address"]);
-            browser.SetInputvalue("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
-            
-            ScenarioContext.Current.Add("email", table.Rows[0]["email address"]);
-        }
-
         [When(@"the Registrant proceed to confirm the payment")]
         public void WhenTheRegistrantProceedToConfirmThePayment()
         {
@@ -34,7 +22,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             Assert.IsFalse(string.IsNullOrWhiteSpace(accessCode));
 
             // Navigate to Registration page
-            browser.GoTo(Constants.FindOrderPage(FeatureContext.Current.Get<string>("conferenceSlug")));
+            browser.GoTo(Constants.FindOrderPage(FeatureContext.Current.Get<ConferenceInfo>().Slug));
 
             var email = ScenarioContext.Current.Get<string>("email");
 

@@ -19,6 +19,8 @@ Background:
 	| CONFONLY         | $50      | Single    | General admission, Pre-con Workshop with Greg Young |            |
 
 
+#Discounts pending
+@ignore
 Scenario: Full Promotional Code for all selected items
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -30,7 +32,9 @@ Scenario: Full Promotional Code for all selected items
 	Then the 'SPEAKER123' Promo code should show a value of -$1197
 	And the total amount should be of $0
 
-	
+
+#Discounts pending
+@ignore	
 Scenario: Partial Promotional Code for all selected items
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -43,6 +47,8 @@ Scenario: Partial Promotional Code for all selected items
 	And the total amount should be of $600
 
 
+#Discounts pending
+@ignore
 Scenario: Partial Promotional Code for none of the selected items
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -54,6 +60,8 @@ Scenario: Partial Promotional Code for none of the selected items
 	And the total amount should be of $600
 
 
+#Discounts pending
+@ignore
 Scenario: Cumulative Promotional Codes
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -68,6 +76,8 @@ Scenario: Cumulative Promotional Codes
 	And the total amount should be of $1167
 
 
+#Discounts pending
+@ignore
 Scenario: Single use Promotional Code
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -83,6 +93,8 @@ Scenario: Single use Promotional Code
 	And the total amount should be of $600
 
 
+#Discounts pending
+@ignore
 Scenario: Mutually exclusive Promotional Code
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -97,6 +109,8 @@ Scenario: Mutually exclusive Promotional Code
 	And the total amount should be of $1187
 
 
+#Discounts pending
+@ignore
 Scenario: Combine only Promotional Code
 	Given the selected available Order Items
 	| seat type                        | quantity |
@@ -111,6 +125,8 @@ Scenario: Combine only Promotional Code
 	And the total amount should be of $590
 
 
+#Discounts pending
+@ignore
 Scenario: Partial scope
 	Given the selected available Order Items
 	| seat type                        | quantity |

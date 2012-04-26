@@ -36,20 +36,24 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	Given these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                        |
 	| Pre-con Workshop with Greg Young |
-	| Additional cocktail party		   |
+	| Additional cocktail party        |
 	When the Registrant proceed to make the Reservation			
 	Then the Registrant is offered to be waitlisted for these Order Items
 	| seat type                        | quantity |
 	| Pre-con Workshop with Greg Young | 1		  |
 	| Additional cocktail party		   | 1		  |
-	And These other Order Items get reserved
+	And these Order Items should be reserved
 	| seat type                        | quantity |
 	| General admission                | 1		  |
-	And the countdown will start for the reserved Order Item
+	And the total should read $199
+	And the countdown started
 
 
 #Initial state	: 1 available, 2 waitlisted and 1a & 1w selected
 #End state		: 1 reserved,  1 waitlisted confirmed  
+
+#Waitlisting pending
+@ignore
 Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
 	Given the list of available Order Items selected by the Registrant
 	| seat type                        | quantity |
@@ -65,42 +69,29 @@ Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlis
 	And these other order items get reserved
 	| seat type         | quantity |
 	| General admission | 1        |	
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
+	And the countdown started
 
 
 Scenario: Checkout:Registrant Invalid Details
-	Given the Registrant enter these details
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
 	| First name | Last name | email address     |
-	| John       | Smith     | johnsmith@invalid |
-	And the email address is not valid
-	# valid = non-empty, email address is valid as per email conventional verification
-	When the Registrant proceed to select a payment option
-	Then the invalid field is highlighted with a hint of the error cause
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
+	| John       |           | johnsmith@invalid |
+	When the Registrant proceed to Checkout:Payment
+	Then the message 'The LastName field is required.' will show up 	
 
 
 Scenario: Checkout:Payment with cancellation
-	Given the Registrant enter these details
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
 	| First name | Last name | email address         |
 	| John       | Smith     | johnsmith@contoso.com |
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-	And the Registrant select one of the offered payment options
-	When the Registrant decides to cancel the payment
-    Then a cancelation message will be shown to the Registrant and will get back to the payment options
+	And the Registrant proceed to Checkout:Payment
+	When the Registrant proceed to cancel the payment
+    Then the message 'Payment cancelled.' will show up 	
 
 
-Scenario: Checkout:Payment and place Order
-	Given the Registrant enter these details
-	| First name | Last name | email address         |
-	| John       | Smith     | johnsmith@contoso.com |
-	And the countdown has decreased within the allowed timeslot for holding the Reservation
-	And the Registrant select one of the offered payment options
-	When the Registrant proceed to confirm the payment
-    Then a receipt will be received from the payment provider indicating success with some transaction id
-	And a Registration confirmation with the Access code should be displayed
-	And an email with the Access Code will be send to the registered email. 
-
-
+@Ignore
 Scenario: Partiall Seats allocation
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789
@@ -118,6 +109,7 @@ And the Attendees should get an email informing about the conference and the Sea
 	| 6789-1      | johnsmith@contoso.com | General admission         |
 
 
+@Ignore
 Scenario: Complete Seats allocation
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789
