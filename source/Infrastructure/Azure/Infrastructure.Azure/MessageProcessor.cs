@@ -134,6 +134,14 @@ namespace Infrastructure.Azure
                             message.Dispose();
                         }, null);
                     }
+                    else
+                    {
+                        message.BeginAbandon(ar =>
+                        {
+                            message.EndAbandon(ar);
+                            message.Dispose();
+                        }, null);
+                    }
 
                     return;
                 }
