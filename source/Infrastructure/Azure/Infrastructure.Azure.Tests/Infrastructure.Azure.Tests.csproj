@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="CommandProcessorFixture.cs" />
     <Compile Include="MessageProcessorFixture.cs" />
-    <Compile Include="MessagingSettingsFixture.cs" />
+    <Compile Include="InfrastructureSettingsFixture.cs" />
     <Compile Include="MetadataProviderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -74,6 +74,7 @@
     <Content Include="..\Settings.Template.xml">
       <Link>Settings.Template.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="..\Settings.xml">
       <Link>Settings.xml</Link>

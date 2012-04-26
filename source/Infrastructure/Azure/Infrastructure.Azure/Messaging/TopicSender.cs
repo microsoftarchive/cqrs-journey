@@ -27,7 +27,7 @@ namespace Infrastructure.Azure.Messaging
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly MessagingSettings settings;
-        private string topic;
+        private readonly string topic;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
@@ -80,6 +80,5 @@ namespace Infrastructure.Azure.Messaging
                 this.Send(message);
             }
         }
-
     }
 }

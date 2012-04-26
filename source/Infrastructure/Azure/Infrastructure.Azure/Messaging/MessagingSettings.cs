@@ -13,36 +13,15 @@
 
 namespace Infrastructure.Azure.Messaging
 {
-    using System.Xml;
     using System.Xml.Serialization;
 
     /// <summary>
     /// Simple settings class to configure the connection to Azure 
     /// messaging APIs.
     /// </summary>
+    [XmlRoot("Messaging")]
     public class MessagingSettings
     {
-        private static readonly XmlSerializer serializer = new XmlSerializer(typeof(MessagingSettings));
-
-        /// <summary>
-        /// Reads the settings from the specified file.
-        /// </summary>
-        public static MessagingSettings Read(string file)
-        {
-            using (var reader = XmlReader.Create(file))
-            {
-                return Read(reader);
-            }
-        }
-
-        /// <summary>
-        /// Reads the settings from the specified reader.
-        /// </summary>
-        public static MessagingSettings Read(XmlReader reader)
-        {
-            return (MessagingSettings)serializer.Deserialize(reader);
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingSettings"/> class.
         /// </summary>
@@ -54,6 +33,8 @@ namespace Infrastructure.Azure.Messaging
 
             this.TokenIssuer = string.Empty;
             this.TokenAccessKey = string.Empty;
+
+            this.TopicName = string.Empty;
         }
 
         /// <summary>
@@ -77,5 +58,10 @@ namespace Infrastructure.Azure.Messaging
         /// Gets or sets the token access key.
         /// </summary>
         public string TokenAccessKey { get; set; }
+
+        /// <summary>
+        /// Gets the topic name if required.
+        /// </summary>
+        public string TopicName { get; set; }
     }
 }

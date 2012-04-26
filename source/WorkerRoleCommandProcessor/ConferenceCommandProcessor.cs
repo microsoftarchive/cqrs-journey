@@ -87,7 +87,7 @@ namespace WorkerRoleCommandProcessor
             }));
             container.RegisterInstance<ISerializer>(serializer);
 
-            var settings = MessagingSettings.Read("Settings.xml");
+            var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
             var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 

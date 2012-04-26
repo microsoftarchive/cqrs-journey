@@ -11,42 +11,27 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
+namespace Infrastructure.Azure.Tests
 {
-    using System;
     using Infrastructure.Azure.Messaging;
-    using Microsoft.ServiceBus.Messaging;
     using Xunit;
 
-    public class given_a_topic_sender : IDisposable
+    public class given_a_messaging_settings_file
     {
-        private MessagingSettings settings;
-        private string topic = Guid.NewGuid().ToString();
-
-        public given_a_topic_sender()
+        [Fact]
+        public void when_reading_messaging_settings_from_file_then_succeeds()
         {
-            this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
-        }
+            var settings = InfrastructureSettings.ReadMessaging("Settings.Template.xml");
 
-        public void Dispose()
-        {
-            this.settings.TryDeleteTopic(this.topic);
+            Assert.NotNull(settings);
         }
 
         [Fact]
-        public void when_sending_message_then_succeeds()
+        public void when_reading_eventsourcing_settings_from_file_then_succeeds()
         {
-            var sender = new TopicSender(this.settings, this.topic);
+            var settings = InfrastructureSettings.ReadEventSourcing("Settings.Template.xml");
 
-            sender.Send(new BrokeredMessage(Guid.NewGuid()));
-        }
-
-        [Fact]
-        public void when_sending_message_batch_then_succeeds()
-        {
-            var sender = new TopicSender(this.settings, this.topic);
-
-            sender.Send(new[] { new BrokeredMessage(Guid.NewGuid()), new BrokeredMessage(Guid.NewGuid()) });
+            Assert.NotNull(settings);
         }
     }
 }

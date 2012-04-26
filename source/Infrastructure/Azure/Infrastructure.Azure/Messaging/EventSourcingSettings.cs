@@ -11,31 +11,19 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests
+namespace Infrastructure.Azure.Messaging
 {
-    using System.Xml;
-    using Infrastructure.Azure.Messaging;
-    using Xunit;
+    using System.Xml.Serialization;
 
-    public class given_a_messaging_settings_file
+    /// <summary>
+    /// Simple settings class to configure the connection to Azure tables.
+    /// </summary>
+    [XmlRoot("EventSourcing")]
+    public class EventSourcingSettings
     {
-        [Fact]
-        public void when_read_from_file_then_succeeds()
-        {
-            var settings = MessagingSettings.Read("Settings.Template.xml");
-
-            Assert.NotNull(settings);
-        }
-
-        [Fact]
-        public void when_read_from_reader_then_succeeds()
-        {
-            using (var reader = XmlReader.Create("Settings.Template.xml"))
-            {
-                var settings = MessagingSettings.Read(reader);
-
-                Assert.NotNull(settings);
-            }
-        }
+        /// <summary>
+        /// Gets or sets the service URI scheme.
+        /// </summary>
+        public string ConnectionString { get; set; }
     }
 }

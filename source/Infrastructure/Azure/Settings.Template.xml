@@ -1,10 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!-- Copy this template file as Settings.xml and replace the 
     placeholders with your Azure access information -->
-<MessagingSettings>
+<InfrastructureSettings>
+  <Messaging>
     <ServiceUriScheme>sb</ServiceUriScheme>
     <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
     <ServicePath></ServicePath>
     <TokenIssuer>owner</TokenIssuer>
     <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
-</MessagingSettings>
+  </Messaging>
+  <EventSourcing>
+    <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+  </EventSourcing>
+</InfrastructureSettings>

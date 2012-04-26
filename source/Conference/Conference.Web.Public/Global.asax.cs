@@ -112,7 +112,7 @@ namespace Conference.Web.Public
             container.RegisterType<IEventBus, MemoryEventBus>(new ContainerControlledLifetimeManager());
             container.RegisterType<IEventHandlerRegistry, MemoryEventBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryEventBus()));
 #else
-            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
+            var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
