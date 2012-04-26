@@ -11,16 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using Infrastructure.Messaging.InMemory;
+
 namespace Conference.Web.Admin
 {
     using System.Data.Entity;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
-    using Infrastructure.Azure;
-    using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
-    using Infrastructure.Messaging.InMemory;
     using Infrastructure.Serialization;
     using Newtonsoft.Json;
 

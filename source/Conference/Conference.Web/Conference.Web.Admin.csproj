@@ -179,10 +179,6 @@
     <Content Include="Views\Conference\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
-      <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
-      <Name>Infrastructure.Azure</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
