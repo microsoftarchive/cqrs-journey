@@ -34,15 +34,21 @@
     <Reference Include="Microsoft.ServiceBus, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\WindowsAzure.ServiceBus.1.6.0.0\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\WindowsAzure.Storage.1.6\lib\net35-full\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="xunit">
       <HintPath>..\..\..\packages\xunit.1.9.0.1566\lib\xunit.dll</HintPath>
     </Reference>
@@ -50,6 +56,7 @@
   <ItemGroup>
     <Compile Include="BaseMessagingIntegration.cs" />
     <Compile Include="EventProcessingIntegration.cs" />
+    <Compile Include="EventSourcing\EventStoreFixture.cs" />
     <Compile Include="MessageProcessorIntegration.cs" />
     <Compile Include="MessagingSettingsExtensions.cs" />
     <Compile Include="CommandProcessingIntegration.cs" />
