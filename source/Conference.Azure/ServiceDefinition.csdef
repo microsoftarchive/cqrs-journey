@@ -1,24 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition name="Conference.Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
-  <WebRole name="Conference.Web.Admin" vmsize="Small">
-    <Sites>
-      <Site name="Web">
-        <Bindings>
-          <Binding name="Endpoint1" endpointName="Endpoint1" />
-        </Bindings>
-      </Site>
-    </Sites>
-    <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
-    </Endpoints>
-    <Imports>
-      <Import moduleName="Diagnostics" />
-    </Imports>
-    <ConfigurationSettings>
-      <Setting name="Context.ConferenceManagement" />
-    </ConfigurationSettings>
-  </WebRole>
-  <WebRole name="Conference.Web.Public" vmsize="Small">
+  <WebRole name="Conference.Web.Admin" vmsize="ExtraSmall">
     <Sites>
       <Site name="Web">
         <Bindings>
@@ -33,11 +15,29 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="Context.ConferenceManagement" />
+    </ConfigurationSettings>
+  </WebRole>
+  <WebRole name="Conference.Web.Public" vmsize="ExtraSmall">
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+    </Endpoints>
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+    <ConfigurationSettings>
       <Setting name="Context.Payments" />
       <Setting name="Context.ConferenceRegistration" />
     </ConfigurationSettings>
   </WebRole>
-  <WorkerRole name="WorkerRoleCommandProcessor" vmsize="Small">
+  <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
     <Imports>
       <Import moduleName="Diagnostics" />
     </Imports>
