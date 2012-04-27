@@ -14,8 +14,12 @@
 namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Conference;
+    using Infrastructure.Messaging;
+    using Moq;
+    using Registration.Commands;
     using Registration.Handlers;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
@@ -25,6 +29,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
     {
         protected string dbName = Guid.NewGuid().ToString();
         protected ConferenceViewModelGenerator sut;
+        protected List<ICommand> commands = new List<ICommand>();
 
         public given_a_database()
         {
@@ -36,7 +41,13 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                 context.Database.Create();
             }
 
-            this.sut = new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
+            var bus = new Mock<ICommandBus>();
+            bus.Setup(x => x.Send(It.IsAny<Envelope<ICommand>>()))
+                .Callback<Envelope<ICommand>>(x => this.commands.Add(x.Body));
+            bus.Setup(x => x.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))
+                .Callback<IEnumerable<Envelope<ICommand>>>(x => this.commands.AddRange(x.Select(e => e.Body)));
+
+            this.sut = new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName), bus.Object);
         }
 
         public void Dispose()
@@ -168,6 +179,29 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
         }
 
         [Fact]
+        public void when_seat_created_then_add_seats_command_sent()
+        {
+            var seatId = Guid.NewGuid();
+
+            this.sut.Handle(new SeatCreated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "seat",
+                Description = "description",
+                Price = 200,
+                Quantity = 100,
+            });
+
+            var e = this.commands.OfType<AddSeats>().FirstOrDefault();
+
+            Assert.NotNull(e);
+            Assert.Equal(conferenceId, e.ConferenceId);
+            Assert.Equal(seatId, e.SeatType);
+            Assert.Equal(100, e.Quantity);
+        }
+
+        [Fact]
         public void when_seat_updated_then_updates_seat_on_conference_dto()
         {
             var seatId = Guid.NewGuid();
@@ -202,6 +236,76 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                 Assert.Equal("newdescription", dto.Description);
                 Assert.Equal(100, dto.Price);
             }
+        }
+
+        [Fact]
+        public void when_seats_added_then_add_seats_command_sent()
+        {
+            var seatId = Guid.NewGuid();
+
+            this.sut.Handle(new SeatCreated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "seat",
+                Description = "description",
+                Price = 200,
+                Quantity = 100,
+            });
+
+            this.commands.Clear();
+
+            this.sut.Handle(new SeatUpdated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "newseat",
+                Description = "newdescription",
+                Price = 100,
+                Quantity = 100,
+            });
+
+            var e = this.commands.OfType<AddSeats>().FirstOrDefault();
+
+            Assert.NotNull(e);
+            Assert.Equal(conferenceId, e.ConferenceId);
+            Assert.Equal(seatId, e.SeatType);
+            Assert.Equal(100, e.Quantity);
+        }
+
+        [Fact]
+        public void when_seats_removed_then_add_seats_command_sent()
+        {
+            var seatId = Guid.NewGuid();
+
+            this.sut.Handle(new SeatCreated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "seat",
+                Description = "description",
+                Price = 200,
+                Quantity = 100,
+            });
+
+            this.commands.Clear();
+
+            this.sut.Handle(new SeatUpdated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "newseat",
+                Description = "newdescription",
+                Price = 100,
+                Quantity = 50,
+            });
+
+            var e = this.commands.OfType<RemoveSeats>().FirstOrDefault();
+
+            Assert.NotNull(e);
+            Assert.Equal(conferenceId, e.ConferenceId);
+            Assert.Equal(seatId, e.SeatType);
+            Assert.Equal(50, e.Quantity);
         }
     }
 }

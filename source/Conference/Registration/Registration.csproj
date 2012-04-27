@@ -54,6 +54,8 @@
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkSeatsAsReserved.cs" />
     <Compile Include="Commands\MakeSeatReservation.cs" />
+    <Compile Include="Commands\AddSeats.cs" />
+    <Compile Include="Commands\RemoveSeats.cs" />
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
