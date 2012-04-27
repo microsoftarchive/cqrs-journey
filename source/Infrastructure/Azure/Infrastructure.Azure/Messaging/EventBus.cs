@@ -47,7 +47,7 @@ namespace Infrastructure.Azure.Messaging
         {
             var message = BuildMessage(@event);
 
-            this.sender.Send(message);
+            this.sender.SendAsync(message);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Infrastructure.Azure.Messaging
         {
             var messages = events.Select(this.BuildMessage);
 
-            this.sender.Send(messages);
+            this.sender.SendAsync(messages);
         }
 
         private BrokeredMessage BuildMessage(IEvent @event)

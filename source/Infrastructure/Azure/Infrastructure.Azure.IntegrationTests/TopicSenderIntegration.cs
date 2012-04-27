@@ -38,7 +38,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
         {
             var sender = new TopicSender(this.settings, this.topic);
 
-            sender.Send(new BrokeredMessage(Guid.NewGuid()));
+            sender.SendAsync(new BrokeredMessage(Guid.NewGuid()));
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
         {
             var sender = new TopicSender(this.settings, this.topic);
 
-            sender.Send(new[] { new BrokeredMessage(Guid.NewGuid()), new BrokeredMessage(Guid.NewGuid()) });
+            sender.SendAsync(new[] { new BrokeredMessage(Guid.NewGuid()), new BrokeredMessage(Guid.NewGuid()) });
         }
     }
 }

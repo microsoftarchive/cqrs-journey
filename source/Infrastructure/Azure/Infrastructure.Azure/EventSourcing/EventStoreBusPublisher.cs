@@ -63,7 +63,7 @@ namespace Infrastructure.Azure.EventSourcing
                                                       {
                                                           foreach (var record in pending)
                                                           {
-                                                              this.sender.Send(BuildMessage(record));
+                                                              this.sender.SendAsync(BuildMessage(record));
                                                           }
                                                       }
                                                   }

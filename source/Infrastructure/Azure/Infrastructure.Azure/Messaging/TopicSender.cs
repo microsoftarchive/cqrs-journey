@@ -58,7 +58,7 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Asynchronously sends the specified message.
         /// </summary>
-        public void Send(BrokeredMessage message)
+        public void SendAsync(BrokeredMessage message)
         {
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
             var client = factory.CreateTopicClient(this.topic);
@@ -72,12 +72,12 @@ namespace Infrastructure.Azure.Messaging
             }, null);
         }
 
-        public void Send(IEnumerable<BrokeredMessage> messages)
+        public void SendAsync(IEnumerable<BrokeredMessage> messages)
         {
             // TODO: batch/transactional sending?
             foreach (var message in messages)
             {
-                this.Send(message);
+                this.SendAsync(message);
             }
         }
     }

@@ -47,14 +47,14 @@ namespace Infrastructure.Azure.Messaging
         {
             var message = BuildMessage(command);
 
-            this.sender.Send(message);
+            this.sender.SendAsync(message);
         }
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
             var messages = commands.Select(command => BuildMessage(command));
 
-            this.sender.Send(messages);
+            this.sender.SendAsync(messages);
         }
 
         private BrokeredMessage BuildMessage(Envelope<ICommand> command)

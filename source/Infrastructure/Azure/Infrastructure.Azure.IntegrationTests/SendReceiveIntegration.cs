@@ -60,7 +60,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
                 receiver.Start();
 
-                sender.Send(new BrokeredMessage(data));
+                sender.SendAsync(new BrokeredMessage(data));
 
                 signal.Wait();
             }

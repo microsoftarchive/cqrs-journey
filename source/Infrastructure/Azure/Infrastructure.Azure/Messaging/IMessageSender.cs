@@ -22,13 +22,13 @@ namespace Infrastructure.Azure.Messaging
     public interface IMessageSender
     {
         /// <summary>
-        /// Sends the specified message.
+        /// Sends the specified message asynchronously.
         /// </summary>
-        void Send(BrokeredMessage message);
+        void SendAsync(BrokeredMessage message);
 
         /// <summary>
-        /// Sends a batch of messages.
+        /// Sends a batch of messages asynchronously.
         /// </summary>
-        void Send(IEnumerable<BrokeredMessage> messages);
+        void SendAsync(IEnumerable<BrokeredMessage> messages);
     }
 }
