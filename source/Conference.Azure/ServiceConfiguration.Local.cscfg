@@ -4,25 +4,25 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="Context.ConferenceManagement" value="" />
+      <Setting name="Context.ConferenceManagement" value="Data Source=.\sqlexpress;Initial Catalog=ConferenceManagement;Integrated Security=True" />
     </ConfigurationSettings>
   </Role>
   <Role name="Conference.Web.Public">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="Context.Payments" value="" />
-      <Setting name="Context.ConferenceRegistration" value="" />
+      <Setting name="Context.Payments" value="Data Source=.\sqlexpress;Initial Catalog=Payments;Integrated Security=True" />
+      <Setting name="Context.ConferenceRegistration" value="Data Source=.\sqlexpress;Initial Catalog=ConferenceRegistration;Integrated Security=True" />
     </ConfigurationSettings>
   </Role>
   <Role name="WorkerRoleCommandProcessor">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="Context.Payments" value="" />
-      <Setting name="Context.EventStore" value="" />
-      <Setting name="Context.ConferenceRegistrationProcesses" value="" />
-      <Setting name="Context.ConferenceRegistration" value="" />
+      <Setting name="Context.Payments" value="Data Source=.\sqlexpress;Initial Catalog=Payments;Integrated Security=True" />
+      <Setting name="Context.EventStore" value="Data Source=.\sqlexpress;Initial Catalog=EventStore;Integrated Security=True" />
+      <Setting name="Context.ConferenceRegistrationProcesses" value="Data Source=.\sqlexpress;Initial Catalog=ConferenceRegistrationProcesses;Integrated Security=True" />
+      <Setting name="Context.ConferenceRegistration" value="Data Source=.\sqlexpress;Initial Catalog=ConferenceRegistration;Integrated Security=True" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
