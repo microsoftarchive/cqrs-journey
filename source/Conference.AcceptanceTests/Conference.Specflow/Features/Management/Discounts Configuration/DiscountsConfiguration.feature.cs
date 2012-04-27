@@ -97,7 +97,7 @@ testRunner.Given("the Promotional Codes", ((string)(null)), table1);
                         "General admission",
                         "500"});
             table2.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "100"});
             table2.AddRow(new string[] {
                         "Additional cocktail party",
@@ -111,16 +111,14 @@ testRunner.And("the Seat Types configuration", ((string)(null)), table2);
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Create a new Promotional Code")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void CreateANewPromotionalCode()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code", new string[] {
-                        "ignore"});
-#line 19
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code", ((string[])(null)));
+#line 18
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 20
+#line 19
 testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -133,11 +131,11 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
                         "Unlimited",
                         "General admission",
                         "SPEAKER123"});
-#line 21
+#line 20
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table3);
-#line 24
+#line 23
 testRunner.When("the \'Save\' option is selected");
-#line 25
+#line 24
 testRunner.Then("the new Promotional Code is added to the list of existing codes");
 #line hidden
             this.ScenarioCleanup();
@@ -147,16 +145,14 @@ testRunner.Then("the new Promotional Code is added to the list of existing codes
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Create a new Promotional Code with with exceeding quota")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void CreateANewPromotionalCodeWithWithExceedingQuota()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code with with exceeding quota", new string[] {
-                        "ignore"});
-#line 31
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code with with exceeding quota", ((string[])(null)));
+#line 29
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 32
+#line 30
 testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -169,11 +165,11 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
                         "1000",
                         "General admission",
                         "SPEAKER123"});
-#line 33
+#line 31
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table4);
-#line 36
+#line 34
 testRunner.When("the \'Save\' option is selected");
-#line 37
+#line 35
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
 #line hidden
@@ -184,24 +180,22 @@ testRunner.Then("an error message will show up describing that the quota value e
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Update an existing Promotional Code")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void UpdateAnExistingPromotionalCode()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code", new string[] {
-                        "ignore"});
-#line 43
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code", ((string[])(null)));
+#line 40
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 44
+#line 41
 testRunner.Given("the Business Customer selects \'SPEAKER123\' Promotional Code");
-#line 45
-testRunner.And("the Scope is updated with value \'Pre-con Workshop with Greg Young\'");
-#line 46
+#line 42
+testRunner.And("the Scope is updated with value \'CQRS Workshop\'");
+#line 43
 testRunner.And("the Quota is updated with the value \'50\'");
-#line 47
+#line 44
 testRunner.When("the \'Save\' option is selected");
-#line 48
+#line 45
 testRunner.Then("updated values are reflected in the selected Promotional Code");
 #line hidden
             this.ScenarioCleanup();
@@ -211,24 +205,22 @@ testRunner.Then("updated values are reflected in the selected Promotional Code")
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Update an existing Promotional Code with exceeding quota")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void UpdateAnExistingPromotionalCodeWithExceedingQuota()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code with exceeding quota", new string[] {
-                        "ignore"});
-#line 54
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code with exceeding quota", ((string[])(null)));
+#line 50
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
-#line 55
+#line 51
 testRunner.Given("the Business Customer selects \'SPEAKER123\' Promotional Code");
-#line 56
-testRunner.And("the Scope is updated with value \'Pre-con Workshop with Greg Young\'");
-#line 57
+#line 52
+testRunner.And("the Scope is updated with value \'CQRS Workshop\'");
+#line 53
 testRunner.And("the Quota is updated with the value \'200\'");
-#line 58
+#line 54
 testRunner.When("the \'Save\' option is selected");
-#line 59
+#line 55
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
 #line hidden

@@ -28,6 +28,12 @@ namespace Conference.Specflow
             element.Click();
         }
 
+        public static void ClickAndWait(this Browser browser, string controlId, string untilContainsText)
+        {
+            Click(browser, controlId);
+            browser.WaitUntilContainsText(untilContainsText, Constants.UI.WaitTimeout.Seconds);
+        }
+
         public static void SelectListInTableRow(this Browser browser, string rowName, string value)
         {
             //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));

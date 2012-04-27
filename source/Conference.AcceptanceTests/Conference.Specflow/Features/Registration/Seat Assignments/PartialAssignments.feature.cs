@@ -78,14 +78,14 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "email address",
                         "Seat type"});
             table1.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "johnsmith@contoso.com",
+                        "Gregory",
+                        "Weber",
+                        "gregoryweber@contoso.com",
                         "General admission"});
             table1.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "johnsmith@contoso.com",
+                        "Gregory",
+                        "Weber",
+                        "gregoryweber@contoso.com",
                         "Additional cocktail party"});
 #line 4
  testRunner.Given("the individual purchased Seats", ((string)(null)), table1);
@@ -97,24 +97,24 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "Seat type"});
             table2.AddRow(new string[] {
                         "William",
-                        "Smith",
-                        "William@Smith.com",
+                        "Weber",
+                        "William@Weber.com",
                         "General admission"});
             table2.AddRow(new string[] {
-                        "John",
+                        "Gregory",
                         "Doe",
-                        "JohnDoe@live.com",
+                        "GregoryDoe@live.com",
                         "General admission"});
             table2.AddRow(new string[] {
                         "Oliver",
-                        "Smith",
-                        "Oliver@Smith.com",
-                        "Pre-con Workshop with Greg Young"});
+                        "Weber",
+                        "Oliver@Weber.com",
+                        "CQRS Workshop"});
             table2.AddRow(new string[] {
                         "Tim",
                         "Martin",
                         "Tim@Martin.com",
-                        "Pre-con Workshop with Greg Young"});
+                        "CQRS Workshop"});
             table2.AddRow(new string[] {
                         "Mani",
                         "Kris",
@@ -122,8 +122,8 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "Additional cocktail party"});
             table2.AddRow(new string[] {
                         "Jim",
-                        "John",
-                        "Jim@John.com",
+                        "Gregory",
+                        "Jim@Gregory.com",
                         "Additional cocktail party"});
 #line 8
  testRunner.And("the group purchased Seats", ((string)(null)), table2);
@@ -133,18 +133,16 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Allocate all purchased Seats for an individual")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant workflow for partially assigning some of the registered Order Items")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void AllocateAllPurchasedSeatsForAnIndividual()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for an individual", new string[] {
-                        "ignore"});
-#line 20
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for an individual", ((string[])(null)));
+#line 18
 this.ScenarioSetup(scenarioInfo);
 #line 3
 this.FeatureBackground();
-#line 21
+#line 19
 testRunner.Given("the ConfirmSuccessfulRegistration for the selected Order Items");
-#line 22
+#line 20
 testRunner.And("the Order Access code is 6789");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -153,16 +151,16 @@ testRunner.And("the Order Access code is 6789");
                         "email address",
                         "Seat type"});
             table3.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "johnsmith@contoso.com",
+                        "Gregory",
+                        "Weber",
+                        "gregoryweber@contoso.com",
                         "General admission"});
             table3.AddRow(new string[] {
-                        "John",
-                        "Smith",
-                        "johnsmith@contoso.com",
+                        "Gregory",
+                        "Weber",
+                        "gregoryweber@contoso.com",
                         "Additional cocktail party"});
-#line 23
+#line 21
 testRunner.And("the Registratnt assign the infividual purchased Seats to attendees as following", ((string)(null)), table3);
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -175,9 +173,9 @@ testRunner.And("the Registratnt assign the infividual purchased Seats to attende
                         "",
                         "",
                         "Additional cocktail party"});
-#line 27
+#line 25
 testRunner.And("leave unassigned these individual purchased seats", ((string)(null)), table4);
-#line 30
+#line 28
 testRunner.Then("the Registrant should get a Seat assignment confirmation");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
@@ -186,9 +184,9 @@ testRunner.Then("the Registrant should get a Seat assignment confirmation");
                         "Seat type"});
             table5.AddRow(new string[] {
                         "6789-1",
-                        "johnsmith@contoso.com",
+                        "gregoryweber@contoso.com",
                         "General admission"});
-#line 31
+#line 29
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
                     "e with Seat Access Code", ((string)(null)), table5);
 #line hidden
@@ -198,18 +196,16 @@ testRunner.And("the Attendees should get an email informing about the conference
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Allocate some purchased Seats for a group")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant workflow for partially assigning some of the registered Order Items")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void AllocateSomePurchasedSeatsForAGroup()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate some purchased Seats for a group", new string[] {
-                        "ignore"});
-#line 38
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate some purchased Seats for a group", ((string[])(null)));
+#line 34
 this.ScenarioSetup(scenarioInfo);
 #line 3
 this.FeatureBackground();
-#line 39
+#line 35
 testRunner.Given("the ConfirmSuccessfulRegistration");
-#line 40
+#line 36
 testRunner.And("the order access code is 6789");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
@@ -219,25 +215,25 @@ testRunner.And("the order access code is 6789");
                         "Seat type"});
             table6.AddRow(new string[] {
                         "William",
-                        "Smith",
-                        "William@Smith.com",
+                        "Weber",
+                        "William@Weber.com",
                         "General admission"});
             table6.AddRow(new string[] {
                         "Oliver",
-                        "Smith",
-                        "Oliver@Smith.com",
-                        "Pre-con Workshop with Greg Young"});
+                        "Weber",
+                        "Oliver@Weber.com",
+                        "CQRS Workshop"});
             table6.AddRow(new string[] {
                         "Tim",
                         "Martin",
                         "Tim@Martin.com",
-                        "Pre-con Workshop with Greg Young"});
+                        "CQRS Workshop"});
             table6.AddRow(new string[] {
                         "Mani",
                         "Kris",
                         "Mani@Kris.com",
                         "Additional cocktail party"});
-#line 41
+#line 37
 testRunner.And("the Registrant assign the group purchased Seats to attendees as following", ((string)(null)), table6);
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
@@ -246,18 +242,18 @@ testRunner.And("the Registrant assign the group purchased Seats to attendees as 
                         "email address",
                         "Seat type"});
             table7.AddRow(new string[] {
-                        "John",
+                        "Gregory",
                         "Doe",
-                        "JohnDoe@live.com",
+                        "GregoryDoe@live.com",
                         "General admission"});
             table7.AddRow(new string[] {
                         "Jim",
-                        "John",
-                        "Jim@John.com",
+                        "Gregory",
+                        "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 47
+#line 43
 testRunner.And("leave unassigned these individual purchased seats", ((string)(null)), table7);
-#line 51
+#line 47
 testRunner.Then("the Registrant should get a Seat Assignment confirmation");
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
@@ -266,21 +262,21 @@ testRunner.Then("the Registrant should get a Seat Assignment confirmation");
                         "Seat type"});
             table8.AddRow(new string[] {
                         "6789-1",
-                        "William@Smith.com",
+                        "William@Weber.com",
                         "General admission"});
             table8.AddRow(new string[] {
                         "6789-2",
-                        "Oliver@Smith.com",
-                        "Pre-con Workshop with Greg Young"});
+                        "Oliver@Weber.com",
+                        "CQRS Workshop"});
             table8.AddRow(new string[] {
                         "6789-3",
                         "Tim@Martin.com",
-                        "Pre-con Workshop with Greg Young"});
+                        "CQRS Workshop"});
             table8.AddRow(new string[] {
                         "6789-4",
                         "Mani@Kris.com",
                         "Additional cocktail party"});
-#line 52
+#line 48
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
                     "e with Seat Access Code", ((string)(null)), table8);
 #line hidden

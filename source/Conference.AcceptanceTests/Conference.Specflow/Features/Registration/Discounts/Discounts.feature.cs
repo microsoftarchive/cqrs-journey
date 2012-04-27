@@ -81,13 +81,14 @@ namespace Conference.Specflow.Features.Registration.Discounts
                         "General admission",
                         "$199"});
             table1.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "$500"});
             table1.AddRow(new string[] {
                         "Additional cocktail party",
                         "$50"});
 #line 7
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
+                    "e slug code", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Promotional Code",
@@ -123,13 +124,13 @@ namespace Conference.Specflow.Features.Registration.Discounts
                         "1TIMEPRECON",
                         "50%",
                         "Single",
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         ""});
             table2.AddRow(new string[] {
                         "CONFONLY",
                         "$50",
                         "Single",
-                        "General admission, Pre-con Workshop with Greg Young",
+                        "General admission, CQRS Workshop",
                         ""});
 #line 12
  testRunner.And("the Promotional Codes", ((string)(null)), table2);
@@ -139,12 +140,10 @@ namespace Conference.Specflow.Features.Registration.Discounts
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Full Promotional Code for all selected items")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void FullPromotionalCodeForAllSelectedItems()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Full Promotional Code for all selected items", new string[] {
-                        "ignore"});
-#line 24
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Full Promotional Code for all selected items", ((string[])(null)));
+#line 22
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -156,20 +155,20 @@ this.FeatureBackground();
                         "General admission",
                         "3"});
             table3.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table3.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 25
+#line 23
  testRunner.Given("the selected available Order Items", ((string)(null)), table3);
-#line 30
+#line 28
  testRunner.And("the total amount should be of $1197");
-#line 31
+#line 29
  testRunner.When("the Registrant apply the \'SPEAKER123\' Promotional Code");
-#line 32
+#line 30
  testRunner.Then("the \'SPEAKER123\' Promo code should show a value of -$1197");
-#line 33
+#line 31
  testRunner.And("the total amount should be of $0");
 #line hidden
             this.ScenarioCleanup();
@@ -178,12 +177,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial Promotional Code for all selected items")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void PartialPromotionalCodeForAllSelectedItems()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for all selected items", new string[] {
-                        "ignore"});
-#line 38
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for all selected items", ((string[])(null)));
+#line 34
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -195,20 +192,20 @@ this.FeatureBackground();
                         "General admission",
                         "3"});
             table4.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table4.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 39
+#line 35
  testRunner.Given("the selected available Order Items", ((string)(null)), table4);
-#line 44
+#line 40
  testRunner.And("the total amount should be of $1197");
-#line 45
+#line 41
  testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
-#line 46
+#line 42
  testRunner.Then("the \'VOLUNTEER\' Promo code should show a value of -$597");
-#line 47
+#line 43
  testRunner.And("the total amount should be of $600");
 #line hidden
             this.ScenarioCleanup();
@@ -217,12 +214,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial Promotional Code for none of the selected items")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void PartialPromotionalCodeForNoneOfTheSelectedItems()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for none of the selected items", new string[] {
-                        "ignore"});
-#line 52
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for none of the selected items", ((string[])(null)));
+#line 46
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -231,21 +226,21 @@ this.FeatureBackground();
                         "seat type",
                         "quantity"});
             table5.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table5.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 53
+#line 47
  testRunner.Given("the selected available Order Items", ((string)(null)), table5);
-#line 57
+#line 51
  testRunner.And("the total amount should be of $600");
-#line 58
+#line 52
  testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
-#line 59
+#line 53
  testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
                     "bout the problem");
-#line 60
+#line 54
  testRunner.And("the total amount should be of $600");
 #line hidden
             this.ScenarioCleanup();
@@ -254,12 +249,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Cumulative Promotional Codes")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void CumulativePromotionalCodes()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Cumulative Promotional Codes", new string[] {
-                        "ignore"});
-#line 65
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Cumulative Promotional Codes", ((string[])(null)));
+#line 57
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -271,24 +264,24 @@ this.FeatureBackground();
                         "General admission",
                         "3"});
             table6.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table6.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 66
+#line 58
  testRunner.Given("the selected available Order Items", ((string)(null)), table6);
-#line 71
+#line 63
  testRunner.And("the total amount should be of $1197");
-#line 72
+#line 64
  testRunner.When("the Registrant apply the \'COPRESENTER\' Promotional Code");
-#line 73
+#line 65
  testRunner.And("the Registrant apply the \'WS10\' Promotional Code");
-#line 74
+#line 66
  testRunner.Then("the \'COPRESENTER\' Promotional Code item should show a value of -$10");
-#line 75
+#line 67
  testRunner.And("the \'WS10\' Promotional Code item should show a value of -$20");
-#line 76
+#line 68
  testRunner.And("the total amount should be of $1167");
 #line hidden
             this.ScenarioCleanup();
@@ -297,12 +290,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Single use Promotional Code")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void SingleUsePromotionalCode()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Single use Promotional Code", new string[] {
-                        "ignore"});
-#line 81
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Single use Promotional Code", ((string[])(null)));
+#line 71
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -311,29 +302,29 @@ this.FeatureBackground();
                         "seat type",
                         "quantity"});
             table7.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table7.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 82
+#line 72
  testRunner.Given("the selected available Order Items", ((string)(null)), table7);
-#line 86
+#line 76
  testRunner.And("the total amount should be of $600");
-#line 87
+#line 77
  testRunner.And("the Registrant apply the \'1TIMEPRECON\' Promotional Code");
-#line 88
+#line 78
  testRunner.And("the total amount should be of $350");
-#line 89
+#line 79
  testRunner.And("the Registrant proceed to complete the registration");
-#line 90
+#line 80
  testRunner.And("the Registrant selects the Event Registration");
-#line 91
+#line 81
  testRunner.When("the Registrant apply the \'1TIMEPRECON\' Promotional Code");
-#line 92
+#line 82
  testRunner.Then("the \'1TIMEPRECON\' Promo code will not be applied and an error message will inform" +
                     " about the problem");
-#line 93
+#line 83
  testRunner.And("the total amount should be of $600");
 #line hidden
             this.ScenarioCleanup();
@@ -342,12 +333,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Mutually exclusive Promotional Code")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void MutuallyExclusivePromotionalCode()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Mutually exclusive Promotional Code", new string[] {
-                        "ignore"});
-#line 98
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Mutually exclusive Promotional Code", ((string[])(null)));
+#line 86
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -359,25 +348,25 @@ this.FeatureBackground();
                         "General admission",
                         "3"});
             table8.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table8.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 99
+#line 87
  testRunner.Given("the selected available Order Items", ((string)(null)), table8);
-#line 104
+#line 92
  testRunner.And("the total amount should be of $1197");
-#line 105
+#line 93
  testRunner.When("the Registrant apply the \'COPRESENTER\' Promotional Code");
-#line 106
+#line 94
  testRunner.And("the Registrant apply the \'VOLUNTEER\' Promotional Code");
-#line 107
+#line 95
  testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
                     "bout the problem");
-#line 108
+#line 96
  testRunner.And("the \'COPRESENTER\' Promotional Code item should show a value of -$10");
-#line 109
+#line 97
  testRunner.And("the total amount should be of $1187");
 #line hidden
             this.ScenarioCleanup();
@@ -386,12 +375,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Combine only Promotional Code")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void CombineOnlyPromotionalCode()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Combine only Promotional Code", new string[] {
-                        "ignore"});
-#line 114
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Combine only Promotional Code", ((string[])(null)));
+#line 100
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -403,24 +390,24 @@ this.FeatureBackground();
                         "General admission",
                         "3"});
             table9.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table9.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 115
+#line 101
  testRunner.Given("the selected available Order Items", ((string)(null)), table9);
-#line 120
+#line 106
  testRunner.And("the total amount should be of $1197");
-#line 121
+#line 107
  testRunner.When("the Registrant apply the \'WS10\' Promotional Code");
-#line 122
+#line 108
  testRunner.And("the Registrant apply the \'VOLUNTEER\' Promotional Code");
-#line 123
+#line 109
  testRunner.Then("the \'VOLUNTEER\' Promo code should show a value of -$597");
-#line 124
+#line 110
  testRunner.And("the \'WS10\' Promotional Code item should show a value of -$10");
-#line 125
+#line 111
  testRunner.And("the total amount should be of $590");
 #line hidden
             this.ScenarioCleanup();
@@ -429,12 +416,10 @@ this.FeatureBackground();
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
         [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Partial scope")]
         [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
         public virtual void PartialScope()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial scope", new string[] {
-                        "ignore"});
-#line 130
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial scope", ((string[])(null)));
+#line 114
 this.ScenarioSetup(scenarioInfo);
 #line 6
 this.FeatureBackground();
@@ -446,20 +431,20 @@ this.FeatureBackground();
                         "General admission",
                         "1"});
             table10.AddRow(new string[] {
-                        "Pre-con Workshop with Greg Young",
+                        "CQRS Workshop",
                         "1"});
             table10.AddRow(new string[] {
                         "Additional cocktail party",
                         "1"});
-#line 131
+#line 115
  testRunner.Given("the selected available Order Items", ((string)(null)), table10);
-#line 136
+#line 120
  testRunner.And("the total amount should be of $749");
-#line 137
+#line 121
  testRunner.When("the Registrant apply the \'CONFONLY\' Promotional Code");
-#line 138
+#line 122
  testRunner.Then("the \'CONFONLY\' Promo code should show a value of -$50");
-#line 139
+#line 123
  testRunner.And("the total amount should be of $699");
 #line hidden
             this.ScenarioCleanup();

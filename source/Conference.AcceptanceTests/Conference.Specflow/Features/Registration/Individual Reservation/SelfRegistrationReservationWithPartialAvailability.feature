@@ -3,50 +3,56 @@
 	As an Attendee
 	I want to be able to select an Order Item from one or many of the available and or waitlisted Order Items and make a Reservation
 
+#General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
-	| seat type                        | rate |
-	| General admission                | $199 |
-	| Pre-con Workshop with Greg Young | $500 |
-	| Additional cocktail party		   | $50  |	
+	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegPartial
+	| seat type                 | rate | quota |
+	| General admission         | $199 | 100   |
+	| CQRS Workshop             | $500 | 100   |
+	| Additional cocktail party | $50  | 100   |
 
 
 #1
 #Initial state	: 3 waitlisted and 3 selected
 #End state		: 3 waitlisted confirmed  
  Scenario: All the Order Items are offered to be waitlisted and all are selected, then all get confirmed	
-	Given the list of Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1		  |
-	| Pre-con Workshop with Greg Young | 1		  |
-	| Additional cocktail party		   | 1		  |
+	Given these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 |
+	| General admission         |
+	| CQRS Workshop             |
+	| Additional cocktail party |
+	And the list of Order Items offered to be waitlisted and selected by the Registrant
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
 	When the Registrant proceed to make the Reservation			
-	Then these Order Itmes get confirmed being waitlisted
-	| seat type                        | quantity |
-	| General admission                | 1		  |
-	| Pre-con Workshop with Greg Young | 1		  |
-	| Additional cocktail party		   | 1		  |	
-	And these waitlist registration details will be asked
-	| waitlist registration details |
-	| First Name                    |
-	| Last Name                     |
-	| Email Address                 |
+	Then the Registrant is offered to be waitlisted for these Order Items
+	| seat type                 |
+	| General admission         |
+	| CQRS Workshop             |
+	| Additional cocktail party |
 
 
 #2
 #Initial state	: 3 waitlisted and 2 selected
 #End state		: 2 waitlisted confirmed  
 Scenario: All order items are waitlisted and 2 are selected and all get confirmed	
-	Given the list of Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1		  |
-	| Pre-con Workshop with Greg Young | 1		  |
-	| Additional cocktail party		   | 0		  |
+	Given these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 |
+	| General admission         |
+	| CQRS Workshop             |
+	| Additional cocktail party |
+	And the list of Order Items offered to be waitlisted and selected by the Registrant
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 0        |
 	When the Registrant proceed to make the Reservation			
 	Then these Order Itmes get confirmed being waitlisted
-	| seat type                        | waitlist seats |
-	| General admission                | 1			    |
-	| Pre-con Workshop with Greg Young | 1				|
+	| seat type         | waitlist seats |
+	| General admission | 1              |
+	| CQRS Workshop     | 1              |
 
 
 #3
@@ -54,17 +60,17 @@ Scenario: All order items are waitlisted and 2 are selected and all get confirme
 #End state		: 1 reserved,  2 waitlisted confirmed  
 Scenario: 1 order item is available, 2 are waitlisted and all are selected, then all get confirmed	
 	Given the list of available Order Items selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1        |
+	| seat type         | quantity |
+	| General admission | 1        |
 	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 1        |
-	| Additional cocktail party        | 1        |	
+	| seat type                 | quantity |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
 	When the Registrant proceed to make the Reservation					
 	Then these order itmes get confirmed being waitlisted
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 1        |
-	| Additional cocktail party        | 1        |
+	| seat type                 | quantity |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
 	And these other order items get reserved
 	| seat type         | quantity |
 	| General admission | 1        |
@@ -75,17 +81,17 @@ Scenario: 1 order item is available, 2 are waitlisted and all are selected, then
 #End state		: 2 waitlisted confirmed  
 Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2 get confirmed	
 	Given the list of available Order Items selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 0        |
+	| seat type         | quantity |
+	| General admission | 0        |
 	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 1        |
-	| Additional cocktail party        | 1        |	
+	| seat type                 | quantity |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
 	When the Registrant proceed to make the Reservation					
 	Then these order itmes get confirmed being waitlisted
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 1        |
-	| Additional cocktail party        | 1        |
+	| seat type                 | quantity |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
 
 
 #5
@@ -93,12 +99,12 @@ Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2
 #End state		: 1 reserved 
 Scenario: 1 order item is available,  2 are waitlisted and 1 available is selected, then only 1 get reserved	
 	Given the list of available Order Items selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1        |
+	| seat type         | quantity |
+	| General admission | 1        |
 	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 0        |
-	| Additional cocktail party        | 0        |	
+	| seat type                 | quantity |
+	| CQRS Workshop             | 0        |
+	| Additional cocktail party | 0        |
 	When the Registrant proceed to make the Reservation					
 	Then these order items get reserved
 	| seat type         | quantity |
@@ -110,16 +116,16 @@ Scenario: 1 order item is available,  2 are waitlisted and 1 available is select
 #End state		: 1 reserved,  1 waitlisted confirmed  
 Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
 	Given the list of available Order Items selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1        |
+	| seat type         | quantity |
+	| General admission | 1        |
 	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 1        |
-	| Additional cocktail party        | 0        |	
+	| seat type                 | quantity |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 0        |
 	When the Registrant proceed to make the Reservation					
 	Then these order itmes get confirmed being waitlisted
-	| seat type                        | quantity |
-	| Pre-con Workshop with Greg Young | 1        |
+	| seat type     | quantity |
+	| CQRS Workshop | 1        |
 	And these other order items get reserved
 	| seat type         | quantity |
 	| General admission | 1        |
@@ -127,16 +133,6 @@ Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlis
 
 #7
 Scenario: No selected Seat Type
-When the Registrant proceed to make the Reservation		
+When the Registrant proceed to make the Reservation with missing or invalid data	
 Then the message 'One or more items are required' will show up
-
-
-#8
-Scenario: Zero seats selected
-Given the selected Order Items
-	| seat type                 | quantity |
-	| General admission         | 0        |
-When the Registrant proceed to make the Reservation		
-Then the message 'The Quantity field is required.' will show up
-
 

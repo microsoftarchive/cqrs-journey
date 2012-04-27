@@ -5,13 +5,15 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using W = WatiN.Core;
 using System.Threading;
+using Registration.ReadModel;
+using System.Linq;
 
 namespace Conference.Specflow.Steps.Registration.EndToEnd
 {
     [Binding]
-    public class EndToEndCommonSteps
+    public class CommonSteps
     {
-        [Given(@"the list of the available Order Items for the CQRS summit 2012 conference (.*)")]
+        [Given(@"the list of the available Order Items for the CQRS summit 2012 conference with the slug code (.*)")]
         public void GivenTheListOfTheAvailableOrderItemsForTheCQRSSummit2012Conference(string conferenceSlug, Table table)
         {
             // Populate Conference data
@@ -89,8 +91,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [When(@"the Registrant proceed to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonID);
-            ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.ReservationSucessfull, Constants.UI.WaitTimeout.Seconds);
+            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonID, Constants.UI.ReservationSuccessfull);
         }
 
         [When(@"the Registrant proceed to Checkout:Payment")]
@@ -99,11 +100,17 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonID);
         }
 
+        [Then(@"the Registrant is offered to be waitlisted for these Order Items")]
+        public void ThenTheRegistrantIsOfferedToBeWaitlistedForTheseOrderItems(Table table)
+        {
+            ThenTheReservationIsConfirmedForAllTheSelectedOrderItems();
+        }
+
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
         public void ThenTheReservationIsConfirmedForAllTheSelectedOrderItems()
         {
-            Assert.IsTrue(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSucessfull),
-                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSucessfull)); 
+            Assert.IsTrue(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSuccessfull),
+                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull)); 
         }
 
         [Then(@"the total should read \$(.*)")]
@@ -159,6 +166,44 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
                 Assert.IsFalse(browser.SafeContainsText(value),
                     string.Format("The following text was found on the page and not expected: {0}", value));
             }
+        }
+
+        [Then(@"the Order should be created with the following Order Items")]
+        public void ThenTheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
+        {
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+            string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(accessCode));
+
+            Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
+
+            // Sample using Infrastructure instead of UI
+
+            var email = ScenarioContext.Current.Get<string>("email");
+            var order = RegistrationHelper.GetOrder(email, accessCode);
+
+            Assert.IsNotNull(order);
+
+            var conference = FeatureContext.Current.Get<ConferenceInfo>();
+            foreach (var row in table.Rows)
+            {
+                string value = row["seat type"];
+                var orderItem = order.Lines.FirstOrDefault(
+                    l => l.SeatType == conference.Seats.First(s => s.Description == row["seat type"]).Id);
+
+                Assert.IsNotNull(orderItem);
+                Assert.AreEqual(Int32.Parse(row["quantity"]), orderItem.ReservedSeats);
+            }
+
+            //// Navigate to Registration page
+            //browser.GoTo(Constants.FindOrderPage(FeatureContext.Current.Get<ConferenceInfo>().Slug));
+            //browser.SetInputvalue("name", email, "email");
+            //browser.SetInputvalue("name", accessCode, "accessCode");
+            //browser.Click("find");
+            //ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.FindOrderSuccessfull, Constants.UI.WaitTimeout.Seconds);
+
+            //Assert.IsTrue(browser.SafeContainsText(accessCode),
+            //       string.Format("The following text was not found on the page: {0}", accessCode));
         }
     }
 }

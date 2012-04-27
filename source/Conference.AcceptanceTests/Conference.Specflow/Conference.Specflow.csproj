@@ -20,7 +20,16 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugLocal|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;LOCAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -119,11 +128,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GroupRegistrationReservationWithPartialAvailability.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\Registration\Group Reservation\SelfRegistrationReservationWithFullAvailability.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SelfRegistrationReservationWithFullAvailability.feature</DependentUpon>
-    </Compile>
     <Compile Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature.cs">
       <DependentUpon>SelfRegistrationReservationWithFullAvailability.feature</DependentUpon>
       <SubType>Code</SubType>
@@ -147,12 +151,14 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steps\Conference\DiscountsConfigurationSteps.cs" />
-    <Compile Include="Steps\Registration\EndToEnd\SelfRegistrationEndToEndSadSteps.cs" />
-    <Compile Include="Steps\Registration\EndToEnd\EndToEndCommonSteps.cs" />
-    <Compile Include="Steps\Registration\EndToEnd\SelfRegistrationEndToEndHappySteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />
+    <Compile Include="Steps\Registration\CommonSteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationEndToEndHappySteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
     <Compile Include="Support\ConferenceHelper.cs" />
     <Compile Include="Support\Constants.cs" />
     <Compile Include="Support\IEExtension.cs" />
+    <Compile Include="Support\RegistrationHelper.cs" />
     <Compile Include="Support\ScenarioContextExtension.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -190,10 +196,6 @@
     <None Include="Features\Registration\Group Reservation\GroupRegistrationReservationWithPartialAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\Registration\Group Reservation\SelfRegistrationReservationWithFullAvailability.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SelfRegistrationReservationWithFullAvailability.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

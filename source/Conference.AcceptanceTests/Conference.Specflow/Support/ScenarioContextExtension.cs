@@ -13,6 +13,7 @@ namespace Conference.Specflow
         [BeforeScenario]
         public static void BeforeScenario()
         {
+            // Set Visible property as true for showing up IE instance (typically used when debugging). 
             Browser browser = new IE() { Visible = true };
             ScenarioContext.Current.Set(browser);
         }

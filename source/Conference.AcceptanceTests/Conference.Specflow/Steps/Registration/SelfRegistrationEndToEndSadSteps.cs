@@ -10,12 +10,6 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
     [Binding]
     public class SelfRegistrationEndToEndSadSteps
     {
-        [Then(@"the Registrant is offered to be waitlisted for these Order Items")]
-        public void ThenTheRegistrantIsOfferedToBeWaitlistedForTheseOrderItems(Table table)
-        {
-            //ScenarioContext.Current.Pending();
-        }
-
         [When(@"the Registrant proceed to cancel the payment")]
         public void WhenTheRegistrantProceedToCancelThePayment()
         {

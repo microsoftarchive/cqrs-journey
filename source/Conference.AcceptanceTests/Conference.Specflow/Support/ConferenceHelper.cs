@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Infrastructure.Azure;
 using Infrastructure.Azure.Messaging;
 using Infrastructure.Messaging;
 using Infrastructure.Serialization;
 using Newtonsoft.Json;
-using TechTalk.SpecFlow;
-using Registration.Commands;
 using Registration;
-using System.Collections.Generic;
-using System.Linq;
+using Registration.Commands;
+using TechTalk.SpecFlow;
 
 namespace Conference.Specflow
 {
@@ -20,15 +20,18 @@ namespace Conference.Specflow
             ConferenceService svc = new ConferenceService(BuildEventBus());
             ConferenceInfo conference = svc.FindConference(conferenceSlug);
 
-            if (null == conference)
+            if (null != conference)
             {
-                conference = BuildConferenceInfo(table, conferenceSlug);
-                svc.CreateConference(conference);
-                svc.Publish(conference.Id);
-                // Wait for the events to be processed
-                Thread.Sleep(Constants.WaitTimeout);
+                if(conference.Seats.Count == 0)
+                    svc.FindSeats(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
+                return conference;
             }
 
+            conference = BuildConferenceInfo(table, conferenceSlug);
+            svc.CreateConference(conference);
+            svc.Publish(conference.Id);
+            // Wait for the events to be processed
+            Thread.Sleep(Constants.WaitTimeout);
             return conference;
         }
 
@@ -74,6 +77,12 @@ namespace Conference.Specflow
             commandBus.Send(seatReservation);
         }
 
+        //private static void PopulateConferenceRegistrationDb(ConferenceInfo conference)
+        //{
+        //    ConferenceViewModelGenerator generator = new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext());
+        //    generator.Handle(
+        //}
+
         private static ConferenceInfo BuildConferenceInfo(Table seats, string conferenceSlug)
         {
             var conference = new ConferenceInfo()
@@ -107,12 +116,24 @@ namespace Conference.Specflow
 
         private static IEventBus BuildEventBus()
         {
+#if LOCAL
+            // TODO: this WON'T work to integrate across both websites!
+            // Populate upfront the Mgmt DB with SB instances before using this option
+            return new MemoryEventBus();
+#else
             return new EventBus(GetTopicSender("events"), new MetadataProvider(), GetSerializer());
+#endif
         }
 
         private static ICommandBus BuildCommandBus()
         {
+#if LOCAL
+            // TODO: this WON'T work to integrate across both websites!
+            // Populate upfront the Mgmt DB with SB instances before using this option
+            return new MemoryCommandBus();
+#else
             return new CommandBus(GetTopicSender("commands"), new MetadataProvider(), GetSerializer());
+#endif
         }
 
         private static TopicSender GetTopicSender(string topic)
