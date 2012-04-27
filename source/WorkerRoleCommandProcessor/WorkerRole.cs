@@ -14,9 +14,11 @@
 namespace WorkerRoleCommandProcessor
 {
     using System;
+    using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
+    using Conference.Common.Entity;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.Diagnostics;
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -77,6 +79,8 @@ namespace WorkerRoleCommandProcessor
 
             Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
             Trace.AutoFlush = true;
+
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
             return base.OnStart();
         }

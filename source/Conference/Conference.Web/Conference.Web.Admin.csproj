@@ -191,6 +191,10 @@
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Conference.Common\Conference.Common.csproj">
+      <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
+      <Name>Conference.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Conference\Conference.csproj">
       <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
       <Name>Conference</Name>

@@ -18,6 +18,7 @@ namespace Conference.Web.Public
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common.Entity;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
@@ -55,6 +56,8 @@ namespace Conference.Web.Public
 
         protected void Application_Start()
         {
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
             this.container = CreateContainer();
 #if LOCAL
             RegisterHandlers(this.container);
@@ -151,13 +154,13 @@ namespace Conference.Web.Public
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus)));
 
-            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor("Payments"));
             container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
 #endif
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
-            container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor("Payments"));
 
             container.RegisterType<IOrderDao, OrderDao>();
             container.RegisterType<IConferenceDao, ConferenceDao>();

@@ -17,6 +17,7 @@ namespace Conference.Web.Admin
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common.Entity;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
@@ -65,6 +66,8 @@ namespace Conference.Web.Admin
 
         protected void Application_Start()
         {
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
             AreaRegistration.RegisterAllAreas();
 
             Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ConferenceContext>());

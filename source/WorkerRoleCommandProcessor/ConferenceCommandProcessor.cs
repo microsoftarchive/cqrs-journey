@@ -55,8 +55,6 @@ namespace WorkerRoleCommandProcessor
             // Views repository is currently the same as the domain DB. No initializer needed.
             Database.SetInitializer<PaymentsReadDbContext>(null);
 
-            System.Data.Entity.Database.DefaultConnectionFactory = GetSqlConnectionFactory();
-
             using (var context = container.Resolve<ConferenceRegistrationDbContext>())
             {
                 context.Database.Initialize(true);
@@ -97,11 +95,6 @@ namespace WorkerRoleCommandProcessor
             this.container.Dispose();
         }
 
-        private static System.Data.Entity.Infrastructure.SqlConnectionFactory GetSqlConnectionFactory()
-        {
-            return new System.Data.Entity.Infrastructure.SqlConnectionFactory();
-        }
-
         private static UnityContainer CreateContainer()
         {
             var container = new UnityContainer();
@@ -140,7 +133,7 @@ namespace WorkerRoleCommandProcessor
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus)));
 
-            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor("Payments"));
             container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
