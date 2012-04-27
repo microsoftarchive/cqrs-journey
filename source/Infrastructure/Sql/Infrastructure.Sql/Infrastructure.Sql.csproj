@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Database\SqlDataContext.cs" />
     <Compile Include="EventSourcing\EventStoreDbContext.cs" />
-    <Compile Include="CacheAnyEnumerableExtension.cs" />
+    <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
     <Compile Include="Processes\SqlProcessDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventSourcing\SqlEventSourcedRepository.cs" />

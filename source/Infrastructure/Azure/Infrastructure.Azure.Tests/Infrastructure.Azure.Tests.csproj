@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandProcessorFixture.cs" />
+    <Compile Include="EventSourcing\AzureEventSourcedRepositoryFixture.cs" />
     <Compile Include="MessageProcessorFixture.cs" />
     <Compile Include="InfrastructureSettingsFixture.cs" />
     <Compile Include="MetadataProviderFixture.cs" />

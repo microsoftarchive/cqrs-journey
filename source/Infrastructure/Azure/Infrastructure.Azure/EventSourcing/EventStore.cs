@@ -13,19 +13,18 @@
 
 namespace Infrastructure.Azure.EventSourcing
 {
-    using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Data.Services.Client;
     using System.Linq;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
-    public class EventStore
+    public class EventStore : IEventStore
     {
         private readonly CloudStorageAccount account;
         private readonly string tableName;
         private readonly CloudTableClient tableClient;
+        private const string MaxVersion = "9999999999";
 
         public EventStore(CloudStorageAccount account, string tableName)
         {
@@ -41,7 +40,9 @@ namespace Infrastructure.Azure.EventSourcing
         {
             var context = this.tableClient.GetDataServiceContext();
             var formattedVersion = version.ToString("D10");
-            var query = context.CreateQuery<EventEntity>(this.tableName).Where(x => x.PartitionKey == partitionKey && x.RowKey.CompareTo(formattedVersion) >= 0);
+            var query = context
+                .CreateQuery<EventTableServiceEntity>(this.tableName)
+                .Where(x => x.PartitionKey == partitionKey && x.RowKey.CompareTo(formattedVersion) >= 0 && x.RowKey.CompareTo(MaxVersion) <= 0);
 
             // TODO: error handling, continuation tokens, etc
             var all = query.AsTableServiceQuery().Execute();
@@ -61,7 +62,7 @@ namespace Infrastructure.Azure.EventSourcing
             {
                 context.AddObject(
                     this.tableName,
-                    new EventEntity
+                    new EventTableServiceEntity
                         {
                             PartitionKey = partitionKey,
                             RowKey = eventData.Version.ToString("D10"),
@@ -76,7 +77,6 @@ namespace Infrastructure.Azure.EventSourcing
             try
             {
                 context.SaveChanges(SaveChangesOptions.Batch);
-
             }
             catch (DataServiceRequestException ex)
             {
@@ -89,19 +89,5 @@ namespace Infrastructure.Azure.EventSourcing
                 throw;
             }
         }
-    }
-
-    public class EventData
-    {
-        public int Version { get; set; }
-        public string EventType { get; set; }
-        public string Payload { get; set; }
-    }
-
-    public class EventEntity : TableServiceEntity
-    {
-        public string EventType { get; set; }
-
-        public string Payload { get; set; }
     }
 }

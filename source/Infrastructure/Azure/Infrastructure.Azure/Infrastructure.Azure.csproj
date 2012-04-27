@@ -50,7 +50,11 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="ConcurrencyException.cs" />
+    <Compile Include="EventSourcing\AzureEventSourcedRepository.cs" />
+    <Compile Include="EventSourcing\EventData.cs" />
     <Compile Include="EventSourcing\EventStore.cs" />
+    <Compile Include="EventSourcing\EventTableServiceEntity.cs" />
+    <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="Messaging\CommandBus.cs" />
     <Compile Include="Messaging\EventSourcingSettings.cs" />
     <Compile Include="Messaging\InfrastructureSettings.cs" />
@@ -67,6 +71,7 @@
     <Compile Include="Messaging\MessagingSettings.cs" />
     <Compile Include="Messaging\TopicSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\CQRS-journey.licenseheader">
