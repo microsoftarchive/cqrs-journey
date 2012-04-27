@@ -61,4 +61,7 @@ Global
 		{F038F286-5AEF-4341-83EC-9F72F42D06D6} = {4C72F685-CBCF-4D77-B44C-5A661A8235AB}
 		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D} = {4C72F685-CBCF-4D77-B44C-5A661A8235AB}
 	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.2\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\DesignTime
+	EndGlobalSection
 EndGlobal

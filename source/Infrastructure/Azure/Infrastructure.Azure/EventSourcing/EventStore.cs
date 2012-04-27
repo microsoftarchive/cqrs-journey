@@ -16,6 +16,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Collections.Generic;
     using System.Data.Services.Client;
     using System.Linq;
+    using System.Net;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
@@ -69,9 +70,19 @@ namespace Infrastructure.Azure.EventSourcing
                             EventType = eventData.EventType,
                             Payload = eventData.Payload
                         });
-            }
 
-            // TODO: update record saying that there is a pending event to publish to the service bus
+                // Add a duplicate of this event to the Unpublished "queue"
+                context.AddObject(
+                    this.tableName,
+                    new EventTableServiceEntity
+                    {
+                        PartitionKey = partitionKey,
+                        RowKey = "Unpublished_" + eventData.Version.ToString("D10"),
+                        EventType = eventData.EventType,
+                        Payload = eventData.Payload
+                    });
+
+            }
 
             // TODO: error handling and retrying
             try
@@ -81,7 +92,7 @@ namespace Infrastructure.Azure.EventSourcing
             catch (DataServiceRequestException ex)
             {
                 var inner = ex.InnerException as DataServiceClientException;
-                if (inner != null && inner.StatusCode == 409)
+                if (inner != null && inner.StatusCode == (int)HttpStatusCode.Conflict)
                 {
                     throw new ConcurrencyException();
                 }

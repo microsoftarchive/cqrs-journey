@@ -72,6 +72,7 @@ namespace Infrastructure.Azure.EventSourcing
             this.eventStore.Save(this.GetPartitionKey(eventSourced.Id), serialized);
 
             // TODO: guarantee delivery or roll back, or have a way to resume after a system crash
+            // will actually notify a component that will download the pending events for this aggregate and publish
             this.eventBus.Publish(events);
         }
 

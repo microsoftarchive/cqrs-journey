@@ -13,20 +13,11 @@
 
 namespace Infrastructure.Azure.EventSourcing
 {
-    using Microsoft.WindowsAzure.StorageClient;
+    using System.Collections.Generic;
 
-    public interface IEventRecord
+    public interface IPendingEventsQueue
     {
-        string PartitionKey { get; set; }
-        string RowKey { get; set; }
-        string EventType { get; set; }
-        string Payload { get; set; }
-    }
-
-    public class EventTableServiceEntity : TableServiceEntity, IEventRecord
-    {
-        public string EventType { get; set; }
-
-        public string Payload { get; set; }
+        IEnumerable<IEventRecord> GetPending(string partitionKey);
+        void Delete(string partitionKey, int fromRowKey, int toRowKey);
     }
 }

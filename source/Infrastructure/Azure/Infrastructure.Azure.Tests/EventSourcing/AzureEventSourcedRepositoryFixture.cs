@@ -18,6 +18,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
     using System.IO;
     using System.Linq;
     using Infrastructure.Azure.EventSourcing;
+    using Infrastructure.Azure.Tests.EventSourcing.Mocks;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -95,44 +96,5 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
             serializer.Serialize(writer, graph);
             return writer.ToString();
         }
-    }
-
-    class TestEventComparer : IEqualityComparer<IVersionedEvent>
-    {
-        public bool Equals(IVersionedEvent x, IVersionedEvent y)
-        {
-            return x.SourceId == y.SourceId && x.Version == y.Version && ((TestEvent)x).Foo == ((TestEvent)y).Foo;
-        }
-
-        public int GetHashCode(IVersionedEvent obj) { throw new NotImplementedException(); }
-    }
-
-    class TestEntity : IEventSourced
-    {
-        public TestEntity()
-        {
-            this.Events = new List<IVersionedEvent>();
-        }
-
-        public TestEntity(Guid id, IEnumerable<IVersionedEvent> history)
-        {
-            this.Events = new List<IVersionedEvent>();
-            this.History = history;
-            this.Id = id;
-        }
-
-        public IEnumerable<IVersionedEvent> History { get; set; }
-        public Guid Id { get; set; }
-        public int Version { get; set; }
-        public List<IVersionedEvent> Events { get; set; }
-
-        IEnumerable<IVersionedEvent> IEventSourced.Events { get { return this.Events; } }
-    }
-
-    class TestEvent : IVersionedEvent
-    {
-        public Guid SourceId { get; set; }
-        public int Version { get; set; }
-        public string Foo { get; set; }
     }
 }
