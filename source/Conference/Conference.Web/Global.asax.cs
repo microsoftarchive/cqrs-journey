@@ -80,13 +80,7 @@ namespace Conference.Web.Admin
             EventBus = new MemoryEventBus();
 #else
             var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath("~\\bin\\Settings.xml"));
-            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            {
-                // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
-                // In a version resilient way
-                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            }));
+            var serializer = new JsonTextSerializer();
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 #endif

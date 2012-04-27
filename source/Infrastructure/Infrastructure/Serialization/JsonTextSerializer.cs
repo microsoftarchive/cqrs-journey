@@ -16,33 +16,44 @@ namespace Infrastructure.Serialization
     using System.IO;
     using Newtonsoft.Json;
 
-    public class JsonSerializerAdapter : ISerializer
+    public class JsonTextSerializer : ITextSerializer
     {
-        private JsonSerializer serializer;
+        private readonly JsonSerializer serializer;
 
-        public JsonSerializerAdapter(JsonSerializer serializer)
+        public JsonTextSerializer()
+            : this(JsonSerializer.Create(new JsonSerializerSettings
+            {
+                // Allows deserializing to the actual runtime type
+                TypeNameHandling = TypeNameHandling.Objects,
+                // In a version resilient way
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            }))
+        {
+        }
+
+        public JsonTextSerializer(JsonSerializer serializer)
         {
             this.serializer = serializer;
         }
 
-        public void Serialize(Stream stream, object graph)
+        public void Serialize(TextWriter writer, object graph)
         {
-            var writer = new JsonTextWriter(new StreamWriter(stream));
+            var jsonWriter = new JsonTextWriter(writer);
 #if DEBUG
-            writer.Formatting = Formatting.Indented;
+            jsonWriter.Formatting = Formatting.Indented;
 #endif
 
-            this.serializer.Serialize(writer, graph);
+            this.serializer.Serialize(jsonWriter, graph);
 
             // We don't close the stream as it's owned by the message.
             writer.Flush();
         }
 
-        public object Deserialize(Stream stream)
+        public object Deserialize(TextReader reader)
         {
-            var reader = new JsonTextReader(new StreamReader(stream));
+            var jsonReader = new JsonTextReader(reader);
 
-            return this.serializer.Deserialize(reader);
+            return this.serializer.Deserialize(jsonReader);
         }
     }
 }

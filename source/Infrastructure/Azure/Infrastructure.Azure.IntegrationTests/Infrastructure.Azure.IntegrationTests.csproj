@@ -8,7 +8,7 @@
     <ProjectGuid>{85C85861-B89C-44E8-94DB-90B5751B3781}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Azure.IntegrationTests</RootNamespace>
+    <RootNamespace>Infrastructure.Azure.IntegrationTests</RootNamespace>
     <AssemblyName>Azure.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

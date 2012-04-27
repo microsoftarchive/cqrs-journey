@@ -28,12 +28,12 @@ namespace Infrastructure.Azure.Messaging
     {
         private readonly IMessageSender sender;
         private readonly IMetadataProvider metadata;
-        private ISerializer serializer;
+        private ITextSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandBus"/> class.
         /// </summary>
-        public CommandBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
+        public CommandBus(IMessageSender sender, IMetadataProvider metadata, ITextSerializer serializer)
         {
             this.sender = sender;
             this.metadata = metadata;
@@ -60,7 +60,8 @@ namespace Infrastructure.Azure.Messaging
         private BrokeredMessage BuildMessage(Envelope<ICommand> command)
         {
             var stream = new MemoryStream();
-            this.serializer.Serialize(stream, command.Body);
+            var writer = new StreamWriter(stream);
+            this.serializer.Serialize(writer, command.Body);
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);

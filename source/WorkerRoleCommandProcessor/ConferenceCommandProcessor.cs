@@ -78,14 +78,8 @@ namespace WorkerRoleCommandProcessor
             var container = new UnityContainer();
 
             // infrastructure
-            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            {
-                // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
-                // In a version resilient way
-                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            }));
-            container.RegisterInstance<ISerializer>(serializer);
+            var serializer = new JsonTextSerializer();
+            container.RegisterInstance<ITextSerializer>(serializer);
 
             var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);

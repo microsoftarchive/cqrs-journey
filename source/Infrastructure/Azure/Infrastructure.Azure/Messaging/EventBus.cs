@@ -27,13 +27,13 @@ namespace Infrastructure.Azure.Messaging
     {
         private readonly IMessageSender sender;
         private readonly IMetadataProvider metadata;
-        private readonly ISerializer serializer;
+        private readonly ITextSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventBus"/> class.
         /// </summary>
         /// <param name="serializer">The serializer to use for the message body.</param>
-        public EventBus(IMessageSender sender, IMetadataProvider metadata, ISerializer serializer)
+        public EventBus(IMessageSender sender, IMetadataProvider metadata, ITextSerializer serializer)
         {
             this.sender = sender;
             this.metadata = metadata;
@@ -63,7 +63,8 @@ namespace Infrastructure.Azure.Messaging
         private BrokeredMessage BuildMessage(IEvent @event)
         {
             var stream = new MemoryStream();
-            this.serializer.Serialize(stream, @event);
+            var writer = new StreamWriter(stream);
+            this.serializer.Serialize(writer, @event);
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);

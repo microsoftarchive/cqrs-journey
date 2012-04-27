@@ -14,28 +14,20 @@
 namespace Infrastructure.Serialization
 {
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
 
     /// <summary>
-    /// Serializes using a binary formatter.
+    /// Interface for serializers that can read/write an object graph to a stream.
     /// </summary>
-    public class BinarySerializer : ISerializer
+    public interface ITextSerializer
     {
         /// <summary>
-        /// Serializes an object graph to a stream.
+        /// Serializes an object graph to a text reader.
         /// </summary>
-        public void Serialize(Stream stream, object graph)
-        {
-            new BinaryFormatter().Serialize(stream, graph);
-        }
+        void Serialize(TextWriter writer, object graph);
 
         /// <summary>
-        /// Deserializes an object graph of the given <paramref name="objectType"/>
-        /// from the specified stream.
+        /// Deserializes an object graph from the specified text reader.
         /// </summary>
-        public object Deserialize(Stream stream)
-        {
-            return new BinaryFormatter().Deserialize(stream);
-        }
+        object Deserialize(TextReader reader);
     }
 }

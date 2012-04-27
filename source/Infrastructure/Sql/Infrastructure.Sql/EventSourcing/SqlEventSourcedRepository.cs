@@ -27,11 +27,11 @@ namespace Infrastructure.Sql.EventSourcing
     public class SqlEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
         private readonly IEventBus eventBus;
-        private readonly ISerializer serializer;
+        private readonly ITextSerializer serializer;
         private readonly Func<EventStoreDbContext> contextFactory;
         private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
 
-        public SqlEventSourcedRepository(IEventBus eventBus, ISerializer serializer, Func<EventStoreDbContext> contextFactory)
+        public SqlEventSourcedRepository(IEventBus eventBus, ITextSerializer serializer, Func<EventStoreDbContext> contextFactory)
         {
             this.eventBus = eventBus;
             this.serializer = serializer;
@@ -54,8 +54,7 @@ namespace Infrastructure.Sql.EventSourcing
                     .Where(x => x.AggregateId == id)
                     .OrderBy(x => x.Version)
                     .AsEnumerable()
-                    .Select(x => this.serializer.Deserialize(new MemoryStream(x.Payload)))
-                    .Cast<IVersionedEvent>()
+                    .Select(this.Deserialize)
                     .AsCachedAnyEnumerable();
 
                 if (deserialized.Any())
@@ -73,14 +72,10 @@ namespace Infrastructure.Sql.EventSourcing
             var events = eventSourced.Events.ToArray();
             using (var context = this.contextFactory.Invoke())
             {
+                var eventsSet = context.Set<Event>();
                 foreach (var e in events)
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        this.serializer.Serialize(stream, e);
-                        var serialized = new Event { AggregateId = e.SourceId, Version = e.Version, Payload = stream.ToArray() };
-                        context.Set<Event>().Add(serialized);
-                    }
+                    eventsSet.Add(this.Serialize(e));
                 }
 
                 context.SaveChanges();
@@ -88,6 +83,25 @@ namespace Infrastructure.Sql.EventSourcing
 
             // TODO: guarantee delivery or roll back, or have a way to resume after a system crash
             this.eventBus.Publish(events);
+        }
+
+        private Event Serialize(IVersionedEvent e)
+        {
+            Event serialized;
+            using (var writer = new StringWriter())
+            {
+                this.serializer.Serialize(writer, e);
+                serialized = new Event { AggregateId = e.SourceId, Version = e.Version, Payload = writer.ToString() };
+            }
+            return serialized;
+        }
+
+        private IVersionedEvent Deserialize(Event @event)
+        {
+            using (var reader = new StringReader(@event.Payload))
+            {
+                return (IVersionedEvent)this.serializer.Deserialize(reader);
+            }
         }
     }
 }
