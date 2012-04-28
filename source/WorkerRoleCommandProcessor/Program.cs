@@ -11,33 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference
+namespace WorkerRoleCommandProcessor
 {
+    using System;
     using System.Data.Entity;
+    using Conference.Common.Entity;
 
-    public class ConferenceContext : DbContext
+    class Program
     {
-        public const string SchemaName = "ConferenceManagement";
-
-        public ConferenceContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        static void Main(string[] args)
         {
-            this.Configuration.LazyLoadingEnabled = false;
-        }
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
-        public virtual DbSet<ConferenceInfo> Conferences { get; set; }
-        public virtual DbSet<SeatInfo> Seats { get; set; }
+            using (var processor = new ConferenceCommandProcessor())
+            {
+                processor.Start();
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+                Console.WriteLine("Host started");
+                Console.WriteLine("Press enter to finish");
+                Console.ReadLine();
 
-            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences", SchemaName);
-            // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
-            // Make seat infos required to have a conference info associated, but without 
-            // having to add a navigation property (don't polute the object model).
-            modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
-            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes", SchemaName);
+                processor.Stop();
+            }
         }
     }
 }
