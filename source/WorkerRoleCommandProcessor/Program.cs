@@ -14,11 +14,15 @@
 namespace WorkerRoleCommandProcessor
 {
     using System;
+    using System.Data.Entity;
+    using Conference.Common.Entity;
 
     class Program
     {
         static void Main(string[] args)
         {
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
             using (var processor = new ConferenceCommandProcessor())
             {
                 processor.Start();
