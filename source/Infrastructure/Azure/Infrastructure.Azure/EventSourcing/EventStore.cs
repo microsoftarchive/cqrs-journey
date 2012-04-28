@@ -20,12 +20,14 @@ namespace Infrastructure.Azure.EventSourcing
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
-    public class EventStore : IEventStore
+    public class EventStore : IEventStore, IPendingEventsQueue
     {
         private readonly CloudStorageAccount account;
         private readonly string tableName;
         private readonly CloudTableClient tableClient;
-        private const string MaxVersion = "9999999999";
+        private const string UnpublishedRowKeyPrefix = "Unpublished_";
+        private const string UnpublishedRowKeyPrefixUpperLimit = "Unpublished`";
+        private const string RowKeyVersionUpperLimit = "9999999999";
 
         public EventStore(CloudStorageAccount account, string tableName)
         {
@@ -39,17 +41,10 @@ namespace Infrastructure.Azure.EventSourcing
 
         public IEnumerable<EventData> Load(string partitionKey, int version)
         {
-            var context = this.tableClient.GetDataServiceContext();
-            var formattedVersion = version.ToString("D10");
-            var query = context
-                .CreateQuery<EventTableServiceEntity>(this.tableName)
-                .Where(x => x.PartitionKey == partitionKey && x.RowKey.CompareTo(formattedVersion) >= 0 && x.RowKey.CompareTo(MaxVersion) <= 0);
-
-            // TODO: error handling, continuation tokens, etc
-            var all = query.AsTableServiceQuery().Execute();
+            var minRowKey = version.ToString("D10");
+            var all = this.GetEntities(partitionKey, minRowKey, RowKeyVersionUpperLimit);
             return all.Select(x => new EventData
                                        {
-                                           // TODO: skip if version is not a number
                                            Version = int.Parse(x.RowKey),
                                            EventType = x.EventType,
                                            Payload = x.Payload
@@ -61,12 +56,13 @@ namespace Infrastructure.Azure.EventSourcing
             var context = this.tableClient.GetDataServiceContext();
             foreach (var eventData in events)
             {
+                var formattedVersion = eventData.Version.ToString("D10");
                 context.AddObject(
                     this.tableName,
                     new EventTableServiceEntity
                         {
                             PartitionKey = partitionKey,
-                            RowKey = eventData.Version.ToString("D10"),
+                            RowKey = formattedVersion,
                             EventType = eventData.EventType,
                             Payload = eventData.Payload
                         });
@@ -77,7 +73,7 @@ namespace Infrastructure.Azure.EventSourcing
                     new EventTableServiceEntity
                     {
                         PartitionKey = partitionKey,
-                        RowKey = "Unpublished_" + eventData.Version.ToString("D10"),
+                        RowKey = UnpublishedRowKeyPrefix + formattedVersion,
                         EventType = eventData.EventType,
                         Payload = eventData.Payload
                     });
@@ -99,6 +95,34 @@ namespace Infrastructure.Azure.EventSourcing
 
                 throw;
             }
+        }
+
+        public IEnumerable<IEventRecord> GetPending(string partitionKey)
+        {
+            return this.GetEntities(partitionKey, UnpublishedRowKeyPrefix, UnpublishedRowKeyPrefixUpperLimit);
+        }
+
+        public void DeletePending(string partitionKey, string rowKey)
+        {
+            var context = this.tableClient.GetDataServiceContext();
+            var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
+            context.AttachTo(this.tableName, item, "*");
+            context.DeleteObject(item);
+            context.SaveChanges();
+        }
+
+        private IEnumerable<EventTableServiceEntity> GetEntities(string partitionKey, string minRowKey, string maxRowKey)
+        {
+            var context = this.tableClient.GetDataServiceContext();
+            var query = context
+                .CreateQuery<EventTableServiceEntity>(this.tableName)
+                .Where(
+                    x =>
+                    x.PartitionKey == partitionKey && x.RowKey.CompareTo(minRowKey) >= 0 && x.RowKey.CompareTo(maxRowKey) <= 0);
+
+            // TODO: error handling, continuation tokens, etc
+            var all = query.AsTableServiceQuery().Execute();
+            return all;
         }
     }
 }

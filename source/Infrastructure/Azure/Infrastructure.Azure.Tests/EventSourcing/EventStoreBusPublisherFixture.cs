@@ -44,7 +44,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing
             string expectedMessageId = string.Format("{0}_{1}", partitionKey, version);
 
             Assert.Equal(expectedMessageId, sender.Sent.Single().MessageId);
-            queue.Verify(q => q.Delete(partitionKey, rowKey));
+            queue.Verify(q => q.DeletePending(partitionKey, rowKey));
         }
     }
 }

@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Azure.IntegrationTests.EventSourcing
+namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
 {
     using System;
     using System.Linq;
@@ -22,55 +22,58 @@ namespace Azure.IntegrationTests.EventSourcing
     using Microsoft.WindowsAzure.StorageClient;
     using Xunit;
 
-    public class EventStoreFixture : IDisposable
+    public class given_empty_store : IDisposable
     {
         private readonly string tableName;
         private CloudStorageAccount account;
-        private EventStore sut;
+        protected EventStore sut;
+        protected string eventId;
+        protected EventData[] events;
 
-        public EventStoreFixture()
+        public given_empty_store()
         {
-            this.tableName = "EventStoreFixture" + new Random((int)DateTime.Now.Ticks).Next();
+            this.tableName = "EventStoreFixture" + new Random((int) DateTime.Now.Ticks).Next();
             var settings = InfrastructureSettings.ReadEventSourcing("Settings.xml");
             this.account = CloudStorageAccount.Parse(settings.ConnectionString);
             this.sut = new EventStore(this.account, this.tableName);
-        }
 
-        [Fact]
-        public void can_save_and_load_one_event()
-        {
-            var id = Guid.NewGuid().ToString();
-            var e = new EventData
-                {
-                    Version = 1,
-                    EventType = "Test",
-                    Payload = "Payload",
-                };
-
-            sut.Save(id, new[] { e });
-
-            var stored = sut.Load(id, 0).ToList();
-
-            Assert.Equal(1, stored.Count);
-            Assert.Equal(e.Version, stored[0].Version);
-            Assert.Equal(e.EventType, stored[0].EventType);
-            Assert.Equal(e.Payload, stored[0].Payload);
-        }
-
-        [Fact]
-        public void can_load_multiple_events_in_order()
-        {
-            var id = Guid.NewGuid().ToString();
-            var events = new[]
+            this.eventId = Guid.NewGuid().ToString();
+            this.events = new[]
                              {
                                  new EventData { Version = 1, EventType = "Test1", Payload = "Payload1" },
                                  new EventData { Version = 2, EventType = "Test2", Payload = "Payload2" },
                                  new EventData { Version = 3, EventType = "Test3", Payload = "Payload3" },
                              };
+        }
 
-            sut.Save(id, events);
+        public void Dispose()
+        {
+            var client = this.account.CreateCloudTableClient();
+            client.DeleteTableIfExist(this.tableName);
+        }
+    }
 
-            var stored = sut.Load(id, 0).ToList();
+    public class when_adding_items : given_empty_store
+    {
+        [Fact]
+        public void when_adding_one_item_then_can_load_it()
+        {
+            sut.Save(eventId, new[] { events[0] });
+
+            var stored = sut.Load(eventId, 0).ToList();
+
+            Assert.Equal(1, stored.Count);
+            Assert.Equal(events[0].Version, stored[0].Version);
+            Assert.Equal(events[0].EventType, stored[0].EventType);
+            Assert.Equal(events[0].Payload, stored[0].Payload);
+        }
+
+        [Fact]
+        public void when_adding_multiple_items_then_can_load_them_in_order()
+        {
+            sut.Save(eventId, events);
+
+            var stored = sut.Load(eventId, 0).ToList();
 
             Assert.Equal(3, stored.Count);
             Assert.Equal(1, stored[0].Version);
@@ -82,17 +85,12 @@ namespace Azure.IntegrationTests.EventSourcing
         }
 
         [Fact]
-        public void can_load_events_stored_at_different_times()
+        public void when_adding_multiple_items_at_different_times_then_can_load_them_in_order()
         {
-            var id = Guid.NewGuid().ToString();
-            var e1 = new EventData { Version = 1, EventType = "Test1", Payload = "Payload1" };
-            var e2 = new EventData { Version = 2, EventType = "Test2", Payload = "Payload2" };
-            var e3 = new EventData { Version = 3, EventType = "Test3", Payload = "Payload3" };
+            sut.Save(eventId, new[] { events[0], events[1] });
+            sut.Save(eventId, new[] { events[2] });
 
-            sut.Save(id, new[] { e1, e2 });
-            sut.Save(id, new[] { e3 });
-
-            var stored = sut.Load(id, 0).ToList();
+            var stored = sut.Load(eventId, 0).ToList();
 
             Assert.Equal(3, stored.Count);
             Assert.Equal(1, stored[0].Version);
@@ -106,17 +104,9 @@ namespace Azure.IntegrationTests.EventSourcing
         [Fact]
         public void can_load_events_since_specified_version()
         {
-            var id = Guid.NewGuid().ToString();
-            var events = new[]
-                             {
-                                 new EventData { Version = 1, EventType = "Test1", Payload = "Payload1" },
-                                 new EventData { Version = 2, EventType = "Test2", Payload = "Payload2" },
-                                 new EventData { Version = 3, EventType = "Test3", Payload = "Payload3" },
-                             };
+            sut.Save(eventId, events);
 
-            sut.Save(id, events);
-
-            var stored = sut.Load(id, 2).ToList();
+            var stored = sut.Load(eventId, 2).ToList();
 
             Assert.Equal(2, stored.Count);
             Assert.Equal(2, stored[0].Version);
@@ -128,25 +118,67 @@ namespace Azure.IntegrationTests.EventSourcing
         [Fact]
         public void cannot_store_same_version()
         {
-            var id = Guid.NewGuid().ToString();
-            var e1 = new EventData { Version = 1, EventType = "Test1", Payload = "Payload1" };
-            var e2 = new EventData { Version = 1, EventType = "Test2", Payload = "Payload2" };
+            sut.Save(eventId, new[] { events[0] });
 
-            sut.Save(id, new[] { e1 });
+            var sameVersion = new EventData { Version = events[0].Version, EventType = "Test2", Payload = "Payload2" };
+            Assert.Throws<ConcurrencyException>(() => sut.Save(eventId, new[] { sameVersion }));
 
-            Assert.Throws<ConcurrencyException>(() => sut.Save(id, new[] { e2 }));
-
-            var stored = sut.Load(id, 0).ToList();
+            var stored = sut.Load(eventId, 0).ToList();
 
             Assert.Equal(1, stored.Count);
             Assert.Equal(1, stored[0].Version);
             Assert.Equal("Payload1", stored[0].Payload);
         }
 
-        public void Dispose()
+        [Fact]
+        public void when_storing_same_version_within_batch_then_aborts_entire_commit()
         {
-            var client = this.account.CreateCloudTableClient();
-            client.DeleteTableIfExist(this.tableName);
+            sut.Save(eventId, new[] { events[0] });
+
+            var sameVersion = new EventData { Version = events[0].Version, EventType = "Test2", Payload = "Payload2" };
+            Assert.Throws<ConcurrencyException>(() => sut.Save(eventId, new[] { sameVersion, events[1] }));
+
+            var stored = sut.Load(eventId, 0).ToList();
+
+            Assert.Equal(1, stored.Count);
+            Assert.Equal(1, stored[0].Version);
+            Assert.Equal("Payload1", stored[0].Payload);
+        }
+    }
+
+    public class given_store_with_events : given_empty_store
+    {
+        public given_store_with_events()
+        {
+            sut.Save(eventId, new[] { events[0], events[1] });
+        }
+    }
+
+    public class when_getting_pending_events : given_store_with_events
+    {
+        [Fact]
+        public void can_get_all_events_as_pending()
+        {
+            var pending = sut.GetPending(eventId).ToList();
+
+            Assert.Equal(2, pending.Count);
+            Assert.Equal("Unpublished_" + events[0].Version.ToString("D10"), pending[0].RowKey);
+            Assert.Equal("Payload1", pending[0].Payload);
+            Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[1].RowKey);
+            Assert.Equal("Payload2", pending[1].Payload);
+        }
+
+        [Fact]
+        public void when_deleting_pending_then_can_get_list_without_item()
+        {
+            var pending = sut.GetPending(eventId).ToList();
+            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
+
+            pending = sut.GetPending(eventId).ToList();
+
+            Assert.Equal(1, pending.Count);
+            Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);
+            Assert.Equal("Payload2", pending[0].Payload);
         }
     }
 }

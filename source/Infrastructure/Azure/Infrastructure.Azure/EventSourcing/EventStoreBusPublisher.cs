@@ -76,7 +76,7 @@ namespace Infrastructure.Azure.EventSourcing
                             var item = record;
                             // There is no way to send all messages in a single transactional batch. Process 1 by 1 synchronously.
                             this.sender.Send(() => BuildMessage(item));
-                            this.queue.Delete(item.PartitionKey, item.RowKey);
+                            this.queue.DeletePending(item.PartitionKey, item.RowKey);
                         }
                     }
                 }
