@@ -13,6 +13,7 @@
 
 namespace Conference.Common.Entity
 {
+    using System.Configuration;
     using System.Data.Common;
     using System.Data.Entity.Infrastructure;
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -28,19 +29,38 @@ namespace Conference.Common.Entity
 
         public DbConnection CreateConnection(string nameOrConnectionString)
         {
-            if (!IsConnectionString(nameOrConnectionString) && RoleEnvironment.IsAvailable)
+            if (!IsConnectionString(nameOrConnectionString))
             {
-                try
+                var connectionStringName = "DbContext." + nameOrConnectionString;
+
+                if (RoleEnvironment.IsAvailable)
                 {
-                    var settingValue = RoleEnvironment.GetConfigurationSettingValue("Context." + nameOrConnectionString);
-                    if (!string.IsNullOrEmpty(settingValue))
+                    try
                     {
-                        nameOrConnectionString = settingValue;
+                        var settingValue = RoleEnvironment.GetConfigurationSettingValue(connectionStringName);
+                        if (!string.IsNullOrEmpty(settingValue))
+                        {
+                            nameOrConnectionString = settingValue;
+                        }
+                    }
+                    catch (RoleEnvironmentException)
+                    {
+                        // setting does not exist, use original value
                     }
                 }
-                catch (RoleEnvironmentException)
+                else
                 {
-                    // setting does not exist, use original value
+                    try
+                    {
+                        var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
+                        if (connectionString != null)
+                        {
+                            nameOrConnectionString = connectionString.ConnectionString;
+                        }
+                    }
+                    catch (ConfigurationErrorsException e)
+                    {
+                    }
                 }
             }
 

@@ -21,13 +21,12 @@ namespace Conference.Web.Public
     using Conference.Common.Entity;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Database;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Messaging.InMemory;
     using Infrastructure.Processes;
-    using Infrastructure.Database;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Database;
     using Infrastructure.Sql.EventSourcing;
@@ -71,36 +70,12 @@ namespace Conference.Web.Public
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
 #if LOCAL
-            Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));
-            Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<EventStoreDbContext>(null);
 
-            Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
-            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<PaymentsDbContext>(null);
             Database.SetInitializer<PaymentsReadDbContext>(null);
-
-
-            using (var context = this.container.Resolve<ConferenceRegistrationDbContext>())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = this.container.Resolve<DbContext>("registration"))
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = this.container.Resolve<EventStoreDbContext>())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = this.container.Resolve<PaymentsDbContext>("payments"))
-            {
-                context.Database.Initialize(true);
-            }
-
-            container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
 #else
             Database.SetInitializer<PaymentsReadDbContext>(null);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);

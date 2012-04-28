@@ -4,25 +4,25 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="Context.ConferenceManagement" value="" />
+      <Setting name="DbContext.ConferenceManagement" value="" />
     </ConfigurationSettings>
   </Role>
   <Role name="Conference.Web.Public">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="Context.Payments" value="" />
-      <Setting name="Context.ConferenceRegistration" value="" />
+      <Setting name="DbContext.Payments" value="" />
+      <Setting name="DbContext.ConferenceRegistration" value="" />
     </ConfigurationSettings>
   </Role>
   <Role name="WorkerRoleCommandProcessor">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="Context.Payments" value="" />
-      <Setting name="Context.EventStore" value="" />
-      <Setting name="Context.ConferenceRegistrationProcesses" value="" />
-      <Setting name="Context.ConferenceRegistration" value="" />
+      <Setting name="DbContext.Payments" value="" />
+      <Setting name="DbContext.EventStore" value="" />
+      <Setting name="DbContext.ConferenceRegistrationProcesses" value="" />
+      <Setting name="DbContext.ConferenceRegistration" value="" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

@@ -18,6 +18,8 @@ namespace Infrastructure.Sql.EventSourcing
 
     public class EventStoreDbContext : DbContext
     {
+        public const string SchemaName = "Events";
+
         public EventStoreDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
@@ -27,7 +29,7 @@ namespace Infrastructure.Sql.EventSourcing
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Event>().HasKey(x => new { x.AggregateId, x.Version });
+            modelBuilder.Entity<Event>().HasKey(x => new { x.AggregateId, x.Version }).ToTable("Events", SchemaName);
         }
     }
 

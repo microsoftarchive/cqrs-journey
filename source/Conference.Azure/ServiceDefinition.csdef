@@ -15,7 +15,7 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="Context.ConferenceManagement" />
+      <Setting name="DbContext.ConferenceManagement" />
     </ConfigurationSettings>
   </WebRole>
   <WebRole name="Conference.Web.Public" vmsize="ExtraSmall">
@@ -33,8 +33,8 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="Context.Payments" />
-      <Setting name="Context.ConferenceRegistration" />
+      <Setting name="DbContext.Payments" />
+      <Setting name="DbContext.ConferenceRegistration" />
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
@@ -42,10 +42,10 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="Context.Payments" />
-      <Setting name="Context.EventStore" />
-      <Setting name="Context.ConferenceRegistrationProcesses" />
-      <Setting name="Context.ConferenceRegistration" />
+      <Setting name="DbContext.Payments" />
+      <Setting name="DbContext.EventStore" />
+      <Setting name="DbContext.ConferenceRegistrationProcesses" />
+      <Setting name="DbContext.ConferenceRegistration" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

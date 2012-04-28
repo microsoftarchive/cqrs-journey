@@ -47,35 +47,13 @@ namespace WorkerRoleCommandProcessor
             this.container = CreateContainer();
             RegisterHandlers(container);
 
-            Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));
-            Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<EventStoreDbContext>(null);
 
-            Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
+            Database.SetInitializer<PaymentsDbContext>(null);
             // Views repository is currently the same as the domain DB. No initializer needed.
             Database.SetInitializer<PaymentsReadDbContext>(null);
-
-            using (var context = container.Resolve<ConferenceRegistrationDbContext>())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = container.Resolve<DbContext>("registration"))
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = container.Resolve<EventStoreDbContext>())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = container.Resolve<PaymentsDbContext>("payments"))
-            {
-                context.Database.Initialize(true);
-            }
-
-            container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
         }
 
         public void Start()

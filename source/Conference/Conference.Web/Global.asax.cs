@@ -70,7 +70,7 @@ namespace Conference.Web.Admin
 
             AreaRegistration.RegisterAllAreas();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ConferenceContext>());
+            Database.SetInitializer<ConferenceContext>(null);
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
