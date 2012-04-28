@@ -13,6 +13,7 @@
 
 namespace Infrastructure.Azure.Messaging
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.ServiceBus.Messaging;
 
@@ -21,6 +22,11 @@ namespace Infrastructure.Azure.Messaging
     /// </summary>
     public interface IMessageSender
     {
+        /// <summary>
+        /// Sends the specified message synchronously.
+        /// </summary>
+        void Send(Func<BrokeredMessage> messageFactory);
+
         /// <summary>
         /// Sends the specified message asynchronously.
         /// </summary>

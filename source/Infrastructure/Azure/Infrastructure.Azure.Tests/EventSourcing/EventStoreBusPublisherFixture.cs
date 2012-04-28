@@ -37,7 +37,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing
             queue.Setup(x => x.GetPending(partitionKey)).Returns(new[] { testEvent });
             var sender = new Mock<IMessageSender>();
             var manualReset = new ManualResetEvent(false);
-            sender.Setup(x => x.SendAsync(It.IsAny<BrokeredMessage>())).Callback(() => manualReset.Set());
+            sender.Setup(x => x.Send(It.IsAny<Func<BrokeredMessage>>())).Callback(() => manualReset.Set());
             var sut = new EventStoreBusPublisher(sender.Object, queue.Object);
             var cancellationTokenSource = new CancellationTokenSource();
             sut.Start(cancellationTokenSource.Token);
@@ -47,7 +47,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing
             Assert.True(manualReset.WaitOne(3000));
             cancellationTokenSource.Cancel();
             string expectedMessageId = string.Format("{0}_{1}", partitionKey, version);
-            sender.Verify(s => s.SendAsync(It.Is<BrokeredMessage>(x => x.MessageId == expectedMessageId)));
+            sender.Verify(s => s.Send(It.Is<Func<BrokeredMessage>>(x => x().MessageId == expectedMessageId)));
         }
     }
 }
