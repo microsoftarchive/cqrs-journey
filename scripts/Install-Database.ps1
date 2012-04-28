@@ -13,12 +13,12 @@
 
 <#
 .SYNOPSIS 
- Creates the dabase objects for the Conference Management sample application
+ Creates the dabase objects for the Conference Management sample application, optionally creating the database and a login for the NETWORK SERVICE user.
 .EXAMPLE
  .\Install-Database.ps1
- Creates the database objects using the default server and database names, and using Windows Authentication.
+ Creates the database, database objects and login for NETWORK SERVICE using the default server and database names, and using Windows Authentication.
 .EXAMPLE
- .\Install-Database.ps1 -UserName myUser -ServerName myServerName -DatabaseName cqrs -CreateDatabase
+ .\Install-Database.ps1 -UserName myUser -ServerName myServerName -DatabaseName cqrs -DoNotCreateDatabase -DoNotAddNetworkServiceUser
  Creates the database objects on a new database named 'cqrs' on server 'myServerName', using Sql Server Authentication with user name 'myUser'.
 #>
 
@@ -28,10 +28,10 @@ param (
     [string] $ServerName = ".\SQLEXPRESS",
 # The database name. The default value is 'conference'.
     [string] $DatabaseName = "conference",
-# Creates the database in addition to the database objects
-    [switch] $CreateDatabase,
-# Adds a server login and a database user with read and write access for 'NETWORK SERVICE'
-    [switch] $AddNetworkServiceUser,
+# Does not create the database in addition to the database objects
+    [switch] $DoNotCreateDatabase,
+# Does not add a server login and a database user with read and write access for 'NETWORK SERVICE'
+    [switch] $DoNotAddNetworkServiceUser,
 # Uses Windows Authentication to connect to the database server. This is the default authentication mode.
     [Parameter(ParameterSetName='WindowsAuthentication')]
     [switch] $UseWindowsAuthentication = [switch]::present,
@@ -55,7 +55,7 @@ $baseOsqlCommandLine = "osql -S $ServerName $authenticationParamters "
 
 #Write-Host $baseOsqlCommandLine
 
-if($CreateDatabase.IsPresent)
+if(-not $DoNotCreateDatabase.IsPresent)
 {
     Write-Host "Creating the database"
     
@@ -67,7 +67,7 @@ if($CreateDatabase.IsPresent)
     Write-Host
 }
 
-if($AddNetworkServiceUser.IsPresent)
+if(-not $DoNotAddNetworkServiceUser.IsPresent)
 {
     Write-Host "Creating the NETWORK SERVICE user"
 
