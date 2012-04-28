@@ -60,11 +60,12 @@ namespace Infrastructure.Azure.Messaging
             { }
 
             // TODO: This could be injected.
-            this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(
+            var retryStrategy = new ExponentialBackoff(
                 10,
                 TimeSpan.FromMilliseconds(100),
                 TimeSpan.FromSeconds(15),
                 TimeSpan.FromSeconds(1));
+            this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
 
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
             this.topicClient = factory.CreateTopicClient(this.topic);

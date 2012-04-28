@@ -13,36 +13,50 @@
 
 namespace Infrastructure.Azure.EventSourcing
 {
+    using System;
     using System.Collections.Generic;
     using System.Data.Services.Client;
     using System.Linq;
     using System.Net;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
+    using Microsoft.Practices.TransientFaultHandling;
+    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.AzureStorage;
 
     public class EventStore : IEventStore, IPendingEventsQueue
     {
-        private readonly CloudStorageAccount account;
-        private readonly string tableName;
-        private readonly CloudTableClient tableClient;
         private const string UnpublishedRowKeyPrefix = "Unpublished_";
         private const string UnpublishedRowKeyPrefixUpperLimit = "Unpublished`";
         private const string RowKeyVersionUpperLimit = "9999999999";
+        private readonly CloudStorageAccount account;
+        private readonly string tableName;
+        private readonly CloudTableClient tableClient;
+        private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy pendingEventsQueueRetryPolicy;
+        private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy eventStoreRetryPolicy;
+
 
         public EventStore(CloudStorageAccount account, string tableName)
         {
             this.account = account;
             this.tableName = tableName;
             this.tableClient = account.CreateCloudTableClient();
+            this.tableClient.RetryPolicy = RetryPolicies.NoRetry();
             
-            // TODO: error handling
-            tableClient.CreateTableIfNotExist(tableName);
+            // TODO: This could be injected.
+            var backgroundRetryStrategy = new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15),TimeSpan.FromSeconds(1));
+            var blockingRetryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
+            this.pendingEventsQueueRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(backgroundRetryStrategy);
+            this.eventStoreRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(blockingRetryStrategy);
+
+            this.eventStoreRetryPolicy.ExecuteAction(() => tableClient.CreateTableIfNotExist(tableName));
         }
 
         public IEnumerable<EventData> Load(string partitionKey, int version)
         {
             var minRowKey = version.ToString("D10");
-            var all = this.GetEntities(partitionKey, minRowKey, RowKeyVersionUpperLimit);
+            var query = this.GetEntitiesQuery(partitionKey, minRowKey, RowKeyVersionUpperLimit);
+            // TODO: continuation tokens, etc
+            var all = this.eventStoreRetryPolicy.ExecuteAction(() => query.Execute());
             return all.Select(x => new EventData
                                        {
                                            Version = int.Parse(x.RowKey),
@@ -80,10 +94,10 @@ namespace Infrastructure.Azure.EventSourcing
 
             }
 
-            // TODO: error handling and retrying
+            // TODO: additional error handling?
             try
             {
-                context.SaveChanges(SaveChangesOptions.Batch);
+                this.eventStoreRetryPolicy.ExecuteAction(() => context.SaveChanges(SaveChangesOptions.Batch));
             }
             catch (DataServiceRequestException ex)
             {
@@ -99,7 +113,9 @@ namespace Infrastructure.Azure.EventSourcing
 
         public IEnumerable<IEventRecord> GetPending(string partitionKey)
         {
-            return this.GetEntities(partitionKey, UnpublishedRowKeyPrefix, UnpublishedRowKeyPrefixUpperLimit);
+            var query = this.GetEntitiesQuery(partitionKey, UnpublishedRowKeyPrefix, UnpublishedRowKeyPrefixUpperLimit);
+            // TODO: continuation tokens, etc
+            return this.pendingEventsQueueRetryPolicy.ExecuteAction(() => query.Execute());
         }
 
         public void DeletePending(string partitionKey, string rowKey)
@@ -108,10 +124,10 @@ namespace Infrastructure.Azure.EventSourcing
             var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
             context.AttachTo(this.tableName, item, "*");
             context.DeleteObject(item);
-            context.SaveChanges();
+            this.pendingEventsQueueRetryPolicy.ExecuteAction(() => context.SaveChanges());
         }
 
-        private IEnumerable<EventTableServiceEntity> GetEntities(string partitionKey, string minRowKey, string maxRowKey)
+        private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)
         {
             var context = this.tableClient.GetDataServiceContext();
             var query = context
@@ -120,9 +136,8 @@ namespace Infrastructure.Azure.EventSourcing
                     x =>
                     x.PartitionKey == partitionKey && x.RowKey.CompareTo(minRowKey) >= 0 && x.RowKey.CompareTo(maxRowKey) <= 0);
 
-            // TODO: error handling, continuation tokens, etc
-            var all = query.AsTableServiceQuery().Execute();
-            return all;
+            // TODO: continuation tokens, etc
+            return query.AsTableServiceQuery();
         }
     }
 }
