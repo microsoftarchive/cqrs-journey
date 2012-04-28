@@ -14,40 +14,37 @@
 namespace Infrastructure.Azure.Tests.EventSourcing
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using Infrastructure.Azure.EventSourcing;
-    using Infrastructure.Azure.Messaging;
-    using Microsoft.ServiceBus.Messaging;
+    using Infrastructure.Azure.Tests.EventSourcing.Mocks;
     using Moq;
     using Xunit;
 
     public class EventStoreBusPublisherFixture
     {
-        private string partitionKey = Guid.NewGuid().ToString();
-
         [Fact]
-        public void when_calling_publish_then_gets_unpublished_events_and_sends_them()
+        public void when_calling_publish_then_gets_unpublished_events_and_sends_them_and_deletes_them()
         {
+            string partitionKey = Guid.NewGuid().ToString();
             string version = "0001";
             string rowKey = "Unpublished_" + version;
             var testEvent = Mock.Of<IEventRecord>(x => x.PartitionKey == partitionKey && x.RowKey == rowKey  && x.EventType == "TestType" && x.Payload == "serialized event");
             var queue = new Mock<IPendingEventsQueue>();
             queue.Setup(x => x.GetPending(partitionKey)).Returns(new[] { testEvent });
-            var sender = new Mock<IMessageSender>();
-            var manualReset = new ManualResetEvent(false);
-            sender.Setup(x => x.Send(It.IsAny<Func<BrokeredMessage>>())).Callback(() => manualReset.Set());
-            var sut = new EventStoreBusPublisher(sender.Object, queue.Object);
+            var sender = new MessageSenderMock();
+            var sut = new EventStoreBusPublisher(sender, queue.Object);
             var cancellationTokenSource = new CancellationTokenSource();
             sut.Start(cancellationTokenSource.Token);
             
             sut.SendAsync(partitionKey);
 
-            Assert.True(manualReset.WaitOne(3000));
+            Assert.True(sender.ResetEvent.WaitOne(3000));
             cancellationTokenSource.Cancel();
             string expectedMessageId = string.Format("{0}_{1}", partitionKey, version);
-            sender.Verify(s => s.Send(It.Is<Func<BrokeredMessage>>(x => x().MessageId == expectedMessageId)));
+
+            Assert.Equal(expectedMessageId, sender.Sent.Single().MessageId);
+            queue.Verify(q => q.Delete(partitionKey, rowKey));
         }
     }
 }

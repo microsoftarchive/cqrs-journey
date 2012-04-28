@@ -40,44 +40,54 @@ namespace Infrastructure.Azure.EventSourcing
 
         public void Start(CancellationToken cancellationToken)
         {
-            Task.Factory.StartNew(() =>
-                                      {
-                                          while (!cancellationToken.IsCancellationRequested)
-                                          {
-                                              string key;
-                                              try
-                                              {
-                                                  key = this.enqueuedKeys.Take(cancellationToken);
-                                              }
-                                              catch (OperationCanceledException)
-                                              {
-                                                  return;
-                                              }
+            Task.Factory.StartNew(
+                () =>
+                    {
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                this.ProcessNewPartition(cancellationToken);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                return;
+                            }
+                        }
+                    },
+                TaskCreationOptions.LongRunning);
+        }
 
-                                              if (key != null)
-                                              {
-                                                  try
-                                                  {
-                                                      var pending = this.queue.GetPending(key).AsCachedAnyEnumerable();
-                                                      if (pending.Any())
-                                                      {
-                                                          foreach (var record in pending)
-                                                          {
-                                                              var item = record;
-                                                              this.sender.Send(() => BuildMessage(item));
-                                                          }
-                                                      }
-                                                  }
-                                                  catch
-                                                  {
-                                                      // if there was ANY unhandled error, re-add the item to collection.
-                                                      this.enqueuedKeys.Add(key);
-                                                      throw;
-                                                  }
-                                              }
-                                          }
-                                      },
-                                      TaskCreationOptions.LongRunning);
+        private void ProcessNewPartition(CancellationToken cancellationToken)
+        {
+            string key = this.enqueuedKeys.Take(cancellationToken);
+            if (key != null)
+            {
+                // TODO: possible optimization:
+                // Each partition could be processed in parallel. The only requirement is that each event within the same partition
+                // is sent in the correct order, so parallelization is possible, but be aware of not starting 2 tasks with same partition key.
+                try
+                {
+                    var pending = this.queue.GetPending(key).AsCachedAnyEnumerable();
+                    if (pending.Any())
+                    {
+                        foreach (var record in pending)
+                        {
+                            var item = record;
+                            // There is no way to send all messages in a single transactional batch. Process 1 by 1 synchronously.
+                            this.sender.Send(() => BuildMessage(item));
+                            this.queue.Delete(item.PartitionKey, item.RowKey);
+                        }
+                    }
+                }
+                catch
+                {
+                    // if there was ANY unhandled error, re-add the item to collection.
+                    // TODO: Possible enhancement: Catch more specific exceptions and keep retrying after a while
+                    this.enqueuedKeys.Add(key);
+                    throw;
+                }
+            }
         }
 
         public void SendAsync(string partitionKey)
@@ -87,9 +97,12 @@ namespace Infrastructure.Azure.EventSourcing
 
         private static BrokeredMessage BuildMessage(IEventRecord record)
         {
+            // TODO: should add SessionID to guarantee ordering.
+            // Receiver must be prepared to accept sessions.
             return new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(record.Payload)), true)
             {
                 MessageId = record.PartitionKey + record.RowKey.Substring(RowKeyPrefixIndex),
+                //SessionId = record.PartitionKey,
                 Properties = { { "Kind", record.EventType } }
             };
         }

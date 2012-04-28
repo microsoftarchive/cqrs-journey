@@ -15,7 +15,10 @@ namespace Infrastructure.Azure.Tests.EventSourcing.Mocks
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using Infrastructure.Azure.Messaging;
     using Infrastructure.EventSourcing;
+    using Microsoft.ServiceBus.Messaging;
 
     class TestEventComparer : IEqualityComparer<IVersionedEvent>
     {
@@ -54,5 +57,27 @@ namespace Infrastructure.Azure.Tests.EventSourcing.Mocks
         public Guid SourceId { get; set; }
         public int Version { get; set; }
         public string Foo { get; set; }
+    }
+
+    class MessageSenderMock : IMessageSender
+    {
+        public readonly AutoResetEvent ResetEvent = new AutoResetEvent(false);
+        public readonly List<BrokeredMessage> Sent = new List<BrokeredMessage>();
+
+        void IMessageSender.Send(Func<BrokeredMessage> messageFactory)
+        {
+            this.Sent.Add(messageFactory.Invoke());
+            this.ResetEvent.Set();
+        }
+
+        void IMessageSender.SendAsync(BrokeredMessage message)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IMessageSender.SendAsync(IEnumerable<BrokeredMessage> messages)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
