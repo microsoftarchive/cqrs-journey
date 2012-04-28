@@ -16,6 +16,7 @@ namespace Infrastructure.Azure.EventSourcing
     public class EventData
     {
         public int Version { get; set; }
+        public string SourceType { get; set; }
         public string EventType { get; set; }
         public string Payload { get; set; }
     }

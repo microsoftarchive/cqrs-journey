@@ -23,12 +23,12 @@ namespace Infrastructure.Azure.EventSourcing
     using Infrastructure.Util;
     using Microsoft.ServiceBus.Messaging;
 
-    public class EventStoreBusPublisher
+    public class EventStoreBusPublisher : IEventStoreBusPublisher
     {
         private readonly IMessageSender sender;
         private readonly IPendingEventsQueue queue;
         private readonly BlockingCollection<string> enqueuedKeys;
-        private static readonly int RowKeyPrefixIndex = "Unpublished".Length;
+        private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
         {
@@ -56,6 +56,14 @@ namespace Infrastructure.Azure.EventSourcing
                         }
                     },
                 TaskCreationOptions.LongRunning);
+
+            // TODO: Need to do a query through all partitions to check for pending events, as there could be
+            // stored events that were never published before the system was rebooted.
+        }
+
+        public void SendAsync(string partitionKey)
+        {
+            this.enqueuedKeys.Add(partitionKey);
         }
 
         private void ProcessNewPartition(CancellationToken cancellationToken)
@@ -90,20 +98,21 @@ namespace Infrastructure.Azure.EventSourcing
             }
         }
 
-        public void SendAsync(string partitionKey)
-        {
-            this.enqueuedKeys.Add(partitionKey);
-        }
-
         private static BrokeredMessage BuildMessage(IEventRecord record)
         {
+            string version = record.RowKey.Substring(RowKeyPrefixIndex);
             // TODO: should add SessionID to guarantee ordering.
             // Receiver must be prepared to accept sessions.
             return new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(record.Payload)), true)
             {
-                MessageId = record.PartitionKey + record.RowKey.Substring(RowKeyPrefixIndex),
+                MessageId = record.PartitionKey + "_" + version,
                 //SessionId = record.PartitionKey,
-                Properties = { { "Kind", record.EventType } }
+                Properties =
+                    {
+                        { "Version", version },
+                        { "SourceType", record.SourceType },
+                        { "EventType", record.EventType }
+                    }
             };
         }
     }

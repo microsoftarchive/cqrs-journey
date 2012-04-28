@@ -75,6 +75,7 @@
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="ConcurrencyException.cs" />
     <Compile Include="EventSourcing\AzureEventSourcedRepository.cs" />
+    <Compile Include="EventSourcing\IEventStoreBusPublisher.cs" />
     <Compile Include="EventSourcing\IPendingEventsQueue.cs" />
     <Compile Include="EventSourcing\EventData.cs" />
     <Compile Include="EventSourcing\EventStore.cs" />

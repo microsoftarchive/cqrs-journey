@@ -21,12 +21,12 @@ namespace Infrastructure.Azure.Tests
         public void when_getting_metadata_then_returns_type_name()
         {
             var provider = new MetadataProvider();
-            var typeName = typeof(given_a_metadata_provider).FullName;
+            var typeName = typeof(given_a_metadata_provider).Name;
 
             var metadata = provider.GetMetadata(this);
 
             Assert.Contains(typeName, metadata.Values);
-            Assert.Contains("Kind", metadata.Keys);
+            Assert.Contains("EventType", metadata.Keys);
         }
     }
 }

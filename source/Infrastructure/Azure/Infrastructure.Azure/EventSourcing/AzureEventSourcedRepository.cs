@@ -17,26 +17,24 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Infrastructure.Azure;
     using Infrastructure.EventSourcing;
-    using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Infrastructure.Util;
 
-    // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
-    // It does not check for event versions before committing, nor is transactional with the event bus.
-    // It does not do any snapshots either, which the SeatsAvailability will definitely need.
+    // TODO: This is a basic implementation of the event store that could be optimized in the future.
+    // It does not do any snapshots, which the SeatsAvailability will probably need (even if those snapshots could just be in memory)
     public class AzureEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
         private readonly IEventStore eventStore;
-        private readonly IEventBus eventBus;
+        private readonly IEventStoreBusPublisher publisher;
         private readonly ITextSerializer serializer;
         private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
+        private readonly string sourceType;
 
-        public AzureEventSourcedRepository(IEventStore eventStore, IEventBus eventBus, ITextSerializer serializer)
+        public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer)
         {
             this.eventStore = eventStore;
-            this.eventBus = eventBus;
+            this.publisher = publisher;
             this.serializer = serializer;
 
             // TODO: could be replaced with a compiled lambda to make it more performant
@@ -47,6 +45,9 @@ namespace Infrastructure.Azure.EventSourcing
                     "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
             }
             this.entityFactory = (id, events) => (T) constructor.Invoke(new object[] {id, events});
+
+            // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
+            this.sourceType = typeof(T).Name;
         }
 
         public T Find(Guid id)
@@ -69,17 +70,15 @@ namespace Infrastructure.Azure.EventSourcing
             var events = eventSourced.Events.ToArray();
             var serialized = events.Select(this.Serialize);
 
-            this.eventStore.Save(this.GetPartitionKey(eventSourced.Id), serialized);
+            var partitionKey = this.GetPartitionKey(eventSourced.Id);
+            this.eventStore.Save(partitionKey, serialized);
 
-            // TODO: guarantee delivery or roll back, or have a way to resume after a system crash
-            // will actually notify a component that will download the pending events for this aggregate and publish
-            this.eventBus.Publish(events);
+            this.publisher.SendAsync(partitionKey);
         }
 
         private string GetPartitionKey(Guid id)
         {
-            // could contain a prefix for the type too.
-            return id.ToString();
+            return this.sourceType + "_" + id.ToString();
         }
 
         private EventData Serialize(IVersionedEvent e)
@@ -87,7 +86,7 @@ namespace Infrastructure.Azure.EventSourcing
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, e);
-                return new EventData { Version = e.Version, Payload = writer.ToString(), EventType = e.GetType().Name };
+                return new EventData { Version = e.Version, Payload = writer.ToString(), SourceType = this.sourceType, EventType = e.GetType().Name };
             }
         }
 

@@ -20,7 +20,6 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.Tests.EventSourcing.Mocks;
     using Infrastructure.EventSourcing;
-    using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Moq;
     using Xunit;
@@ -29,13 +28,13 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
     {
         private Guid id;
         private Mock<IEventStore> eventStore;
-        private Mock<IEventBus> eventBus;
+        private Mock<IEventStoreBusPublisher> publisher;
 
         public when_saving_entity()
         {
             this.eventStore = new Mock<IEventStore>();
-            this.eventBus = new Mock<IEventBus>();
-            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, eventBus.Object, new JsonTextSerializer());
+            this.publisher = new Mock<IEventStoreBusPublisher>();
+            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, publisher.Object, new JsonTextSerializer());
             this.id = Guid.NewGuid();
             var entity = new TestEntity
             {
@@ -53,14 +52,32 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         [Fact]
         public void then_stores_in_event_store()
         {
-            eventStore.Verify(s => s.Save(id.ToString(), It.Is<IEnumerable<EventData>>(x => x.Count() == 2 && x.First().Version == 1 && x.First().Payload.Contains("Bar"))));
+            eventStore.Verify(
+                s => s.Save(
+                    It.IsAny<string>(), 
+                    It.Is<IEnumerable<EventData>>(
+                        x => 
+                            x.Count() == 2
+                            && x.First().Version == 1
+                            && x.First().SourceType == "TestEntity"
+                            && x.First().EventType == "TestEvent" 
+                            && x.First().Payload.Contains("Bar")
+                            && x.Last().Version == 2
+                            && x.Last().SourceType == "TestEntity"
+                            && x.Last().EventType == "TestEvent"
+                            && x.Last().Payload.Contains("Baz"))));
         }
 
         [Fact]
-        public void then_publishes_to_bus()
+        public void then_uses_composed_partition_key()
         {
-            // TODO: avoid re-serialization, and avoid the EventBus impl altogether
-            eventBus.Verify(s => s.Publish(It.Is<IEnumerable<IEvent>>(x => x.Count() == 2 && ((TestEvent)x.First()).Version == 1 && ((TestEvent)x.First()).Foo.Contains("Bar"))));
+            eventStore.Verify(s => s.Save("TestEntity_" + id.ToString(), It.IsAny<IEnumerable<EventData>>()));
+        }
+
+        [Fact]
+        public void then_notifies_publisher_about_the_pending_partition_key()
+        {
+            publisher.Verify(s => s.SendAsync("TestEntity_" + id.ToString()));
         }
     }
 
@@ -80,7 +97,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
             this.id = Guid.NewGuid();
             var eventStore = new Mock<IEventStore>();
             eventStore.Setup(x => x.Load(It.IsAny<string>(), It.IsAny<int>())).Returns(serialized);
-            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventBus>(), new JsonTextSerializer());
+            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer());
 
             var entity = sut.Find(id);
 

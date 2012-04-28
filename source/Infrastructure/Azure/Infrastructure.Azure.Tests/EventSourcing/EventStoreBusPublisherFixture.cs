@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests.EventSourcing
+namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
 {
     using System;
     using System.Linq;
@@ -21,30 +21,52 @@ namespace Infrastructure.Azure.Tests.EventSourcing
     using Moq;
     using Xunit;
 
-    public class EventStoreBusPublisherFixture
+    public class when_calling_publish
     {
-        [Fact]
-        public void when_calling_publish_then_gets_unpublished_events_and_sends_them_and_deletes_them()
+        private Mock<IPendingEventsQueue> queue;
+        private MessageSenderMock sender;
+        private string partitionKey;
+        private string version;
+        private IEventRecord testEvent;
+
+        public when_calling_publish()
         {
-            string partitionKey = Guid.NewGuid().ToString();
-            string version = "0001";
+            this.partitionKey = Guid.NewGuid().ToString();
+            this.version = "0001";
             string rowKey = "Unpublished_" + version;
-            var testEvent = Mock.Of<IEventRecord>(x => x.PartitionKey == partitionKey && x.RowKey == rowKey  && x.EventType == "TestType" && x.Payload == "serialized event");
-            var queue = new Mock<IPendingEventsQueue>();
+            this.testEvent = Mock.Of<IEventRecord>(x => x.PartitionKey == partitionKey && x.RowKey == rowKey && x.EventType == "TestEventType" && x.SourceType == "TestSourceType" && x.Payload == "serialized event");
+            this.queue = new Mock<IPendingEventsQueue>();
             queue.Setup(x => x.GetPending(partitionKey)).Returns(new[] { testEvent });
-            var sender = new MessageSenderMock();
+            this.sender = new MessageSenderMock();
             var sut = new EventStoreBusPublisher(sender, queue.Object);
             var cancellationTokenSource = new CancellationTokenSource();
             sut.Start(cancellationTokenSource.Token);
-            
+
             sut.SendAsync(partitionKey);
 
             Assert.True(sender.ResetEvent.WaitOne(3000));
             cancellationTokenSource.Cancel();
-            string expectedMessageId = string.Format("{0}_{1}", partitionKey, version);
+        }
 
+        [Fact]
+        public void then_sends_unpublished_event_with_deterministic_message_id_for_detecting_duplicates()
+        {
+            string expectedMessageId = string.Format("{0}_{1}", partitionKey, version);
             Assert.Equal(expectedMessageId, sender.Sent.Single().MessageId);
-            queue.Verify(q => q.DeletePending(partitionKey, rowKey));
+        }
+
+        [Fact]
+        public void then_sent_event_contains_friendly_metadata()
+        {
+            Assert.Equal(testEvent.SourceType, sender.Sent.Single().Properties["SourceType"]);
+            Assert.Equal(testEvent.EventType, sender.Sent.Single().Properties["EventType"]);
+            Assert.Equal(version, sender.Sent.Single().Properties["Version"]);
+        }
+
+        [Fact]
+        public void then_deletes_message_after_publishing()
+        {
+            queue.Verify(q => q.DeletePending(partitionKey, testEvent.RowKey));
         }
     }
 }

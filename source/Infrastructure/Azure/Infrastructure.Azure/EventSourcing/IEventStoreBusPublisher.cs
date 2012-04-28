@@ -13,23 +13,11 @@
 
 namespace Infrastructure.Azure.EventSourcing
 {
-    using Microsoft.WindowsAzure.StorageClient;
+    using System.Threading;
 
-    public interface IEventRecord
+    public interface IEventStoreBusPublisher
     {
-        string PartitionKey { get; }
-        string RowKey { get; }
-        string SourceType { get; }
-        string EventType { get; }
-        string Payload { get; }
-    }
-
-    public class EventTableServiceEntity : TableServiceEntity, IEventRecord
-    {
-        public string SourceType { get; set; }
-
-        public string EventType { get; set; }
-
-        public string Payload { get; set; }
+        void Start(CancellationToken cancellationToken);
+        void SendAsync(string partitionKey);
     }
 }
