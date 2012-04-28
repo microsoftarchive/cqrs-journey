@@ -11,24 +11,42 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
+<#
+.SYNOPSIS 
+ Creates the dabase objects for the Conference Management sample application
+.EXAMPLE
+ .\Install-Database.ps1
+ Creates the database objects using the default server and database names, and using Windows Authentication.
+.EXAMPLE
+ .\Install-Database.ps1 -UserName myUser -ServerName myServerName -DatabaseName cqrs -CreateDatabase
+ Creates the database objects on a new database named 'cqrs' on server 'myServerName', using Sql Server Authentication with user name 'myUser'.
+#>
+
 [CmdletBinding(DefaultParameterSetName="WindowsAuthentication")]
 param (
+# The database server name. The default value is '.\SQLEXPRESS'.
     [string] $ServerName = ".\SQLEXPRESS",
+# The database name. The default value is 'conference'.
     [string] $DatabaseName = "conference",
+# Creates the database in addition to the database objects
     [switch] $CreateDatabase,
+# Adds a server login and a database user with read and write access for 'NETWORK SERVICE'
     [switch] $AddNetworkServiceUser,
+# Uses Windows Authentication to connect to the database server. This is the default authentication mode.
     [Parameter(ParameterSetName='WindowsAuthentication')]
     [switch] $UseWindowsAuthentication = [switch]::present,
-    [Parameter(ParameterSetName='SqlAuthentication')]
-    [switch] $UseSqlAuthentication = [switch]::present,
-    [Parameter(ParameterSetName='SqlAuthentication', Mandatory=$true)]
+# Uses Sql Server Authentication to connect to the database server
+    [Parameter(ParameterSetName='SqlServerAuthentication')]
+    [switch] $UseSqlServerAuthentication = [switch]::present,
+# Sql Server Authentication user name
+    [Parameter(ParameterSetName='SqlServerAuthentication', Mandatory=$true)]
     [string] $UserName
 )
 
 switch($PsCmdlet.ParameterSetName)
 {
   "WindowsAuthentication" { $authenticationParamters = "-E" }
-  "SqlAuthentication" { $authenticationParamters = "-U $UserName" }
+  "SqlServerAuthentication" { $authenticationParamters = "-U $UserName" }
 }
 
 $scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path
