@@ -33,7 +33,6 @@ namespace WorkerRoleCommandProcessor
 
             this.running = true;
 
-#if !LOCAL
             using (var processor = new ConferenceCommandProcessor())
             {
                 processor.Start();
@@ -46,13 +45,6 @@ namespace WorkerRoleCommandProcessor
 
                 processor.Stop();
             }
-#else
-            while (this.running)
-            {
-                Thread.Sleep(10000);
-                Trace.WriteLine("Command processor idling", "Information");
-            }
-#endif
         }
 
         public override bool OnStart()

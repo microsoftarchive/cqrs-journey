@@ -16,6 +16,7 @@
     </Imports>
     <ConfigurationSettings>
       <Setting name="DbContext.ConferenceManagement" />
+      <Setting name="DbContext.Messaging" />
     </ConfigurationSettings>
   </WebRole>
   <WebRole name="Conference.Web.Public" vmsize="ExtraSmall">
@@ -35,6 +36,7 @@
     <ConfigurationSettings>
       <Setting name="DbContext.Payments" />
       <Setting name="DbContext.ConferenceRegistration" />
+      <Setting name="DbContext.Messaging" />
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
@@ -46,6 +48,7 @@
       <Setting name="DbContext.EventStore" />
       <Setting name="DbContext.ConferenceRegistrationProcesses" />
       <Setting name="DbContext.ConferenceRegistration" />
+      <Setting name="DbContext.Messaging" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>
