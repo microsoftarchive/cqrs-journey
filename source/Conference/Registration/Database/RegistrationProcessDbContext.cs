@@ -17,10 +17,19 @@ namespace Registration.Database
 
     public class RegistrationProcessDbContext : DbContext
     {
+        public const string SchemaName = "ConferenceRegistrationProcesses";
+
         public RegistrationProcessDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
         }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<RegistrationProcess>().ToTable("RegistrationProcess", SchemaName);
+        }
+
         // Define the available entity sets for the database.
         public virtual DbSet<RegistrationProcess> RegistrationProcesses { get; private set; }
     }

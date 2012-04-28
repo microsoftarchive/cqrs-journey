@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="Conference.Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="1" osVersion="*">
+  <Role name="Conference.Web.Admin">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="DbContext.ConferenceManagement" value="" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="Conference.Web.Public">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="DbContext.Payments" value="" />
+      <Setting name="DbContext.ConferenceRegistration" value="" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="WorkerRoleCommandProcessor">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="DbContext.Payments" value="" />
+      <Setting name="DbContext.EventStore" value="" />
+      <Setting name="DbContext.ConferenceRegistrationProcesses" value="" />
+      <Setting name="DbContext.ConferenceRegistration" value="" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

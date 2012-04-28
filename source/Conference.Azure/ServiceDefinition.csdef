@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="Conference.Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <WebRole name="Conference.Web.Admin" vmsize="ExtraSmall">
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="8080" />
+    </Endpoints>
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="DbContext.ConferenceManagement" />
+    </ConfigurationSettings>
+  </WebRole>
+  <WebRole name="Conference.Web.Public" vmsize="ExtraSmall">
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+    </Endpoints>
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="DbContext.Payments" />
+      <Setting name="DbContext.ConferenceRegistration" />
+    </ConfigurationSettings>
+  </WebRole>
+  <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="DbContext.Payments" />
+      <Setting name="DbContext.EventStore" />
+      <Setting name="DbContext.ConferenceRegistrationProcesses" />
+      <Setting name="DbContext.ConferenceRegistration" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>
