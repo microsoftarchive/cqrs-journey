@@ -27,7 +27,7 @@ namespace Registration.Tests
 		public void WhenSendingCommand_ThenInvokesCompatibleHandler()
 		{
 			var handler = new Mock<ICommandHandler<TestCommand>>();
-			var e = new ManualResetEventSlim();
+			var e = new ManualResetEvent(false);
 			handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
 				.Callback(() => e.Set());
 
@@ -35,7 +35,7 @@ namespace Registration.Tests
 
 			bus.Send(new TestCommand());
 
-			e.Wait(1000);
+			e.WaitOne(1000);
 
 			handler.Verify(x => x.Handle(It.IsAny<TestCommand>()));
 		}
@@ -45,7 +45,7 @@ namespace Registration.Tests
 		{
 			var compatibleHandler = new Mock<ICommandHandler<TestCommand>>();
 			var incompatibleHandler = new Mock<ICommandHandler<FooCommand>>();
-			var e = new ManualResetEventSlim();
+			var e = new ManualResetEvent(false);
 
 			compatibleHandler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
 				.Callback(() => e.Set());
@@ -54,7 +54,7 @@ namespace Registration.Tests
 
 			bus.Send(new TestCommand());
 
-			e.Wait(1000);
+			e.WaitOne(1000);
 
 			incompatibleHandler.Verify(x => x.Handle(It.IsAny<FooCommand>()), Times.Never());
 		}
@@ -63,17 +63,17 @@ namespace Registration.Tests
 		public void WhenSendingMultipleCommands_ThenInvokesCompatibleHandlerMultipleTimes()
 		{
 			var handler = new Mock<ICommandHandler<TestCommand>>();
-			var e = new ManualResetEventSlim();
+			var e = new ManualResetEvent(false);
 			
 			var called = 0;
 			handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
-				.Callback(() => { if (called++ == 4) e.Set(); });
+				.Callback(() => { if (Interlocked.Increment(ref called) == 4) e.Set(); });
 
 			var bus = new MemoryCommandBus(handler.Object);
 
 			bus.Send(new [] { new TestCommand(), new TestCommand(), new TestCommand(), new TestCommand() });
 
-			e.Wait(1000);
+			e.WaitOne(1000);
 
 			Assert.Equal(4, called);
 		}

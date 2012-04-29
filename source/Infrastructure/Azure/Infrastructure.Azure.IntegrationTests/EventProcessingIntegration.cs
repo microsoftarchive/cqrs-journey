@@ -25,11 +25,13 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
 
     public class given_an_azure_event_bus : given_a_topic_and_subscription
     {
+        private const int TimeoutPeriod = 20000;
+
         [Fact]
         public void when_receiving_event_then_calls_handler()
         {
-            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
@@ -42,7 +44,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
             {
                 bus.Publish(new FooEvent());
 
-                e.Wait();
+                e.Wait(TimeoutPeriod);
 
                 Assert.True(handler.Called);
             }
@@ -56,8 +58,8 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         public void when_receiving_not_registered_event_then_ignores()
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
-            var processor = new EventProcessor(receiver, new BinarySerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
+            var processor = new EventProcessor(receiver, new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
@@ -72,7 +74,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
             {
                 bus.Publish(new BarEvent());
 
-                e.Wait();
+                e.Wait(TimeoutPeriod);
                 // Give the other event handler some time.
                 Thread.Sleep(100);
 
@@ -87,8 +89,8 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         [Fact]
         public void when_sending_multiple_events_then_calls_all_handlers()
         {
-            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new BinarySerializer());
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
 
             var fooEvent = new ManualResetEventSlim();
             var fooHandler = new FooEventHandler(fooEvent);
@@ -105,8 +107,8 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
             {
                 bus.Publish(new IEvent[] { new FooEvent(), new BarEvent() });
 
-                fooEvent.Wait();
-                barEvent.Wait();
+                fooEvent.Wait(TimeoutPeriod);
+                barEvent.Wait(TimeoutPeriod);
 
                 Assert.True(fooHandler.Called);
                 Assert.True(barHandler.Called);

@@ -27,19 +27,19 @@ namespace Infrastructure.Azure
         private bool disposed;
         private bool started = false;
         private readonly IMessageReceiver receiver;
-        private readonly ISerializer serializer;
+        private readonly ITextSerializer serializer;
         private readonly object lockObject = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageProcessor"/> class.
         /// </summary>
-        protected MessageProcessor(IMessageReceiver receiver, ISerializer serializer)
+        protected MessageProcessor(IMessageReceiver receiver, ITextSerializer serializer)
         {
             this.receiver = receiver;
             this.serializer = serializer;
         }
 
-        protected ISerializer Serializer { get { return this.serializer; } }
+        protected ITextSerializer Serializer { get { return this.serializer; } }
 
         /// <summary>
         /// Starts the listener.
@@ -114,44 +114,47 @@ namespace Infrastructure.Azure
         {
             // NOTE: type information does not belong here. It's a responsibility 
             // of the serializer to be self-contained and put any information it 
-            // might need for rehytration.
+            // might need for rehydration.
             var message = args.Message;
 
+            object payload;
             using (var stream = message.GetBody<Stream>())
+            using (var reader = new StreamReader(stream))
             {
-                var payload = this.serializer.Deserialize(stream);
-                try
-                {
-                    ProcessMessage(payload);
-                }
-                catch (Exception e)
-                {
-                    if (args.Message.DeliveryCount > 5)
-                    {
-                        message.BeginDeadLetter(e.Message, e.ToString(), ar =>
-                        {
-                            message.EndDeadLetter(ar);
-                            message.Dispose();
-                        }, null);
-                    }
-                    else
-                    {
-                        message.BeginAbandon(ar =>
-                        {
-                            message.EndAbandon(ar);
-                            message.Dispose();
-                        }, null);
-                    }
-
-                    return;
-                }
-
-                message.BeginComplete(ar =>
-                {
-                    message.EndComplete(ar);
-                    message.Dispose();
-                }, null);
+                payload = this.serializer.Deserialize(reader);
             }
+
+            try
+            {
+                ProcessMessage(payload);
+            }
+            catch (Exception e)
+            {
+                if (args.Message.DeliveryCount > 5)
+                {
+                    message.BeginDeadLetter(e.Message, e.ToString(), ar =>
+                    {
+                        message.EndDeadLetter(ar);
+                        message.Dispose();
+                    }, null);
+                }
+                else
+                {
+                    message.BeginAbandon(ar =>
+                    {
+                        message.EndAbandon(ar);
+                        message.Dispose();
+                    }, null);
+                }
+
+                return;
+            }
+
+            message.BeginComplete(ar =>
+            {
+                message.EndComplete(ar);
+                message.Dispose();
+            }, null);
         }
 
         private void ThrowIfDisposed()

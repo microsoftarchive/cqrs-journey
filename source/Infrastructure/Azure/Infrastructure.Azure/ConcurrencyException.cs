@@ -11,31 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests
+namespace Infrastructure.Azure
 {
-    using System.Xml;
-    using Infrastructure.Azure.Messaging;
-    using Xunit;
+    using System;
+    using System.Runtime.Serialization;
 
-    public class given_a_messaging_settings_file
+    [Serializable]
+    public class ConcurrencyException : Exception
     {
-        [Fact]
-        public void when_read_from_file_then_succeeds()
-        {
-            var settings = MessagingSettings.Read("Settings.Template.xml");
+        public ConcurrencyException() { }
 
-            Assert.NotNull(settings);
-        }
+        public ConcurrencyException(string message) : base(message) { }
 
-        [Fact]
-        public void when_read_from_reader_then_succeeds()
-        {
-            using (var reader = XmlReader.Create("Settings.Template.xml"))
-            {
-                var settings = MessagingSettings.Read(reader);
+        public ConcurrencyException(string message, Exception inner) : base(message, inner) { }
 
-                Assert.NotNull(settings);
-            }
-        }
+        protected ConcurrencyException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

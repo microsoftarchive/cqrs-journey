@@ -36,7 +36,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         /// <param name="receiver">The receiver to use. If the receiver is <see cref="IDisposable"/>, it will be disposed when the processor is 
         /// disposed.</param>
         /// <param name="serializer">The serializer to use for the message body.</param>
-        public CommandProcessor(IMessageReceiver receiver, ISerializer serializer)
+        public CommandProcessor(IMessageReceiver receiver, ITextSerializer serializer)
             : base(receiver, serializer)
         {
         }
@@ -86,12 +86,11 @@ namespace Infrastructure.Azure.Messaging.Handling
         [Conditional("TRACE")]
         private void TracePayload(object payload)
         {
-            var stream = new MemoryStream();
-            this.Serializer.Serialize(stream, payload);
-            stream.Position = 0;
-            using (var reader = new StreamReader(stream))
+            // TODO: can force the use of indented JSON for trace
+            using (var writer = new StringWriter())
             {
-                Trace.WriteLine(reader.ReadToEnd());
+                this.Serializer.Serialize(writer, payload);
+                Trace.WriteLine(writer.ToString());
             }
         }
     }

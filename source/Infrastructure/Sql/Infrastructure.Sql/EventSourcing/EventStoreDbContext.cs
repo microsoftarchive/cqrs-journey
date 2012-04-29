@@ -37,9 +37,7 @@ namespace Infrastructure.Sql.EventSourcing
     {
         public Guid AggregateId { get; set; }
         public int Version { get; set; }
-
-        // what if we assume string? It's easier to debug
-        public byte[] Payload { get; set; }
+        public string Payload { get; set; }
 
         // TODO: Following could be very useful for when rebuilding the read model from the event store, 
         // to avoid replaying every possible event in the system

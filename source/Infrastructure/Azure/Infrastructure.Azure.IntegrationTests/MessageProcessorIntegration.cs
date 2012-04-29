@@ -33,14 +33,14 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             var processor = new FakeProcessor(
                 waiter,
                 new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription),
-                new BinarySerializer());
+                new JsonTextSerializer());
 
             processor.Start();
 
             var stream = new MemoryStream();
-            new BinarySerializer().Serialize(stream, "Foo");
+            new JsonTextSerializer().Serialize(new StreamWriter(stream), "Foo");
             stream.Position = 0;
-            sender.Send(new BrokeredMessage(stream, true));
+            sender.SendAsync(new BrokeredMessage(stream, true));
 
             waiter.Wait(5000);
 
@@ -54,7 +54,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             var waiter = new ManualResetEventSlim();
             var sender = new TopicSender(this.Settings, this.Topic);
             var processor = new Mock<MessageProcessor>(
-                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new BinarySerializer()) { CallBase = true };
+                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer()) { CallBase = true };
 
             processor.Protected()
                 .Setup("ProcessMessage", ItExpr.IsAny<object>())
@@ -70,9 +70,9 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             processor.Object.Start();
 
             var stream = new MemoryStream();
-            new BinarySerializer().Serialize(stream, "Foo");
+            new JsonTextSerializer().Serialize(new StreamWriter(stream), "Foo");
             stream.Position = 0;
-            sender.Send(new BrokeredMessage(stream, true));
+            sender.SendAsync(new BrokeredMessage(stream, true));
 
             waiter.Wait(5000);
 
@@ -83,7 +83,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             processor.Object.Dispose();
 
             Assert.NotNull(deadMessage);
-            var data = new BinarySerializer().Deserialize(deadMessage.GetBody<Stream>());
+            var data = new JsonTextSerializer().Deserialize(new StreamReader(deadMessage.GetBody<Stream>()));
 
             Assert.Equal("Foo", (string)data);
         }
@@ -93,7 +93,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
     {
         private ManualResetEventSlim waiter;
 
-        public FakeProcessor(ManualResetEventSlim waiter, IMessageReceiver receiver, ISerializer serializer)
+        public FakeProcessor(ManualResetEventSlim waiter, IMessageReceiver receiver, ITextSerializer serializer)
             : base(receiver, serializer)
         {
             this.waiter = waiter;
