@@ -14,35 +14,20 @@
 namespace Infrastructure.Serialization
 {
     using System.IO;
-    using Newtonsoft.Json;
 
-    public class JsonSerializerAdapter : ISerializer
+    /// <summary>
+    /// Interface for serializers that can read/write an object graph to a stream.
+    /// </summary>
+    public interface ITextSerializer
     {
-        private JsonSerializer serializer;
+        /// <summary>
+        /// Serializes an object graph to a text reader.
+        /// </summary>
+        void Serialize(TextWriter writer, object graph);
 
-        public JsonSerializerAdapter(JsonSerializer serializer)
-        {
-            this.serializer = serializer;
-        }
-
-        public void Serialize(Stream stream, object graph)
-        {
-            var writer = new JsonTextWriter(new StreamWriter(stream));
-#if DEBUG
-            writer.Formatting = Formatting.Indented;
-#endif
-
-            this.serializer.Serialize(writer, graph);
-
-            // We don't close the stream as it's owned by the message.
-            writer.Flush();
-        }
-
-        public object Deserialize(Stream stream)
-        {
-            var reader = new JsonTextReader(new StreamReader(stream));
-
-            return this.serializer.Deserialize(reader);
-        }
+        /// <summary>
+        /// Deserializes an object graph from the specified text reader.
+        /// </summary>
+        object Deserialize(TextReader reader);
     }
 }

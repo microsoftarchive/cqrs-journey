@@ -1,8 +1,8 @@
-﻿// ==============================================================================================================
+// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
-// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// �2012 Microsoft. All rights reserved. Certain content used with permission from contributors
 // http://cqrsjourney.github.com/contributors/members
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
 // with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,22 +11,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests
+namespace Infrastructure.Azure.EventSourcing
 {
-    using Xunit;
+    using Microsoft.WindowsAzure.StorageClient;
 
-    public class given_a_metadata_provider
+    public interface IEventRecord
     {
-        [Fact]
-        public void when_getting_metadata_then_returns_type_name()
-        {
-            var provider = new MetadataProvider();
-            var typeName = typeof(given_a_metadata_provider).Name;
+        string PartitionKey { get; }
+        string RowKey { get; }
+        string SourceId { get; set; }
+        string SourceType { get; }
+        string EventType { get; }
+        string Payload { get; }
+    }
 
-            var metadata = provider.GetMetadata(this);
-
-            Assert.Contains(typeName, metadata.Values);
-            Assert.Contains("EventType", metadata.Keys);
-        }
+    public class EventTableServiceEntity : TableServiceEntity, IEventRecord
+    {
+        public string SourceId { get; set; }
+        public string SourceType { get; set; }
+        public string EventType { get; set; }
+        public string Payload { get; set; }
     }
 }

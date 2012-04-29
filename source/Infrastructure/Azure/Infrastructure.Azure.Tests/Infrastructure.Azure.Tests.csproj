@@ -8,7 +8,7 @@
     <ProjectGuid>{60AF76A9-0891-400F-8F87-A5978D3F3744}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Azure.Tests</RootNamespace>
+    <RootNamespace>Infrastructure.Azure.Tests</RootNamespace>
     <AssemblyName>Azure.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -49,8 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandProcessorFixture.cs" />
+    <Compile Include="EventSourcing\EventStoreBusPublisherFixture.cs" />
+    <Compile Include="EventSourcing\AzureEventSourcedRepositoryFixture.cs" />
+    <Compile Include="EventSourcing\Mocks.cs" />
     <Compile Include="MessageProcessorFixture.cs" />
-    <Compile Include="MessagingSettingsFixture.cs" />
+    <Compile Include="InfrastructureSettingsFixture.cs" />
     <Compile Include="MetadataProviderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -74,6 +77,7 @@
     <Content Include="..\Settings.Template.xml">
       <Link>Settings.Template.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="..\Settings.xml">
       <Link>Settings.xml</Link>

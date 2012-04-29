@@ -11,31 +11,19 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Serialization
+namespace Infrastructure.Azure.Messaging
 {
-    using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Xml.Serialization;
 
     /// <summary>
-    /// Serializes using a binary formatter.
+    /// Simple settings class to configure the connection to Azure tables.
     /// </summary>
-    public class BinarySerializer : ISerializer
+    [XmlRoot("EventSourcing")]
+    public class EventSourcingSettings
     {
         /// <summary>
-        /// Serializes an object graph to a stream.
+        /// Gets or sets the service URI scheme.
         /// </summary>
-        public void Serialize(Stream stream, object graph)
-        {
-            new BinaryFormatter().Serialize(stream, graph);
-        }
-
-        /// <summary>
-        /// Deserializes an object graph of the given <paramref name="objectType"/>
-        /// from the specified stream.
-        /// </summary>
-        public object Deserialize(Stream stream)
-        {
-            return new BinaryFormatter().Deserialize(stream);
-        }
+        public string ConnectionString { get; set; }
     }
 }

@@ -11,16 +11,16 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql
+namespace Infrastructure.Util
 {
     using System.Collections;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Prevents double enumaration (and potential roundtrip to the database) when checking 
+    /// Prevents double enumeration (and potential roundtrip to the data source) when checking 
     /// for the presence of items in an enumeration.
     /// </summary>
-    public static class CacheAnyEnumerableExtension
+    internal static class CacheAnyEnumerableExtensions
     {
         /// <summary>
         /// Makes sure that calls to <see cref="IAnyEnumerable{T}.Any()"/> are 
@@ -57,21 +57,21 @@ namespace Infrastructure.Sql
 
             public bool Any()
             {
-                InitializeEnumerator();
+                this.InitializeEnumerator();
 
                 return this.hasAny;
             }
 
             public IEnumerator<T> GetEnumerator()
             {
-                InitializeEnumerator();
+                this.InitializeEnumerator();
 
                 return this.enumerator;
             }
 
             private void InitializeEnumerator()
             {
-                if (enumerator == null)
+                if (this.enumerator == null)
                 {
                     var inner = this.enumerable.GetEnumerator();
                     this.hasAny = inner.MoveNext();
@@ -81,7 +81,7 @@ namespace Infrastructure.Sql
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return GetEnumerator();
+                return this.GetEnumerator();
             }
 
             private class SkipFirstEnumerator : IEnumerator<T>

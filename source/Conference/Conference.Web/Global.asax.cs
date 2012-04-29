@@ -79,14 +79,8 @@ namespace Conference.Web.Admin
             // TODO: this WON'T work to integrate across both websites!
             EventBus = new MemoryEventBus();
 #else
-            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("~\\bin\\Settings.xml"));
-            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            {
-                // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
-                // In a version resilient way
-                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            }));
+            var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath("~\\bin\\Settings.xml"));
+            var serializer = new JsonTextSerializer();
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 #endif
