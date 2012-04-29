@@ -74,6 +74,8 @@ namespace Infrastructure.Azure.Messaging
                 message.Properties[pair.Key] = pair.Value;
             }
 
+            message.Properties["SourceId"] = @event.SourceId;
+
             return message;
         }
     }

@@ -110,6 +110,7 @@ namespace Infrastructure.Azure.EventSourcing
                 Properties =
                     {
                         { "Version", version },
+                        { "SourceId", record.SourceId },
                         { "SourceType", record.SourceType },
                         { "EventType", record.EventType }
                     }

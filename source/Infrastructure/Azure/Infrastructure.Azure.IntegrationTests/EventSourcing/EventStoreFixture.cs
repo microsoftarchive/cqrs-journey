@@ -27,7 +27,8 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         private readonly string tableName;
         private CloudStorageAccount account;
         protected EventStore sut;
-        protected string eventId;
+        protected string sourceId;
+        protected string partitionKey;
         protected EventData[] events;
 
         public given_empty_store()
@@ -37,12 +38,13 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             this.account = CloudStorageAccount.Parse(settings.ConnectionString);
             this.sut = new EventStore(this.account, this.tableName);
 
-            this.eventId = Guid.NewGuid().ToString();
+            this.sourceId = Guid.NewGuid().ToString();
+            this.partitionKey = Guid.NewGuid().ToString();
             this.events = new[]
                              {
-                                 new EventData { Version = 1, SourceType = "Source", EventType = "Test1", Payload = "Payload1" },
-                                 new EventData { Version = 2, SourceType = "Source", EventType = "Test2", Payload = "Payload2" },
-                                 new EventData { Version = 3, SourceType = "Source", EventType = "Test3", Payload = "Payload3" },
+                                 new EventData { Version = 1, SourceId = sourceId, SourceType = "Source", EventType = "Test1", Payload = "Payload1" },
+                                 new EventData { Version = 2, SourceId = sourceId, SourceType = "Source", EventType = "Test2", Payload = "Payload2" },
+                                 new EventData { Version = 3, SourceId = sourceId, SourceType = "Source", EventType = "Test3", Payload = "Payload3" },
                              };
         }
 
@@ -58,12 +60,13 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void when_adding_one_item_then_can_load_it()
         {
-            sut.Save(eventId, new[] { events[0] });
+            sut.Save(this.partitionKey, new[] { events[0] });
 
-            var stored = sut.Load(eventId, 0).ToList();
+            var stored = sut.Load(this.partitionKey, 0).ToList();
 
             Assert.Equal(1, stored.Count);
             Assert.Equal(events[0].Version, stored[0].Version);
+            Assert.Equal(events[0].SourceId, stored[0].SourceId);
             Assert.Equal(events[0].EventType, stored[0].EventType);
             Assert.Equal(events[0].Payload, stored[0].Payload);
         }
@@ -71,12 +74,13 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void when_adding_multiple_items_then_can_load_them_in_order()
         {
-            sut.Save(eventId, events);
+            sut.Save(this.partitionKey, events);
 
-            var stored = sut.Load(eventId, 0).ToList();
+            var stored = sut.Load(this.partitionKey, 0).ToList();
 
             Assert.Equal(3, stored.Count);
             Assert.True(stored.All(x => x.SourceType == "Source"));
+            Assert.True(stored.All(x => x.SourceId == this.sourceId));
             Assert.Equal(1, stored[0].Version);
             Assert.Equal(2, stored[1].Version);
             Assert.Equal(3, stored[2].Version);
@@ -88,10 +92,10 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void when_adding_multiple_items_at_different_times_then_can_load_them_in_order()
         {
-            sut.Save(eventId, new[] { events[0], events[1] });
-            sut.Save(eventId, new[] { events[2] });
+            sut.Save(this.partitionKey, new[] { events[0], events[1] });
+            sut.Save(this.partitionKey, new[] { events[2] });
 
-            var stored = sut.Load(eventId, 0).ToList();
+            var stored = sut.Load(this.partitionKey, 0).ToList();
 
             Assert.Equal(3, stored.Count);
             Assert.True(stored.All(x => x.SourceType == "Source"));
@@ -106,9 +110,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void can_load_events_since_specified_version()
         {
-            sut.Save(eventId, events);
+            sut.Save(this.partitionKey, events);
 
-            var stored = sut.Load(eventId, 2).ToList();
+            var stored = sut.Load(this.partitionKey, 2).ToList();
 
             Assert.Equal(2, stored.Count);
             Assert.Equal(2, stored[0].Version);
@@ -120,12 +124,12 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void cannot_store_same_version()
         {
-            sut.Save(eventId, new[] { events[0] });
+            sut.Save(this.partitionKey, new[] { events[0] });
 
             var sameVersion = new EventData { Version = events[0].Version, EventType = "Test2", Payload = "Payload2" };
-            Assert.Throws<ConcurrencyException>(() => sut.Save(eventId, new[] { sameVersion }));
+            Assert.Throws<ConcurrencyException>(() => sut.Save(this.partitionKey, new[] { sameVersion }));
 
-            var stored = sut.Load(eventId, 0).ToList();
+            var stored = sut.Load(this.partitionKey, 0).ToList();
 
             Assert.Equal(1, stored.Count);
             Assert.Equal(1, stored[0].Version);
@@ -135,12 +139,12 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void when_storing_same_version_within_batch_then_aborts_entire_commit()
         {
-            sut.Save(eventId, new[] { events[0] });
+            sut.Save(this.partitionKey, new[] { events[0] });
 
             var sameVersion = new EventData { Version = events[0].Version, EventType = "Test2", Payload = "Payload2" };
-            Assert.Throws<ConcurrencyException>(() => sut.Save(eventId, new[] { sameVersion, events[1] }));
+            Assert.Throws<ConcurrencyException>(() => sut.Save(this.partitionKey, new[] { sameVersion, events[1] }));
 
-            var stored = sut.Load(eventId, 0).ToList();
+            var stored = sut.Load(this.partitionKey, 0).ToList();
 
             Assert.Equal(1, stored.Count);
             Assert.Equal(1, stored[0].Version);
@@ -152,7 +156,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
     {
         public given_store_with_events()
         {
-            sut.Save(eventId, new[] { events[0], events[1] });
+            sut.Save(this.partitionKey, new[] { events[0], events[1] });
         }
     }
 
@@ -161,7 +165,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void can_get_all_events_as_pending()
         {
-            var pending = sut.GetPending(eventId).ToList();
+            var pending = sut.GetPending(this.partitionKey).ToList();
 
             Assert.Equal(2, pending.Count);
             Assert.True(pending.All(x => x.SourceType == "Source"));
@@ -176,10 +180,10 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void when_deleting_pending_then_can_get_list_without_item()
         {
-            var pending = sut.GetPending(eventId).ToList();
+            var pending = sut.GetPending(this.partitionKey).ToList();
             sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
 
-            pending = sut.GetPending(eventId).ToList();
+            pending = sut.GetPending(this.partitionKey).ToList();
 
             Assert.Equal(1, pending.Count);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);

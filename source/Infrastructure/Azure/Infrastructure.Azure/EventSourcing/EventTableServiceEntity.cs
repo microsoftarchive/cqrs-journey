@@ -19,6 +19,7 @@ namespace Infrastructure.Azure.EventSourcing
     {
         string PartitionKey { get; }
         string RowKey { get; }
+        string SourceId { get; set; }
         string SourceType { get; }
         string EventType { get; }
         string Payload { get; }
@@ -26,10 +27,9 @@ namespace Infrastructure.Azure.EventSourcing
 
     public class EventTableServiceEntity : TableServiceEntity, IEventRecord
     {
+        public string SourceId { get; set; }
         public string SourceType { get; set; }
-
         public string EventType { get; set; }
-
         public string Payload { get; set; }
     }
 }

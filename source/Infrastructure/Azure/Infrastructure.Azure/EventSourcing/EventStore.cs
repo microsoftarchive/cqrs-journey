@@ -60,6 +60,7 @@ namespace Infrastructure.Azure.EventSourcing
             return all.Select(x => new EventData
                                        {
                                            Version = int.Parse(x.RowKey),
+                                           SourceId = x.SourceId,
                                            SourceType = x.SourceType,
                                            EventType = x.EventType,
                                            Payload = x.Payload
@@ -78,6 +79,7 @@ namespace Infrastructure.Azure.EventSourcing
                         {
                             PartitionKey = partitionKey,
                             RowKey = formattedVersion,
+                            SourceId = eventData.SourceId,
                             SourceType = eventData.SourceType,
                             EventType = eventData.EventType,
                             Payload = eventData.Payload
@@ -90,6 +92,7 @@ namespace Infrastructure.Azure.EventSourcing
                     {
                         PartitionKey = partitionKey,
                         RowKey = UnpublishedRowKeyPrefix + formattedVersion,
+                        SourceId = eventData.SourceId,
                         SourceType = eventData.SourceType,
                         EventType = eventData.EventType,
                         Payload = eventData.Payload

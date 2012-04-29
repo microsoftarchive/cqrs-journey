@@ -86,7 +86,14 @@ namespace Infrastructure.Azure.EventSourcing
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, e);
-                return new EventData { Version = e.Version, Payload = writer.ToString(), SourceType = this.sourceType, EventType = e.GetType().Name };
+                return new EventData
+                           {
+                               Version = e.Version, 
+                               SourceId = e.SourceId.ToString(), 
+                               Payload = writer.ToString(), 
+                               SourceType = this.sourceType, 
+                               EventType = e.GetType().Name
+                           };
             }
         }
 
