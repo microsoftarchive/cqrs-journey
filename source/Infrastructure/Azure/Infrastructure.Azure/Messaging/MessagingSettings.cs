@@ -33,8 +33,6 @@ namespace Infrastructure.Azure.Messaging
 
             this.TokenIssuer = string.Empty;
             this.TokenAccessKey = string.Empty;
-
-            this.TopicName = string.Empty;
         }
 
         /// <summary>
@@ -58,10 +56,5 @@ namespace Infrastructure.Azure.Messaging
         /// Gets or sets the token access key.
         /// </summary>
         public string TokenAccessKey { get; set; }
-
-        /// <summary>
-        /// Gets the topic name if required.
-        /// </summary>
-        public string TopicName { get; set; }
     }
 }
