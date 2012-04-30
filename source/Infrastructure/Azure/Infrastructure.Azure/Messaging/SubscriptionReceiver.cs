@@ -134,8 +134,20 @@ namespace Infrastructure.Azure.Messaging
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                // Long polling here?
-                var message = this.client.Receive(TimeSpan.FromSeconds(10));
+                BrokeredMessage message = null;
+
+                try
+                {
+                    // NOTE: we don't long-poll more than a few seconds as 
+                    // we're already on a background thread and we want to 
+                    // allow other threads/processes/machines to potentially 
+                    // receive messages too.
+                    message = this.client.Receive(TimeSpan.FromSeconds(10));
+                }
+                catch (TimeoutException)
+                {
+                    // Server may be down.
+                }
 
                 if (message == null)
                 {
@@ -145,6 +157,7 @@ namespace Infrastructure.Azure.Messaging
 
                 if (!cancellationToken.IsCancellationRequested)
                     this.MessageReceived(this, new BrokeredMessageEventArgs(message));
+
             }
         }
     }
