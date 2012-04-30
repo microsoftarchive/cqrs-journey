@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="BlobStorageDbContextFixture.cs" />
     <Compile Include="SqlBlobStorageFixture.cs" />
+    <Compile Include="Messaging\CommandProcessorFixture.cs" />
     <Compile Include="Messaging\EventProcessorFixture.cs" />
     <Compile Include="Messaging\MessageReceiverFixture.cs" />
     <Compile Include="Messaging\MessageSenderFixture.cs" />
