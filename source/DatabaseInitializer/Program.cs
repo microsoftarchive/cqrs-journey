@@ -13,7 +13,7 @@
 
 namespace DatabaseInitializer
 {
-    using System;
+    using System.Configuration;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     using Conference;
@@ -27,15 +27,22 @@ namespace DatabaseInitializer
     {
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            var connectionString = ConfigurationManager.AppSettings["defaultConnection"];
+            if (args.Length > 0)
             {
-                throw new ArgumentException("Need to supply a connection string");
+                connectionString = args[0];
             }
 
-            var connectionString = args[0];
+            // Use ConferenceContext as entry point for dropping and recreating DB
+            using (var context = new ConferenceContext(connectionString))
+            {
+                if (context.Database.Exists())
+                    context.Database.Delete();
+
+                context.Database.Create();
+            }
 
             Database.SetInitializer<EventStoreDbContext>(null);
-            Database.SetInitializer<ConferenceContext>(null);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationProcessDbContext>(null);
             Database.SetInitializer<PaymentsDbContext>(null);
@@ -44,7 +51,6 @@ namespace DatabaseInitializer
                 new DbContext[] 
                 { 
                     new EventStoreDbContext(connectionString),
-                    new ConferenceContext(connectionString),
                     new PaymentsDbContext(connectionString),
                     new RegistrationProcessDbContext(connectionString),
                     new ConferenceRegistrationDbContext(connectionString),
