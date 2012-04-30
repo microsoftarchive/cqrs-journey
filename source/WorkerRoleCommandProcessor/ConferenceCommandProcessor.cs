@@ -24,6 +24,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Infrastructure.Serialization;
+    using Infrastructure.Sql.Blob;
     using Infrastructure.Sql.Database;
     using Infrastructure.Sql.EventSourcing;
     using Infrastructure.Sql.Processes;
@@ -50,6 +51,7 @@ namespace WorkerRoleCommandProcessor
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationProcessDbContext>(null);
             Database.SetInitializer<EventStoreDbContext>(null);
+            Database.SetInitializer<BlobStorageDbContext>(null);
 
             Database.SetInitializer<PaymentsDbContext>(null);
             // Views repository is currently the same as the domain DB. No initializer needed.
@@ -99,6 +101,7 @@ namespace WorkerRoleCommandProcessor
             // repository
 
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
+            container.RegisterType<BlobStorageDbContext>(new TransientLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
             container.RegisterType<IProcessDataContext<RegistrationProcess>, SqlProcessDataContext<RegistrationProcess>>(

@@ -1,0 +1,97 @@
+﻿// ==============================================================================================================
+// Microsoft patterns & practices
+// CQRS Journey project
+// ==============================================================================================================
+// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// http://cqrsjourney.github.com/contributors/members
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+// with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software distributed under the License is 
+// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+// See the License for the specific language governing permissions and limitations under the License.
+// ==============================================================================================================
+
+namespace Infrastructure.Sql.IntegrationTests
+{
+    using System;
+    using Infrastructure.Serialization;
+    using Infrastructure.Sql.Blob;
+    using Xunit;
+
+    public class BlobStorageDbContextFixture : IDisposable
+    {
+        private string dbName = Guid.NewGuid().ToString();
+        private ITextSerializer serializer = new JsonTextSerializer();
+
+        public BlobStorageDbContextFixture()
+        {
+            using (var context = new BlobStorageDbContext(dbName, this.serializer))
+            {
+                if (context.Database.Exists())
+                {
+                    context.Database.Delete();
+                }
+
+                context.Database.Create();
+            }
+        }
+
+        public void Dispose()
+        {
+            using (var context = new BlobStorageDbContext(dbName, this.serializer))
+            {
+                if (context.Database.Exists())
+                {
+                    context.Database.Delete();
+                }
+            }
+        }
+
+        [Fact]
+        public void when_saving_blob_then_can_read_it()
+        {
+            using (var context = new BlobStorageDbContext(this.dbName, this.serializer))
+            {
+                context.Save("test", new Data { Id = 5, Title = "Hello" });
+            }
+
+            using (var context = new BlobStorageDbContext(this.dbName, this.serializer))
+            {
+                var blob = (Data)context.Find("test");
+
+                Assert.NotNull(blob);
+                Assert.Equal(5, blob.Id);
+                Assert.Equal("Hello", blob.Title);
+            }
+        }
+
+        [Fact]
+        public void when_updating_existing_blob_then_can_read_changes()
+        {
+            using (var context = new BlobStorageDbContext(this.dbName, this.serializer))
+            {
+                context.Save("test", new Data { Id = 5, Title = "Hello" });
+            }
+
+            using (var context = new BlobStorageDbContext(this.dbName, this.serializer))
+            {
+                context.Save("test", new Data { Id = 5, Title = "World" });
+            }
+
+            using (var context = new BlobStorageDbContext(this.dbName, this.serializer))
+            {
+                var blob = (Data)context.Find("test");
+
+                Assert.NotNull(blob);
+                Assert.Equal(5, blob.Id);
+                Assert.Equal("World", blob.Title);
+            }
+        }
+
+        public class Data
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+        }
+    }
+}

@@ -43,6 +43,7 @@ namespace Conference.Web.Public
     using Registration.Handlers;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
+    using Infrastructure.Sql.Blob;
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -73,6 +74,7 @@ namespace Conference.Web.Public
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationProcessDbContext>(null);
             Database.SetInitializer<EventStoreDbContext>(null);
+            Database.SetInitializer<BlobStorageDbContext>(null);
 
             Database.SetInitializer<PaymentsDbContext>(null);
             Database.SetInitializer<PaymentsReadDbContext>(null);
@@ -117,6 +119,7 @@ namespace Conference.Web.Public
 
 #if LOCAL
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
+            container.RegisterType<BlobStorageDbContext>(new TransientLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
             container.RegisterType<IProcessDataContext<RegistrationProcess>, SqlProcessDataContext<RegistrationProcess>>(
