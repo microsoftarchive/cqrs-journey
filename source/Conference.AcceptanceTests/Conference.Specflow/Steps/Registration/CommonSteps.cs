@@ -1,4 +1,17 @@
-﻿using System;
+﻿// ==============================================================================================================
+// Microsoft patterns & practices
+// CQRS Journey project
+// ==============================================================================================================
+// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// http://cqrsjourney.github.com/contributors/members
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+// with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software distributed under the License is 
+// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+// See the License for the specific language governing permissions and limitations under the License.
+// ==============================================================================================================
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TechTalk.SpecFlow;
 using System.Globalization;
@@ -177,7 +190,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
 
             Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
 
-            // Sample using Infrastructure instead of UI
+            // Check via controller Infrastructure instead of UI
 
             var email = ScenarioContext.Current.Get<string>("email");
             var order = RegistrationHelper.GetOrder(email, accessCode);
@@ -195,6 +208,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
                 Assert.AreEqual(Int32.Parse(row["quantity"]), orderItem.ReservedSeats);
             }
 
+            // Alternate method to check via UI
             //// Navigate to Registration page
             //browser.GoTo(Constants.FindOrderPage(FeatureContext.Current.Get<ConferenceInfo>().Slug));
             //browser.SetInputvalue("name", email, "email");

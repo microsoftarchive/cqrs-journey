@@ -1,4 +1,17 @@
-﻿Feature: Self Registrant end to end scenario for making a Registration for a Conference (sad path)
+﻿# ==============================================================================================================
+# Microsoft patterns & practices
+# CQRS Journey project
+# ==============================================================================================================
+# ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+# http://cqrsjourney.github.com/contributors/members
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+# with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software distributed under the License is 
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and limitations under the License.
+# ==============================================================================================================
+
+Feature: Self Registrant end to end scenario for making a Registration for a Conference (sad path)
 	In order to register for a conference
 	As an Attendee
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
@@ -40,6 +53,9 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 
 #Initial state	: 1 available, 2 waitlisted and 1a & 1w selected
 #End state		: 1 reserved,  1 waitlisted confirmed  
+
+# Next release
+@Ignore
 Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
 	Given the list of available Order Items selected by the Registrant
 	| seat type                        | quantity |
@@ -77,6 +93,8 @@ Scenario: Checkout:Payment with cancellation
     Then the message 'Payment cancelled.' will show up 	
 
 
+# Next release
+@Ignore
 Scenario: Partial Promotional Code for none of the selected items
 	Given the selected Order Items
 	| seat type     | quantity |
@@ -87,6 +105,8 @@ Scenario: Partial Promotional Code for none of the selected items
 	And the total amount should be of $500
 
 
+# Next release
+@Ignore
 Scenario: Partiall Seats allocation
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789
@@ -104,6 +124,8 @@ And the Attendees should get an email informing about the conference and the Sea
 	| 6789-1      | gregoryweber@contoso.com | General admission |
 
 
+# Next release
+@Ignore
 Scenario: Complete Seats allocation
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789

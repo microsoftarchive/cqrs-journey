@@ -1,4 +1,17 @@
-﻿Feature: Self Registrant end to end scenario for making a Registration for a Conference site (happy path)
+﻿# ==============================================================================================================
+# Microsoft patterns & practices
+# CQRS Journey project
+# ==============================================================================================================
+# ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+# http://cqrsjourney.github.com/contributors/members
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+# with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software distributed under the License is 
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and limitations under the License.
+# ==============================================================================================================
+
+Feature: Self Registrant end to end scenario for making a Registration for a Conference site (happy path)
 	In order to register for a conference
 	As an Attendee
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
@@ -53,7 +66,8 @@ Scenario: Checkout:Payment and sucessfull Order completed
 		| General admission         | 1        |
 		| Additional cocktail party | 1        |
 
-#Seat allocation not implemented yet
+# Next release
+@Ignore
 Scenario: AllocateSeats
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789
@@ -68,7 +82,8 @@ And the Attendees should get an email informing about the conference and the Sea
 	| 6789-2      | gregoryweber@contoso.com | Additional cocktail party |
 
 
-#Promo code not implemented yet
+# Next release
+@Ignore
 Scenario: Make a reservation with the selected Order Items and a Promo Code
 	Given the Registrant apply the 'COPRESENTER' Promotional Code
 	And the 'COPRESENTER' Promo code should show a value of -$5

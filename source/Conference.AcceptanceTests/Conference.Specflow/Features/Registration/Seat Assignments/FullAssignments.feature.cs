@@ -19,6 +19,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
+    [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
     public partial class RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature
     {
         
@@ -31,7 +32,8 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
         public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Registrant workflow for assigning all the registered Order Items.", "", ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Registrant workflow for assigning all the registered Order Items.", "", ProgrammingLanguage.CSharp, new string[] {
+                        "Ignore"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -70,7 +72,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
         
         public virtual void FeatureBackground()
         {
-#line 3
+#line 18
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
@@ -87,7 +89,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "Weber",
                         "gregoryweber@contoso.com",
                         "Additional cocktail party"});
-#line 4
+#line 19
  testRunner.Given("the individual purchased Seats", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -125,7 +127,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "Gregory",
                         "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 8
+#line 23
  testRunner.And("the group purchased Seats", ((string)(null)), table2);
 #line hidden
         }
@@ -136,13 +138,13 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
         public virtual void AllocateAllPurchasedSeatsForAnIndividual()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for an individual", ((string[])(null)));
-#line 18
+#line 33
 this.ScenarioSetup(scenarioInfo);
-#line 3
+#line 18
 this.FeatureBackground();
-#line 19
+#line 34
 testRunner.Given("the ConfirmSuccessfulRegistration for the selected Order Items");
-#line 20
+#line 35
 testRunner.And("the Order Access code is 6789");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -160,9 +162,9 @@ testRunner.And("the Order Access code is 6789");
                         "Weber",
                         "gregoryweber@contoso.com",
                         "Additional cocktail party"});
-#line 21
+#line 36
 testRunner.And("the Registrant assign the infividual purchased Seats to attendees as following", ((string)(null)), table3);
-#line 25
+#line 40
 testRunner.Then("the Registrant should get a Seat assignment confirmation");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -177,7 +179,7 @@ testRunner.Then("the Registrant should get a Seat assignment confirmation");
                         "6789-2",
                         "gregoryweber@contoso.com",
                         "Additional cocktail party"});
-#line 26
+#line 41
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
                     "e with Seat Access Code", ((string)(null)), table4);
 #line hidden
@@ -190,13 +192,13 @@ testRunner.And("the Attendees should get an email informing about the conference
         public virtual void AllocateAllPurchasedSeatsForAGroup()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for a group", ((string[])(null)));
-#line 32
+#line 47
 this.ScenarioSetup(scenarioInfo);
-#line 3
+#line 18
 this.FeatureBackground();
-#line 33
+#line 48
 testRunner.Given("the ConfirmSuccessfulRegistration");
-#line 34
+#line 49
 testRunner.And("the order access code is 6789");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
@@ -234,9 +236,9 @@ testRunner.And("the order access code is 6789");
                         "Gregory",
                         "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 35
+#line 50
 testRunner.And("the Registrant assign the group purchased Seats to attendees as following", ((string)(null)), table5);
-#line 43
+#line 58
 testRunner.Then("the Registrant should get a Seat Assignment confirmation");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
@@ -267,7 +269,7 @@ testRunner.Then("the Registrant should get a Seat Assignment confirmation");
                         "6789-6",
                         "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 44
+#line 59
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
                     "e with Seat Access Code", ((string)(null)), table6);
 #line hidden

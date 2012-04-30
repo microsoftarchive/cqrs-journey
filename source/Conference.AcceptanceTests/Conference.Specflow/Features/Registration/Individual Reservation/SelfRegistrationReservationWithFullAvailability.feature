@@ -1,4 +1,17 @@
-﻿Feature: Self Registrant scenarios for making a Reservation for a Conference site with all Order Items initially available
+﻿# ==============================================================================================================
+# Microsoft patterns & practices
+# CQRS Journey project
+# ==============================================================================================================
+# ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+# http://cqrsjourney.github.com/contributors/members
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+# with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software distributed under the License is 
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and limitations under the License.
+# ==============================================================================================================
+
+Feature: Self Registrant scenarios for making a Reservation for a Conference site with all Order Items initially available
 	In order to reserve Seats for a conference
 	As an Attendee
 	I want to be able to select an Order Item from one or many of the available Order Items and make a Reservation
@@ -35,6 +48,9 @@ Scenario: All the Order Items are available and all get reserved
 #2
 #Initial state	: 3 available
 #End state		: 3 waitlisted
+
+#Next release
+@Ignore
 Scenario: All the Order Items are available and all get waitlisted
 	Given these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 |
@@ -52,6 +68,9 @@ Scenario: All the Order Items are available and all get waitlisted
 #3
 #Initial state	: 3 available
 #End state		: 2 waitlisted, 1 reserved
+
+#Next release
+@Ignore
 Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	Given these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 |

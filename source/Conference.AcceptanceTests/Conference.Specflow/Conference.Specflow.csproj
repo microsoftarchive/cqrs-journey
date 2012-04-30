@@ -162,6 +162,9 @@
     <Compile Include="Support\ScenarioContextExtension.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\CQRS-journey.licenseheader">
+      <Link>CQRS-journey.licenseheader</Link>
+    </None>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
@@ -215,11 +218,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Features\Management\Conference Creation\" />
-    <Folder Include="Features\Management\Publish and Unpublish\" />
-    <Folder Include="Features\Management\Seat Types and Quotas Configuration\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="..\..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
@@ -227,6 +226,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Conference\Conference.Common\Conference.Common.csproj">
+      <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
+      <Name>Conference.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
       <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
       <Name>Conference</Name>

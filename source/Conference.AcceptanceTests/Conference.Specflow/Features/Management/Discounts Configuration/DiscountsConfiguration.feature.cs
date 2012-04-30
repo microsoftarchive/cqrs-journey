@@ -19,6 +19,7 @@ namespace Conference.Specflow.Features.Management.DiscountsConfiguration
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
+    [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
     public partial class PromotionalCodesConfigurationScenariosForCreatingAndEditingPromotionalCodesSettingsFeature
     {
         
@@ -33,7 +34,8 @@ namespace Conference.Specflow.Features.Management.DiscountsConfiguration
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
                     "des settings", "In order to create or update a Promotional Code\r\nAs a Business Customer\r\nI want t" +
-                    "o be able to create or update a Promotional Code and set its properties", ProgrammingLanguage.CSharp, ((string[])(null)));
+                    "o be able to create or update a Promotional Code and set its properties", ProgrammingLanguage.CSharp, new string[] {
+                        "Ignore"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -73,7 +75,7 @@ namespace Conference.Specflow.Features.Management.DiscountsConfiguration
         
         public virtual void FeatureBackground()
         {
-#line 6
+#line 21
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "Promotional Code",
@@ -87,7 +89,7 @@ namespace Conference.Specflow.Features.Management.DiscountsConfiguration
                         "Unlimited",
                         "All",
                         ""});
-#line 7
+#line 22
 testRunner.Given("the Promotional Codes", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -102,7 +104,7 @@ testRunner.Given("the Promotional Codes", ((string)(null)), table1);
             table2.AddRow(new string[] {
                         "Additional cocktail party",
                         "600"});
-#line 10
+#line 25
 testRunner.And("the Seat Types configuration", ((string)(null)), table2);
 #line hidden
         }
@@ -114,11 +116,11 @@ testRunner.And("the Seat Types configuration", ((string)(null)), table2);
         public virtual void CreateANewPromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code", ((string[])(null)));
-#line 18
+#line 32
 this.ScenarioSetup(scenarioInfo);
-#line 6
+#line 21
 this.FeatureBackground();
-#line 19
+#line 33
 testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -131,11 +133,11 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
                         "Unlimited",
                         "General admission",
                         "SPEAKER123"});
-#line 20
+#line 34
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table3);
-#line 23
+#line 37
 testRunner.When("the \'Save\' option is selected");
-#line 24
+#line 38
 testRunner.Then("the new Promotional Code is added to the list of existing codes");
 #line hidden
             this.ScenarioCleanup();
@@ -148,11 +150,11 @@ testRunner.Then("the new Promotional Code is added to the list of existing codes
         public virtual void CreateANewPromotionalCodeWithWithExceedingQuota()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code with with exceeding quota", ((string[])(null)));
-#line 29
+#line 42
 this.ScenarioSetup(scenarioInfo);
-#line 6
+#line 21
 this.FeatureBackground();
-#line 30
+#line 43
 testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -165,11 +167,11 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
                         "1000",
                         "General admission",
                         "SPEAKER123"});
-#line 31
+#line 44
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table4);
-#line 34
+#line 47
 testRunner.When("the \'Save\' option is selected");
-#line 35
+#line 48
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
 #line hidden
@@ -183,19 +185,19 @@ testRunner.Then("an error message will show up describing that the quota value e
         public virtual void UpdateAnExistingPromotionalCode()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code", ((string[])(null)));
-#line 40
+#line 52
 this.ScenarioSetup(scenarioInfo);
-#line 6
+#line 21
 this.FeatureBackground();
-#line 41
+#line 53
 testRunner.Given("the Business Customer selects \'SPEAKER123\' Promotional Code");
-#line 42
+#line 54
 testRunner.And("the Scope is updated with value \'CQRS Workshop\'");
-#line 43
+#line 55
 testRunner.And("the Quota is updated with the value \'50\'");
-#line 44
+#line 56
 testRunner.When("the \'Save\' option is selected");
-#line 45
+#line 57
 testRunner.Then("updated values are reflected in the selected Promotional Code");
 #line hidden
             this.ScenarioCleanup();
@@ -208,19 +210,19 @@ testRunner.Then("updated values are reflected in the selected Promotional Code")
         public virtual void UpdateAnExistingPromotionalCodeWithExceedingQuota()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update an existing Promotional Code with exceeding quota", ((string[])(null)));
-#line 50
+#line 61
 this.ScenarioSetup(scenarioInfo);
-#line 6
+#line 21
 this.FeatureBackground();
-#line 51
+#line 62
 testRunner.Given("the Business Customer selects \'SPEAKER123\' Promotional Code");
-#line 52
+#line 63
 testRunner.And("the Scope is updated with value \'CQRS Workshop\'");
-#line 53
+#line 64
 testRunner.And("the Quota is updated with the value \'200\'");
-#line 54
+#line 65
 testRunner.When("the \'Save\' option is selected");
-#line 55
+#line 66
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
 #line hidden

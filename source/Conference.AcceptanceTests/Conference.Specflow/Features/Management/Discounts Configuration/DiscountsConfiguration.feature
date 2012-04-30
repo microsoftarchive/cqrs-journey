@@ -1,4 +1,19 @@
-﻿Feature:  Promotional Codes Configuration scenarios for creating and editing Promotional Codes settings
+﻿# ==============================================================================================================
+# Microsoft patterns & practices
+# CQRS Journey project
+# ==============================================================================================================
+# ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+# http://cqrsjourney.github.com/contributors/members
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+# with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software distributed under the License is 
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and limitations under the License.
+# ==============================================================================================================
+
+# Next release
+@Ignore
+Feature:  Promotional Codes Configuration scenarios for creating and editing Promotional Codes settings
 	In order to create or update a Promotional Code
 	As a Business Customer
 	I want to be able to create or update a Promotional Code and set its properties
@@ -14,7 +29,6 @@ And the Seat Types configuration
 	| Additional cocktail party | 600   |
 
 # New Promo Code  Happy path
-#Discounts pending
 Scenario: Create a new Promotional Code
 Given the Business Customer selects 'Add new Promotional code' option
 And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
@@ -25,7 +39,6 @@ Then the new Promotional Code is added to the list of existing codes
 
 
 # New Promo Code Sad path
-#Discounts pending
 Scenario: Create a new Promotional Code with with exceeding quota
 Given the Business Customer selects 'Add new Promotional code' option
 And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
@@ -36,7 +49,6 @@ Then an error message will show up describing that the quota value exceeds the t
 
 
 # Update Promo Code Happy path
-#Discounts pending
 Scenario: Update an existing Promotional Code
 Given the Business Customer selects 'SPEAKER123' Promotional Code
 And the Scope is updated with value 'CQRS Workshop'
@@ -46,7 +58,6 @@ Then updated values are reflected in the selected Promotional Code
 
 
 # Update Promo Code Sad path
-#Discounts pending
 Scenario: Update an existing Promotional Code with exceeding quota
 Given the Business Customer selects 'SPEAKER123' Promotional Code
 And the Scope is updated with value 'CQRS Workshop'

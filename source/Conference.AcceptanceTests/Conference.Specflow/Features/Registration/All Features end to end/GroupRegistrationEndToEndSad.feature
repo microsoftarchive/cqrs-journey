@@ -1,4 +1,17 @@
-﻿Feature: Registrant workflow for registering a group of Attendees for a conference (sad path)
+﻿# ==============================================================================================================
+# Microsoft patterns & practices
+# CQRS Journey project
+# ==============================================================================================================
+# ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+# http://cqrsjourney.github.com/contributors/members
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+# with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software distributed under the License is 
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and limitations under the License.
+# ==============================================================================================================
+
+Feature: Registrant workflow for registering a group of Attendees for a conference (sad path)
 	In order to register for conference a group of Attendees
 	As a Registrant
 	I want to be able to select Order Items from one or many available Order Items and make a Reservation
@@ -34,7 +47,8 @@ Scenario: All the Order Items are available, then some get waitlisted and some r
 	And the countdown started
 
 
-#Seats Allocation pending
+# Next release
+@Ignore
 Scenario: Allocate some purchased Seats for a group
 Given the ConfirmSuccessfulRegistration
 And the order access code is 6789
