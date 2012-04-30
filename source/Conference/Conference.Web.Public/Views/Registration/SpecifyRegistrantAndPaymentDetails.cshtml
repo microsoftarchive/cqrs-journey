@@ -151,7 +151,7 @@
 <script type="text/javascript">
 
     function reservationTimedOut() {
-        window.location = '@Url.Action("DisplayOrderStatus", "Registration", new { conferenceCode = this.ViewBag.Conference.Code, orderId = this.Model.RegistrantDetails.OrderId })';
+        window.location = '@Url.Action("ShowExpiredOrder", "Registration", new { conferenceCode = this.ViewBag.Conference.Code, orderId = this.Model.RegistrantDetails.OrderId })';
     }
 
     $(document).ready(function () {

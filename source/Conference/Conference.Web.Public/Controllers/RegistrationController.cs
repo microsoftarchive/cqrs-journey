@@ -41,6 +41,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
+        [OutputCache(Duration = 0)]
         public ActionResult StartRegistration()
         {
             ViewBag.OrderId = Guid.NewGuid();
@@ -65,6 +66,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
+        [OutputCache(Duration = 0)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId)
         {
             var order = this.WaitUntilUpdated(orderId);
@@ -76,6 +78,11 @@ namespace Conference.Web.Public.Controllers
             if (order.State == OrderDTO.States.Rejected)
             {
                 return View("ReservationRejected");
+            }
+
+            if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
+            {
+                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.Conference.Code, orderId = orderId });
             }
 
             var orderViewModel = this.CreateViewModel(order);
@@ -95,12 +102,14 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult SpecifyRegistrantAndPaymentDetails(AssignRegistrantDetails command, string paymentType)
         {
+            var orderId = command.OrderId;
+
             if (!ModelState.IsValid)
             {
-                return SpecifyRegistrantAndPaymentDetails(command.OrderId);
+                return SpecifyRegistrantAndPaymentDetails(orderId);
             }
 
-            var order = this.orderDao.GetOrderDetails(command.OrderId);
+            var order = this.orderDao.GetOrderDetails(orderId);
 
             // TODO check conference and order exist.
             // TODO validate that order belongs to the user.
@@ -110,11 +119,16 @@ namespace Conference.Web.Public.Controllers
                 throw new ArgumentException();
             }
 
+            if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
+            {
+                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.Conference.Code, orderId = orderId });
+            }
+
             switch (paymentType)
             {
                 case ThirdPartyProcessorPayment:
 
-                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, command.OrderId);
+                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId);
 
                 case InvoicePayment:
                     break;
@@ -127,26 +141,14 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult TransactionCompleted(Guid orderId, string transactionResult)
+        [OutputCache(Duration = 0)]
+        public ActionResult ShowExpiredOrder(Guid orderId)
         {
-            if (transactionResult == "accepted")
-            {
-                return RedirectToAction("ThankYou", new { conferenceCode = this.Conference.Code, orderId = orderId });
-            }
-            else
-            {
-                return RedirectToAction("SpecifyPaymentDetails", new { conferenceCode = this.Conference.Code, orderId = orderId });
-            }
-        }
-
-        [HttpGet]
-        public ActionResult DisplayOrderStatus(string conferenceCode, Guid orderId)
-        {
-            // TODO: What is this? There is no backing view for this action!
             return View();
         }
 
         [HttpGet]
+        [OutputCache(Duration = 0)]
         public ActionResult ThankYou(string conferenceCode, Guid orderId)
         {
             var order = this.orderDao.GetOrderDetails(orderId);
@@ -161,7 +163,7 @@ namespace Conference.Web.Public.Controllers
             this.commandBus.Send(new ICommand[] { command, paymentCommand });
 
             var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.Conference.Code, orderId });
-            var paymentRejectedUrl = this.Url.Action("TransactionCompleted", new { conferenceCode = this.Conference.Code, orderId, transactionResult = "rejected" });
+            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.Conference.Code, orderId });
 
             return RedirectToAction(
                 "ThirdPartyProcessorPayment",
