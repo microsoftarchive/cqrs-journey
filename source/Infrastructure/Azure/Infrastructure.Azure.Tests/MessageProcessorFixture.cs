@@ -27,7 +27,7 @@ namespace Infrastructure.Azure.Tests
         public void when_starting_twice_then_ignores_second_request()
         {
             var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             processor.Start();
@@ -39,7 +39,7 @@ namespace Infrastructure.Azure.Tests
         public void when_disposing_started_then_stops()
         {
             var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             processor.Start();
@@ -53,7 +53,7 @@ namespace Infrastructure.Azure.Tests
         {
             var receiver = new Mock<IMessageReceiver>();
             var disposable = receiver.As<IDisposable>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             processor.Dispose();
@@ -65,7 +65,7 @@ namespace Infrastructure.Azure.Tests
         public void when_stopping_disposed_then_ignores()
         {
             var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             processor.Dispose();
@@ -77,7 +77,7 @@ namespace Infrastructure.Azure.Tests
         public void when_stopping_non_started_then_ignores()
         {
             var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             processor.Stop();
@@ -87,7 +87,7 @@ namespace Infrastructure.Azure.Tests
         public void when_message_received_without_type_then_does_not_call_process_message()
         {
             var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             var message = new BrokeredMessage("foo");
@@ -101,7 +101,7 @@ namespace Infrastructure.Azure.Tests
         public void when_message_received_without_assembly_then_does_not_call_process_message()
         {
             var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ISerializer>();
+            var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
             var message = new BrokeredMessage("foo");

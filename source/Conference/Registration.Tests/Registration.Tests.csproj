@@ -59,7 +59,6 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinarySerializerFixture.cs" />
     <Compile Include="ConferenceViewModelGeneratorFixture.cs" />
     <Compile Include="EnumerableEventsExtensions.cs" />
     <Compile Include="HandleGeneratorFixture.cs" />

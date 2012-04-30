@@ -30,7 +30,7 @@ namespace Infrastructure.Azure.Tests
             var receiver = new Mock<IMessageReceiver>();
             var disposable = receiver.As<IDisposable>();
 
-            var processor = new CommandProcessor(receiver.Object, Mock.Of<ISerializer>());
+            var processor = new CommandProcessor(receiver.Object, Mock.Of<ITextSerializer>());
 
             processor.Dispose();
 
@@ -40,7 +40,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_disposing_processor_then_no_op_if_receiver_not_disposable()
         {
-            var processor = new CommandProcessor(Mock.Of<IMessageReceiver>(), Mock.Of<ISerializer>());
+            var processor = new CommandProcessor(Mock.Of<IMessageReceiver>(), Mock.Of<ITextSerializer>());
 
             processor.Dispose();
         }
@@ -48,7 +48,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_handler_already_registered_for_command_then_throws()
         {
-            var processor = new CommandProcessor(Mock.Of<IMessageReceiver>(), Mock.Of<ISerializer>());
+            var processor = new CommandProcessor(Mock.Of<IMessageReceiver>(), Mock.Of<ITextSerializer>());
             var handler1 = Mock.Of<ICommandHandler<FooCommand>>();
             var handler2 = Mock.Of<ICommandHandler<FooCommand>>();
 

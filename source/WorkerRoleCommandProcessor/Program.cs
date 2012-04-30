@@ -11,38 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Serialization
+namespace WorkerRoleCommandProcessor
 {
-    using System.IO;
-    using Newtonsoft.Json;
+    using System;
+    using System.Data.Entity;
+    using Conference.Common.Entity;
 
-    public class JsonSerializerAdapter : ISerializer
+    class Program
     {
-        private JsonSerializer serializer;
-
-        public JsonSerializerAdapter(JsonSerializer serializer)
+        static void Main(string[] args)
         {
-            this.serializer = serializer;
-        }
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
-        public void Serialize(Stream stream, object graph)
-        {
-            var writer = new JsonTextWriter(new StreamWriter(stream));
-#if DEBUG
-            writer.Formatting = Formatting.Indented;
-#endif
+            using (var processor = new ConferenceCommandProcessor())
+            {
+                processor.Start();
 
-            this.serializer.Serialize(writer, graph);
+                Console.WriteLine("Host started");
+                Console.WriteLine("Press enter to finish");
+                Console.ReadLine();
 
-            // We don't close the stream as it's owned by the message.
-            writer.Flush();
-        }
-
-        public object Deserialize(Stream stream)
-        {
-            var reader = new JsonTextReader(new StreamReader(stream));
-
-            return this.serializer.Deserialize(reader);
+                processor.Stop();
+            }
         }
     }
 }

@@ -33,31 +33,36 @@ namespace Payments.ReadModel.Implementation
         {
             this.innerInitializer.InitializeDatabase(context);
 
-            if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[dbo].[ThirdPartyProcessorPaymentDetailsView]')").Any())
+            if (!context.Database.SqlQuery<int>("SELECT object_id FROM sys.views WHERE object_id = OBJECT_ID(N'[" + PaymentsReadDbContext.SchemaName + "].[ThirdPartyProcessorPaymentDetailsView]')").Any())
             {
-                context.Database.ExecuteSqlCommand(@"
-CREATE VIEW [dbo].[ThirdPartyProcessorPaymentDetailsView]
-AS
-SELECT     
-    dbo.ThirdPartyProcessorPayments.Id AS Id, 
-    dbo.ThirdPartyProcessorPayments.StateValue as StateValue,
-    dbo.ThirdPartyProcessorPayments.PaymentSourceId as PaymentSourceId,
-    dbo.ThirdPartyProcessorPayments.Description as Description,
-    dbo.ThirdPartyProcessorPayments.TotalAmount as TotalAmount
-FROM dbo.ThirdPartyProcessorPayments");
-
-                //                context.Database.ExecuteSqlCommand(@"
-                //CREATE VIEW [dbo].[PaymentItemsView]
-                //AS
-                //SELECT     
-                //    dbo.PaymentItems.Id AS Id, 
-                //    dbo.PaymentItems.Payment_Id AS ThirdPartyProcessorPaymentDetailsView_Id, 
-                //    dbo.PaymentItems.SeatType as SeatType,
-                //    dbo.PaymentItems.Quantity as Quantity
-                //FROM dbo.PaymentItems");
+                CreateViews(context);
             }
 
             context.SaveChanges();
+        }
+
+        public static void CreateViews(DbContext context)
+        {
+            context.Database.ExecuteSqlCommand(@"
+CREATE VIEW " + PaymentsReadDbContext.SchemaName + @".[ThirdPartyProcessorPaymentDetailsView]
+AS
+SELECT     
+    Id AS Id, 
+    StateValue as StateValue,
+    PaymentSourceId as PaymentSourceId,
+    Description as Description,
+    TotalAmount as TotalAmount
+FROM " + PaymentsDbContext.SchemaName + ".ThirdPartyProcessorPayments");
+
+            //                context.Database.ExecuteSqlCommand(@"
+            //CREATE VIEW [Payments].[PaymentItemsView]
+            //AS
+            //SELECT     
+            //    Payments.PaymentItems.Id AS Id, 
+            //    Payments.PaymentItems.Payment_Id AS ThirdPartyProcessorPaymentDetailsView_Id, 
+            //    Payments.PaymentItems.SeatType as SeatType,
+            //    Payments.PaymentItems.Quantity as Quantity
+            //FROM Payments.PaymentItems");
         }
     }
 }

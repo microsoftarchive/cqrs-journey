@@ -27,17 +27,13 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
     /// </summary>
     public class given_a_sender_and_receiver : IDisposable
     {
-        private static readonly XmlSerializer serializer = new XmlSerializer(typeof(MessagingSettings));
         private MessagingSettings settings;
         private string topic = Guid.NewGuid().ToString();
         private string subscription = Guid.NewGuid().ToString();
 
         public given_a_sender_and_receiver()
         {
-            using (var file = File.OpenRead("Settings.xml"))
-            {
-                this.settings = (MessagingSettings)serializer.Deserialize(file);
-            }
+            this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
         }
 
         public void Dispose()
@@ -64,7 +60,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
                 receiver.Start();
 
-                sender.Send(new BrokeredMessage(data));
+                sender.SendAsync(new BrokeredMessage(data));
 
                 signal.Wait();
             }

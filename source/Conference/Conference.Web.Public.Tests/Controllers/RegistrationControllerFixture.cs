@@ -149,7 +149,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         }
 
         [Fact]
-        public void when_specifying_registrant_details_for_a_valid_registration_then_sends_command_and_redirects_to_specify_payment_details()
+        public void when_specifying_registrant_and_credit_card_payment_details_for_a_valid_registration_then_sends_commands_and_redirects_to_payment_action()
         {
             var orderId = Guid.NewGuid();
             var command = new AssignRegistrantDetails
@@ -181,6 +181,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                     es => { paymentId = (es.Select(e => e.Body).OfType<InitiateThirdPartyProcessorPayment>().First()).PaymentId; });
 
             this.routes.MapRoute("ThankYou", "thankyou", new { controller = "Registration", action = "ThankYou" });
+            this.routes.MapRoute("SpecifyRegistrantAndPaymentDetails", "checkout", new { controller = "Registration", action = "SpecifyRegistrantAndPaymentDetails" });
 
             // Act
             var result =
@@ -197,7 +198,8 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                                      .Any(c =>
                                          c.ConferenceId == conferenceAlias.Id
                                          && c.PaymentSourceId == orderId
-                                         && Math.Abs(c.TotalAmount - 100) < 0.01m))),
+                                         && Math.Abs(c.TotalAmount - 100) < 0.01m)
+                                && es.Select(e => e.Body).Contains(command))),
                     Times.Once());
 
             Assert.Equal("Payment", result.RouteValues["controller"]);
@@ -205,6 +207,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Assert.Equal(this.conferenceAlias.Code, result.RouteValues["conferenceCode"]);
             Assert.Equal(paymentId, result.RouteValues["paymentId"]);
             Assert.True(((string)result.RouteValues["paymentAcceptedUrl"]).StartsWith("/thankyou"));
+            Assert.True(((string)result.RouteValues["paymentRejectedUrl"]).StartsWith("/checkout"));
         }
 
         //[Fact]

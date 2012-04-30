@@ -17,10 +17,7 @@ namespace Conference
 
     public class ConferenceContext : DbContext
     {
-        public ConferenceContext()
-            : this("ConferenceManagement")
-        {
-        }
+        public const string SchemaName = "ConferenceManagement";
 
         public ConferenceContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
@@ -35,12 +32,12 @@ namespace Conference
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences");
+            modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences", SchemaName);
             // modelBuilder.Entity<ConferenceInfo>().Property(x => x.Slug)
             // Make seat infos required to have a conference info associated, but without 
             // having to add a navigation property (don't polute the object model).
             modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
-            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes");
+            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes", SchemaName);
         }
     }
 }

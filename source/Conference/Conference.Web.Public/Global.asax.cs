@@ -18,15 +18,15 @@ namespace Conference.Web.Public
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common.Entity;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Database;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Messaging.InMemory;
     using Infrastructure.Processes;
-    using Infrastructure.Database;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Database;
     using Infrastructure.Sql.EventSourcing;
@@ -55,6 +55,8 @@ namespace Conference.Web.Public
 
         protected void Application_Start()
         {
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
             this.container = CreateContainer();
 #if LOCAL
             RegisterHandlers(this.container);
@@ -68,40 +70,22 @@ namespace Conference.Web.Public
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
 #if LOCAL
-            Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));
-            Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<EventStoreDbContext>(null);
 
-            Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
-            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<PaymentsDbContext>(null);
             Database.SetInitializer<PaymentsReadDbContext>(null);
-
-
-            using (var context = this.container.Resolve<ConferenceRegistrationDbContext>())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = this.container.Resolve<DbContext>("registration"))
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = this.container.Resolve<EventStoreDbContext>())
-            {
-                context.Database.Initialize(true);
-            }
-
-            using (var context = this.container.Resolve<PaymentsDbContext>("payments"))
-            {
-                context.Database.Initialize(true);
-            }
-
-            container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
 #else
             Database.SetInitializer<PaymentsReadDbContext>(null);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
 #endif
+
+            if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
+            {
+                System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
+                System.Diagnostics.Trace.AutoFlush = true;
+            }
         }
 
         protected void Application_Stop()
@@ -113,14 +97,8 @@ namespace Conference.Web.Public
         {
             var container = new UnityContainer();
             // infrastructure
-            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            {
-                // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
-                // In a version resilient way
-                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            }));
-            container.RegisterInstance<ISerializer>(serializer);
+            var serializer = new JsonTextSerializer();
+            container.RegisterInstance<ITextSerializer>(serializer);
 
 #if LOCAL
             container.RegisterType<ICommandBus, MemoryCommandBus>(new ContainerControlledLifetimeManager());
@@ -128,7 +106,7 @@ namespace Conference.Web.Public
             container.RegisterType<IEventBus, MemoryEventBus>(new ContainerControlledLifetimeManager());
             container.RegisterType<IEventHandlerRegistry, MemoryEventBus>(new ContainerControlledLifetimeManager(), new InjectionFactory(c => new MemoryEventBus()));
 #else
-            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("bin\\Settings.xml"));
+            var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
@@ -145,13 +123,13 @@ namespace Conference.Web.Public
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus)));
 
-            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor("Payments"));
             container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
 #endif
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
-            container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor("Payments"));
 
             container.RegisterType<IOrderDao, OrderDao>();
             container.RegisterType<IConferenceDao, ConferenceDao>();

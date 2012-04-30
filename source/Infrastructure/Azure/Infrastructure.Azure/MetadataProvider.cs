@@ -29,7 +29,7 @@ namespace Infrastructure.Azure
         public virtual IDictionary<string, object> GetMetadata(object payload)
         {
             var metadata = new Dictionary<string, object>();
-            metadata["Kind"] = payload.GetType().FullName;
+            metadata["EventType"] = payload.GetType().Name;
 
             // NOTE: here we may add an "Area" or "Subsystem" or 
             // whatever via .NET custom attributes on the payload 

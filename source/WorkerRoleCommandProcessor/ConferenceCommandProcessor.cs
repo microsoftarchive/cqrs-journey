@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace ConsoleCommandProcessor
+namespace WorkerRoleCommandProcessor
 {
     using System;
     using System.Data.Entity;
@@ -38,51 +38,39 @@ namespace ConsoleCommandProcessor
     using Registration.Handlers;
     using Registration.ReadModel.Implementation;
 
-    class Program
+    public sealed class ConferenceCommandProcessor : IDisposable
     {
-        static void Main(string[] args)
+        private IUnityContainer container;
+
+        public ConferenceCommandProcessor()
         {
-            using (var container = CreateContainer())
-            {
-                RegisterHandlers(container);
+            this.container = CreateContainer();
+            RegisterHandlers(container);
 
-                Database.SetInitializer(new ConferenceRegistrationDbContextInitializer(new DropCreateDatabaseIfModelChanges<ConferenceRegistrationDbContext>()));
-                Database.SetInitializer(new RegistrationProcessDbContextInitializer(new DropCreateDatabaseIfModelChanges<RegistrationProcessDbContext>()));
-                Database.SetInitializer(new DropCreateDatabaseIfModelChanges<EventStoreDbContext>());
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<EventStoreDbContext>(null);
 
-                Database.SetInitializer(new PaymentsReadDbContextInitializer(new DropCreateDatabaseIfModelChanges<PaymentsDbContext>()));
-                // Views repository is currently the same as the domain DB. No initializer needed.
-                Database.SetInitializer<PaymentsReadDbContext>(null);
+            Database.SetInitializer<PaymentsDbContext>(null);
+            // Views repository is currently the same as the domain DB. No initializer needed.
+            Database.SetInitializer<PaymentsReadDbContext>(null);
+        }
 
-                using (var context = container.Resolve<ConferenceRegistrationDbContext>())
-                {
-                    context.Database.Initialize(true);
-                }
+        public void Start()
+        {
+            this.container.Resolve<CommandProcessor>().Start();
+            this.container.Resolve<EventProcessor>().Start();
+        }
 
-                using (var context = container.Resolve<DbContext>("registration"))
-                {
-                    context.Database.Initialize(true);
-                }
+        public void Stop()
+        {
+            this.container.Resolve<CommandProcessor>().Stop();
+            this.container.Resolve<EventProcessor>().Stop();
+        }
 
-                using (var context = container.Resolve<EventStoreDbContext>())
-                {
-                    context.Database.Initialize(true);
-                }
-
-                using (var context = container.Resolve<PaymentsDbContext>("payments"))
-                {
-                    context.Database.Initialize(true);
-                }
-
-                container.Resolve<FakeSeatsAvailabilityInitializer>().Initialize();
-
-                container.Resolve<CommandProcessor>().Start();
-                container.Resolve<EventProcessor>().Start();
-
-                Console.WriteLine("Host started");
-                Console.WriteLine("Press enter to finish");
-                Console.ReadLine();
-            }
+        public void Dispose()
+        {
+            this.container.Dispose();
         }
 
         private static UnityContainer CreateContainer()
@@ -90,16 +78,10 @@ namespace ConsoleCommandProcessor
             var container = new UnityContainer();
 
             // infrastructure
-            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            {
-                // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
-                // In a version resilient way
-                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            }));
-            container.RegisterInstance<ISerializer>(serializer);
+            var serializer = new JsonTextSerializer();
+            container.RegisterInstance<ITextSerializer>(serializer);
 
-            var settings = MessagingSettings.Read("Settings.xml");
+            var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
             var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 
@@ -123,7 +105,7 @@ namespace ConsoleCommandProcessor
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus)));
 
-            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor());
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor("Payments"));
             container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));

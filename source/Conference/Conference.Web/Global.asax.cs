@@ -17,6 +17,7 @@ namespace Conference.Web.Admin
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common.Entity;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
@@ -65,9 +66,11 @@ namespace Conference.Web.Admin
 
         protected void Application_Start()
         {
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
             AreaRegistration.RegisterAllAreas();
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ConferenceContext>());
+            Database.SetInitializer<ConferenceContext>(null);
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
@@ -76,17 +79,17 @@ namespace Conference.Web.Admin
             // TODO: this WON'T work to integrate across both websites!
             EventBus = new MemoryEventBus();
 #else
-            var settings = MessagingSettings.Read(HttpContext.Current.Server.MapPath("~\\bin\\Settings.xml"));
-            var serializer = new JsonSerializerAdapter(JsonSerializer.Create(new JsonSerializerSettings
-            {
-                // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
-                // In a version resilient way
-                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
-            }));
+            var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
+            var serializer = new JsonTextSerializer();
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 #endif
+
+            if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
+            {
+                System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
+                System.Diagnostics.Trace.AutoFlush = true;
+            }
         }
     }
 }

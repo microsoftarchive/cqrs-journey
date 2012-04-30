@@ -15,6 +15,9 @@ namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
+    using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
 
@@ -27,7 +30,9 @@ namespace Infrastructure.Azure.Messaging
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly MessagingSettings settings;
-        private string topic;
+        private readonly string topic;
+        private readonly RetryPolicy retryPolicy;
+        private readonly TopicClient topicClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
@@ -53,33 +58,81 @@ namespace Infrastructure.Azure.Messaging
             }
             catch (MessagingEntityAlreadyExistsException)
             { }
+
+            // TODO: This could be injected.
+            var retryStrategy = new ExponentialBackoff(
+                10,
+                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromSeconds(15),
+                TimeSpan.FromSeconds(1));
+            this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
+
+            var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
+            this.topicClient = factory.CreateTopicClient(this.topic);
         }
 
         /// <summary>
         /// Asynchronously sends the specified message.
         /// </summary>
-        public void Send(BrokeredMessage message)
+        public void SendAsync(BrokeredMessage message)
         {
-            var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
-            var client = factory.CreateTopicClient(this.topic);
-
             // TODO: what about retries? Watch-out for message reuse. Need to recreate it before retry.
             // Always send async.
-            client.BeginSend(message, ar =>
+            this.topicClient.BeginSend(message, ar =>
             {
-                client.EndSend(ar);
-                message.Dispose();
+                try
+                {
+                    this.topicClient.EndSend(ar);
+                }
+                finally
+                {
+                    message.Dispose();
+                }
             }, null);
         }
 
-        public void Send(IEnumerable<BrokeredMessage> messages)
+        public void SendAsync(IEnumerable<BrokeredMessage> messages)
         {
             // TODO: batch/transactional sending?
             foreach (var message in messages)
             {
-                this.Send(message);
+                this.SendAsync(message);
             }
         }
 
+        public void Send(Func<BrokeredMessage> messageFactory)
+        {
+            var resetEvent = new ManualResetEvent(false);
+            Exception exception = null;
+            this.retryPolicy.ExecuteAction(
+                ac =>
+                    {
+                        var message = messageFactory.Invoke();
+                        this.topicClient.BeginSend(message, ac, message);
+                    },
+                ar =>
+                    {
+                        try
+                        {
+                            this.topicClient.EndSend(ar);
+                        }
+                        finally
+                        {
+                            using (ar.AsyncState as IDisposable) { }
+                        }
+                    },
+                () => resetEvent.Set(),
+                ex =>
+                    {
+                        exception = ex;
+                        resetEvent.Set();
+                    });
+
+            resetEvent.WaitOne();
+            if (exception != null)
+            {
+                throw exception;
+            }
+        }
     }
 }

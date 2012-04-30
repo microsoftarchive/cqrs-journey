@@ -11,43 +11,27 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Tests
+namespace Infrastructure.Azure.Tests
 {
-    using System;
-    using System.IO;
-    using Infrastructure.Serialization;
+    using Infrastructure.Azure.Messaging;
     using Xunit;
 
-    public class BinarySerializerFixture
+    public class given_a_messaging_settings_file
     {
         [Fact]
-        public void when_using_adapter_then_can_roundtrip_serialized_object()
+        public void when_reading_messaging_settings_from_file_then_succeeds()
         {
-            var command = new Command
-            {
-                Id = 5,
-                Title = "Foo",
-            };
+            var settings = InfrastructureSettings.ReadMessaging("Settings.Template.xml");
 
-            var adapter = new BinarySerializer();
-            using (var stream = new MemoryStream())
-            {
-                adapter.Serialize(stream, command);
-
-                stream.Position = 0;
-
-                var deserialized = (Command)adapter.Deserialize(stream);
-
-                Assert.Equal(command.Id, deserialized.Id);
-                Assert.Equal(command.Title, deserialized.Title);
-            }
+            Assert.NotNull(settings);
         }
 
-        [Serializable]
-        public class Command
+        [Fact]
+        public void when_reading_eventsourcing_settings_from_file_then_succeeds()
         {
-            public int Id { get; set; }
-            public string Title { get; set; }
+            var settings = InfrastructureSettings.ReadEventSourcing("Settings.Template.xml");
+
+            Assert.NotNull(settings);
         }
     }
 }
