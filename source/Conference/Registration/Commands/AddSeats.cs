@@ -11,32 +11,40 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference
+namespace Registration.Commands
 {
     using System;
     using Infrastructure.Messaging;
 
-    public class SeatsRemoved : IEvent
+    /// <summary>
+    /// Adds seats to an existing seat type.
+    /// </summary>
+    public class AddSeats : ICommand
     {
+        public AddSeats()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        /// <summary>
+        /// Gets the command identifier.
+        /// </summary>
+        public Guid Id { get; set; }
+
         /// <summary>
         /// Gets or sets the conference identifier.
         /// </summary>
         public Guid ConferenceId { get; set; }
 
         /// <summary>
-        /// Gets or sets the source seat type identifier.
+        /// Gets or sets the type of the seat.
         /// </summary>
-        public Guid SourceId { get; set; }
+        /// </value>
+        public Guid SeatType { get; set; }
 
         /// <summary>
-        /// Gets or sets the total quantity resulting after 
-        /// applying the removal.
+        /// Gets or sets the quantity of seats added.
         /// </summary>
-        public int TotalQuantity { get; set; }
-
-        /// <summary>
-        /// Gets or sets the quantity of seats removed.
-        /// </summary>
-        public int RemovedQuantity { get; set; }
+        public int Quantity { get; set; }
     }
 }

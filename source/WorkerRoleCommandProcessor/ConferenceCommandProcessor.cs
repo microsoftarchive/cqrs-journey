@@ -120,7 +120,6 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
-            container.RegisterType<IEventHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
 
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
 
