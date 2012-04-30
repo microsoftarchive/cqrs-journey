@@ -1,4 +1,19 @@
-﻿Feature:  Promotional Codes Configuration scenarios for creating and editing Promotional Codes settings
+﻿# ==============================================================================================================
+# Microsoft patterns & practices
+# CQRS Journey project
+# ==============================================================================================================
+# ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+# http://cqrsjourney.github.com/contributors/members
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+# with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software distributed under the License is 
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and limitations under the License.
+# ==============================================================================================================
+
+# Next release
+@Ignore
+Feature:  Promotional Codes Configuration scenarios for creating and editing Promotional Codes settings
 	In order to create or update a Promotional Code
 	As a Business Customer
 	I want to be able to create or update a Promotional Code and set its properties
@@ -8,12 +23,10 @@ Given the Promotional Codes
          | Promotional Code | Discount | Quota     | Scope | Cumulative |
          | SPEAKER123       | 100%     | Unlimited | All   |            |
 And the Seat Types configuration
-	| seat type                        | quota |
-	| General admission                | 500   |
-	| Pre-con Workshop with Greg Young | 100   |
-	| Additional cocktail party        | 600   |
-
-
+	| seat type                 | quota |
+	| General admission         | 500   |
+	| CQRS Workshop             | 100   |
+	| Additional cocktail party | 600   |
 
 # New Promo Code  Happy path
 Scenario: Create a new Promotional Code
@@ -38,7 +51,7 @@ Then an error message will show up describing that the quota value exceeds the t
 # Update Promo Code Happy path
 Scenario: Update an existing Promotional Code
 Given the Business Customer selects 'SPEAKER123' Promotional Code
-And the Scope is updated with value 'Pre-con Workshop with Greg Young'
+And the Scope is updated with value 'CQRS Workshop'
 And the Quota is updated with the value '50'
 When the 'Save' option is selected
 Then updated values are reflected in the selected Promotional Code
@@ -47,8 +60,9 @@ Then updated values are reflected in the selected Promotional Code
 # Update Promo Code Sad path
 Scenario: Update an existing Promotional Code with exceeding quota
 Given the Business Customer selects 'SPEAKER123' Promotional Code
-And the Scope is updated with value 'Pre-con Workshop with Greg Young'
+And the Scope is updated with value 'CQRS Workshop'
 And the Quota is updated with the value '200'
 When the 'Save' option is selected
 Then an error message will show up describing that the quota value exceeds the total seats for the specified Seat Type
+
 
