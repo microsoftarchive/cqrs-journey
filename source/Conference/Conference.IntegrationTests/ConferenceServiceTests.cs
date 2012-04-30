@@ -320,19 +320,6 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         }
 
         [Fact]
-        public void when_updating_seat_removes_then_seat_updated_is_published()
-        {
-            var seat = this.conference.Seats.First();
-            seat.Quantity -= 50;
-
-            service.UpdateSeat(this.conference.Id, seat);
-
-            var e = bus.Events.OfType<SeatUpdated>().LastOrDefault();
-
-            Assert.Equal(50, e.Quantity);
-        }
-
-        [Fact]
         public void when_updating_published_then_updates_conference()
         {
             service.Publish(this.conference.Id);

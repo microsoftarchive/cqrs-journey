@@ -262,7 +262,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                 Name = "newseat",
                 Description = "newdescription",
                 Price = 100,
-                Quantity = 100,
+                Quantity = 200,
             });
 
             var e = this.commands.OfType<AddSeats>().FirstOrDefault();
