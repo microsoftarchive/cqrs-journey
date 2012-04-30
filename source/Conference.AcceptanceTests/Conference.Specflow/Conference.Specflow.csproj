@@ -20,7 +20,16 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugLocal|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;LOCAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,36 +42,39 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.SHDocVw">
       <HintPath>..\packages\WatiN.2.1.0\lib\net40\Interop.SHDocVw.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.mshtml">
       <HintPath>..\packages\WatiN.2.1.0\lib\net40\Microsoft.mshtml.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Registration">
-      <HintPath>..\..\Conference\Registration\bin\Debug\Registration.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data.Entity" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.XML" />
     <Reference Include="TechTalk.SpecFlow">
       <HintPath>..\packages\SpecFlow.1.8.1\lib\net35\TechTalk.SpecFlow.dll</HintPath>
     </Reference>
     <Reference Include="WatiN.Core">
       <HintPath>..\packages\WatiN.2.1.0\lib\net40\WatiN.Core.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit, Version=1.9.0.1566, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\xunit.1.9.0.1566\lib\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -71,20 +83,40 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Features\Conference\Discounts Configuration\Discounts Configuration.feature.cs">
+    <Compile Include="Features\Management\Discounts Configuration\DiscountsConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Discounts Configuration.feature</DependentUpon>
+      <DependentUpon>DiscountsConfiguration.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\Registration\Countdown\Countdown.feature.cs">
-      <AutoGen>True</AutoGen>
+    <Compile Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndHappy.feature.cs">
+      <DependentUpon>GroupRegistrationEndToEndHappy.feature</DependentUpon>
+      <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Countdown.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndSad.feature.cs">
+      <DependentUpon>GroupRegistrationEndToEndSad.feature</DependentUpon>
+      <SubType>Code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndHappy.feature.cs">
+      <DependentUpon>SelfRegistrationEndToEndHappy.feature</DependentUpon>
+      <SubType>Code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndSad.feature.cs">
+      <DependentUpon>SelfRegistrationEndToEndSad.feature</DependentUpon>
+      <SubType>Code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Features\Registration\Discounts\Discounts.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>Discounts.feature</DependentUpon>
+      <SubType>Code</SubType>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Features\Registration\Group Reservation\GroupRegistrationReservationWithFullAvailability.feature.cs">
       <AutoGen>True</AutoGen>
@@ -96,59 +128,65 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GroupRegistrationReservationWithPartialAvailability.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndHappy.feature.cs">
-      <DependentUpon>GroupRegistrationEndToEndHappy.feature</DependentUpon>
-      <AutoGen>True</AutoGen>
+    <Compile Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature.cs">
+      <DependentUpon>SelfRegistrationReservationWithFullAvailability.feature</DependentUpon>
+      <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndSad.feature.cs">
-      <DependentUpon>GroupRegistrationEndToEndSad.feature</DependentUpon>
       <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndSad.feature.cs">
-      <DependentUpon>SelfRegistrationEndToEndSad.feature</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndHappy.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SelfRegistrationEndToEndHappy.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithPartialAvailability.feature.cs">
       <DependentUpon>SelfRegistrationReservationWithPartialAvailability.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature.cs">
-      <DependentUpon>SelfRegistrationReservationWithFullAvailability.feature</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Features\Registration\Seat Assignments\FullAssignments.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>FullAssignments.feature</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Features\Registration\Seat Assignments\PartialAssignments.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>PartialAssignments.feature</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\Conference\DiscountsConfigurationSteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />
+    <Compile Include="Steps\Registration\CommonSteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationEndToEndHappySteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
+    <Compile Include="Support\ConferenceHelper.cs" />
+    <Compile Include="Support\Constants.cs" />
+    <Compile Include="Support\IEExtension.cs" />
+    <Compile Include="Support\RegistrationHelper.cs" />
+    <Compile Include="Support\ScenarioContextExtension.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\CQRS-journey.licenseheader">
+      <Link>CQRS-journey.licenseheader</Link>
+    </None>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Features\Conference\Discounts Configuration\Discounts Configuration.feature">
+    <None Include="Features\Management\Discounts Configuration\DiscountsConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Discounts Configuration.feature.cs</LastGenOutput>
+      <LastGenOutput>DiscountsConfiguration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\Registration\Countdown\Countdown.feature">
+    <None Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndHappy.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>Countdown.feature.cs</LastGenOutput>
+      <LastGenOutput>GroupRegistrationEndToEndHappy.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndSad.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>GroupRegistrationEndToEndSad.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndHappy.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SelfRegistrationEndToEndHappy.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndSad.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SelfRegistrationEndToEndSad.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Registration\Discounts\Discounts.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -162,29 +200,13 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndHappy.feature">
+    <None Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>GroupRegistrationEndToEndHappy.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\Registration\All Features end to end\GroupRegistrationEndToEndSad.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>GroupRegistrationEndToEndSad.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndSad.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SelfRegistrationEndToEndSad.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\Registration\All Features end to end\SelfRegistrationEndToEndHappy.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SelfRegistrationEndToEndHappy.feature.cs</LastGenOutput>
+      <LastGenOutput>SelfRegistrationReservationWithFullAvailability.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithPartialAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SelfRegistrationReservationWithFullAvailability.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Registration\Seat Assignments\FullAssignments.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -196,23 +218,34 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\..\Conference\Common\Common.csproj">
-      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
-      <Name>Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Conference\Conference.Web.Public\Conference.Web.Public.csproj">
-      <Project>{32E3E4D7-D887-4BE1-A84F-130BF80533D0}</Project>
-      <Name>Conference.Web.Public</Name>
-    </ProjectReference>
+    <Content Include="..\..\Infrastructure\Azure\Settings.xml">
+      <Link>Settings.xml</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Features\Conference\Conference Creation\" />
-    <Folder Include="Features\Conference\Publish and Unpublish\" />
-    <Folder Include="Features\Conference\Seat Types and Quotas Configuration\" />
-    <Folder Include="Steps\Conference\" />
-    <Folder Include="Steps\Registration\Group\" />
-    <Folder Include="Steps\Registration\Individual\" />
+    <ProjectReference Include="..\..\Conference\Conference.Common\Conference.Common.csproj">
+      <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
+      <Name>Conference.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
+      <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
+      <Name>Conference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Registration\Registration.csproj">
+      <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
+      <Name>Registration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
+      <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
+      <Name>Infrastructure.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
+      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
+      <Name>Infrastructure</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
