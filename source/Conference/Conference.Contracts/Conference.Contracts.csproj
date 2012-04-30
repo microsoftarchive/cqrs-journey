@@ -45,8 +45,6 @@
     <Compile Include="Owner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeatCreated.cs" />
-    <Compile Include="SeatsAdded.cs" />
-    <Compile Include="SeatsRemoved.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">

@@ -13,7 +13,6 @@
 
 namespace Registration.Handlers
 {
-    using Conference;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging.Handling;
     using Registration.Commands;
@@ -25,8 +24,8 @@ namespace Registration.Handlers
         ICommandHandler<MakeSeatReservation>,
         ICommandHandler<CancelSeatReservation>,
         ICommandHandler<CommitSeatReservation>,
-        IEventHandler<SeatsAdded>,
-        IEventHandler<SeatsRemoved>
+        ICommandHandler<AddSeats>,
+        ICommandHandler<RemoveSeats>
     {
         private readonly IEventSourcedRepository<SeatsAvailability> repository;
 
@@ -70,23 +69,23 @@ namespace Registration.Handlers
 
         // Events from the conference BC
 
-        public void Handle(SeatsAdded @event)
+        public void Handle(AddSeats command)
         {
-            var availability = this.repository.Find(@event.ConferenceId);
+            var availability = this.repository.Find(command.ConferenceId);
             if (availability == null)
-                availability = new SeatsAvailability(@event.ConferenceId);
+                availability = new SeatsAvailability(command.ConferenceId);
 
-            availability.AddSeats(@event.SourceId, @event.AddedQuantity);
+            availability.AddSeats(command.SeatType, command.Quantity);
             this.repository.Save(availability);
         }
 
-        public void Handle(SeatsRemoved @event)
+        public void Handle(RemoveSeats command)
         {
-            var availability = this.repository.Find(@event.ConferenceId);
+            var availability = this.repository.Find(command.ConferenceId);
             if (availability == null)
-                availability = new SeatsAvailability(@event.ConferenceId);
+                availability = new SeatsAvailability(command.ConferenceId);
 
-            availability.RemoveSeats(@event.SourceId, @event.RemovedQuantity);
+            availability.RemoveSeats(command.SeatType, command.Quantity);
             this.repository.Save(availability);
         }
     }

@@ -52,11 +52,11 @@ Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus,
                 context.Set<ConferenceDTO>().Add(
                     new ConferenceDTO(
                         Guid.Empty,
-                        "pnpsymposium", 
+                        "pnpsymposium",
                         "P&P Symposium",
-                        description, 
+                        description,
                         DateTimeOffset.UtcNow.AddMonths(2),
-                        new[] { new ConferenceSeatTypeDTO(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), "Test Seat", "Test Description", 10) })
+                        new[] { new ConferenceSeatTypeDTO(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), "Test Seat", "Test Description", 10, 50) })
                         {
                             IsPublished = true
                         });

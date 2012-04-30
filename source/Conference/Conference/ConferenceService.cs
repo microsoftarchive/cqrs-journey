@@ -136,34 +136,17 @@ namespace Conference
                 if (existing == null)
                     throw new ObjectNotFoundException();
 
-                var diff = seat.Quantity - existing.Quantity;
-                var e = diff > 0 ?
-                    (IEvent)new SeatsAdded
-                    {
-                        ConferenceId = conferenceId,
-                        SourceId = seat.Id,
-                        AddedQuantity = diff,
-                        TotalQuantity = seat.Quantity
-                    } :
-                    (IEvent)new SeatsRemoved
-                    {
-                        ConferenceId = conferenceId,
-                        SourceId = seat.Id,
-                        RemovedQuantity = Math.Abs(diff),
-                        TotalQuantity = seat.Quantity
-                    };
-
                 context.Entry(existing).CurrentValues.SetValues(seat);
                 context.SaveChanges();
 
-                this.eventBus.Publish(e);
                 this.eventBus.Publish(new SeatUpdated
                 {
                     ConferenceId = conferenceId,
                     SourceId = seat.Id,
                     Name = seat.Name,
                     Description = seat.Description,
-                    Price = seat.Price
+                    Price = seat.Price,
+                    Quantity = seat.Quantity,
                 });
             }
         }
@@ -251,13 +234,7 @@ namespace Conference
                 Name = seat.Name,
                 Description = seat.Description,
                 Price = seat.Price,
-            });
-            this.eventBus.Publish(new SeatsAdded
-            {
-                ConferenceId = conferenceId,
-                SourceId = seat.Id,
-                AddedQuantity = seat.Quantity,
-                TotalQuantity = seat.Quantity,
+                Quantity = seat.Quantity,
             });
         }
     }

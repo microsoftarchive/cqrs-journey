@@ -17,7 +17,9 @@ namespace Registration.Handlers
     using System.Data.Entity;
     using System.Linq;
     using Conference;
+    using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
+    using Registration.Commands;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
@@ -30,10 +32,12 @@ namespace Registration.Handlers
         IEventHandler<SeatUpdated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private ICommandBus bus;
 
-        public ConferenceViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
+        public ConferenceViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory, ICommandBus bus)
         {
             this.contextFactory = contextFactory;
+            this.bus = bus;
         }
 
         public void Handle(ConferenceCreated @event)
@@ -98,7 +102,14 @@ namespace Registration.Handlers
                 var dto = repository.Find<ConferenceDTO>(@event.ConferenceId);
                 if (dto != null)
                 {
-                    dto.Seats.Add(new ConferenceSeatTypeDTO(@event.SourceId, @event.Name, @event.Description, @event.Price));
+                    dto.Seats.Add(new ConferenceSeatTypeDTO(@event.SourceId, @event.Name, @event.Description, @event.Price, @event.Quantity));
+
+                    this.bus.Send(new AddSeats
+                    {
+                        ConferenceId = @event.ConferenceId,
+                        SeatType = @event.SourceId,
+                        Quantity = @event.Quantity
+                    });
 
                     repository.Save(dto);
                 }
@@ -119,7 +130,32 @@ namespace Registration.Handlers
                         seat.Name = @event.Name;
                         seat.Price = @event.Price;
 
+                        // Calculate diff to drive the seat availability.
+                        // Is this appropriate to have it here?
+                        var diff = @event.Quantity - seat.Quantity;
+
+                        seat.Quantity = @event.Quantity;
+
                         repository.Save(dto);
+
+                        if (diff > 0)
+                        {
+                            this.bus.Send(new AddSeats
+                            {
+                                ConferenceId = @event.ConferenceId,
+                                SeatType = @event.SourceId,
+                                Quantity = diff,
+                            });
+                        }
+                        else
+                        {
+                            this.bus.Send(new RemoveSeats
+                            {
+                                ConferenceId = @event.ConferenceId,
+                                SeatType = @event.SourceId,
+                                Quantity = Math.Abs(diff),
+                            });
+                        }
                     }
                 }
             }
