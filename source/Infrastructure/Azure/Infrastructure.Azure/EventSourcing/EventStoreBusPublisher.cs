@@ -57,8 +57,19 @@ namespace Infrastructure.Azure.EventSourcing
                     },
                 TaskCreationOptions.LongRunning);
 
-            // TODO: Need to do a query through all partitions to check for pending events, as there could be
+            // Query through all partitions to check for pending events, as there could be
             // stored events that were never published before the system was rebooted.
+            Task.Factory.StartNew(
+                () =>
+                    {
+                        foreach (var partitionKey in this.queue.GetPartitionsWithPendingEvents())
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                                return;
+
+                            this.enqueuedKeys.Add(partitionKey);
+                        }
+                    });
         }
 
         public void SendAsync(string partitionKey)

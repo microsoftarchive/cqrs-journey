@@ -14,6 +14,7 @@
 namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
@@ -163,7 +164,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
     public class when_getting_pending_events : given_store_with_events
     {
         [Fact]
-        public void can_get_all_events_as_pending()
+        public void can_get_all_events_for_partition_as_pending()
         {
             var pending = sut.GetPending(this.partitionKey).ToList();
 
@@ -190,6 +191,45 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal("Payload2", pending[0].Payload);
             Assert.Equal("Test2", pending[0].EventType);
             Assert.Equal("Source", pending[0].SourceType);
+        }
+
+        [Fact]
+        public void can_get_partition_with_pending_events()
+        {
+            var pending = sut.GetPartitionsWithPendingEvents().ToList();
+
+            Assert.Equal(1, pending.Count);
+            Assert.Equal(partitionKey, pending.Single());
+        }
+    }
+
+    public class when_getting_pending_events_for_multiple_partitions : given_empty_store
+    {
+        protected string[] expectedPending;
+
+        // use larger than 1000 in order to force getting continuation tokens, but it takes a lot of time
+        private const int NumberOfPartitions = 5; //5000; 
+
+        public when_getting_pending_events_for_multiple_partitions()
+        {
+            this.expectedPending = new string[NumberOfPartitions];
+            for (int i = 0; i < expectedPending.Length; i++)
+            {
+                expectedPending[i] = "Test_" + Guid.NewGuid();
+                sut.Save(expectedPending[i], new[] { events[0] });
+            }
+        }
+
+        [Fact]
+        public void can_get_all_partitions_with_pending_events()
+        {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var actual = sut.GetPartitionsWithPendingEvents().ToList();
+            stopWatch.Stop();
+            Debug.WriteLine(stopWatch.ElapsedMilliseconds);
+            Assert.Equal(expectedPending.Length, actual.Distinct().Count());
+            Assert.Equal(expectedPending.Length, actual.Intersect(expectedPending).Count());
         }
     }
 }
