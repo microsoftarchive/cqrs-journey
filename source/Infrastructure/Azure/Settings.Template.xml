@@ -10,6 +10,7 @@
     <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
   </Messaging>
   <EventSourcing>
+    <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
     <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
   </EventSourcing>
 </InfrastructureSettings>
