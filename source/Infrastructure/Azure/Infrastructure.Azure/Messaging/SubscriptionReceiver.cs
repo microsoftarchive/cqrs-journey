@@ -85,7 +85,11 @@ namespace Infrastructure.Azure.Messaging
             lock (this.lockObject)
             {
                 this.cancellationSource = new CancellationTokenSource();
-                Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+                Task.Factory.StartNew(() =>
+                    this.ReceiveMessages(this.cancellationSource.Token),
+                    this.cancellationSource.Token,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Current);
             }
         }
 

@@ -20,6 +20,7 @@ namespace Infrastructure.Sql.Messaging.Implementation
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Diagnostics;
 
     public class MessageReceiver : IMessageReceiver, IDisposable
     {
@@ -183,7 +184,6 @@ namespace Infrastructure.Sql.Messaging.Implementation
                         catch
                         {
                         }
-
                         throw;
                     }
                 }
