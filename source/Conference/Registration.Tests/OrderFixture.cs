@@ -14,9 +14,12 @@
 namespace Registration.Tests.OrderFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Infrastructure.EventSourcing;
+    using Registration.Commands;
     using Registration.Events;
+    using Registration.Handlers;
     using Xunit;
 
     public class given_no_order
@@ -24,8 +27,13 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid SeatTypeId = Guid.NewGuid();
+        private EventSourcingTestHelper<Order> sut;
 
-        private Order sut;
+        public given_no_order()
+        {
+            this.sut = new EventSourcingTestHelper<Order>();
+            this.sut.Setup(new OrderCommandHandler(sut.Repository));
+        }
 
         [Fact]
         public void when_creating_order_then_is_placed()
@@ -71,8 +79,8 @@ namespace Registration.Tests.OrderFixture
 
         private void PlaceOrder()
         {
-            var lines = new[] { new OrderItem(SeatTypeId, 5) };
-            this.sut = new Order(OrderId, ConferenceId, lines);
+            var seats = new[] { new SeatQuantity(SeatTypeId, 5) };
+            this.sut.When(new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = seats });
         }
     }
 
@@ -82,28 +90,29 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid SeatTypeId = Guid.NewGuid();
 
-        private Order sut;
+        private EventSourcingTestHelper<Order> sut;
 
         public given_placed_order()
         {
-            this.sut = new Order(
-                OrderId, new[] 
-                {
+            this.sut = new EventSourcingTestHelper<Order>();
+            this.sut.Setup(new OrderCommandHandler(sut.Repository));
+
+            this.sut.Given(
                     new OrderPlaced 
                     { 
+                        SourceId = OrderId,
                         ConferenceId = ConferenceId,
                         Seats = new[] { new SeatQuantity(SeatTypeId, 5) },
                         ReservationAutoExpiration = DateTime.UtcNow
-                    }
-                });
+                    });
         }
 
         [Fact]
         public void when_updating_seats_then_updates_order_with_new_seats()
         {
-            this.sut.UpdateSeats(new[] { new OrderItem(SeatTypeId, 20) });
+            this.sut.When(new RegisterToConference{ ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 20)  }});
 
-            var @event = (OrderUpdated)sut.Events.Single();
+            var @event = sut.ThenHasSingle<OrderUpdated>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(20, @event.Seats.ElementAt(0).Quantity);
@@ -113,9 +122,9 @@ namespace Registration.Tests.OrderFixture
         public void when_marking_a_subset_of_seats_as_reserved_then_order_is_partially_reserved()
         {
             var expiration = DateTime.UtcNow.AddMinutes(15);
-            this.sut.MarkAsReserved(expiration, new[] { new SeatQuantity(SeatTypeId, 3) });
+            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } });
 
-            var @event = (OrderPartiallyReserved)sut.Events.Single();
+            var @event = sut.ThenHasSingle<OrderPartiallyReserved>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
@@ -126,9 +135,9 @@ namespace Registration.Tests.OrderFixture
         public void when_marking_all_seats_as_reserved_then_order_is_reserved()
         {
             var expiration = DateTime.UtcNow.AddMinutes(15);
-            this.sut.MarkAsReserved(expiration, new[] { new SeatQuantity(SeatTypeId, 5) });
+            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 5) } });
 
-            var @event = (OrderReservationCompleted)sut.Events.Last();
+            var @event = sut.ThenHasSingle<OrderReservationCompleted>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
@@ -138,18 +147,18 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_expiring_order_then_notifies()
         {
-            this.sut.Expire();
+            this.sut.When(new RejectOrder { OrderId = OrderId });
 
-            var @event = (OrderExpired)sut.Events.Single();
+            var @event = sut.ThenHasSingle<OrderExpired>();
             Assert.Equal(OrderId, @event.SourceId);
         }
 
         [Fact]
         public void when_assigning_registrant_information_then_raises_integration_event()
         {
-            this.sut.AssignRegistrant("foo", "bar", "foo@bar.com");
+            this.sut.When(new AssignRegistrantDetails { OrderId = OrderId, FirstName = "foo", LastName = "bar", Email = "foo@bar.com" });
 
-            var @event = (OrderRegistrantAssigned)sut.Events.Single();
+            var @event = sut.ThenHasSingle<OrderRegistrantAssigned>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal("foo", @event.FirstName);
             Assert.Equal("bar", @event.LastName);
@@ -169,42 +178,44 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid SeatTypeId = Guid.NewGuid();
 
-        private Order sut;
+        private EventSourcingTestHelper<Order> sut;
 
         public given_fully_reserved_order()
         {
-            this.sut = new Order(
-                OrderId, new IVersionedEvent[] 
-                {
-                    new OrderPlaced 
-                    { 
+            this.sut = new EventSourcingTestHelper<Order>();
+            this.sut.Setup(new OrderCommandHandler(sut.Repository));
+
+            this.sut.Given(
+                new OrderPlaced
+                    {
+                        SourceId = OrderId,
                         ConferenceId = ConferenceId,
                         Seats = new[] { new SeatQuantity(SeatTypeId, 5) },
                         ReservationAutoExpiration = DateTime.UtcNow
                     },
-                    new OrderReservationCompleted 
-                    { 
-                        ReservationExpiration =  DateTime.UtcNow.AddMinutes(5),
+                new OrderReservationCompleted
+                    {
+                        SourceId = OrderId,
+                        ReservationExpiration = DateTime.UtcNow.AddMinutes(5),
                         Seats = new[] { new SeatQuantity(SeatTypeId, 5) }
-                    }
-                });
+                    });
         }
 
         [Fact]
         public void when_expiring_order_then_notifies()
         {
-            this.sut.Expire();
+            this.sut.When(new RejectOrder { OrderId = OrderId });
 
-            var @event = (OrderExpired)sut.Events.Single();
+            var @event = sut.ThenHasSingle<OrderExpired>();
             Assert.Equal(OrderId, @event.SourceId);
         }
 
         [Fact]
         public void when_confirming_payment_then_notifies()
         {
-            this.sut.ConfirmPayment();
+            this.sut.When(new ConfirmOrderPayment { OrderId = OrderId });
 
-            var @event = (OrderPaymentConfirmed)sut.Events.Single();
+            var @event = sut.ThenHasSingle<OrderPaymentConfirmed>();
             Assert.Equal(OrderId, @event.SourceId);
         }
     }
