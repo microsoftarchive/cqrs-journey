@@ -21,7 +21,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
     public class BlobStorageDbContextFixture : IDisposable
     {
-        private string dbName = Guid.NewGuid().ToString();
+        private string dbName = "BlobStorageDbContextFixture_" + Guid.NewGuid().ToString();
 
         public BlobStorageDbContextFixture()
         {

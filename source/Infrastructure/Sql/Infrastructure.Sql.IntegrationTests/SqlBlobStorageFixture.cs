@@ -21,7 +21,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
     public class SqlBlobStorageFixture : IDisposable
     {
-        private string dbName = Guid.NewGuid().ToString();
+        private string dbName = "SqlBlobStorageFixture_" + Guid.NewGuid().ToString();
 
         public SqlBlobStorageFixture()
         {

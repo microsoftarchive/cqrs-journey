@@ -93,7 +93,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
 
     public class given_an_existing_conference_with_a_seat : IDisposable
     {
-        private string dbName = Guid.NewGuid().ToString();
+        private string dbName = "ConferenceServiceTests_" + Guid.NewGuid().ToString();
         private ConferenceInfo conference;
         private MemoryEventBus bus;
         private ConferenceService service;
