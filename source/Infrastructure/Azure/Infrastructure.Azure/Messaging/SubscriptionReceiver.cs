@@ -155,9 +155,7 @@ namespace Infrastructure.Azure.Messaging
                     continue;
                 }
 
-                if (!cancellationToken.IsCancellationRequested)
-                    this.MessageReceived(this, new BrokeredMessageEventArgs(message));
-
+                this.MessageReceived(this, new BrokeredMessageEventArgs(message));
             }
         }
     }
