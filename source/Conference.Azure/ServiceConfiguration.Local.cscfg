@@ -15,6 +15,7 @@
       <Setting name="DbContext.Payments" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.ConferenceRegistration" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.SqlBus" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
+      <Setting name="DbContext.BlobStorage" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
     </ConfigurationSettings>
   </Role>
   <Role name="WorkerRoleCommandProcessor">
@@ -23,6 +24,7 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="DbContext.Payments" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.EventStore" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
+      <Setting name="DbContext.BlobStorage" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.ConferenceRegistrationProcesses" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.ConferenceRegistration" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.SqlBus" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />

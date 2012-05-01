@@ -35,7 +35,9 @@ namespace Conference.Web.Public.Controllers
             if (order == null)
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
-            return View(order);
+            var assignments = assignmentsDao.Find(orderId);
+
+            return View(assignments);
         }
 
         [HttpGet]
