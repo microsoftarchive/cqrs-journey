@@ -17,6 +17,7 @@ namespace Infrastructure.Sql.Messaging.Handling
     using System.IO;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Messaging;
+    using System.Diagnostics;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
@@ -110,9 +111,28 @@ namespace Infrastructure.Sql.Messaging.Handling
 
         private void OnMessageReceived(object sender, MessageReceivedEventArgs args)
         {
-            var body = Deserialize(args.Message.Body);
+            Trace.WriteLine(new string('-', 100));
 
-            ProcessMessage(body);
+            try
+            {
+                var body = Deserialize(args.Message.Body);
+
+                TracePayload(body);
+                Trace.WriteLine("");
+
+                ProcessMessage(body);
+
+                Trace.WriteLine(new string('-', 100));
+            }
+            catch (Exception e)
+            {
+                // NOTE: we catch ANY exceptions as this is for local 
+                // development/debugging. The Azure implementation 
+                // supports retries and dead-lettering, which would 
+                // be totally overkill for this alternative debug-only implementation.
+                Trace.TraceError("An exception happened while processing message through handler/s:\r\n{0}", e);
+                Trace.TraceWarning("Error will be ignored and message receiving will continue.");
+            }
         }
 
         protected object Deserialize(string serializedPayload)
@@ -136,6 +156,13 @@ namespace Infrastructure.Sql.Messaging.Handling
         {
             if (this.disposed)
                 throw new ObjectDisposedException("MessageProcessor");
+        }
+
+
+        [Conditional("TRACE")]
+        private void TracePayload(object payload)
+        {
+            Trace.WriteLine(this.Serialize(payload));
         }
     }
 }
