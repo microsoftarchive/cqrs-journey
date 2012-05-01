@@ -51,11 +51,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlobStorageDbContextFixture.cs" />
+    <Compile Include="SqlBlobStorageFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlDataContextFixture.cs" />
     <Compile Include="SqlProcessDataContextFixture.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\CQRS-journey.licenseheader">
+      <Link>CQRS-journey.licenseheader</Link>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
