@@ -25,11 +25,12 @@ namespace Infrastructure.Azure.EventSourcing
     // It does not do any snapshots, which the SeatsAvailability will probably need (even if those snapshots could just be in memory)
     public class AzureEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
+        // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
+        private static readonly string sourceType = typeof(T).Name;
         private readonly IEventStore eventStore;
         private readonly IEventStoreBusPublisher publisher;
         private readonly ITextSerializer serializer;
         private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
-        private readonly string sourceType;
 
         public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer)
         {
@@ -38,16 +39,13 @@ namespace Infrastructure.Azure.EventSourcing
             this.serializer = serializer;
 
             // TODO: could be replaced with a compiled lambda to make it more performant
-            var constructor = typeof (T).GetConstructor(new[] {typeof (Guid), typeof (IEnumerable<IVersionedEvent>)});
+            var constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
             if (constructor == null)
             {
                 throw new InvalidCastException(
                     "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
             }
-            this.entityFactory = (id, events) => (T) constructor.Invoke(new object[] {id, events});
-
-            // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
-            this.sourceType = typeof(T).Name;
+            this.entityFactory = (id, events) => (T)constructor.Invoke(new object[] { id, events });
         }
 
         public T Find(Guid id)
@@ -78,7 +76,7 @@ namespace Infrastructure.Azure.EventSourcing
 
         private string GetPartitionKey(Guid id)
         {
-            return this.sourceType + "_" + id.ToString();
+            return sourceType + "_" + id.ToString();
         }
 
         private EventData Serialize(IVersionedEvent e)
@@ -88,10 +86,10 @@ namespace Infrastructure.Azure.EventSourcing
                 this.serializer.Serialize(writer, e);
                 return new EventData
                            {
-                               Version = e.Version, 
-                               SourceId = e.SourceId.ToString(), 
-                               Payload = writer.ToString(), 
-                               SourceType = this.sourceType, 
+                               Version = e.Version,
+                               SourceId = e.SourceId.ToString(),
+                               Payload = writer.ToString(),
+                               SourceType = sourceType,
                                EventType = e.GetType().Name
                            };
             }

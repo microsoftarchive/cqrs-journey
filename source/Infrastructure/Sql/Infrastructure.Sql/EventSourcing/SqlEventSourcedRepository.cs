@@ -27,6 +27,8 @@ namespace Infrastructure.Sql.EventSourcing
     // It does not do any snapshots either, which the SeatsAvailability will definitely need.
     public class SqlEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
+        // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
+        private static readonly string sourceType = typeof(T).Name;
         private readonly IEventBus eventBus;
         private readonly ITextSerializer serializer;
         private readonly Func<EventStoreDbContext> contextFactory;
@@ -52,7 +54,7 @@ namespace Infrastructure.Sql.EventSourcing
             using (var context = this.contextFactory.Invoke())
             {
                 var deserialized = context.Set<Event>()
-                    .Where(x => x.AggregateId == id)
+                    .Where(x => x.AggregateId == id && x.AggregateType == sourceType)
                     .OrderBy(x => x.Version)
                     .AsEnumerable()
                     .Select(this.Deserialize)
@@ -92,7 +94,13 @@ namespace Infrastructure.Sql.EventSourcing
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, e);
-                serialized = new Event { AggregateId = e.SourceId, Version = e.Version, Payload = writer.ToString() };
+                serialized = new Event
+                {
+                    AggregateId = e.SourceId,
+                    AggregateType = sourceType,
+                    Version = e.Version,
+                    Payload = writer.ToString()
+                };
             }
             return serialized;
         }
