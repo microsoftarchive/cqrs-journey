@@ -58,7 +58,7 @@ namespace Infrastructure.Sql.Blob
             }
             else
             {
-                this.Set<BlobEntity>().Add(new BlobEntity(id, blob, blobString));
+                this.Set<BlobEntity>().Add(new BlobEntity(id, contentType, blob, blobString));
             }
 
             this.SaveChanges();

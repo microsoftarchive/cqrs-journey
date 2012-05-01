@@ -15,9 +15,10 @@ namespace Infrastructure.Sql.Blob
 {
     public class BlobEntity
     {
-        public BlobEntity(string id, byte[] blob, string blobString)
+        public BlobEntity(string id, string contentType, byte[] blob, string blobString)
         {
             this.Id = id;
+            this.ContentType = contentType;
             this.Blob = blob;
             this.BlobString = blobString;
         }
@@ -27,6 +28,7 @@ namespace Infrastructure.Sql.Blob
         }
 
         public string Id { get; private set; }
+        public string ContentType { get; set; }
         public byte[] Blob { get; set; }
 
         /// <devdoc>
