@@ -71,26 +71,10 @@ namespace Infrastructure.Azure.Messaging.Handling
             var commandType = payload.GetType();
             ICommandHandler handler = null;
 
-            Trace.WriteLine(new string('-', 100));
-            TracePayload(payload);
-
             if (this.handlers.TryGetValue(commandType, out handler))
             {
                 Trace.WriteLine("-- Handled by " + handler.GetType().FullName);
                 ((dynamic)handler).Handle((dynamic)payload);
-            }
-
-            Trace.WriteLine(new string('-', 100));
-        }
-
-        [Conditional("TRACE")]
-        private void TracePayload(object payload)
-        {
-            // TODO: can force the use of indented JSON for trace
-            using (var writer = new StringWriter())
-            {
-                this.Serializer.Serialize(writer, payload);
-                Trace.WriteLine(writer.ToString());
             }
         }
     }

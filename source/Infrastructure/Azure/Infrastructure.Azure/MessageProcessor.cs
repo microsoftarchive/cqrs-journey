@@ -17,6 +17,7 @@ namespace Infrastructure.Azure
     using System.IO;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Serialization;
+    using System.Diagnostics;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
@@ -126,7 +127,13 @@ namespace Infrastructure.Azure
 
             try
             {
+                Trace.WriteLine(new string('-', 100));
+                TracePayload(payload);
+                Trace.WriteLine("");
+
                 ProcessMessage(payload);
+
+                Trace.WriteLine(new string('-', 100));
             }
             catch (Exception e)
             {
@@ -161,6 +168,17 @@ namespace Infrastructure.Azure
         {
             if (this.disposed)
                 throw new ObjectDisposedException("MessageProcessor");
+        }
+
+        [Conditional("TRACE")]
+        private void TracePayload(object payload)
+        {
+            // TODO: can force the use of indented JSON for trace
+            using (var writer = new StringWriter())
+            {
+                this.Serializer.Serialize(writer, payload);
+                Trace.WriteLine(writer.ToString());
+            }
         }
     }
 }
