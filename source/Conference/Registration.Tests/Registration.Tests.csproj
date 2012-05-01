@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="ConferenceViewModelGeneratorFixture.cs" />
     <Compile Include="EnumerableEventsExtensions.cs" />
+    <Compile Include="EventSourcingTestHelper.cs" />
     <Compile Include="HandleGeneratorFixture.cs" />
     <Compile Include="MemoryEventBusFixture.cs" />
     <Compile Include="MemoryCommandBusFixture.cs" />
