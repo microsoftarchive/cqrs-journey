@@ -157,14 +157,12 @@ namespace Infrastructure.Azure.EventSourcing
                     x =>
                     x.RowKey.CompareTo(UnpublishedRowKeyPrefix) >= 0 &&
                     x.RowKey.CompareTo(UnpublishedRowKeyPrefixUpperLimit) <= 0)
-                //.Select(x => x.PartitionKey)
-                //.Distinct()
                 .Select(x => new { x.PartitionKey })
                 .AsTableServiceQuery();
 
             var result = new BlockingCollection<string>();
             var tokenSource = new CancellationTokenSource();
-            // TODO: continuation tokens, etc
+
             this.pendingEventsQueueRetryPolicy.ExecuteAction(
                 ac => query.BeginExecuteSegmented(ac, null),
                 ar => query.EndExecuteSegmented(ar),
