@@ -45,27 +45,11 @@ namespace Infrastructure.Azure.Messaging.Handling
         {
             var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
 
-            Trace.WriteLine(new string('-', 100));
-            TracePayload(payload);
-
             foreach (dynamic handler in this.handlers
                 .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {
                 Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName);
                 handler.Handle((dynamic)payload);
-            }
-
-            Trace.WriteLine(new string('-', 100));
-        }
-
-        [Conditional("TRACE")]
-        private void TracePayload(object payload)
-        {
-            // TODO: can force the use of indented JSON for trace
-            using (var writer = new StringWriter())
-            {
-                this.Serializer.Serialize(writer, payload);
-                Trace.WriteLine(writer.ToString());
             }
         }
     }
