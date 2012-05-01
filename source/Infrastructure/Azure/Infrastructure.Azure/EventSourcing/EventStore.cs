@@ -14,10 +14,12 @@
 namespace Infrastructure.Azure.EventSourcing
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Data.Services.Client;
     using System.Linq;
     using System.Net;
+    using System.Threading;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
     using Microsoft.Practices.TransientFaultHandling;
@@ -144,6 +146,60 @@ namespace Infrastructure.Azure.EventSourcing
 
             // TODO: continuation tokens, etc
             return query.AsTableServiceQuery();
+        }
+
+        public IEnumerable<string> GetPartitionsWithPendingEvents()
+        {
+            var context = this.tableClient.GetDataServiceContext();
+            var query = context
+                .CreateQuery<EventTableServiceEntity>(this.tableName)
+                .Where(
+                    x =>
+                    x.RowKey.CompareTo(UnpublishedRowKeyPrefix) >= 0 &&
+                    x.RowKey.CompareTo(UnpublishedRowKeyPrefixUpperLimit) <= 0)
+                .Select(x => new { x.PartitionKey })
+                .AsTableServiceQuery();
+
+            var result = new BlockingCollection<string>();
+            var tokenSource = new CancellationTokenSource();
+
+            this.pendingEventsQueueRetryPolicy.ExecuteAction(
+                ac => query.BeginExecuteSegmented(ac, null),
+                ar => query.EndExecuteSegmented(ar),
+                rs =>
+                    {
+                        foreach (var key in rs.Results.Select(x => x.PartitionKey).Distinct())
+                        {
+                            result.Add(key);
+                        }
+
+                        while (rs.HasMoreResults)
+                        {
+                            try
+                            {
+                                rs = this.pendingEventsQueueRetryPolicy.ExecuteAction(() => rs.GetNext());
+                                foreach (var key in rs.Results.Select(x => x.PartitionKey).Distinct())
+                                {
+                                    result.Add(key);
+                                }
+                            }
+                            catch
+                            {
+                                // Cancel is to force an exception being thrown in the consuming enumeration thread
+                                // TODO: is there a better way to get the correct exception message instead of an OperationCancelledException in the consuming thread?
+                                tokenSource.Cancel();
+                                throw;
+                            }
+                        }
+                        result.CompleteAdding();
+                    },
+                ex =>
+                    {
+                        tokenSource.Cancel();
+                        throw ex;
+                    });
+
+            return result.GetConsumingEnumerable(tokenSource.Token);
         }
     }
 }

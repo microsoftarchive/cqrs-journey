@@ -19,5 +19,6 @@ namespace Infrastructure.Azure.EventSourcing
     {
         IEnumerable<IEventRecord> GetPending(string partitionKey);
         void DeletePending(string partitionKey, string rowKey);
+        IEnumerable<string> GetPartitionsWithPendingEvents();
     }
 }
