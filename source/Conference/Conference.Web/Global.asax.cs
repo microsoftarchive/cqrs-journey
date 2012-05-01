@@ -80,7 +80,7 @@ namespace Conference.Web.Admin
 
             var serializer = new JsonTextSerializer();
 #if LOCAL
-            EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "Messaging", "Events.Messages"), serializer);
+            EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
             var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
 

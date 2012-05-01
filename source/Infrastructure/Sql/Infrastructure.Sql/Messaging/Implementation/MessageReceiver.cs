@@ -20,7 +20,6 @@ namespace Infrastructure.Sql.Messaging.Implementation
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Transactions;
 
     public class MessageReceiver : IMessageReceiver, IDisposable
     {
@@ -126,25 +125,24 @@ namespace Infrastructure.Sql.Messaging.Implementation
 
         protected bool ReceiveMessage()
         {
-            var options = new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted };
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
+            using (var connection = this.connectionFactory.CreateConnection(this.name))
             {
-                using (var connection = this.connectionFactory.CreateConnection(this.name))
-                {
-                    var currentDate = GetCurrentDate();
+                var currentDate = GetCurrentDate();
 
+                connection.Open();
+                using (var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
                     try
                     {
-                        connection.Open();
-
                         long messageId = -1;
                         Message message = null;
 
-                        using (var command = (SqlCommand)connection.CreateCommand())
+                        using (var command = connection.CreateCommand())
                         {
+                            command.Transaction = transaction;
                             command.CommandType = CommandType.Text;
                             command.CommandText = this.readQuery;
-                            command.Parameters.Add("@CurrentDate", SqlDbType.DateTime).Value = currentDate;
+                            ((SqlCommand)command).Parameters.Add("@CurrentDate", SqlDbType.DateTime).Value = currentDate;
 
                             using (var reader = command.ExecuteReader())
                             {
@@ -164,23 +162,33 @@ namespace Infrastructure.Sql.Messaging.Implementation
 
                         this.MessageReceived(this, new MessageReceivedEventArgs(message));
 
-                        using (var command = (SqlCommand)connection.CreateCommand())
+                        using (var command = connection.CreateCommand())
                         {
+                            command.Transaction = transaction;
                             command.CommandType = CommandType.Text;
                             command.CommandText = this.deleteQuery;
-                            command.Parameters.Add("@Id", SqlDbType.BigInt).Value = messageId;
+                            ((SqlCommand)command).Parameters.Add("@Id", SqlDbType.BigInt).Value = messageId;
 
                             command.ExecuteNonQuery();
                         }
+
+                        transaction.Commit();
                     }
-                    catch
+                    catch (Exception)
                     {
+                        try
+                        {
+                            transaction.Rollback();
+                        }
+                        catch
+                        {
+                        }
+
                         throw;
                     }
                 }
-
-                scope.Complete();
             }
+
 
             return true;
         }

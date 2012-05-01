@@ -19,9 +19,6 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageReceiverFixture
     using Infrastructure.Sql.Messaging.Implementation;
     using Xunit;
 
-    /// <summary>
-    /// TODO: Update summary.
-    /// </summary>
     public class given_sender_and_receiver : IDisposable
     {
         private readonly System.Data.Entity.Infrastructure.IDbConnectionFactory connectionFactory;
@@ -31,7 +28,7 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageReceiverFixture
         public given_sender_and_receiver()
         {
             this.connectionFactory = System.Data.Entity.Database.DefaultConnectionFactory;
-            this.sender = new MessageSender(this.connectionFactory, "TestSqlMessaging", "Test.Messages");
+            this.sender = new MessageSender(this.connectionFactory, "TestSqlMessaging", "Test.Commands");
             this.receiver = new TestableMessageReceiver(this.connectionFactory);
 
             MessagingDbInitializer.CreateDatabaseObjects(this.connectionFactory.CreateConnection("TestSqlMessaging").ConnectionString, "Test", true);
@@ -45,7 +42,7 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageReceiverFixture
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "TRUNCATE TABLE Test.Messages";
+                command.CommandText = "TRUNCATE TABLE Test.Commands";
                 command.ExecuteNonQuery();
             }
         }
@@ -182,7 +179,7 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageReceiverFixture
         public class TestableMessageReceiver : MessageReceiver
         {
             public TestableMessageReceiver(System.Data.Entity.Infrastructure.IDbConnectionFactory connectionFactory)
-                : base(connectionFactory, "TestSqlMessaging", "Test.Messages")
+                : base(connectionFactory, "TestSqlMessaging", "Test.Commands")
             {
             }
 

@@ -89,11 +89,11 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<ITextSerializer>(serializer);
 
 #if LOCAL
-            var commandBus = new CommandBus(new MessageSender(Database.DefaultConnectionFactory, "Messaging", "Commands.Messages"), serializer);
-            var eventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "Messaging", "Events.Messages"), serializer);
+            var commandBus = new CommandBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"), serializer);
+            var eventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 
-            var commandProcessor = new CommandProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "Messaging", "Commands.Messages"), serializer);
-            var eventProcessor = new EventProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "Messaging", "Events.Messages"), serializer);
+            var commandProcessor = new CommandProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"), serializer);
+            var eventProcessor = new EventProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
             var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);

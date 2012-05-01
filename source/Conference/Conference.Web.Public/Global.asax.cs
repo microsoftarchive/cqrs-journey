@@ -83,7 +83,7 @@ namespace Conference.Web.Public
 
 #if LOCAL
             container.RegisterType<IMessageSender, MessageSender>(
-                "Commands", new TransientLifetimeManager(), new InjectionConstructor(Database.DefaultConnectionFactory, "Messaging", "Commands.Messages"));
+                "Commands", new TransientLifetimeManager(), new InjectionConstructor(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"));
             container.RegisterType<ICommandBus, CommandBus>(
                 new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
 #else

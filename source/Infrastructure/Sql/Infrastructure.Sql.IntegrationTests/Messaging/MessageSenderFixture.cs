@@ -27,7 +27,7 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageSenderFixture
         public given_sender()
         {
             this.connectionFactory = System.Data.Entity.Database.DefaultConnectionFactory;
-            this.sender = new MessageSender(this.connectionFactory, "TestSqlMessaging", "Test.Messages");
+            this.sender = new MessageSender(this.connectionFactory, "TestSqlMessaging", "Test.Commands");
 
             MessagingDbInitializer.CreateDatabaseObjects(this.connectionFactory.CreateConnection("TestSqlMessaging").ConnectionString, "Test", true);
         }
@@ -38,7 +38,7 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageSenderFixture
             {
                 connection.Open();
                 var command = connection.CreateCommand();
-                command.CommandText = "TRUNCATE TABLE Test.Messages";
+                command.CommandText = "TRUNCATE TABLE Test.Commands";
                 command.ExecuteNonQuery();
             }
         }

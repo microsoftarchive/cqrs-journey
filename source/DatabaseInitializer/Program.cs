@@ -77,8 +77,7 @@ namespace DatabaseInitializer
                 PaymentsReadDbContextInitializer.CreateViews(context);
             }
 
-            MessagingDbInitializer.CreateDatabaseObjects(connectionString, "Events");
-            MessagingDbInitializer.CreateDatabaseObjects(connectionString, "Commands");
+            MessagingDbInitializer.CreateDatabaseObjects(connectionString, "SqlBus");
         }
     }
 }
