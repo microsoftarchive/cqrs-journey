@@ -20,10 +20,12 @@ namespace Conference.Web.Public.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderDao orderDao;
+        private ISeatAssignmentsDao assignmentsDao;
 
-        public OrderController(IOrderDao orderDao)
+        public OrderController(IOrderDao orderDao, ISeatAssignmentsDao assignmentsDao)
         {
             this.orderDao = orderDao;
+            this.assignmentsDao = assignmentsDao;
         }
 
         [HttpGet]
@@ -31,8 +33,7 @@ namespace Conference.Web.Public.Controllers
         {
             var order = orderDao.GetOrderDetails(orderId);
             if (order == null)
-                // TODO: 404?
-                return RedirectToAction("Find", new {conferenceCode = conferenceCode});
+                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
             return View(order);
         }
@@ -51,10 +52,10 @@ namespace Conference.Web.Public.Controllers
             if (!orderId.HasValue)
             {
                 // TODO: 404?
-                return RedirectToAction("Find", new {conferenceCode = conferenceCode});
+                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
             }
 
-            return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = orderId.Value});
+            return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = orderId.Value });
         }
     }
 }

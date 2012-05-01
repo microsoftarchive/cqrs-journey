@@ -18,15 +18,19 @@ using System.Text;
 
 namespace Registration.ReadModel
 {
-    public class SeatAssignmentsDTO
+    public class SeatAssignmentDTO
     {
-        public SeatAssignmentsDTO(Guid orderId, IEnumerable<SeatAssignmentDTO> seats)
+        public SeatAssignmentDTO(Guid seatType)
         {
-            this.OrderId = orderId;
-            this.Seats = seats.ToList();
+            this.Id = Guid.NewGuid();
+            this.SeatType = seatType;
         }
 
-        public Guid OrderId { get; private set; }
-        public IList<SeatAssignmentDTO> Seats { get; private set; }
+        public Guid Id { get; private set; }
+        public Guid SeatType { get; private set; }
+
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

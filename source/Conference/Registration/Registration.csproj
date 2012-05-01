@@ -84,6 +84,7 @@
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="Handlers\SeatAssignmentsHandler.cs" />
+    <Compile Include="Handlers\SeatAssignmentsViewModelGenerator.cs" />
     <Compile Include="Handlers\TotalledOrderViewModelGenerator.cs" />
     <Compile Include="IPricingService.cs" />
     <Compile Include="Events\OrderTotalsCalculated.cs" />
@@ -91,6 +92,8 @@
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
+    <Compile Include="ReadModel\Implementation\SeatAssignmentsDao.cs" />
+    <Compile Include="ReadModel\SeatAssignmentDTO.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
@@ -98,7 +101,9 @@
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
     <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
+    <Compile Include="ReadModel\ISeatAssignmentsDao.cs" />
     <Compile Include="ReadModel\TotalledOrder.cs" />
+    <Compile Include="ReadModel\SeatAssignmentsDTO.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />

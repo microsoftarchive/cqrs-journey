@@ -24,12 +24,14 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
     {
         protected readonly OrderController sut;
         protected readonly IOrderDao orderDao;
+        protected readonly ISeatAssignmentsDao assignmentsDao;
 
         public given_controller()
         {
             this.orderDao = Mock.Of<IOrderDao>();
+            this.assignmentsDao = Mock.Of<ISeatAssignmentsDao>();
 
-            this.sut = new OrderController(this.orderDao);
+            this.sut = new OrderController(this.orderDao, this.assignmentsDao);
         }
 
         [Fact]

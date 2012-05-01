@@ -18,7 +18,8 @@ using System.Text;
 
 namespace Registration.ReadModel
 {
-    interface ISeatAssignmentsDao
+    public interface ISeatAssignmentsDao
     {
+        SeatAssignmentsDTO Find(Guid orderId);
     }
 }

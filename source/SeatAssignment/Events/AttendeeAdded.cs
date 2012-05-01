@@ -18,7 +18,7 @@ namespace SeatAssignment.Events
 
     public class AttendeeAdded : IEvent
     {
-        public SeatAssignmentAdded(Guid seatId)
+        public AttendeeAdded(Guid seatId)
         {
             this.SourceId = seatId;
         }

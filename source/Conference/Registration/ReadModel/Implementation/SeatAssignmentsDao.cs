@@ -11,22 +11,38 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Registration.ReadModel
+namespace Registration.ReadModel.Implementation
 {
-    public class SeatAssignmentsDTO
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Infrastructure.Blob;
+    using Infrastructure.Serialization;
+    using System.IO;
+
+    public class SeatAssignmentsDao : ISeatAssignmentsDao
     {
-        public SeatAssignmentsDTO(Guid orderId, IEnumerable<SeatAssignmentDTO> seats)
+        private IBlobStorage storage;
+        private ITextSerializer serializer;
+
+        public SeatAssignmentsDao(IBlobStorage storage, ITextSerializer serializer)
         {
-            this.OrderId = orderId;
-            this.Seats = seats.ToList();
+            this.storage = storage;
+            this.serializer = serializer;
         }
 
-        public Guid OrderId { get; private set; }
-        public IList<SeatAssignmentDTO> Seats { get; private set; }
+        public SeatAssignmentsDTO Find(Guid orderId)
+        {
+            var blob = this.storage.Find("SeatAssignments-" + orderId);
+            if (blob == null)
+                return null;
+
+            using (var stream = new MemoryStream(blob))
+            using (var reader = new StreamReader(stream))
+            {
+                return (SeatAssignmentsDTO)this.serializer.Deserialize(reader);
+            }
+        }
     }
 }

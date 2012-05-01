@@ -19,16 +19,38 @@ namespace Registration.Handlers
     using System.Text;
     using Registration.Events;
     using Infrastructure.Messaging.Handling;
+    using Infrastructure.Blob;
+    using Infrastructure.Serialization;
+    using Registration.ReadModel;
+    using System.IO;
 
     public class SeatAssignmentsViewModelGenerator : IEventHandler<SeatAssignmentsCreated>
     {
-        public SeatAssignmentsViewModelGenerator()
-        {
+        private IBlobStorage storage;
+        private ITextSerializer serializer;
 
+        public SeatAssignmentsViewModelGenerator(IBlobStorage storage, ITextSerializer serializer)
+        {
+            this.storage = storage;
+            this.serializer = serializer;
         }
 
         public void Handle(SeatAssignmentsCreated @event)
         {
+            // Create the whole DTO with one item per seat per type, 
+            // so that the UI can easily fill that in.
+            var dto = new SeatAssignmentsDTO(@event.SourceId,
+                @event.Seats.SelectMany(seat =>
+                    // Add as many assignments as seats there are.
+                    Enumerable
+                        .Range(0, seat.Quantity)
+                        .Select(i => new SeatAssignmentDTO(seat.SeatType))));
+
+            using (var writer = new StringWriter())
+            {
+                this.serializer.Serialize(writer, dto);
+                this.storage.Save("SeatAssignments-" + @event.SourceId, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
+            }
         }
     }
 }
