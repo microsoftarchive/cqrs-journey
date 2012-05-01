@@ -23,7 +23,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
     public class given_a_topic_sender : IDisposable
     {
         private MessagingSettings settings;
-        private string topic = Guid.NewGuid().ToString();
+        private string topic = "Test-" + Guid.NewGuid().ToString();
         private SubscriptionClient subscriptionClient;
         private TopicSender sut;
 

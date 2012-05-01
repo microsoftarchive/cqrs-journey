@@ -19,7 +19,7 @@ namespace Infrastructure.Azure.IntegrationTests.SubscriptionReceiverIntegration
 
     public class given_existing_topic : given_messaging_settings, IDisposable
     {
-        private string topic = Guid.NewGuid().ToString();
+        private string topic = "Test-" + Guid.NewGuid().ToString();
 
         public given_existing_topic()
         {

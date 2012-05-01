@@ -28,8 +28,8 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
     public class given_a_sender_and_receiver : IDisposable
     {
         private MessagingSettings settings;
-        private string topic = Guid.NewGuid().ToString();
-        private string subscription = Guid.NewGuid().ToString();
+        private string topic = "Test-" + Guid.NewGuid().ToString();
+        private string subscription = "Test-" + Guid.NewGuid().ToString();
 
         public given_a_sender_and_receiver()
         {
