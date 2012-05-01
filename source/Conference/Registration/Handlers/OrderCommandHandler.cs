@@ -22,7 +22,8 @@ namespace Registration.Handlers
         ICommandHandler<RegisterToConference>,
         ICommandHandler<MarkSeatsAsReserved>,
         ICommandHandler<RejectOrder>,
-        ICommandHandler<AssignRegistrantDetails>
+        ICommandHandler<AssignRegistrantDetails>,
+        ICommandHandler<ConfirmOrderPayment>
     {
         private readonly IEventSourcedRepository<Order> repository;
 
@@ -76,6 +77,17 @@ namespace Registration.Handlers
             if (order != null)
             {
                 order.AssignRegistrant(command.FirstName, command.LastName, command.Email);
+                repository.Save(order);
+            }
+        }
+
+        public void Handle(ConfirmOrderPayment command)
+        {
+            var order = repository.Find(command.OrderId);
+
+            if (order != null)
+            {
+                order.ConfirmPayment();
                 repository.Save(order);
             }
         }
