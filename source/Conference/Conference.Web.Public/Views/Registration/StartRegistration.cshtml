@@ -1,4 +1,4 @@
-﻿@model IList<Registration.ReadModel.ConferenceSeatTypeDTO>
+﻿@model Conference.Web.Public.Models.OrderViewModel
 @{
     ViewBag.Title = "Register to " + ViewBag.Conference.Name;
 }
@@ -19,6 +19,7 @@
                          @Html.ValidationSummary()
 
                          @Html.Hidden("OrderId")
+                         @Html.Hidden("OrderVersion")
                          <p>Please make your selection. <br />
                              @*You can enter promotional code below if you have one.*@
                          </p>
@@ -30,17 +31,17 @@
                                  @*<th scope="col">Available</th>*@
                                  <th scope="col">Quantity</th>
                              </tr>
-                             @for (var i = 0; i < this.Model.Count; i++)
+                             @for (var i = 0; i < this.Model.Items.Count; i++)
                              {
                                  <tr class="lineItem">
                                      <td>
-                                         @Html.DisplayFor(model => model[i].Name)
-                                         <p class="content__note">@Html.DisplayFor(model => model[i].Description)</p>
+                                         @Html.DisplayFor(model => this.Model.Items[i].SeatType.Name)
+                                         <p class="content__note">@Html.DisplayFor(model => this.Model.Items[i].SeatType.Description)</p>
                                      </td>
-                                     <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model[i].Price)</span>
+                                     <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model.Items[i].SeatType.Price)</span>
                                      </td>
-                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)), new { @class="itemQuantity" })
-                                         @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
+                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20), this.Model.Items[i].OrderItem.ReservedSeats), new { @class = "itemQuantity" })
+                                         @Html.Hidden("Seats[" + i + "].SeatType", this.Model.Items[i].SeatType.Id)
                                      </td>
                                  </tr>
                              }

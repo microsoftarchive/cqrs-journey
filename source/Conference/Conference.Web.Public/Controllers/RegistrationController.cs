@@ -42,19 +42,40 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0)]
-        public ActionResult StartRegistration()
+        public ActionResult StartRegistration(Guid? orderId = null)
         {
-            ViewBag.OrderId = Guid.NewGuid();
+            OrderViewModel viewModel;
+            int orderVersion = 0;
 
-            return View(this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id));
+            if (!orderId.HasValue)
+            {
+                orderId = Guid.NewGuid();
+                viewModel = this.CreateViewModel();
+            }
+            else
+            {
+                var order = this.orderDao.GetOrderDetails(orderId.Value);
+                orderVersion = order.OrderVersion;
+                viewModel = this.CreateViewModel(order);
+
+                if (order.State == OrderDTO.States.PartiallyReserved)
+                {
+                    this.ModelState.AddModelError("", "Some seats could not be fully reserved");
+                }
+            }
+
+            ViewBag.OrderId = orderId;
+            ViewBag.OrderVersion = orderVersion;
+
+            return View(viewModel);
         }
 
         [HttpPost]
-        public ActionResult StartRegistration(RegisterToConference command)
+        public ActionResult StartRegistration(RegisterToConference command, int orderVersion)
         {
             if (!ModelState.IsValid)
             {
-                return StartRegistration();
+                return StartRegistration(command.OrderId);
             }
 
             // TODO: validate incoming seat types correspond to the conference.
@@ -62,14 +83,16 @@ namespace Conference.Web.Public.Controllers
             command.ConferenceId = this.Conference.Id;
             this.commandBus.Send(command);
 
-            return RedirectToAction("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.Conference.Code, orderId = command.OrderId });
+            return RedirectToAction(
+                "SpecifyRegistrantAndPaymentDetails",
+                new { conferenceCode = this.Conference.Code, orderId = command.OrderId, orderVersion = orderVersion });
         }
 
         [HttpGet]
         [OutputCache(Duration = 0)]
-        public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId)
+        public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
-            var order = this.WaitUntilUpdated(orderId);
+            var order = this.WaitUntilUpdated(orderId, orderVersion);
             if (order == null)
             {
                 return View("ReservationUnknown");
@@ -78,6 +101,11 @@ namespace Conference.Web.Public.Controllers
             if (order.State == OrderDTO.States.Rejected)
             {
                 return View("ReservationRejected");
+            }
+
+            if (order.State == OrderDTO.States.PartiallyReserved)
+            {
+                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.Conference.Code, orderId, orderVersion = order.OrderVersion });
             }
 
             if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
@@ -104,13 +132,13 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantAndPaymentDetails(AssignRegistrantDetails command, string paymentType)
+        public ActionResult SpecifyRegistrantAndPaymentDetails(AssignRegistrantDetails command, string paymentType, int orderVersion)
         {
             var orderId = command.OrderId;
 
             if (!ModelState.IsValid)
             {
-                return SpecifyRegistrantAndPaymentDetails(orderId);
+                return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
             var order = this.orderDao.GetOrderDetails(orderId);
@@ -204,14 +232,21 @@ namespace Conference.Web.Public.Controllers
 
         private OrderViewModel CreateViewModel()
         {
-            var seats = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
+            var seatTypes = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
             var viewModel =
                 new OrderViewModel
                 {
                     ConferenceId = this.Conference.Id,
                     ConferenceCode = this.Conference.Code,
                     ConferenceName = this.Conference.Name,
-                    Items = seats.Select(s => new OrderItemViewModel { SeatTypeId = s.Id, SeatTypeDescription = s.Description, Price = s.Price }).ToList(),
+                    Items =
+                        seatTypes.Select(
+                            s =>
+                                new OrderItemViewModel
+                                {
+                                    SeatType = s,
+                                    OrderItem = new OrderItemDTO(s.Id, 0)
+                                }).ToList(),
                 };
 
             return viewModel;
@@ -226,14 +261,14 @@ namespace Conference.Web.Public.Controllers
 
             foreach (var line in order.Lines)
             {
-                var seat = viewModel.Items.First(s => s.SeatTypeId == line.SeatType);
-                seat.Quantity = line.ReservedSeats;
+                var seat = viewModel.Items.First(s => s.SeatType.Id == line.SeatType);
+                seat.OrderItem = line;
             }
 
             return viewModel;
         }
 
-        private OrderDTO WaitUntilUpdated(Guid orderId)
+        private OrderDTO WaitUntilUpdated(Guid orderId, int lastOrderVersion)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 
@@ -241,7 +276,7 @@ namespace Conference.Web.Public.Controllers
             {
                 var order = this.orderDao.GetOrderDetails(orderId);
 
-                if (order != null && order.State != OrderDTO.States.Created)
+                if (order != null && order.State != OrderDTO.States.Created && order.OrderVersion > lastOrderVersion)
                 {
                     return order;
                 }

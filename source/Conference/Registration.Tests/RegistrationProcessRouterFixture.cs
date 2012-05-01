@@ -80,7 +80,7 @@ namespace Registration.Tests
         {
             var process = new RegistrationProcess
             {
-                State = RegistrationProcess.ProcessState.AwaitingPayment,
+                State = RegistrationProcess.ProcessState.ReservationConfirmationReceived,
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };

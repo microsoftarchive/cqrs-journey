@@ -38,7 +38,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.Created)
+                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.Created, @event.Version)
                 {
                     AccessCode = @event.AccessCode,
                 };
@@ -55,6 +55,8 @@ namespace Registration.Handlers
                 var dto = repository.Find<OrderDTO>(@event.SourceId);
                 dto.RegistrantEmail = @event.Email;
 
+                dto.OrderVersion = @event.Version;
+
                 repository.Save(dto);
             }
         }
@@ -63,9 +65,11 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<OrderDTO>(@event.SourceId);
+                var dto = repository.Set<OrderDTO>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
                 dto.Lines.Clear();
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
+
+                dto.OrderVersion = @event.Version;
 
                 repository.Save(dto);
             }
@@ -73,15 +77,15 @@ namespace Registration.Handlers
 
         public void Handle(OrderPartiallyReserved @event)
         {
-            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Version, @event.Seats);
         }
 
         public void Handle(OrderReservationCompleted @event)
         {
-            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Version, @event.Seats);
         }
 
-        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, IEnumerable<SeatQuantity> seats)
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
             using (var repository = this.contextFactory.Invoke())
             {
@@ -94,6 +98,8 @@ namespace Registration.Handlers
 
                 dto.State = state;
                 dto.ReservationExpirationDate = reservationExpiration;
+
+                dto.OrderVersion = orderVersion;
 
                 repository.Save(dto);
             }

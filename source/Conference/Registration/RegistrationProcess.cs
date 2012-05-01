@@ -29,7 +29,7 @@ namespace Registration
         {
             NotStarted = 0,
             AwaitingReservationConfirmation = 1,
-            AwaitingPayment = 2,
+            ReservationConfirmationReceived = 2,
         }
 
         private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
@@ -80,6 +80,35 @@ namespace Registration
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
                     });
+
+                var bufferTime = TimeSpan.FromMinutes(5);
+                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                this.ExpirationCommandId = expirationCommand.Id;
+
+                this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                {
+                    Delay = this.ReservationAutoExpiration.Value.Subtract(DateTime.UtcNow).Add(bufferTime),
+                });
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public void Handle(OrderUpdated message)
+        {
+            if (this.State == ProcessState.AwaitingReservationConfirmation || this.State == ProcessState.ReservationConfirmationReceived)
+            {
+                this.State = ProcessState.AwaitingReservationConfirmation;
+
+                this.AddCommand(
+                    new MakeSeatReservation
+                    {
+                        ConferenceId = this.ConferenceId,
+                        ReservationId = this.ReservationId,
+                        Seats = message.Seats.ToList()
+                    });
             }
             else
             {
@@ -91,24 +120,24 @@ namespace Registration
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
-                var bufferTime = TimeSpan.FromMinutes(5);
-                var expirationTime = this.ReservationAutoExpiration.Value;
-                
-                this.State = ProcessState.AwaitingPayment;
-
-                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
-                this.ExpirationCommandId = expirationCommand.Id;
-
-                this.AddCommand(new Envelope<ICommand>(expirationCommand)
-                {
-                    Delay = expirationTime.Subtract(DateTime.UtcNow).Add(bufferTime),
-                });
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
                     Seats = message.ReservationDetails.ToList(),
-                    Expiration = expirationTime,
+                    Expiration = this.ReservationAutoExpiration.Value,
                 });
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public void Handle(OrderReservationCompleted @event)
+        {
+            if (this.State == ProcessState.AwaitingReservationConfirmation)
+            {
+                this.State = ProcessState.ReservationConfirmationReceived;
             }
             else
             {
@@ -118,7 +147,7 @@ namespace Registration
 
         public void Handle(ExpireRegistrationProcess message)
         {
-            if (this.State == ProcessState.AwaitingPayment)
+            if (this.State == ProcessState.ReservationConfirmationReceived)
             {
                 if (this.ExpirationCommandId == message.Id)
                 {
@@ -138,7 +167,7 @@ namespace Registration
 
         public void Handle(PaymentCompleted message)
         {
-            if (this.State == ProcessState.AwaitingPayment)
+            if (this.State == ProcessState.ReservationConfirmationReceived)
             {
                 this.ExpirationCommandId = Guid.Empty;
                 this.Completed = true;

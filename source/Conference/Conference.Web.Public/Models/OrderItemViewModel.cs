@@ -13,21 +13,17 @@
 
 namespace Conference.Web.Public.Models
 {
-    using System;
+    using Registration.ReadModel;
 
     public class OrderItemViewModel
     {
-        public Guid SeatTypeId { get; set; }
+        public ConferenceSeatTypeDTO SeatType { get; set; }
 
-        public string SeatTypeDescription { get; set; }
-
-        public decimal Price { get; set; }
-
-        public int Quantity { get; set; }
+        public OrderItemDTO OrderItem { get; set; }
 
         public decimal Total
         {
-            get { return this.Price * this.Quantity; }
+            get { return this.SeatType.Price * this.OrderItem.ReservedSeats; }
         }
     }
 }

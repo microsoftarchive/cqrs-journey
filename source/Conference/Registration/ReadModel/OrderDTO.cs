@@ -29,11 +29,12 @@ namespace Registration.ReadModel
             Confirmed = 4,
         }
 
-        public OrderDTO(Guid orderId, States state)
+        public OrderDTO(Guid orderId, States state, int orderVersion = 0)
             : this()
         {
             this.OrderId = orderId;
             this.State = state;
+            this.OrderVersion = orderVersion;
         }
 
         protected OrderDTO()
@@ -57,6 +58,7 @@ namespace Registration.ReadModel
             set { this.StateValue = (int)value; }
         }
 
+        public int OrderVersion { get; internal set; }
         public string RegistrantEmail { get; internal set; }
         public string AccessCode { get; internal set; }
     }

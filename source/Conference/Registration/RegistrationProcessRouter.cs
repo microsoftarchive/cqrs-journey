@@ -16,12 +16,14 @@ namespace Registration
     using System;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
+    using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;
-    using Payments.Contracts.Events;
 
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
+        IEventHandler<OrderUpdated>,
+        IEventHandler<OrderReservationCompleted>,
         IEventHandler<PaymentCompleted>,
         IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireRegistrationProcess>
@@ -48,6 +50,23 @@ namespace Registration
             }
         }
 
+        public void Handle(OrderUpdated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                lock (lockObject)
+                {
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                    if (process != null)
+                    {
+                        process.Handle(@event);
+
+                        context.Save(process);
+                    }
+                }
+            }
+        }
+
         public void Handle(SeatsReserved @event)
         {
             using (var context = this.contextFactory.Invoke())
@@ -55,6 +74,23 @@ namespace Registration
                 lock (lockObject)
                 {
                     var process = context.Find(x => x.ReservationId == @event.ReservationId && x.Completed == false);
+                    if (process != null)
+                    {
+                        process.Handle(@event);
+
+                        context.Save(process);
+                    }
+                }
+            }
+        }
+
+        public void Handle(OrderReservationCompleted @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                lock (lockObject)
+                {
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
                     if (process != null)
                     {
                         process.Handle(@event);

@@ -25,10 +25,12 @@ namespace Registration
         private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
 
         private List<SeatQuantity> seats;
+        private bool isReadyForConfirmation;
         private bool isConfirmed;
         private Guid conferenceId;
 
-        protected Order(Guid id) : base(id)
+        protected Order(Guid id)
+            : base(id)
         {
             base.Handles<OrderPlaced>(this.OnOrderPlaced);
             base.Handles<OrderUpdated>(this.OnOrderUpdated);
@@ -40,16 +42,18 @@ namespace Registration
             base.Handles<OrderTotalsCalculated>(this.OnOrderTotalsCalculated);
         }
 
-        public Order(Guid id, IEnumerable<IVersionedEvent> history) : this(id)
+        public Order(Guid id, IEnumerable<IVersionedEvent> history)
+            : this(id)
         {
             this.LoadFrom(history);
         }
 
-        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items) : this(id)
+        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)
+            : this(id)
         {
-            this.Update(new OrderPlaced 
+            this.Update(new OrderPlaced
             {
-                ConferenceId = conferenceId, 
+                ConferenceId = conferenceId,
                 Seats = ConvertItems(items),
                 ReservationAutoExpiration = DateTime.UtcNow.Add(ReservationAutoExpiration),
                 AccessCode = HandleGenerator.Generate(6)
@@ -116,7 +120,7 @@ namespace Registration
         {
             this.seats = e.Seats.ToList();
         }
-        
+
         private void OnOrderPartiallyReserved(OrderPartiallyReserved e)
         {
             this.seats = e.Seats.ToList();
@@ -124,6 +128,7 @@ namespace Registration
 
         private void OnOrderReservationCompleted(OrderReservationCompleted e)
         {
+            this.isReadyForConfirmation = true;
             this.seats = e.Seats.ToList();
         }
 
