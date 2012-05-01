@@ -14,16 +14,19 @@
 namespace Conference.Web.Admin
 {
     using System.Data.Entity;
-    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common.Entity;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
+#if LOCAL
+    using Infrastructure.Sql.Messaging;
+    using Infrastructure.Sql.Messaging.Implementation;
+#else
+    using System.Web;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Messaging;
-    using Infrastructure.Messaging.InMemory;
-    using Infrastructure.Serialization;
-    using Newtonsoft.Json;
+#endif
 
     public class MvcApplication : System.Web.HttpApplication
     {
@@ -75,12 +78,11 @@ namespace Conference.Web.Admin
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
 
+            var serializer = new JsonTextSerializer();
 #if LOCAL
-            // TODO: this WON'T work to integrate across both websites!
-            EventBus = new MemoryEventBus();
+            EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
             var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
-            var serializer = new JsonTextSerializer();
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 #endif

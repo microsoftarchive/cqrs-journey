@@ -23,6 +23,8 @@ namespace DatabaseInitializer
     using Payments.ReadModel.Implementation;
     using Registration.Database;
     using Registration.ReadModel.Implementation;
+    using System.Data.SqlClient;
+    using Infrastructure.Sql.Messaging.Implementation;
 
     class Program
     {
@@ -74,6 +76,8 @@ namespace DatabaseInitializer
             {
                 PaymentsReadDbContextInitializer.CreateViews(context);
             }
+
+            MessagingDbInitializer.CreateDatabaseObjects(connectionString, "SqlBus");
         }
     }
 }

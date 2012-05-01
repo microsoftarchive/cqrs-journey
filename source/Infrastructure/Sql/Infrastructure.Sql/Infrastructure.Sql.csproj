@@ -37,10 +37,14 @@
     <Reference Include="EntityFramework">
       <HintPath>..\..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.4.5.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,7 +57,33 @@
     <Compile Include="Blob\SqlBlobStorage.cs" />
     <Compile Include="Database\SqlDataContext.cs" />
     <Compile Include="EventSourcing\EventStoreDbContext.cs" />
+    <Compile Include="Messaging\Implementation\MessagingDbInitializer.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
+    <Compile Include="Messaging\CommandBus.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\EventBus.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Handling\CommandProcessor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Handling\EventProcessor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\IMessageReceiver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\IMessageSender.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Implementation\MessageReceiver.cs" />
+    <Compile Include="Messaging\Implementation\MessageSender.cs" />
+    <Compile Include="Messaging\Message.cs" />
+    <Compile Include="Messaging\Handling\MessageProcessor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\MessageReceivedEventArgs.cs" />
     <Compile Include="Processes\SqlProcessDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventSourcing\SqlEventSourcedRepository.cs" />

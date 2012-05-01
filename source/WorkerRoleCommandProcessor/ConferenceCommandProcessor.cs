@@ -15,9 +15,7 @@ namespace WorkerRoleCommandProcessor
 {
     using System;
     using System.Data.Entity;
-    using Infrastructure.Azure;
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Blob;
     using Infrastructure.Database;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
@@ -29,7 +27,6 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Sql.EventSourcing;
     using Infrastructure.Sql.Processes;
     using Microsoft.Practices.Unity;
-    using Newtonsoft.Json;
     using Payments;
     using Payments.Database;
     using Payments.Handlers;
@@ -38,7 +35,15 @@ namespace WorkerRoleCommandProcessor
     using Registration.Database;
     using Registration.Handlers;
     using Registration.ReadModel.Implementation;
-    using Infrastructure.Blob;
+#if LOCAL
+    using Infrastructure.Sql.Messaging;
+    using Infrastructure.Sql.Messaging.Handling;
+    using Infrastructure.Sql.Messaging.Implementation;
+#else
+    using Infrastructure.Azure;
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Messaging.Handling;
+#endif
 
     public sealed class ConferenceCommandProcessor : IDisposable
     {
@@ -55,7 +60,6 @@ namespace WorkerRoleCommandProcessor
             Database.SetInitializer<BlobStorageDbContext>(null);
 
             Database.SetInitializer<PaymentsDbContext>(null);
-            // Views repository is currently the same as the domain DB. No initializer needed.
             Database.SetInitializer<PaymentsReadDbContext>(null);
         }
 
@@ -84,12 +88,20 @@ namespace WorkerRoleCommandProcessor
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
 
+#if LOCAL
+            var commandBus = new CommandBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"), serializer);
+            var eventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
+
+            var commandProcessor = new CommandProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"), serializer);
+            var eventProcessor = new EventProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
+#else
             var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
             var eventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
 
             var commandProcessor = new CommandProcessor(new SubscriptionReceiver(settings, "conference/commands", "all"), serializer);
             var eventProcessor = new EventProcessor(new SubscriptionReceiver(settings, "conference/events", "all"), serializer);
+#endif
 
             container.RegisterInstance<ICommandBus>(commandBus);
             container.RegisterInstance<IEventBus>(eventBus);
