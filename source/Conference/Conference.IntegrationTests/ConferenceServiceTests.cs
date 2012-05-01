@@ -20,8 +20,9 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
     using Infrastructure.Messaging.InMemory;
     using Xunit;
 
-    public class given_no_conference
+    public class given_no_conference : IDisposable
     {
+        private string dbName = "ConferenceServiceTests_" + Guid.NewGuid().ToString();
         private MemoryEventBus bus;
         private ConferenceService service;
 
@@ -32,8 +33,25 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
 
         public given_no_conference()
         {
+            using (var context = new ConferenceContext(dbName))
+            {
+                if (context.Database.Exists())
+                    context.Database.Delete();
+
+                context.Database.CreateIfNotExists();
+            }
+
             this.bus = new MemoryEventBus();
-            this.service = new ConferenceService(this.bus);
+            this.service = new ConferenceService(this.bus, this.dbName);
+        }
+
+        public void Dispose()
+        {
+            using (var context = new ConferenceContext(dbName))
+            {
+                if (context.Database.Exists())
+                    context.Database.Delete();
+            }
         }
 
         [Fact]
