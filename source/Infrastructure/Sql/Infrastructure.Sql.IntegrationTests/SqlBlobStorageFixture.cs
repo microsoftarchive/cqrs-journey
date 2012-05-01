@@ -19,11 +19,11 @@ namespace Infrastructure.Sql.IntegrationTests
     using Xunit;
     using System.Text;
 
-    public class BlobStorageDbContextFixture : IDisposable
+    public class SqlBlobStorageFixture : IDisposable
     {
         private string dbName = Guid.NewGuid().ToString();
 
-        public BlobStorageDbContextFixture()
+        public SqlBlobStorageFixture()
         {
             using (var context = new BlobStorageDbContext(dbName))
             {
@@ -47,42 +47,29 @@ namespace Infrastructure.Sql.IntegrationTests
             }
         }
 
-
         [Fact]
         public void when_saving_blob_then_can_read_it()
         {
-            using (var storage = new BlobStorageDbContext(this.dbName))
-            {
-                storage.Save("test", "text/plain", Encoding.UTF8.GetBytes("Hello"));
-            }
+            var storage = new SqlBlobStorage(this.dbName);
 
-            using (var storage = new BlobStorageDbContext(this.dbName))
-            {
-                var data = Encoding.UTF8.GetString(storage.Find("test"));
+            storage.Save("test", "text/plain", Encoding.UTF8.GetBytes("Hello"));
 
-                Assert.Equal("Hello", data);
-            }
+            var data = Encoding.UTF8.GetString(storage.Find("test"));
+
+            Assert.Equal("Hello", data);
         }
 
         [Fact]
         public void when_updating_existing_blob_then_can_read_changes()
         {
-            using (var storage = new BlobStorageDbContext(this.dbName))
-            {
-                storage.Save("test", "text/plain", Encoding.UTF8.GetBytes("Hello"));
-            }
+            var storage = new SqlBlobStorage(this.dbName);
 
-            using (var storage = new BlobStorageDbContext(this.dbName))
-            {
-                storage.Save("test", "text/plain", Encoding.UTF8.GetBytes("World"));
-            }
+            storage.Save("test", "text/plain", Encoding.UTF8.GetBytes("Hello"));
+            storage.Save("test", "text/plain", Encoding.UTF8.GetBytes("World"));
 
-            using (var storage = new BlobStorageDbContext(this.dbName))
-            {
-                var data = Encoding.UTF8.GetString(storage.Find("test"));
+            var data = Encoding.UTF8.GetString(storage.Find("test"));
 
-                Assert.Equal("World", data);
-            }
+            Assert.Equal("World", data);
         }
     }
 }

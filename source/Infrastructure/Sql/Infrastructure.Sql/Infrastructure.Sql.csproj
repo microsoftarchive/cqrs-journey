@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Blob\BlobEntity.cs" />
     <Compile Include="Blob\BlobStorageDbContext.cs" />
+    <Compile Include="Blob\SqlBlobStorage.cs" />
     <Compile Include="Database\SqlDataContext.cs" />
     <Compile Include="EventSourcing\EventStoreDbContext.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />

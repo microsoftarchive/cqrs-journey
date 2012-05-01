@@ -15,10 +15,11 @@ namespace Infrastructure.Sql.Blob
 {
     public class BlobEntity
     {
-        public BlobEntity(string id, string data)
+        public BlobEntity(string id, byte[] blob, string blobString)
         {
             this.Id = id;
-            this.Data = data;
+            this.Blob = blob;
+            this.BlobString = blobString;
         }
 
         protected BlobEntity()
@@ -26,6 +27,12 @@ namespace Infrastructure.Sql.Blob
         }
 
         public string Id { get; private set; }
-        public string Data { get; set; }
+        public byte[] Blob { get; set; }
+
+        /// <devdoc>
+        /// This property is only populated by the SQL implementation 
+        /// if the content type of the saved blob is "text/plain".
+        /// </devdoc>
+        public string BlobString { get; set; }
     }
 }

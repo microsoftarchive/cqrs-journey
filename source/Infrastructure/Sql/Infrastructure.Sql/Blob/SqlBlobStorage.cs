@@ -13,62 +13,38 @@
 
 namespace Infrastructure.Sql.Blob
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Data.Entity;
     using System.IO;
+    using Infrastructure.Blob;
+    using Infrastructure.Serialization;
 
-    public class BlobStorageDbContext : DbContext
+    /// <summary>
+    /// Simple local blob storage simulator for easy local debugging. 
+    /// Assumes the blobs are persisted as text through an <see cref="ITextSerializer"/>.
+    /// </summary>
+    public class SqlBlobStorage : IBlobStorage
     {
-        public const string SchemaName = "BlobStorage";
+        private string nameOrConnectionString;
 
-        public BlobStorageDbContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        public SqlBlobStorage(string nameOrConnectionString)
         {
+            this.nameOrConnectionString = nameOrConnectionString;
         }
 
         public byte[] Find(string id)
         {
-            var blob = this.Set<BlobEntity>().Find(id);
-            if (blob == null)
-                return null;
-
-            return blob.Blob;
+            using (var context = new BlobStorageDbContext(this.nameOrConnectionString))
+            {
+                return context.Find(id);
+            }
         }
 
         public void Save(string id, string contentType, byte[] blob)
         {
-            var existing = this.Set<BlobEntity>().Find(id);
-            string blobString = "";
-            if (contentType == "text/plain")
+            using (var context = new BlobStorageDbContext(this.nameOrConnectionString))
             {
-                using (var stream = new MemoryStream(blob))
-                using (var reader = new StreamReader(stream))
-                {
-                    blobString = reader.ReadToEnd();
-                }
+                context.Save(id, contentType, blob);
             }
-
-            if (existing != null)
-            {
-                existing.Blob = blob;
-                existing.BlobString = blobString;
-            }
-            else
-            {
-                this.Set<BlobEntity>().Add(new BlobEntity(id, blob, blobString));
-            }
-
-            this.SaveChanges();
-        }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<BlobEntity>().ToTable("Blobs", SchemaName);
         }
     }
 }

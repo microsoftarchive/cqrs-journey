@@ -101,7 +101,7 @@ namespace WorkerRoleCommandProcessor
             // repository
 
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
-            container.RegisterType<BlobStorageDbContext>(new TransientLifetimeManager(), new InjectionConstructor("BlobStorage"));
+            container.RegisterType<SqlBlobStorage>(new TransientLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
             container.RegisterType<IProcessDataContext<RegistrationProcess>, SqlProcessDataContext<RegistrationProcess>>(

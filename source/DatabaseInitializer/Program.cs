@@ -53,7 +53,7 @@ namespace DatabaseInitializer
                 new DbContext[] 
                 { 
                     new EventStoreDbContext(connectionString),
-                    new BlobStorageDbContext(connectionString, null),
+                    new BlobStorageDbContext(connectionString),
                     new PaymentsDbContext(connectionString),
                     new RegistrationProcessDbContext(connectionString),
                     new ConferenceRegistrationDbContext(connectionString),
