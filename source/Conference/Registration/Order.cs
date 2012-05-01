@@ -28,7 +28,8 @@ namespace Registration
         private bool isConfirmed;
         private Guid conferenceId;
 
-        protected Order(Guid id) : base(id)
+        protected Order(Guid id)
+            : base(id)
         {
             base.Handles<OrderPlaced>(this.OnOrderPlaced);
             base.Handles<OrderUpdated>(this.OnOrderUpdated);
@@ -40,16 +41,18 @@ namespace Registration
             base.Handles<OrderTotalsCalculated>(this.OnOrderTotalsCalculated);
         }
 
-        public Order(Guid id, IEnumerable<IVersionedEvent> history) : this(id)
+        public Order(Guid id, IEnumerable<IVersionedEvent> history)
+            : this(id)
         {
             this.LoadFrom(history);
         }
 
-        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items) : this(id)
+        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)
+            : this(id)
         {
-            this.Update(new OrderPlaced 
+            this.Update(new OrderPlaced
             {
-                ConferenceId = conferenceId, 
+                ConferenceId = conferenceId,
                 Seats = ConvertItems(items),
                 ReservationAutoExpiration = DateTime.UtcNow.Add(ReservationAutoExpiration),
                 AccessCode = HandleGenerator.Generate(6)
@@ -106,6 +109,14 @@ namespace Registration
             });
         }
 
+        public SeatAssignments CreateSeatAssignments()
+        {
+            if (!this.isConfirmed)
+                throw new InvalidOperationException("Cannot create seat assignments for an order that isn't paid yet.");
+
+            return new SeatAssignments(this.Id, this.seats.AsReadOnly());
+        }
+
         private void OnOrderPlaced(OrderPlaced e)
         {
             this.conferenceId = e.ConferenceId;
@@ -116,7 +127,7 @@ namespace Registration
         {
             this.seats = e.Seats.ToList();
         }
-        
+
         private void OnOrderPartiallyReserved(OrderPartiallyReserved e)
         {
             this.seats = e.Seats.ToList();

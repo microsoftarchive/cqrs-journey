@@ -11,23 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace SeatAssignment.Events
+namespace Registration.Handlers
 {
     using System;
-    using Infrastructure.Messaging;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Registration.Events;
+    using Infrastructure.Messaging.Handling;
 
-    public class AttendeeAdded : IEvent
+    public class SeatAssignmentsViewModelGenerator : IEventHandler<SeatAssignmentsCreated>
     {
-        public SeatAssignmentAdded(Guid seatId)
+        public SeatAssignmentsViewModelGenerator()
         {
-            this.SourceId = seatId;
+
         }
 
-        public Guid SourceId { get; private set; }
-        public Guid SeatType { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        public void Handle(SeatAssignmentsCreated @event)
+        {
+        }
     }
 }

@@ -80,7 +80,7 @@ namespace SeatAssignment.Tests
 
             this.dao.Verify(x => x.UpdateSeat(seat));
 
-            var e = this.events.OfType<AttendeeAdded>().FirstOrDefault();
+            var e = this.events.OfType<SeatAssignmentAdded>().FirstOrDefault();
             Assert.NotNull(e);
             Assert.Equal("example@contoso.com", e.Email);
             Assert.Equal("Hello", e.FirstName);
@@ -149,7 +149,7 @@ namespace SeatAssignment.Tests
 
             this.dao.Verify(x => x.UpdateSeat(seat));
 
-            var added = this.events.OfType<AttendeeAdded>().FirstOrDefault();
+            var added = this.events.OfType<SeatAssignmentAdded>().FirstOrDefault();
             Assert.NotNull(added);
             Assert.Equal("example@contoso.com", added.Email);
             Assert.Equal("Hello", added.FirstName);

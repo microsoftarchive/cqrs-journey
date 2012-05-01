@@ -11,23 +11,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace SeatAssignment.Events
+namespace Registration.Events
 {
     using System;
     using Infrastructure.Messaging;
+    using Infrastructure.EventSourcing;
 
-    public class AttendeeAdded : IEvent
+    public class SeatAssignmentUpdated : VersionedEvent
     {
-        public SeatAssignmentAdded(Guid seatId)
+        public SeatAssignmentUpdated(Guid seatAssignmentId)
         {
-            this.SourceId = seatId;
+            this.SourceId = seatAssignmentId;
         }
 
-        public Guid SourceId { get; private set; }
         public Guid SeatType { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Email { get; set; }
     }
 }

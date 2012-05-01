@@ -26,7 +26,7 @@ namespace SeatAssignment
 
         static OrderSeatsService()
         {
-            Mapper.CreateMap<Seat, AttendeeAdded>();
+            Mapper.CreateMap<Seat, SeatAssignmentAdded>();
             Mapper.CreateMap<Seat, AttendeeUpdated>();
             Mapper.CreateMap<Seat, AttendeeRemoved>();
         }
@@ -60,7 +60,7 @@ namespace SeatAssignment
 
                 if (saved.Email == null)
                 {
-                    this.bus.Publish(Mapper.Map(seat, new AttendeeAdded(seat.Id)));
+                    this.bus.Publish(Mapper.Map(seat, new SeatAssignmentAdded(seat.Id)));
                 }
                 else if (saved.Email == seat.Email)
                 {
@@ -69,7 +69,7 @@ namespace SeatAssignment
                 else
                 {
                     this.bus.Publish(Mapper.Map(saved, new AttendeeRemoved(seat.Id)));
-                    this.bus.Publish(Mapper.Map(seat, new AttendeeAdded(seat.Id)));
+                    this.bus.Publish(Mapper.Map(seat, new SeatAssignmentAdded(seat.Id)));
                 }
             }
         }

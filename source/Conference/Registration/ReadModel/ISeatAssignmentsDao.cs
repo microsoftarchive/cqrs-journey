@@ -11,23 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace SeatAssignment.Events
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Registration.ReadModel
 {
-    using System;
-    using Infrastructure.Messaging;
-
-    public class AttendeeAdded : IEvent
+    interface ISeatAssignmentsDao
     {
-        public SeatAssignmentAdded(Guid seatId)
-        {
-            this.SourceId = seatId;
-        }
-
-        public Guid SourceId { get; private set; }
-        public Guid SeatType { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
     }
 }
