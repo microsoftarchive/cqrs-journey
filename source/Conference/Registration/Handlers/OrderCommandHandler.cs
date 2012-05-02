@@ -26,10 +26,12 @@ namespace Registration.Handlers
         ICommandHandler<ConfirmOrderPayment>
     {
         private readonly IEventSourcedRepository<Order> repository;
+        private readonly IPricingService pricingService;
 
-        public OrderCommandHandler(IEventSourcedRepository<Order> repository)
+        public OrderCommandHandler(IEventSourcedRepository<Order> repository, IPricingService pricingService)
         {
             this.repository = repository;
+            this.pricingService = pricingService;
         }
 
         public void Handle(RegisterToConference command)
@@ -54,7 +56,7 @@ namespace Registration.Handlers
 
             if (order != null)
             {
-                order.MarkAsReserved(command.Expiration, command.Seats);
+                order.MarkAsReserved(this.pricingService, command.Expiration, command.Seats);
                 repository.Save(order);
             }
         }

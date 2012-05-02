@@ -11,17 +11,21 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration
 {
     using System;
 
-    public interface IOrderDao
+    public class OrderLine
     {
-        // TODO: GetOrderDetails is being used by many views. Have tailored projections for different needs.
-        OrderDTO GetOrderDetails(Guid orderId);
+        public decimal LineTotal { get; set; }
+    }
 
-        Guid? LocateOrder(string email, string accessCode);
+    public class SeatOrderLine : OrderLine
+    {
+        public Guid SeatType { get; set; }
 
-        TotalledOrder GetTotalledOrder(Guid orderId);
+        public decimal UnitPrice { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

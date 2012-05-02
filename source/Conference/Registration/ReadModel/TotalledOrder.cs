@@ -11,15 +11,39 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Models
+namespace Registration.ReadModel
 {
-    using Registration.Commands;
-    using Registration.ReadModel;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
-    public class RegistrationViewModel
+    public class TotalledOrder
     {
-        public TotalledOrder Order { get; set; }
+        public TotalledOrder()
+        {
+            this.Lines = new ObservableCollection<TotalledOrderLine>();
+        }
 
-        public AssignRegistrantDetails RegistrantDetails { get; set; }
+        [Key]
+        public Guid OrderId { get; set; }
+        public IList<TotalledOrderLine> Lines { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    public class TotalledOrderLine
+    {
+        public TotalledOrderLine()
+        {
+            this.TotalledOrderLineId = Guid.NewGuid();
+        }
+
+        [Key]
+        public Guid TotalledOrderLineId { get; set; }
+        public Guid OrderId { get; set; }
+        public string Description { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int Quantity { get; set; }
+        public decimal LineTotal { get; set; }
     }
 }
