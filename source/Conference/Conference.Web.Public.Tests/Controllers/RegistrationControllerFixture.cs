@@ -169,11 +169,9 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.GetOrderDetails(orderId))
                 .Returns(order);
-
-            var seat = new ConferenceSeatTypeDTO(seatId, "test", "description", 20, 50);
-            Mock.Get<IConferenceDao>(this.conferenceDao)
-                .Setup(d => d.GetPublishedSeatTypes(this.conferenceAlias.Id))
-                .Returns(new[] { seat });
+            Mock.Get<IOrderDao>(this.orderDao)
+                .Setup(d => d.GetTotalledOrder(orderId))
+                .Returns(new TotalledOrder { OrderId = orderId, Total = 100 });
 
             Mock.Get<ICommandBus>(this.bus)
                 .Setup(b => b.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))

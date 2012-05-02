@@ -64,7 +64,7 @@ $.fn.jsSelect = function() {
 	var setValue = function(value) {
 		var label = valueLabels[value];
 		$cont.find('.js-current').text(label);
-		$cont.find('.js-input').val(value);
+		$cont.find('.js-input').val(value).change();
 	};
 	
 	var onClickSelect = function() {

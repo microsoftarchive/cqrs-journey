@@ -32,27 +32,27 @@
                              </tr>
                              @for (var i = 0; i < this.Model.Count; i++)
                              {
-                                 <tr>
+                                 <tr class="lineItem">
                                      <td>
                                          @Html.DisplayFor(model => model[i].Name)
                                          <p class="content__note">@Html.DisplayFor(model => model[i].Description)</p>
                                      </td>
-                                     <td style="text-align: right">$@Html.DisplayFor(model => model[i].Price)
+                                     <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model[i].Price)</span>
                                      </td>
-                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)))
+                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)), new { @class="itemQuantity" })
                                          @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
                                      </td>
                                  </tr>
                              }
                              <tr>
-                                 <td>
-                                     @*								<a class="content__link_pseudo j-promocode-field" href="#">Enter promotional code</a>
+                                 @*<td>
+                                    <a class="content__link_pseudo j-promocode-field" href="#">Enter promotional code</a>
 								    <div class="form-promo">
 									    <input class="form-promo__txt"><input class="form-promo__but" value="Submit" type="Submit">
-								    </div>*@
-                                 </td>
-                                 <td class="content__table-cell_right content__cell_total">Total:</td>
-                                 <td class="content__cell_total content__table-cell_left">$TODO</td>
+								    </div>
+                                 </td>*@
+                                 <td colspan="2" class="content__table-cell_right content__cell_total">Estimated Total:</td>
+                                 <td class="content__cell_total content__table-cell_left">$<span id="total">0</span></td>
                              </tr>
                          </table>
                      </div>
@@ -93,4 +93,22 @@
 @section Scripts
 {
 <script type="text/javascript" src="@Url.Content("~/Content/form/form.js")"></script>
+<script type="text/javascript">
+$(function() {
+    function calculateTotals() {
+        var total = 0;
+        $(".lineItem").each(function(index, item) {
+            var unitPrice = $(item).find(".unitPrice").text();
+            var quantity = $(item).find(".itemQuantity input").val();
+            total += unitPrice * quantity;
+        });
+
+        // round to 2 decimals
+        total = Math.round(total * 100) / 100;
+        $("#total").text(total);
+    }
+
+    $(".itemQuantity input").change(calculateTotals);
+});
+</script>
 }

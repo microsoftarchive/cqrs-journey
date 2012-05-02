@@ -1,8 +1,8 @@
-// ==============================================================================================================
+﻿// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
-// �2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
 // http://cqrsjourney.github.com/contributors/members
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
 // with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,17 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Events
 {
-    using System;
+    using Infrastructure.EventSourcing;
 
-    public interface IOrderDao
+    public class OrderTotalsCalculated : VersionedEvent
     {
-        // TODO: GetOrderDetails is being used by many views. Have tailored projections for different needs.
-        OrderDTO GetOrderDetails(Guid orderId);
+        public decimal Total { get; set; }
 
-        Guid? LocateOrder(string email, string accessCode);
-
-        TotalledOrder GetTotalledOrder(Guid orderId);
+        public OrderLine[] Lines { get; set; }
     }
 }

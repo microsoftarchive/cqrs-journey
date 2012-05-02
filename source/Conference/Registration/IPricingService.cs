@@ -11,17 +11,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration
 {
     using System;
+    using System.Collections.Generic;
 
-    public interface IOrderDao
+    public interface IPricingService
     {
-        // TODO: GetOrderDetails is being used by many views. Have tailored projections for different needs.
-        OrderDTO GetOrderDetails(Guid orderId);
-
-        Guid? LocateOrder(string email, string accessCode);
-
-        TotalledOrder GetTotalledOrder(Guid orderId);
+        OrderTotal CalculateTotal(Guid conferenceId, ICollection<SeatQuantity> seatItems);
     }
 }

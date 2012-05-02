@@ -16,7 +16,7 @@ namespace Registration.Tests.OrderFixture
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Infrastructure.EventSourcing;
+    using Moq;
     using Registration.Commands;
     using Registration.Events;
     using Registration.Handlers;
@@ -32,7 +32,7 @@ namespace Registration.Tests.OrderFixture
         public given_no_order()
         {
             this.sut = new EventSourcingTestHelper<Order>();
-            this.sut.Setup(new OrderCommandHandler(sut.Repository));
+            this.sut.Setup(new OrderCommandHandler(this.sut.Repository, Mock.Of<IPricingService>()));
         }
 
         [Fact]
@@ -89,13 +89,16 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid SeatTypeId = Guid.NewGuid();
-
+        private static readonly OrderTotal OrderTotal = new OrderTotal { Total = 33, Lines = new [] { new OrderLine() } };
         private EventSourcingTestHelper<Order> sut;
+        private Mock<IPricingService> pricingService;
 
         public given_placed_order()
         {
+            this.pricingService = new Mock<IPricingService>();
+            this.pricingService.Setup(x => x.CalculateTotal(ConferenceId, It.IsAny<ICollection<SeatQuantity>>())).Returns(OrderTotal);
             this.sut = new EventSourcingTestHelper<Order>();
-            this.sut.Setup(new OrderCommandHandler(sut.Repository));
+            this.sut.Setup(new OrderCommandHandler(sut.Repository, pricingService.Object));
 
             this.sut.Given(
                     new OrderPlaced 
@@ -110,7 +113,7 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_updating_seats_then_updates_order_with_new_seats()
         {
-            this.sut.When(new RegisterToConference{ ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 20)  }});
+            this.sut.When(new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 20) }});
 
             var @event = sut.ThenHasSingle<OrderUpdated>();
             Assert.Equal(OrderId, @event.SourceId);
@@ -124,11 +127,26 @@ namespace Registration.Tests.OrderFixture
             var expiration = DateTime.UtcNow.AddMinutes(15);
             this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } });
 
-            var @event = sut.ThenHasSingle<OrderPartiallyReserved>();
+            var @event = sut.ThenHasOne<OrderPartiallyReserved>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
+        }
+
+        [Fact]
+        public void when_marking_a_subset_of_seats_as_reserved_then_totals_are_calculated()
+        {
+            var expiration = DateTime.UtcNow.AddMinutes(15);
+            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } });
+
+            var @event = sut.ThenHasOne<OrderTotalsCalculated>();
+            Assert.Equal(OrderId, @event.SourceId);
+            Assert.Equal(33, @event.Total);
+            Assert.Equal(1, @event.Lines.Count());
+            Assert.Same(OrderTotal.Lines.Single(), @event.Lines.Single());
+
+            pricingService.Verify(s => s.CalculateTotal(ConferenceId, It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 3)));
         }
 
         [Fact]
@@ -137,11 +155,26 @@ namespace Registration.Tests.OrderFixture
             var expiration = DateTime.UtcNow.AddMinutes(15);
             this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 5) } });
 
-            var @event = sut.ThenHasSingle<OrderReservationCompleted>();
+            var @event = sut.ThenHasOne<OrderReservationCompleted>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
+        }
+
+        [Fact]
+        public void when_marking_all_as_reserved_then_totals_are_calculated()
+        {
+            var expiration = DateTime.UtcNow.AddMinutes(15);
+            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 5) } });
+
+            var @event = sut.ThenHasOne<OrderTotalsCalculated>();
+            Assert.Equal(OrderId, @event.SourceId);
+            Assert.Equal(33, @event.Total);
+            Assert.Equal(1, @event.Lines.Count());
+            Assert.Same(OrderTotal.Lines.Single(), @event.Lines.Single());
+
+            pricingService.Verify(s => s.CalculateTotal(ConferenceId, It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 5)));
         }
 
         [Fact]
@@ -183,7 +216,7 @@ namespace Registration.Tests.OrderFixture
         public given_fully_reserved_order()
         {
             this.sut = new EventSourcingTestHelper<Order>();
-            this.sut.Setup(new OrderCommandHandler(sut.Repository));
+            this.sut.Setup(new OrderCommandHandler(this.sut.Repository, Mock.Of<IPricingService>()));
 
             this.sut.Given(
                 new OrderPlaced

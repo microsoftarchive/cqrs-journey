@@ -26,6 +26,7 @@ namespace Registration
 
         private List<SeatQuantity> seats;
         private bool isConfirmed;
+        private Guid conferenceId;
 
         protected Order(Guid id) : base(id)
         {
@@ -36,6 +37,7 @@ namespace Registration
             base.Handles<OrderExpired>(this.OnOrderExpired);
             base.Handles<OrderPaymentConfirmed>(this.OnOrderPaymentConfirmed);
             base.Handles<OrderRegistrantAssigned>(this.OnOrderRegistrantAssigned);
+            base.Handles<OrderTotalsCalculated>(this.OnOrderTotalsCalculated);
         }
 
         public Order(Guid id, IEnumerable<IVersionedEvent> history) : this(id)
@@ -59,12 +61,14 @@ namespace Registration
             this.Update(new OrderUpdated { Seats = ConvertItems(seats) });
         }
 
-        public void MarkAsReserved(DateTime expirationDate, IEnumerable<SeatQuantity> reservedSeats)
+        public void MarkAsReserved(IPricingService pricingService, DateTime expirationDate, IEnumerable<SeatQuantity> reservedSeats)
         {
             if (this.isConfirmed)
                 throw new InvalidOperationException("Cannot modify a confirmed order.");
 
             var reserved = reservedSeats.ToList();
+
+            var totals = pricingService.CalculateTotal(this.conferenceId, reserved.AsReadOnly());
 
             // Is there an order item which didn't get an exact reservation?
             if (this.seats.Any(item => !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
@@ -75,6 +79,8 @@ namespace Registration
             {
                 this.Update(new OrderReservationCompleted { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
+
+            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray() });
         }
 
         public void Expire()
@@ -102,6 +108,7 @@ namespace Registration
 
         private void OnOrderPlaced(OrderPlaced e)
         {
+            this.conferenceId = e.ConferenceId;
             this.seats = e.Seats.ToList();
         }
 
@@ -130,6 +137,10 @@ namespace Registration
         }
 
         private void OnOrderRegistrantAssigned(OrderRegistrantAssigned e)
+        {
+        }
+
+        private void OnOrderTotalsCalculated(OrderTotalsCalculated e)
         {
         }
 

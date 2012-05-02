@@ -23,13 +23,13 @@
                             <th scope="col">Quantity</th>
                             <th scope="col">Total</th>
                         </tr>
-                        @for (var i = 0; i < this.Model.Order.Items.Count; i++)
+                        @for (var i = 0; i < this.Model.Order.Lines.Count; i++)
                         {
                             <tr>
-                                <td>@Html.DisplayFor(model => model.Order.Items[i].SeatTypeDescription)</td>
-                                <td style="text-align: right">$@Html.DisplayFor(model => model.Order.Items[i].Price)</td>
-                                <td>@Html.DisplayFor(model => model.Order.Items[i].Quantity)</td>
-                                <td>@Html.DisplayFor(model => model.Order.Items[i].Total)</td>
+                                <td>@Html.DisplayFor(model => model.Order.Lines[i].Description)</td>
+                                <td style="text-align: right">$@Html.DisplayFor(model => model.Order.Lines[i].UnitPrice)</td>
+                                <td>@Html.DisplayFor(model => model.Order.Lines[i].Quantity)</td>
+                                <td>@Html.DisplayFor(model => model.Order.Lines[i].LineTotal)</td>
                             </tr>
                         }
                         <tr>
