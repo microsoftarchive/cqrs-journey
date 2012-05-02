@@ -18,8 +18,7 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
-    public partial class RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature
+    public partial class RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature : Xunit.IUseFixture<RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -27,8 +26,12 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
 #line 1 "GroupRegistrationEndToEndSad.feature"
 #line hidden
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
-        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
+        public RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature()
+        {
+            this.TestInitialize();
+        }
+        
+        public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Registrant workflow for registering a group of Attendees for a conference (sad pa" +
@@ -38,25 +41,16 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
             testRunner.OnFeatureStart(featureInfo);
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
-            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
-                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Registrant workflow for registering a group of Attendees for a conference (sad pa" +
-                            "th)")))
-            {
-                Conference.Specflow.Features.Registration.AllFeaturesEndToEnd.RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature.FeatureSetup(null);
-            }
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -98,10 +92,19 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
 #line hidden
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available, then some get waitlisted and some reserved")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant workflow for registering a group of Attendees for a conference (sad pa" +
+        public virtual void SetFixture(RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature.FixtureData fixtureData)
+        {
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant workflow for registering a group of Attendees for a conference (sad pa" +
             "th)")]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available, then some get waitlisted and some reserved")]
         public virtual void AllTheOrderItemsAreAvailableThenSomeGetWaitlistedAndSomeReserved()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available, then some get waitlisted and some reserved", ((string[])(null)));
@@ -161,11 +164,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Allocate some purchased Seats for a group")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant workflow for registering a group of Attendees for a conference (sad pa" +
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant workflow for registering a group of Attendees for a conference (sad pa" +
             "th)")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
+        [Xunit.TraitAttribute("Description", "Allocate some purchased Seats for a group")]
         public virtual void AllocateSomePurchasedSeatsForAGroup()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate some purchased Seats for a group", new string[] {
@@ -220,6 +222,22 @@ testRunner.And("the Attendees should get an email informing about the conference
                     "e with Seat Access Code", ((string)(null)), table8);
 #line hidden
             this.ScenarioCleanup();
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
+        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        public class FixtureData : System.IDisposable
+        {
+            
+            public FixtureData()
+            {
+                RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature.FeatureSetup();
+            }
+            
+            void System.IDisposable.Dispose()
+            {
+                RegistrantWorkflowForRegisteringAGroupOfAttendeesForAConferenceSadPathFeature.FeatureTearDown();
+            }
         }
     }
 }

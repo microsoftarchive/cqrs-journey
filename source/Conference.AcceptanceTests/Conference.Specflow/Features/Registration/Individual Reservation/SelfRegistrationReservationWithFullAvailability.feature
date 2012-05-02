@@ -37,10 +37,10 @@ Scenario: All the Order Items are available and all get reserved
 	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
-		| seat type                 |
-		| General admission         |
-		| CQRS Workshop             |
-		| Additional cocktail party |
+		| seat type                 | quantity |
+		| General admission         | 1        |
+		| CQRS Workshop             | 1        |
+		| Additional cocktail party | 1        |
 	And the total should read $749
 	And the countdown started
 
@@ -82,7 +82,7 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	| CQRS Workshop             |
 	| Additional cocktail party |
 	And these Order Items should be reserved
-	| seat type                        |
-	| General admission                |
+	| seat type         | quantity |
+	| General admission | 1        |
 	And the total should read $199
 	And the countdown started

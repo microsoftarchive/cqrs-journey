@@ -63,6 +63,17 @@ namespace Conference.Specflow
             }
         }
 
+        public static bool ContainsValueInTableRow(this Browser browser, string rowName, string value)
+        {
+            //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
+            var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
+            if (tr != null && tr.TableCells.Count > 0)
+            {
+                return tr.TableCells.Any(c => c.Text.Contains(value));
+            }
+            return false;
+        }
+
         public static void SetInputvalue(this Browser browser, string inputId, string value, string attributeValue = null)
         {
             var input = browser.TextField(inputId);

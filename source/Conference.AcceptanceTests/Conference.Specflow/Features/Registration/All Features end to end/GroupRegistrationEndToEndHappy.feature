@@ -36,10 +36,10 @@ Scenario: All the Order Items are available and all get selected, then all get r
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
-		| seat type                 |
-		| General admission         |
-		| CQRS Workshop             |
-		| Additional cocktail party |
+		| seat type                 | quantity |
+		| General admission         | 3        |
+		| CQRS Workshop             | 1        |
+		| Additional cocktail party | 2        |
 	And the total should read $1197
 	And the countdown started	
 

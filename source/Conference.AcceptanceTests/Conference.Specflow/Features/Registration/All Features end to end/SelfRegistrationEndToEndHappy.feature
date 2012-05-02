@@ -35,9 +35,9 @@ Scenario: Make a reservation with the selected Order Items
 	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
-		| seat type                 |
-		| General admission         |
-		| Additional cocktail party |
+		| seat type                 | quantity |
+		| General admission         | 1        |
+		| Additional cocktail party | 1        |
 	And these Order Items should not be reserved
 		| seat type     |
 		| CQRS Workshop |

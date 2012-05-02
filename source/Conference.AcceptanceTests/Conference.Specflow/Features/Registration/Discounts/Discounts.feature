@@ -11,15 +11,13 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-# Next release
-@Ignore
 Feature: Promotional Code scenarios for applying Promotional Codes to Seat Types
 	In order to apply a Promotional Code for one ore more Seat Types
 	As a Registrant
 	I want to be able to enter a Promotional Code and get the specified price reduction
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code
+	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code Discounts
 	| seat type                 | rate |
 	| General admission         | $199 |
 	| CQRS Workshop             | $500 |
@@ -34,6 +32,8 @@ Background:
 	| CONFONLY         | $50      | Single    | General admission, CQRS Workshop |            |
 
 
+#Next release
+@Ignore
 Scenario: Full Promotional Code for all selected items
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -46,6 +46,8 @@ Scenario: Full Promotional Code for all selected items
 	And the total amount should be of $0
 
 
+#Next release
+@Ignore
 Scenario: Partial Promotional Code for all selected items
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -58,6 +60,8 @@ Scenario: Partial Promotional Code for all selected items
 	And the total amount should be of $600
 
 
+#Next release
+@Ignore
 Scenario: Partial Promotional Code for none of the selected items
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -69,6 +73,8 @@ Scenario: Partial Promotional Code for none of the selected items
 	And the total amount should be of $600
 
 
+#Next release
+@Ignore
 Scenario: Cumulative Promotional Codes
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -83,6 +89,8 @@ Scenario: Cumulative Promotional Codes
 	And the total amount should be of $1167
 
 
+#Next release
+@Ignore
 Scenario: Single use Promotional Code
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -98,6 +106,8 @@ Scenario: Single use Promotional Code
 	And the total amount should be of $600
 
 
+#Next release
+@Ignore
 Scenario: Mutually exclusive Promotional Code
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -112,6 +122,8 @@ Scenario: Mutually exclusive Promotional Code
 	And the total amount should be of $1187
 
 
+#Next release
+@Ignore
 Scenario: Combine only Promotional Code
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -126,6 +138,8 @@ Scenario: Combine only Promotional Code
 	And the total amount should be of $590
 
 
+#Next release
+@Ignore
 Scenario: Partial scope
 	Given the selected available Order Items
 	| seat type                 | quantity |

@@ -12,7 +12,6 @@
 // ==============================================================================================================
 
 using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TechTalk.SpecFlow;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -20,6 +19,7 @@ using W = WatiN.Core;
 using System.Threading;
 using Registration.ReadModel;
 using System.Linq;
+using Xunit;
 
 namespace Conference.Specflow.Steps.Registration.EndToEnd
 {
@@ -33,7 +33,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
 
             // Store for later use
-            FeatureContext.Current.Set<ConferenceInfo>(conferenceInfo);
+            ScenarioContext.Current.Set<ConferenceInfo>(conferenceInfo);
 
             // Navigate to Registration page
             ScenarioContext.Current.Get<W.Browser>().GoTo(Constants.RegistrationPage(conferenceSlug));
@@ -85,20 +85,9 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [Given(@"these Seat Types becomes unavailable before the Registrant make the reservation")]
         public void GivenTheseSeatTypesBecomesUnavailableBeforeTheRegistrantMakeTheReservation(Table table)
         {
-            var reservationId = ConferenceHelper.ReserveSeats(FeatureContext.Current.Get<ConferenceInfo>(), table);
+            var reservationId = ConferenceHelper.ReserveSeats(ScenarioContext.Current.Get<ConferenceInfo>(), table);
             // Store for revert the reservation after scenario ends
             ScenarioContext.Current.Set<Guid>(reservationId, "reservationId");
-        }
-
-        [AfterScenario]
-        public static void AfterScenario()
-        {
-            // Restore the available setes previous to the reservation
-            Guid reservationId;
-            if (ScenarioContext.Current.TryGetValue<Guid>("reservationId", out reservationId))
-            {
-                ConferenceHelper.CancelSeatReservation(FeatureContext.Current.Get<ConferenceInfo>().Id, reservationId);
-            }
         }
 
         [When(@"the Registrant proceed to make the Reservation")]
@@ -122,21 +111,21 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
         public void ThenTheReservationIsConfirmedForAllTheSelectedOrderItems()
         {
-            Assert.IsTrue(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSuccessfull),
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSuccessfull),
                 string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull)); 
         }
 
         [Then(@"the total should read \$(.*)")]
         public void ThenTheTotalShouldRead(int value)
         {
-            Assert.IsTrue(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString()),
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString()),
                 string.Format("The following text was not found on the page: {0}", value)); 
         }
 
         [Then(@"the message '(.*)' will show up")]
         public void ThenTheMessageWillShowUp(string message)
         {
-            Assert.IsTrue(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(message),
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(message),
                 string.Format("The following text was not found on the page: {0}", message)); 
         }
 
@@ -145,15 +134,15 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         {
             var countdown = ScenarioContext.Current.Get<W.Browser>().Div("countdown_time").Text;
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(countdown));
+            Assert.False(string.IsNullOrWhiteSpace(countdown));
             TimeSpan countdownTime = TimeSpan.ParseExact(countdown, @"mm\:ss", CultureInfo.InvariantCulture);
-            Assert.IsTrue(countdownTime.Minutes > 0 && countdownTime.Minutes < 15);
+            Assert.True(countdownTime.Minutes > 0 && countdownTime.Minutes < 15);
         }
 
         [Then(@"the payment options should be offered for a total of \$(.*)")]
         public void ThenThePaymentOptionsShouldBeOfferedForATotalOf(int value)
         {
-            Assert.IsTrue(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString()),
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString()),
                 string.Format("The following text was not found on the page: {0}", value)); 
         }
 
@@ -163,9 +152,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             var browser = ScenarioContext.Current.Get<W.Browser>(); 
             foreach (var row in table.Rows)
             {
-                string value = row["seat type"];
-                Assert.IsTrue(browser.SafeContainsText(value),
-                    string.Format("The following text was not found on the page: {0}", value)); 
+                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]), 
+                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));             
             }
         }
 
@@ -175,9 +163,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             var browser = ScenarioContext.Current.Get<W.Browser>(); 
             foreach (var row in table.Rows)
             {
-                string value = row["seat type"];
-                Assert.IsFalse(browser.SafeContainsText(value),
-                    string.Format("The following text was found on the page and not expected: {0}", value));
+                Assert.True(browser.ContainsValueInTableRow(row["seat type"], "0"),
+                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], "0"));                
             }
         }
 
@@ -186,38 +173,32 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         {
             var browser = ScenarioContext.Current.Get<W.Browser>();
             string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
-            Assert.IsFalse(string.IsNullOrWhiteSpace(accessCode));
+            Assert.False(string.IsNullOrWhiteSpace(accessCode));
 
             Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
 
-            // Check via controller Infrastructure instead of UI
-
             var email = ScenarioContext.Current.Get<string>("email");
-            var order = RegistrationHelper.GetOrder(email, accessCode);
 
-            Assert.IsNotNull(order);
+            // Navigate to Registration page
+            browser.GoTo(Constants.FindOrderPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
+            browser.SetInputvalue("name", email, "email");
+            browser.SetInputvalue("name", accessCode, "accessCode");
+            browser.Click("find");
+            ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.FindOrderSuccessfull, Constants.UI.WaitTimeout.Seconds);
 
-            var conference = FeatureContext.Current.Get<ConferenceInfo>();
-            foreach (var row in table.Rows)
+            Assert.True(browser.SafeContainsText(accessCode),
+                   string.Format("The following text was not found on the page: {0}", accessCode));
+        }
+
+        [AfterScenario]
+        public static void AfterScenario()
+        {
+            // Restore the available setes previous to the reservation
+            Guid reservationId;
+            if (ScenarioContext.Current.TryGetValue<Guid>("reservationId", out reservationId))
             {
-                string value = row["seat type"];
-                var orderItem = order.Lines.FirstOrDefault(
-                    l => l.SeatType == conference.Seats.First(s => s.Description == row["seat type"]).Id);
-
-                Assert.IsNotNull(orderItem);
-                Assert.AreEqual(Int32.Parse(row["quantity"]), orderItem.ReservedSeats);
+                ConferenceHelper.CancelSeatReservation(ScenarioContext.Current.Get<ConferenceInfo>().Id, reservationId);
             }
-
-            // Alternate method to check via UI
-            //// Navigate to Registration page
-            //browser.GoTo(Constants.FindOrderPage(FeatureContext.Current.Get<ConferenceInfo>().Slug));
-            //browser.SetInputvalue("name", email, "email");
-            //browser.SetInputvalue("name", accessCode, "accessCode");
-            //browser.Click("find");
-            //ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.FindOrderSuccessfull, Constants.UI.WaitTimeout.Seconds);
-
-            //Assert.IsTrue(browser.SafeContainsText(accessCode),
-            //       string.Format("The following text was not found on the page: {0}", accessCode));
         }
     }
 }
