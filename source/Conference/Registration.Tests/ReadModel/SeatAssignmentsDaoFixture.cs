@@ -11,38 +11,42 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel.Implementation
+namespace Registration.Tests.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
+    using System.IO;
     using Infrastructure.Blob;
     using Infrastructure.Serialization;
-    using System.IO;
+    using Moq;
+    using Registration.ReadModel;
+    using Registration.ReadModel.Implementation;
+    using Xunit;
 
-    public class SeatAssignmentsDao : ISeatAssignmentsDao
+    public class SeatAssignmentsDaoFixture
     {
-        private IBlobStorage storage;
-        private ITextSerializer serializer;
-
-        public SeatAssignmentsDao(IBlobStorage storage, ITextSerializer serializer)
+        [Fact]
+        public void when_finding_non_existing_assignment_then_returns_null()
         {
-            this.storage = storage;
-            this.serializer = serializer;
+            var storage = new Mock<IBlobStorage>();
+            storage.SetReturnsDefault<byte[]>(null);
+            var dao = new SeatAssignmentsDao(storage.Object, Mock.Of<ITextSerializer>());
+
+            var dto = dao.Find(Guid.NewGuid());
+
+            Assert.Null(dto);
         }
 
-        public SeatAssignmentsDTO Find(Guid assignmentsId)
+        [Fact]
+        public void when_finding_existing_dao_then_deserializes_blob_and_returns_instance()
         {
-            var blob = this.storage.Find("SeatAssignments-" + assignmentsId);
-            if (blob == null)
-                return null;
+            var dto = new SeatAssignmentsDTO();
+            var storage = Mock.Of<IBlobStorage>(x => x.Find(It.IsAny<string>()) == new byte[0]);
+            var serializer = Mock.Of<ITextSerializer>(x => x.Deserialize(It.IsAny<TextReader>()) == dto);
+            var dao = new SeatAssignmentsDao(storage, serializer);
 
-            using (var stream = new MemoryStream(blob))
-            using (var reader = new StreamReader(stream))
-            {
-                return (SeatAssignmentsDTO)this.serializer.Deserialize(reader);
-            }
+            var result = dao.Find(Guid.NewGuid());
+
+            Assert.Same(result, dto);
         }
     }
 }
