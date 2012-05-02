@@ -177,17 +177,11 @@ namespace Conference.Web.Public.Controllers
 
         private InitiateThirdPartyProcessorPayment CreatePaymentCommand(Guid orderId)
         {
-            // TODO extract pricing outside the controller
-            var seats = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
-            var order = this.orderDao.GetOrderDetails(orderId);
-
-            var items =
-                from seat in seats
-                join orderItem in order.Lines on seat.Id equals orderItem.SeatType
-                select new { orderItem.SeatType, orderItem.ReservedSeats, seat.Price, ItemPrice = orderItem.ReservedSeats * seat.Price };
+            var totalledOrder = this.orderDao.GetTotalledOrder(orderId);
+            // TODO: should add the line items?
 
             var description = "Registration for " + this.Conference.Name;
-            var totalAmount = items.Sum(i => i.ItemPrice);
+            var totalAmount = totalledOrder.Total;
 
             var paymentCommand =
                 new InitiateThirdPartyProcessorPayment
