@@ -19,11 +19,12 @@ namespace Registration.Events
 
     public class SeatAssignmentRemoved : VersionedEvent
     {
-        public SeatAssignmentRemoved(Guid seatAssignmentId)
+        public SeatAssignmentRemoved(Guid sourceId)
         {
-            this.SourceId = seatAssignmentId;
+            this.SourceId = sourceId;
         }
 
+        public Guid AssignmentId { get; set; }
         public Guid SeatType { get; set; }
 
         public string FirstName { get; set; }

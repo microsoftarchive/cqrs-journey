@@ -19,6 +19,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
     using Moq;
     using Registration.ReadModel;
     using Xunit;
+    using Infrastructure.Messaging;
 
     public class given_controller
     {
@@ -31,7 +32,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
             this.orderDao = Mock.Of<IOrderDao>();
             this.assignmentsDao = Mock.Of<ISeatAssignmentsDao>();
 
-            this.sut = new OrderController(this.orderDao, this.assignmentsDao);
+            this.sut = new OrderController(this.orderDao, this.assignmentsDao, Mock.Of<ICommandBus>());
         }
 
         [Fact]

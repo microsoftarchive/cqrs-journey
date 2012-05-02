@@ -23,8 +23,13 @@ namespace Registration.Handlers
     using Infrastructure.Serialization;
     using Registration.ReadModel;
     using System.IO;
+    using AutoMapper;
 
-    public class SeatAssignmentsViewModelGenerator : IEventHandler<SeatAssignmentsCreated>
+    public class SeatAssignmentsViewModelGenerator :
+        IEventHandler<SeatAssignmentsCreated>,
+        IEventHandler<SeatAssignmentAdded>,
+        IEventHandler<SeatAssignmentRemoved>,
+        IEventHandler<SeatAssignmentUpdated>
     {
         private IBlobStorage storage;
         private ITextSerializer serializer;
@@ -33,6 +38,15 @@ namespace Registration.Handlers
         {
             this.storage = storage;
             this.serializer = serializer;
+        }
+
+        static SeatAssignmentsViewModelGenerator()
+        {
+            // Can't change seat types via events.
+            Mapper.CreateMap<SeatAssignmentAdded, SeatAssignmentDTO>()
+                .ForSourceMember(source => source.SeatType, options => options.Ignore());
+            Mapper.CreateMap<SeatAssignmentUpdated, SeatAssignmentDTO>()
+                .ForSourceMember(source => source.SeatType, options => options.Ignore());
         }
 
         public void Handle(SeatAssignmentsCreated @event)
@@ -44,12 +58,72 @@ namespace Registration.Handlers
                     // Add as many assignments as seats there are.
                     Enumerable
                         .Range(0, seat.Quantity)
-                        .Select(i => new SeatAssignmentDTO(seat.SeatType))));
+                        .Select(i => new SeatAssignmentDTO(Guid.NewGuid(), seat.SeatType))));
 
+            Save(dto);
+        }
+
+        public void Handle(SeatAssignmentAdded @event)
+        {
+            var dto = Find(@event.SourceId);
+            if (dto != null)
+            {
+                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId);
+                if (seat != null)
+                {
+                    Mapper.Map(@event, seat);
+                    Save(dto);
+                }
+            }
+        }
+
+        public void Handle(SeatAssignmentRemoved @event)
+        {
+            var dto = Find(@event.SourceId);
+            if (dto != null)
+            {
+                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId && x.Email == @event.Email);
+                if (seat != null)
+                {
+                    seat.Email = seat.FirstName = seat.LastName = null;
+                    Save(dto);
+                }
+            }
+        }
+
+        public void Handle(SeatAssignmentUpdated @event)
+        {
+            var dto = Find(@event.SourceId);
+            if (dto != null)
+            {
+                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId);
+                if (seat != null)
+                {
+                    Mapper.Map(@event, seat);
+                    Save(dto);
+                }
+            }
+        }
+
+        private SeatAssignmentsDTO Find(Guid id)
+        {
+            var dto = this.storage.Find("SeatAssignments-" + id);
+            if (dto == null)
+                return null;
+
+            using (var stream = new MemoryStream(dto))
+            using (var reader = new StreamReader(stream))
+            {
+                return (SeatAssignmentsDTO)this.serializer.Deserialize(reader);
+            }
+        }
+
+        private void Save(SeatAssignmentsDTO dto)
+        {
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, dto);
-                this.storage.Save("SeatAssignments-" + @event.SourceId, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
+                this.storage.Save("SeatAssignments-" + dto.Id, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
             }
         }
     }

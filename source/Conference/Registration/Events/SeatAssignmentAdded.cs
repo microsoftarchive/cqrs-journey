@@ -19,11 +19,12 @@ namespace Registration.Events
 
     public class SeatAssignmentAdded : VersionedEvent
     {
-        public SeatAssignmentAdded(Guid seatAssignmentId)
+        public SeatAssignmentAdded(Guid sourceId)
         {
-            this.SourceId = seatAssignmentId;
+            this.SourceId = sourceId;
         }
 
+        public Guid AssignmentId { get; set; }
         public Guid SeatType { get; set; }
 
         public string FirstName { get; set; }

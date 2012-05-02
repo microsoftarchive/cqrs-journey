@@ -25,6 +25,16 @@ namespace Registration
     {
         private Dictionary<Guid, int> availableSeats = new Dictionary<Guid, int>();
 
+        static SeatAssignments()
+        {
+            Mapper.CreateMap<SeatAssignment, SeatAssignmentAdded>()
+                .ForMember(target => target.AssignmentId, options => options.MapFrom(source => source.Id));
+            Mapper.CreateMap<SeatAssignment, SeatAssignmentRemoved>()
+                .ForMember(target => target.AssignmentId, options => options.MapFrom(source => source.Id));
+            Mapper.CreateMap<SeatAssignment, SeatAssignmentUpdated>()
+                .ForMember(target => target.AssignmentId, options => options.MapFrom(source => source.Id));
+        }
+
         public SeatAssignments(Guid id, IEnumerable<SeatQuantity> seats)
             : this(id)
         {
@@ -41,6 +51,11 @@ namespace Registration
             : base(id)
         {
             base.Handles<SeatAssignmentsCreated>(this.OnCreated);
+            // NOTE: we need to add empty Handles here so that the base class can make 
+            // sure we didn't omit a handler by mistake.
+            base.Handles<SeatAssignmentAdded>(_ => { });
+            base.Handles<SeatAssignmentRemoved>(_ => { });
+            base.Handles<SeatAssignmentUpdated>(_ => { });
         }
 
         public void AssignSeats(IEnumerable<SeatAssignment> assignments)

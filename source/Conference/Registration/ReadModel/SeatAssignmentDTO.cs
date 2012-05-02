@@ -20,14 +20,19 @@ namespace Registration.ReadModel
 {
     public class SeatAssignmentDTO
     {
-        public SeatAssignmentDTO(Guid seatType)
+        // Model binder for MVC needs this, as well as public properties.
+        public SeatAssignmentDTO()
         {
-            this.Id = Guid.NewGuid();
+        }
+
+        public SeatAssignmentDTO(Guid id, Guid seatType)
+        {
+            this.Id = id;
             this.SeatType = seatType;
         }
 
-        public Guid Id { get; private set; }
-        public Guid SeatType { get; private set; }
+        public Guid Id { get; set; }
+        public Guid SeatType { get; set; }
 
         public string FirstName { get; set; }
         public string LastName { get; set; }

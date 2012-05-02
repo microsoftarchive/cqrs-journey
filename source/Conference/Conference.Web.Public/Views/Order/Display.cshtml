@@ -20,7 +20,7 @@
                             Seat Assignment</h3>
                         <table class="content__table_first-cell-wide">
                             <tr>
-                                <th style="width: 75%">
+                                <th scope="col">
                                     Seat type
                                 </th>
                                 <th scope="col">
@@ -38,6 +38,12 @@
                                 <tr>
                                     <td>
                                         @Html.HiddenFor(model => model.Seats[i].Id)
+                                        @Html.Hidden("Seats[" + i + "].Id", this.Model.Seats[i].Id)
+                                        <!-- TODO: grab the seat type name from somewhere? -->
+                                        @Html.DisplayFor(model => model.Seats[i].SeatType)
+                                        @Html.HiddenFor(model => model.Seats[i].SeatType)
+                                    </td>
+                                    <td>
                                         @Html.EditorFor(model => model.Seats[i].FirstName)
                                     </td>
                                     <td>
