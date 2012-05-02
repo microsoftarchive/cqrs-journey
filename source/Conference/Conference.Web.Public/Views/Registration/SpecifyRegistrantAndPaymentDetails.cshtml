@@ -52,7 +52,7 @@
                                     @Html.RadioButton("paymentType", "thirdParty", true) Credit card
                                 </label>
                                 <label class="form__rb__item js-radiobutton" name="js-invoiceme">
-                                    @Html.RadioButton("paymentType", "invoice") Invoice me
+                                    @Html.RadioButton("paymentType", "invoice", new { disabled = "disabled" }) Invoice me
                                 </label>
 						    </fieldset>
 					    </div>
