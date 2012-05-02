@@ -131,7 +131,7 @@ Before you start working on bug fixes and features it is good idea to discuss th
 
 Before submitting your changes make sure you followed the guidelines below:
 
-* For every new code file, include the file header with license information that is included in all other files (see [https://github.com/mspnp/cqrs-journey-code/blob/dev/source/Conference/..\CQRS-journey.licenseheader](https://github.com/mspnp/cqrs-journey-code/blob/dev/source/CQRS-journey.licenseheader), for example).
+* For every new code file, include the file header with license information that is included in all other files (see [https://github.com/mspnp/cqrs-journey-code/blob/dev/source/CQRS-journey.licenseheader](https://github.com/mspnp/cqrs-journey-code/blob/dev/source/CQRS-journey.licenseheader), for example).
 * You have properly documented any new functionality using the documentation standards for the language (this includes classes, methods and functions, properties etc.). For any change you make proper inline documentation is included.
 * For any new functionality or updates, you have written complete unit tests.
 * You have run all unit tests and they pass.
@@ -148,7 +148,7 @@ In order to speed up the process of accepting your contributions, you should try
 
 In order to become a contributor to the project you must sign the Contributor License Agreement (CLA). Signing the Contributor License Agreement (CLA) does not grant you rights to commit to the source code or doc repositories but it does mean that we will consider your contributions and you will get credit for them if we use them. 
 
-You can download the Contributor License Agreement (CLA) by clicking at the following link: [http://cqrsjourney.github.com/docs/Contribution%20License%20 Agreement.pdf](http://cqrsjourney.github.com/docs/Contribution%20License%20 Agreement.pdf). Please fill in, sign, scan and email it to [cla@microsoft.com](mailto:cla@microsoft.com).
+You can download the Contributor License Agreement (CLA) by clicking at the following link: [http://cqrsjourney.github.com/docs/Contribution%20License%20Agreement.pdf](http://cqrsjourney.github.com/docs/Contribution%20License%20Agreement.pdf). Please fill in, sign, scan and email it to [cla@microsoft.com](mailto:cla@microsoft.com).
 
 You do not need to sign a separate agreement if you have already submitted one to contribute to the project's source code or to other Microsoft OSS projects (such as Windows Azure SDK) and if your employer hasn't changed.
 
