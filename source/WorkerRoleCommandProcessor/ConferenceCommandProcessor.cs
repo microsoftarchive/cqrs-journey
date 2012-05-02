@@ -128,8 +128,9 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<EventStoreDbContext>(new TransientLifetimeManager(), new InjectionConstructor("EventStore"));
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
 #else
-            var eventSourcingAccount = CloudStorageAccount.Parse(InfrastructureSettings.ReadEventSourcing("Settings.xml").ConnectionString);
-            var eventStore = new EventStore(eventSourcingAccount, "ConferenceEventStore");
+            var eventSourcingSettings = InfrastructureSettings.ReadEventSourcing("Settings.xml");
+            var eventSourcingAccount = CloudStorageAccount.Parse(eventSourcingSettings.ConnectionString);
+            var eventStore = new EventStore(eventSourcingAccount, eventSourcingSettings.TableName);
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());

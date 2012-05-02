@@ -39,6 +39,10 @@ namespace Infrastructure.Azure.EventSourcing
 
         public EventStore(CloudStorageAccount account, string tableName)
         {
+            if (account == null) throw new ArgumentNullException("account");
+            if (tableName == null) throw new ArgumentNullException("tableName");
+            if (string.IsNullOrWhiteSpace(tableName)) throw new ArgumentException("tableName");
+
             this.account = account;
             this.tableName = tableName;
             this.tableClient = account.CreateCloudTableClient();

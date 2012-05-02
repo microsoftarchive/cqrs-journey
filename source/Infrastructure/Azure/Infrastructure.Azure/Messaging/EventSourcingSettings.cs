@@ -25,5 +25,10 @@ namespace Infrastructure.Azure.Messaging
         /// Gets or sets the service URI scheme.
         /// </summary>
         public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// </summary>
+        public string TableName { get; set; }
     }
 }
