@@ -50,6 +50,7 @@ namespace Registration.Tests
             Assert.Equal(45m, actual.Lines.ElementAt(0).LineTotal);
             Assert.Equal(15m, ((SeatOrderLine)actual.Lines.ElementAt(0)).UnitPrice);
             Assert.Equal(seatTypes[0].Id, ((SeatOrderLine)actual.Lines.ElementAt(0)).SeatType);
+            Assert.Equal(3, ((SeatOrderLine)actual.Lines.ElementAt(0)).Quantity);
         }
 
         [Fact]

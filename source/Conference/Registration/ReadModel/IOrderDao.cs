@@ -21,5 +21,7 @@ namespace Registration.ReadModel
         OrderDTO GetOrderDetails(Guid orderId);
 
         Guid? LocateOrder(string email, string accessCode);
+
+        TotalledOrder GetTotalledOrder(Guid orderId);
     }
 }

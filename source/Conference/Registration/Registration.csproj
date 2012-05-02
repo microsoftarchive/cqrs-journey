@@ -73,6 +73,7 @@
     <Compile Include="Handlers\ConferenceViewModelGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
+    <Compile Include="Handlers\TotalledOrderViewModelGenerator.cs" />
     <Compile Include="IPricingService.cs" />
     <Compile Include="Events\OrderTotalsCalculated.cs" />
     <Compile Include="OrderLine.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
     <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
+    <Compile Include="ReadModel\TotalledOrder.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />

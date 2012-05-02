@@ -30,7 +30,7 @@ namespace Registration.ReadModel.Implementation
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<OrderDTO>().Include("Lines").Where(dto => dto.OrderId == orderId).FirstOrDefault();
+                return repository.Query<OrderDTO>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
 
@@ -50,6 +50,14 @@ namespace Registration.ReadModel.Implementation
                 }
 
                 return null;
+            }
+        }
+
+        public TotalledOrder GetTotalledOrder(Guid orderId)
+        {
+            using (var repository = this.contextFactory.Invoke())
+            {
+                return repository.Query<TotalledOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
     }

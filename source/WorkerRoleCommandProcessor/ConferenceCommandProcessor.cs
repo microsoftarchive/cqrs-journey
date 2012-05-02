@@ -163,6 +163,7 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
+            container.RegisterType<IEventHandler, TotalledOrderViewModelGenerator>("TotalledOrderViewModelGenerator");
             container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");
 
             return container;

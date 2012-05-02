@@ -35,8 +35,10 @@ namespace Registration.ReadModel.Implementation
 
             // Make the name of the views match exactly the name of the corresponding property.
             modelBuilder.Entity<OrderDTO>().ToTable("OrdersView", SchemaName);
-            // modelBuilder.Entity<OrderDTO>().HasMany(c => c.Lines).WithRequired().Map(c => c.MapKey("OrdersView_Id"));
             modelBuilder.Entity<OrderItemDTO>().ToTable("OrderItemsView", SchemaName);
+            modelBuilder.Entity<TotalledOrder>().ToTable("TotalledOrders", SchemaName);
+            modelBuilder.Entity<TotalledOrder>().HasMany(c => c.Lines).WithRequired().HasForeignKey(x => x.OrderId);
+            modelBuilder.Entity<TotalledOrderLine>().ToTable("TotalledOrderLines", SchemaName);
 
             modelBuilder.Entity<ConferenceDTO>().ToTable("ConferencesView", SchemaName);
             modelBuilder.Entity<ConferenceDTO>().HasMany(c => c.Seats).WithRequired().Map(c => c.MapKey("ConferencesView_Id"));
