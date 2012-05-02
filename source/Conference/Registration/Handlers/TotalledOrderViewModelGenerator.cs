@@ -49,7 +49,7 @@ namespace Registration.Handlers
                 if (seatTypeIds.Length > 0)
                 {
                     // if there are no seat type IDs, there is no need for the following IN query.
-                    var seatTypeDescriptions = context.Query<ConferenceSeatTypeDTO>().Where(x => seatTypeIds.Contains(x.Id)).Select(x => new { x.Id, x.Description }).ToList();
+                    var seatTypeDescriptions = context.Query<ConferenceSeatTypeDTO>().Where(x => seatTypeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
 
                     foreach (var orderLine in @event.Lines)
                     {
@@ -61,7 +61,7 @@ namespace Registration.Handlers
                         var seatOrderLine = orderLine as SeatOrderLine;
                         if (seatOrderLine != null)
                         {
-                            line.Description = seatTypeDescriptions.Where(x => x.Id == seatOrderLine.SeatType).Select(x => x.Description).FirstOrDefault();
+                            line.Description = seatTypeDescriptions.Where(x => x.Id == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
                             line.UnitPrice = seatOrderLine.UnitPrice;
                             line.Quantity = seatOrderLine.Quantity;
                         }

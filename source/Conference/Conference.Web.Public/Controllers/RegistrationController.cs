@@ -85,6 +85,12 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.Conference.Code, orderId = orderId });
             }
 
+            var totalledOrder = orderDao.GetTotalledOrder(orderId);
+            if (totalledOrder == null)
+            {
+                return View("ReservationUnknown");
+            }
+
             // NOTE: we use the view bag to pass out of band details needed for the UI.
             this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
 
@@ -93,7 +99,7 @@ namespace Conference.Web.Public.Controllers
                 new RegistrationViewModel
                 {
                     RegistrantDetails = new AssignRegistrantDetails { OrderId = orderId },
-                    Order = orderDao.GetTotalledOrder(orderId)
+                    Order = totalledOrder
                 });
         }
 
