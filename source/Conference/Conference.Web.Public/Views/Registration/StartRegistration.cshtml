@@ -37,7 +37,7 @@
                                          @Html.DisplayFor(model => model[i].Name)
                                          <p class="content__note">@Html.DisplayFor(model => model[i].Description)</p>
                                      </td>
-                                     <td style="text-align: right">$@Html.DisplayFor(model => model[i].Price)
+                                     <td style="text-align: right"><span class="unitPrice">$@Html.DisplayFor(model => model[i].Price)</span>
                                      </td>
                                      <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)))
                                          @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
@@ -52,7 +52,7 @@
 								    </div>*@
                                  </td>
                                  <td class="content__table-cell_right content__cell_total">Total:</td>
-                                 <td class="content__cell_total content__table-cell_left">$TODO</td>
+                                 <td class="content__cell_total content__table-cell_left">$<span id="total">TODO</span></td>
                              </tr>
                          </table>
                      </div>
@@ -93,4 +93,11 @@
 @section Scripts
 {
 <script type="text/javascript" src="@Url.Content("~/Content/form/form.js")"></script>
+<script type="text/javascript">
+$(function() {
+    function calculateTotals() {
+    }
+    
+});
+</script>
 }
