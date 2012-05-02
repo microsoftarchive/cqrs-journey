@@ -64,6 +64,13 @@ namespace Registration.Tests
             return (TEvent)@event;
         }
 
+        public TEvent ThenHasOne<TEvent>() where TEvent : IVersionedEvent
+        {
+            Assert.Equal(1, this.Events.OfType<TEvent>().Count());
+            var @event = this.Events.OfType<TEvent>().Single();
+            return @event;
+        }
+
         class RepositoryStub : IEventSourcedRepository<T>
         {
             public readonly List<IVersionedEvent> History = new List<IVersionedEvent>();

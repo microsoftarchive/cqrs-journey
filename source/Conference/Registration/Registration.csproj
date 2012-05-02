@@ -73,6 +73,10 @@
     <Compile Include="Handlers\ConferenceViewModelGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
+    <Compile Include="IPricingService.cs" />
+    <Compile Include="Events\OrderTotalsCalculated.cs" />
+    <Compile Include="OrderLine.cs" />
+    <Compile Include="OrderTotal.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
