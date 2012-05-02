@@ -68,7 +68,7 @@ namespace Registration.Handlers
                 var dto = context.Set<OrderDTO>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
 
                 var linesSet = context.Set<OrderItemDTO>();
-                foreach (var line in linesSet)
+                foreach (var line in linesSet.ToList())
                 {
                     linesSet.Remove(line);
                 }

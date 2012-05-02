@@ -45,7 +45,7 @@ namespace Registration.Handlers
                 else
                 {
                     var linesSet = context.Set<TotalledOrderLine>();
-                    foreach (var line in dto.Lines)
+                    foreach (var line in dto.Lines.ToList())
                     {
                         linesSet.Remove(line);
                     }
