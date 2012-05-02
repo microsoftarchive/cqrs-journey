@@ -87,3 +87,21 @@ See the License for the specific language governing permissions and limitations 
 .content-main__nav {
     padding: 21px 19px 10px;
 }
+
+.content-main_assignseats {width: 1020px;padding: 0;}
+.content-main_main_assignseats .content-main__wrapper {
+    width: auto;
+    float: none;
+    }
+    *:first-child+html .content-main_main_assignseats .content-main__main {padding: 0; }
+    .content-main_assignseats .content-main__main {
+        float: left;
+        margin: 0;
+        width: 800px;
+        }
+.content-main_assignseats .content-main__aside {
+    float: right;
+    width: 300px;
+    margin: 0;
+    padding: 0;
+}

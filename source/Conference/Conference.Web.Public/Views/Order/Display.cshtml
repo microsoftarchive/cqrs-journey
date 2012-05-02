@@ -2,16 +2,14 @@
 @{
     ViewBag.Title = "Display Order";
 }
-<h1 class="page__head page__wrapper">
-    Assign Seats</h1>
+<h1 class="page__head page__wrapper">Assign Seats</h1>
 <div class="page__content">
-    <div class="page__wrapper content-main">
+    <div class="page__wrapper content-main content-main_assignseats">
         <div class="content-main__wrapper">
             <div class="content-main__main">
                 @using (Html.BeginForm())
                 {
-                    <div class="content-main__header">
-                        Register</div>
+                    <div class="content-main__header">Seat assignment</div>
                     <div class="content">
                         @Html.Hidden("OrderId")
                         <p>
@@ -20,18 +18,10 @@
                             Seat Assignment</h3>
                         <table class="content__table_first-cell-wide">
                             <tr>
-                                <th scope="col">
-                                    Seat type
-                                </th>
-                                <th scope="col">
-                                    First name
-                                </th>
-                                <th scope="col">
-                                    Last name
-                                </th>
-                                <th scope="col">
-                                    Email
-                                </th>
+                                <th scope="col">Seat type</th>
+                                <th scope="col">First name</th>
+                                <th scope="col">Last name</th>
+                                <th scope="col">Email</th>
                             </tr>
                             @for (var i = 0; i < this.Model.Seats.Count; i++)
                             {
