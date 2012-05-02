@@ -18,9 +18,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
-    [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
-    public partial class RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature
+    public partial class RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature : Xunit.IUseFixture<RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -28,33 +26,28 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
 #line 1 "FullAssignments.feature"
 #line hidden
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
-        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
+        public RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature()
+        {
+            this.TestInitialize();
+        }
+        
+        public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Registrant workflow for assigning all the registered Order Items.", "", ProgrammingLanguage.CSharp, new string[] {
-                        "Ignore"});
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Registrant workflow for assigning all the registered Order Items.", "", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
-            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
-                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Registrant workflow for assigning all the registered Order Items.")))
-            {
-                Conference.Specflow.Features.Registration.SeatAssignments.RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature.FeatureSetup(null);
-            }
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -72,7 +65,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
         
         public virtual void FeatureBackground()
         {
-#line 18
+#line 16
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "First name",
@@ -89,7 +82,7 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "Weber",
                         "gregoryweber@contoso.com",
                         "Additional cocktail party"});
-#line 19
+#line 17
  testRunner.Given("the individual purchased Seats", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -127,20 +120,30 @@ namespace Conference.Specflow.Features.Registration.SeatAssignments
                         "Gregory",
                         "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 23
+#line 21
  testRunner.And("the group purchased Seats", ((string)(null)), table2);
 #line hidden
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Allocate all purchased Seats for an individual")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant workflow for assigning all the registered Order Items.")]
+        public virtual void SetFixture(RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature.FixtureData fixtureData)
+        {
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant workflow for assigning all the registered Order Items.")]
+        [Xunit.TraitAttribute("Description", "Allocate all purchased Seats for an individual")]
         public virtual void AllocateAllPurchasedSeatsForAnIndividual()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for an individual", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for an individual", new string[] {
+                        "Ignore"});
 #line 33
 this.ScenarioSetup(scenarioInfo);
-#line 18
+#line 16
 this.FeatureBackground();
 #line 34
 testRunner.Given("the ConfirmSuccessfulRegistration for the selected Order Items");
@@ -186,19 +189,20 @@ testRunner.And("the Attendees should get an email informing about the conference
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("Allocate all purchased Seats for a group")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant workflow for assigning all the registered Order Items.")]
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant workflow for assigning all the registered Order Items.")]
+        [Xunit.TraitAttribute("Description", "Allocate all purchased Seats for a group")]
         public virtual void AllocateAllPurchasedSeatsForAGroup()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for a group", ((string[])(null)));
-#line 47
-this.ScenarioSetup(scenarioInfo);
-#line 18
-this.FeatureBackground();
-#line 48
-testRunner.Given("the ConfirmSuccessfulRegistration");
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for a group", new string[] {
+                        "Ignore"});
 #line 49
+this.ScenarioSetup(scenarioInfo);
+#line 16
+this.FeatureBackground();
+#line 50
+testRunner.Given("the ConfirmSuccessfulRegistration");
+#line 51
 testRunner.And("the order access code is 6789");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
@@ -236,9 +240,9 @@ testRunner.And("the order access code is 6789");
                         "Gregory",
                         "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 50
+#line 52
 testRunner.And("the Registrant assign the group purchased Seats to attendees as following", ((string)(null)), table5);
-#line 58
+#line 60
 testRunner.Then("the Registrant should get a Seat Assignment confirmation");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
@@ -269,11 +273,27 @@ testRunner.Then("the Registrant should get a Seat Assignment confirmation");
                         "6789-6",
                         "Jim@Gregory.com",
                         "Additional cocktail party"});
-#line 59
+#line 61
 testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
                     "e with Seat Access Code", ((string)(null)), table6);
 #line hidden
             this.ScenarioCleanup();
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
+        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        public class FixtureData : System.IDisposable
+        {
+            
+            public FixtureData()
+            {
+                RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature.FeatureSetup();
+            }
+            
+            void System.IDisposable.Dispose()
+            {
+                RegistrantWorkflowForAssigningAllTheRegisteredOrderItems_Feature.FeatureTearDown();
+            }
         }
     }
 }

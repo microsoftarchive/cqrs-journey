@@ -18,8 +18,7 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
-    public partial class SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature
+    public partial class SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature : Xunit.IUseFixture<SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -27,8 +26,12 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
 #line 1 "SelfRegistrationReservationWithFullAvailability.feature"
 #line hidden
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
-        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
+        public SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature()
+        {
+            this.TestInitialize();
+        }
+        
+        public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Self Registrant scenarios for making a Reservation for a Conference site with all" +
@@ -38,25 +41,16 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
             testRunner.OnFeatureStart(featureInfo);
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
-            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
-                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Self Registrant scenarios for making a Reservation for a Conference site with all" +
-                            " Order Items initially available")))
-            {
-                Conference.Specflow.Features.Registration.IndividualReservation.SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FeatureSetup(null);
-            }
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -113,10 +107,19 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
 #line hidden
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available and all get reserved")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
+        public virtual void SetFixture(SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FixtureData fixtureData)
+        {
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
             " Order Items initially available")]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available and all get reserved")]
         public virtual void AllTheOrderItemsAreAvailableAndAllGetReserved()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and all get reserved", ((string[])(null)));
@@ -130,13 +133,17 @@ this.FeatureBackground();
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type"});
+                        "seat type",
+                        "quantity"});
             table3.AddRow(new string[] {
-                        "General admission"});
+                        "General admission",
+                        "1"});
             table3.AddRow(new string[] {
-                        "CQRS Workshop"});
+                        "CQRS Workshop",
+                        "1"});
             table3.AddRow(new string[] {
-                        "Additional cocktail party"});
+                        "Additional cocktail party",
+                        "1"});
 #line 39
  testRunner.And("these Order Items should be reserved", ((string)(null)), table3);
 #line 44
@@ -147,11 +154,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available and all get waitlisted")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
             " Order Items initially available")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available and all get waitlisted")]
         public virtual void AllTheOrderItemsAreAvailableAndAllGetWaitlisted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and all get waitlisted", new string[] {
@@ -188,11 +194,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All Seat Types are available, one get reserved and two get waitlisted")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
             " Order Items initially available")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
+        [Xunit.TraitAttribute("Description", "All Seat Types are available, one get reserved and two get waitlisted")]
         public virtual void AllSeatTypesAreAvailableOneGetReservedAndTwoGetWaitlisted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All Seat Types are available, one get reserved and two get waitlisted", new string[] {
@@ -223,9 +228,11 @@ this.FeatureBackground();
  testRunner.Then("the Registrant is offered to be waitlisted for these Order Items", ((string)(null)), table7);
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type"});
+                        "seat type",
+                        "quantity"});
             table8.AddRow(new string[] {
-                        "General admission"});
+                        "General admission",
+                        "1"});
 #line 84
  testRunner.And("these Order Items should be reserved", ((string)(null)), table8);
 #line 87
@@ -234,6 +241,22 @@ this.FeatureBackground();
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
+        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        public class FixtureData : System.IDisposable
+        {
+            
+            public FixtureData()
+            {
+                SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FeatureSetup();
+            }
+            
+            void System.IDisposable.Dispose()
+            {
+                SelfRegistrantScenariosForMakingAReservationForAConferenceSiteWithAllOrderItemsInitiallyAvailableFeature.FeatureTearDown();
+            }
         }
     }
 }

@@ -98,6 +98,11 @@ namespace Conference.Specflow
             commandBus.Send(seatReservation);
         }
 
+        public static ICommandBus GetCommandBus()
+        {
+            return BuildCommandBus();
+        }
+
         private static ConferenceInfo BuildConferenceInfo(Table seats, string conferenceSlug)
         {
             var conference = new ConferenceInfo()

@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-#Next release
-@Ignore
 Feature: Registrant scenarios for registering a group of Attendees for a conference when few Seats are available in all the Seat Types
 	In order to register for conference a group of Attendees
 	As a Registrant
@@ -29,6 +27,8 @@ Background:
 #1
 #Initial state	: 3 waitlisted and 3 selected
 #End state		: 3 waitlisted confirmed  
+#Next release
+@Ignore
 Scenario: All the Order Items are offered to be waitlisted and all are selected, then all get confirmed	
 	Given the list of Order Items offered to be waitlisted and selected by the Registrant
 	| seat type                 | quantity |
@@ -45,6 +45,8 @@ Scenario: All the Order Items are offered to be waitlisted and all are selected,
 #2
 #Initial state	: 2 available items and 1 waitlisted, 3 selected
 #End state		: 2 reserved, 2 waitlisted
+#Next release
+@Ignore
 Scenario: 2 the Order Items are available and 1 waitlisted, 1 becomes partially available,
 	      then 2 are partially offered to get waitlisted and 2 get reserved
 	Given the selected available Order Items

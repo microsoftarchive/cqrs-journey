@@ -22,6 +22,7 @@ namespace Conference.Specflow
     static class Constants
     {
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+        public const string NoWatiN = "NoWatiN";
 
         public static class UI
         {
