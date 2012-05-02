@@ -16,10 +16,9 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
+    using AutoMapper;
     using Infrastructure.EventSourcing;
     using Registration.Events;
-    using AutoMapper;
 
     public class SeatAssignments : EventSourced
     {
@@ -51,10 +50,11 @@ namespace Registration
             : base(id)
         {
             base.Handles<SeatAssignmentsCreated>(this.OnCreated);
-            // NOTE: we need to add empty Handles here so that the base class can make 
+            base.Handles<SeatAssignmentAdded>(this.OnAssignmentAdded);
+            base.Handles<SeatAssignmentRemoved>(this.OnAssignmentRemoved);
+
+            // NOTE: we need to add an empty Handles here so that the base class can make 
             // sure we didn't omit a handler by mistake.
-            base.Handles<SeatAssignmentAdded>(_ => { });
-            base.Handles<SeatAssignmentRemoved>(_ => { });
             base.Handles<SeatAssignmentUpdated>(_ => { });
         }
 
