@@ -17,7 +17,7 @@ namespace Registration
 
     public class OrderLine
     {
-        public int LineTotal { get; set; }
+        public decimal LineTotal { get; set; }
     }
 
     public class SeatOrderLine : OrderLine

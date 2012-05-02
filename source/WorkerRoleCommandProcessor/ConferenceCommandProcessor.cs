@@ -35,6 +35,7 @@ namespace WorkerRoleCommandProcessor
     using Registration;
     using Registration.Database;
     using Registration.Handlers;
+    using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 #if LOCAL
     using Infrastructure.Sql.Messaging;
@@ -149,7 +150,7 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
-
+            container.RegisterType<IConferenceDao, ConferenceDao>(new ContainerControlledLifetimeManager());
             // handlers
 
             container.RegisterType<IEventHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());

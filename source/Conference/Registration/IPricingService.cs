@@ -13,24 +13,11 @@
 
 namespace Registration
 {
+    using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     public interface IPricingService
     {
-        OrderTotal CalculateTotal(ICollection<SeatQuantity> seatItems);
-    }
-
-    public class PricingService : IPricingService
-    {
-        public OrderTotal CalculateTotal(ICollection<SeatQuantity> seatItems)
-        {
-            // stub implementation.
-            return new OrderTotal
-                       {
-                           Total = 0,
-                           Lines = seatItems.Select(x => new SeatOrderLine { SeatType = x.SeatType, UnitPrice = 0, LineTotal = 0 }).ToArray()
-                       };
-        }
+        OrderTotal CalculateTotal(Guid conferenceId, ICollection<SeatQuantity> seatItems);
     }
 }

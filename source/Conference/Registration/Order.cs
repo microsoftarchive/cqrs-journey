@@ -26,6 +26,7 @@ namespace Registration
 
         private List<SeatQuantity> seats;
         private bool isConfirmed;
+        private Guid conferenceId;
 
         protected Order(Guid id) : base(id)
         {
@@ -67,7 +68,7 @@ namespace Registration
 
             var reserved = reservedSeats.ToList();
 
-            var totals = pricingService.CalculateTotal(reserved.AsReadOnly());
+            var totals = pricingService.CalculateTotal(this.conferenceId, reserved.AsReadOnly());
 
             // Is there an order item which didn't get an exact reservation?
             if (this.seats.Any(item => !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
@@ -107,6 +108,7 @@ namespace Registration
 
         private void OnOrderPlaced(OrderPlaced e)
         {
+            this.conferenceId = e.ConferenceId;
             this.seats = e.Seats.ToList();
         }
 

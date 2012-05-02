@@ -96,7 +96,7 @@ namespace Registration.Tests.OrderFixture
         public given_placed_order()
         {
             this.pricingService = new Mock<IPricingService>();
-            this.pricingService.Setup(x => x.CalculateTotal(It.IsAny<ICollection<SeatQuantity>>())).Returns(OrderTotal);
+            this.pricingService.Setup(x => x.CalculateTotal(ConferenceId, It.IsAny<ICollection<SeatQuantity>>())).Returns(OrderTotal);
             this.sut = new EventSourcingTestHelper<Order>();
             this.sut.Setup(new OrderCommandHandler(sut.Repository, pricingService.Object));
 
@@ -146,7 +146,7 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(1, @event.Lines.Count());
             Assert.Same(OrderTotal.Lines.Single(), @event.Lines.Single());
 
-            pricingService.Verify(s => s.CalculateTotal(It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 3)));
+            pricingService.Verify(s => s.CalculateTotal(ConferenceId, It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 3)));
         }
 
         [Fact]
@@ -174,7 +174,7 @@ namespace Registration.Tests.OrderFixture
             Assert.Equal(1, @event.Lines.Count());
             Assert.Same(OrderTotal.Lines.Single(), @event.Lines.Single());
 
-            pricingService.Verify(s => s.CalculateTotal(It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 5)));
+            pricingService.Verify(s => s.CalculateTotal(ConferenceId, It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 5)));
         }
 
         [Fact]
