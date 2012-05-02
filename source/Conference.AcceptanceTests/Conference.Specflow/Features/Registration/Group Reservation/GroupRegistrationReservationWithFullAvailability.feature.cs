@@ -18,8 +18,7 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [Microsoft.VisualStudio.TestTools.UnitTesting.TestClassAttribute()]
-    public partial class RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature
+    public partial class RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature : Xunit.IUseFixture<RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -27,8 +26,12 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
 #line 1 "GroupRegistrationReservationWithFullAvailability.feature"
 #line hidden
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassInitializeAttribute()]
-        public static void FeatureSetup(Microsoft.VisualStudio.TestTools.UnitTesting.TestContext testContext)
+        public RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature()
+        {
+            this.TestInitialize();
+        }
+        
+        public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Registrant scenarios for registering a group of Attendees for a conference when a" +
@@ -38,25 +41,16 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
             testRunner.OnFeatureStart(featureInfo);
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.ClassCleanupAttribute()]
         public static void FeatureTearDown()
         {
             testRunner.OnFeatureEnd();
             testRunner = null;
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestInitializeAttribute()]
         public virtual void TestInitialize()
         {
-            if (((TechTalk.SpecFlow.FeatureContext.Current != null) 
-                        && (TechTalk.SpecFlow.FeatureContext.Current.FeatureInfo.Title != "Registrant scenarios for registering a group of Attendees for a conference when a" +
-                            "ll Seats are available in all the Seat Types")))
-            {
-                Conference.Specflow.Features.Registration.GroupReservation.RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature.FeatureSetup(null);
-            }
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestCleanupAttribute()]
         public virtual void ScenarioTearDown()
         {
             testRunner.OnScenarioEnd();
@@ -98,10 +92,19 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
 #line hidden
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available and all get selected, then all get reserved")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
+        public virtual void SetFixture(RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature.FixtureData fixtureData)
+        {
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
             "ll Seats are available in all the Seat Types")]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available and all get selected, then all get reserved")]
         public virtual void AllTheOrderItemsAreAvailableAndAllGetSelectedThenAllGetReserved()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and all get selected, then all get reserved", ((string[])(null)));
@@ -134,11 +137,11 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available and some get selected, then only the selected g" +
-            "et reserved")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
             "ll Seats are available in all the Seat Types")]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available and some get selected, then only the selected g" +
+            "et reserved")]
         public virtual void AllTheOrderItemsAreAvailableAndSomeGetSelectedThenOnlyTheSelectedGetReserved()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and some get selected, then only the selected g" +
@@ -169,11 +172,10 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available and all get waitlisted")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
             "ll Seats are available in all the Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available and all get waitlisted")]
         public virtual void AllTheOrderItemsAreAvailableAndAllGetWaitlisted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and all get waitlisted", new string[] {
@@ -221,12 +223,11 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute()]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.DescriptionAttribute("All the Order Items are available, 1 becomes partially available, 1 becomes unava" +
-            "ilable and 1 is available,")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.TestPropertyAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Registrant scenarios for registering a group of Attendees for a conference when a" +
             "ll Seats are available in all the Seat Types")]
-        [Microsoft.VisualStudio.TestTools.UnitTesting.IgnoreAttribute()]
+        [Xunit.TraitAttribute("Description", "All the Order Items are available, 1 becomes partially available, 1 becomes unava" +
+            "ilable and 1 is available,")]
         public virtual void AllTheOrderItemsAreAvailable1BecomesPartiallyAvailable1BecomesUnavailableAnd1IsAvailable()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available, 1 becomes partially available, 1 becomes unava" +
@@ -296,6 +297,22 @@ this.FeatureBackground();
  testRunner.And("the total should read $699");
 #line hidden
             this.ScenarioCleanup();
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
+        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        public class FixtureData : System.IDisposable
+        {
+            
+            public FixtureData()
+            {
+                RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature.FeatureSetup();
+            }
+            
+            void System.IDisposable.Dispose()
+            {
+                RegistrantScenariosForRegisteringAGroupOfAttendeesForAConferenceWhenAllSeatsAreAvailableInAllTheSeatTypesFeature.FeatureTearDown();
+            }
         }
     }
 }

@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-#Next release
-@Ignore
 Feature: Registrant workflow for assigning all the registered Order Items.
 
 Background: 
@@ -30,6 +28,8 @@ Background:
 	| Jim        | Gregory   | Jim@Gregory.com     | Additional cocktail party |
 
 
+#Next release
+@Ignore
 Scenario: Allocate all purchased Seats for an individual
 Given the ConfirmSuccessfulRegistration for the selected Order Items
 And the Order Access code is 6789
@@ -44,6 +44,8 @@ And the Attendees should get an email informing about the conference and the Sea
 	| 6789-2      | gregoryweber@contoso.com | Additional cocktail party |
 
 	
+#Next release
+@Ignore
 Scenario: Allocate all purchased Seats for a group
 Given the ConfirmSuccessfulRegistration
 And the order access code is 6789

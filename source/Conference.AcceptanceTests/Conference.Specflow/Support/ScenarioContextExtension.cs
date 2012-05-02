@@ -26,16 +26,23 @@ namespace Conference.Specflow
         [BeforeScenario]
         public static void BeforeScenario()
         {
-            // Set Visible property as true for showing up IE instance (typically used when debugging). 
-            Browser browser = new IE() { Visible = true };
-            ScenarioContext.Current.Set(browser);
+            if (!FeatureContext.Current.FeatureInfo.Tags.Contains(Constants.NoWatiN) &&
+                !ScenarioContext.Current.ScenarioInfo.Tags.Contains(Constants.NoWatiN))
+            {
+                // Set Visible property as true for showing up IE instance (typically used when debugging). 
+                Browser browser = new IE() { Visible = true };
+                ScenarioContext.Current.Set(browser);
+            }
         }
 
         [AfterScenario]
         public static void AfterScenario()
         {
-            Browser browser = ScenarioContext.Current.Get<Browser>();            
-            browser.Close();
+            Browser browser;
+            if (ScenarioContext.Current.TryGetValue<Browser>(out browser))
+            {
+                browser.Close();
+            }
         }
     }
 }

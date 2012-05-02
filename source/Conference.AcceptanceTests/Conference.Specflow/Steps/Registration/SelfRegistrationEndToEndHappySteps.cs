@@ -12,7 +12,6 @@
 // ==============================================================================================================
 
 using System.Text.RegularExpressions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TechTalk.SpecFlow;
 using W = WatiN.Core;
 

@@ -11,10 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using Registration.ReadModel;
-using Registration.ReadModel.Implementation;
+using System;
 using System.Data.Entity;
 using Conference.Common.Entity;
+using Conference.Web.Public.Controllers;
+using Registration.ReadModel;
+using Registration.ReadModel.Implementation;
+using Payments.ReadModel.Implementation;
+using System.Web;
+using System.Web.Hosting;
+using System.IO;
+using Moq;
+using System.Collections.Specialized;
+using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Conference.Specflow
 {
@@ -24,6 +34,41 @@ namespace Conference.Specflow
         {
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<PaymentsReadDbContext>(null);
+        }
+
+        public static RegistrationController GetRegistrationController(string conferenceCode)
+        {
+            Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
+            var orderDao = new OrderDao(ctxFactory);
+            var conferenceDao = new ConferenceDao(ctxFactory);
+        
+            // Setup context mocks
+            var requestMock = new Mock<HttpRequestBase>(MockBehavior.Strict);
+            requestMock.SetupGet(x => x.ApplicationPath).Returns("/");
+            requestMock.SetupGet(x => x.Url).Returns(new Uri("http://localhost/request", UriKind.Absolute));
+            requestMock.SetupGet(x => x.ServerVariables).Returns(new NameValueCollection());
+            var responseMock = new Mock<HttpResponseBase>(MockBehavior.Strict);
+            responseMock.Setup(x => x.ApplyAppPathModifier(It.IsAny<string>())).Returns<string>(s => s);
+
+            var context = Mock.Of<HttpContextBase>(c => c.Request == requestMock.Object && c.Response == responseMock.Object);
+
+            var routes = new RouteCollection();
+            var routeData = new RouteData();
+            routeData.Values.Add("conferenceCode", conferenceCode);
+
+            // Create the controller and set context
+            var controller = new RegistrationController(ConferenceHelper.GetCommandBus(), orderDao, conferenceDao);
+            controller.ControllerContext = new ControllerContext(context, routeData, controller);
+            controller.Url = new UrlHelper(new RequestContext(context, routeData), routes);
+
+            return controller;
+        }
+
+        public static PaymentController GetPaymentController()
+        {
+            var paymentDao = new PaymentDao(() => new PaymentsReadDbContext(PaymentsReadDbContext.SchemaName));
+            return new PaymentController(ConferenceHelper.GetCommandBus(), paymentDao);
         }
 
         public static OrderDTO GetOrder(string email, string accessCode)
