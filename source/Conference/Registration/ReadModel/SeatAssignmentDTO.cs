@@ -11,16 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace Registration.ReadModel
 {
+    using System;
+
     public class SeatAssignmentDTO
     {
-        // Model binder for MVC needs this, as well as public properties.
         public SeatAssignmentDTO()
         {
         }

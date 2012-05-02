@@ -50,12 +50,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\AssignRegistrantDetails.cs" />
-    <Compile Include="Commands\AssignSeats.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
     <Compile Include="Commands\ConfirmOrderPayment.cs" />
-    <Compile Include="Commands\ReleaseAssignedSeats.cs" />
-    <Compile Include="Commands\UpdateAssignedSeats.cs" />
+    <Compile Include="Commands\UnassignSeat.cs" />
+    <Compile Include="Commands\AssignSeat.cs" />
     <Compile Include="Commands\ExpireRegistrationProcess.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkSeatsAsReserved.cs" />
@@ -66,8 +65,8 @@
     <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
     <Compile Include="Database\SeatsAvailabilityRepository.cs" />
-    <Compile Include="Events\SeatAssignmentAdded.cs" />
-    <Compile Include="Events\SeatAssignmentRemoved.cs" />
+    <Compile Include="Events\SeatAssigned.cs" />
+    <Compile Include="Events\SeatUnassigned.cs" />
     <Compile Include="Events\SeatAssignmentUpdated.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
     <Compile Include="Events\SeatAssignmentsCreated.cs" />
@@ -117,7 +116,6 @@
     <Compile Include="ReadModel\OrderItemDTO.cs" />
     <Compile Include="RegistrationProcess.cs" />
     <Compile Include="Reservation.cs" />
-    <Compile Include="SeatAssignment.cs" />
     <Compile Include="SeatAssignments.cs" />
     <Compile Include="SeatQuantity.cs" />
     <Compile Include="SeatsAvailability.cs" />

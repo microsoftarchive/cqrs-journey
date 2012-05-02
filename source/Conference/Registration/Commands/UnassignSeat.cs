@@ -14,20 +14,18 @@
 namespace Registration.Commands
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using Infrastructure.Messaging;
 
-    public class UpdateAssignedSeats : ICommand
+    public class UnassignSeat : ICommand
     {
-        public UpdateAssignedSeats()
+        public UnassignSeat()
         {
             this.Id = Guid.NewGuid();
         }
 
         public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
-        public IEnumerable<SeatAssignment> Seats { get; set; }
+
+        public Guid SeatAssignmentsId { get; set; }
+        public Guid AssignmentId { get; set; }
     }
 }

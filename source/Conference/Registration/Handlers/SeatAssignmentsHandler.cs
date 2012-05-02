@@ -21,12 +21,11 @@ namespace Registration.Handlers
 
     public class SeatAssignmentsHandler :
         IEventHandler<OrderPaymentConfirmed>,
-        ICommandHandler<AssignSeats>,
-        ICommandHandler<ReleaseAssignedSeats>,
-        ICommandHandler<UpdateAssignedSeats>
+        ICommandHandler<UnassignSeat>,
+        ICommandHandler<AssignSeat>
     {
-        private IEventSourcedRepository<Order> ordersRepo;
-        private IEventSourcedRepository<SeatAssignments> assignmentsRepo;
+        private readonly IEventSourcedRepository<Order> ordersRepo;
+        private readonly IEventSourcedRepository<SeatAssignments> assignmentsRepo;
 
         public SeatAssignmentsHandler(IEventSourcedRepository<Order> ordersRepo, IEventSourcedRepository<SeatAssignments> assignmentsRepo)
         {
@@ -42,32 +41,22 @@ namespace Registration.Handlers
             assignmentsRepo.Save(assignments);
         }
 
-        public void Handle(AssignSeats command)
+        public void Handle(AssignSeat command)
         {
-            var assignments = this.assignmentsRepo.Find(command.OrderId);
+            var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
             if (assignments != null)
             {
-                assignments.AssignSeats(command.Seats);
+                assignments.AssignSeat(command.AssignmentId, command.Email, command.FirstName, command.LastName);
                 assignmentsRepo.Save(assignments);
             }
         }
 
-        public void Handle(ReleaseAssignedSeats command)
+        public void Handle(UnassignSeat command)
         {
-            var assignments = this.assignmentsRepo.Find(command.OrderId);
+            var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
             if (assignments != null)
             {
-                assignments.ReleaseSeats(command.Seats);
-                assignmentsRepo.Save(assignments);
-            }
-        }
-
-        public void Handle(UpdateAssignedSeats command)
-        {
-            var assignments = this.assignmentsRepo.Find(command.OrderId);
-            if (assignments != null)
-            {
-                assignments.UpdateSeats(command.Seats);
+                assignments.Unassign(command.AssignmentId);
                 assignmentsRepo.Save(assignments);
             }
         }

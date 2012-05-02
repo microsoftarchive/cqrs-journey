@@ -11,22 +11,22 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.Commands
 {
     using System;
     using Infrastructure.Messaging;
-    using Infrastructure.EventSourcing;
 
-    public class SeatAssignmentRemoved : VersionedEvent
+    public class AssignSeat : ICommand
     {
-        public SeatAssignmentRemoved(Guid sourceId)
+        public AssignSeat()
         {
-            this.SourceId = sourceId;
+            this.Id = Guid.NewGuid();
         }
 
-        public Guid AssignmentId { get; set; }
-        public Guid SeatType { get; set; }
+        public Guid Id { get; set; }
 
+        public Guid SeatAssignmentsId { get; set; }
+        public Guid AssignmentId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

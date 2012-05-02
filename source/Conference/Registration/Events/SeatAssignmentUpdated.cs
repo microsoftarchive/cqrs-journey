@@ -14,7 +14,6 @@
 namespace Registration.Events
 {
     using System;
-    using Infrastructure.Messaging;
     using Infrastructure.EventSourcing;
 
     public class SeatAssignmentUpdated : VersionedEvent

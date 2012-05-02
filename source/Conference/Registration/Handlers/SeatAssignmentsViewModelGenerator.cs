@@ -14,25 +14,24 @@
 namespace Registration.Handlers
 {
     using System;
-    using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Text;
-    using Registration.Events;
-    using Infrastructure.Messaging.Handling;
-    using Infrastructure.Blob;
-    using Infrastructure.Serialization;
-    using Registration.ReadModel;
-    using System.IO;
     using AutoMapper;
+    using Infrastructure.Blob;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
+    using Registration.Events;
+    using Registration.ReadModel;
 
     public class SeatAssignmentsViewModelGenerator :
         IEventHandler<SeatAssignmentsCreated>,
-        IEventHandler<SeatAssignmentAdded>,
-        IEventHandler<SeatAssignmentRemoved>,
+        IEventHandler<SeatAssigned>,
+        IEventHandler<SeatUnassigned>,
         IEventHandler<SeatAssignmentUpdated>
     {
-        private IBlobStorage storage;
-        private ITextSerializer serializer;
+        private readonly IBlobStorage storage;
+        private readonly ITextSerializer serializer;
 
         public SeatAssignmentsViewModelGenerator(IBlobStorage storage, ITextSerializer serializer)
         {
@@ -42,28 +41,17 @@ namespace Registration.Handlers
 
         static SeatAssignmentsViewModelGenerator()
         {
-            // Can't change seat types via events.
-            Mapper.CreateMap<SeatAssignmentAdded, SeatAssignmentDTO>()
-                .ForSourceMember(source => source.SeatType, options => options.Ignore());
-            Mapper.CreateMap<SeatAssignmentUpdated, SeatAssignmentDTO>()
-                .ForSourceMember(source => source.SeatType, options => options.Ignore());
+            Mapper.CreateMap<SeatAssigned, SeatAssignmentDTO>();
+            Mapper.CreateMap<SeatAssignmentUpdated, SeatAssignmentDTO>();
         }
 
         public void Handle(SeatAssignmentsCreated @event)
         {
-            // Create the whole DTO with one item per seat per type, 
-            // so that the UI can easily fill that in.
-            var dto = new SeatAssignmentsDTO(@event.SourceId,
-                @event.Seats.SelectMany(seat =>
-                    // Add as many assignments as seats there are.
-                    Enumerable
-                        .Range(0, seat.Quantity)
-                        .Select(i => new SeatAssignmentDTO(Guid.NewGuid(), seat.SeatType))));
-
+            var dto = new SeatAssignmentsDTO(@event.SourceId, @event.Seats.Select(i => new SeatAssignmentDTO(i.SeatAssignmentId, i.SeatType)));
             Save(dto);
         }
 
-        public void Handle(SeatAssignmentAdded @event)
+        public void Handle(SeatAssigned @event)
         {
             var dto = Find(@event.SourceId);
             if (dto != null)
@@ -77,12 +65,12 @@ namespace Registration.Handlers
             }
         }
 
-        public void Handle(SeatAssignmentRemoved @event)
+        public void Handle(SeatUnassigned @event)
         {
             var dto = Find(@event.SourceId);
             if (dto != null)
             {
-                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId && x.Email == @event.Email);
+                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId);
                 if (seat != null)
                 {
                     seat.Email = seat.FirstName = seat.LastName = null;

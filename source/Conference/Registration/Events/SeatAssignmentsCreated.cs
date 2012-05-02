@@ -19,6 +19,14 @@ namespace Registration.Events
 
     public class SeatAssignmentsCreated : VersionedEvent
     {
-        public IEnumerable<SeatQuantity> Seats { get; set; }
+        public class SeatAssignmentInfo
+        {
+            //Why can't this be an integer?
+            public Guid SeatAssignmentId { get; set; }
+
+            public Guid SeatType { get; set; }
+        }
+
+        public IEnumerable<SeatAssignmentInfo> Seats { get; set; }
     }
 }

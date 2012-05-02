@@ -22,22 +22,34 @@ namespace Registration
 
     public class SeatAssignments : EventSourced
     {
-        private Dictionary<Guid, int> availableSeats = new Dictionary<Guid, int>();
+        class SeatAssignment
+        {
+            public Guid AssignmentId { get; set; }
+            public Guid SeatType { get; set; }
+
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Email { get; set; }
+        }
+
+        private Dictionary<Guid, SeatAssignment> seats = new Dictionary<Guid, SeatAssignment>();
 
         static SeatAssignments()
         {
-            Mapper.CreateMap<SeatAssignment, SeatAssignmentAdded>()
-                .ForMember(target => target.AssignmentId, options => options.MapFrom(source => source.Id));
-            Mapper.CreateMap<SeatAssignment, SeatAssignmentRemoved>()
-                .ForMember(target => target.AssignmentId, options => options.MapFrom(source => source.Id));
-            Mapper.CreateMap<SeatAssignment, SeatAssignmentUpdated>()
-                .ForMember(target => target.AssignmentId, options => options.MapFrom(source => source.Id));
+            Mapper.CreateMap<SeatAssigned, SeatAssignment>();
+            Mapper.CreateMap<SeatUnassigned, SeatAssignment>();
+            Mapper.CreateMap<SeatAssignmentUpdated, SeatAssignment>();
         }
 
         public SeatAssignments(Guid id, IEnumerable<SeatQuantity> seats)
             : this(id)
         {
-            base.Update(new SeatAssignmentsCreated { Seats = seats.ToList() });
+            // Add as many assignments as seats there are.
+            var all = seats.SelectMany(seat =>
+                    Enumerable
+                        .Range(0, seat.Quantity)
+                        .Select(i => new SeatAssignmentsCreated.SeatAssignmentInfo { SeatAssignmentId = Guid.NewGuid(), SeatType = seat.SeatType }));
+            base.Update(new SeatAssignmentsCreated { Seats = all.ToList() });
         }
 
         public SeatAssignments(Guid id, IEnumerable<IVersionedEvent> history)
@@ -50,89 +62,76 @@ namespace Registration
             : base(id)
         {
             base.Handles<SeatAssignmentsCreated>(this.OnCreated);
-            base.Handles<SeatAssignmentAdded>(this.OnAssignmentAdded);
-            base.Handles<SeatAssignmentRemoved>(this.OnAssignmentRemoved);
+            base.Handles<SeatAssigned>(this.OnSeatAssigned);
+            base.Handles<SeatUnassigned>(this.OnSeatUnassigned);
 
             // NOTE: we need to add an empty Handles here so that the base class can make 
             // sure we didn't omit a handler by mistake.
-            base.Handles<SeatAssignmentUpdated>(_ => { });
+            base.Handles<SeatAssignmentUpdated>(this.OnSeatAssignmentUpdated);
         }
 
-        public void AssignSeats(IEnumerable<SeatAssignment> assignments)
+        public void AssignSeat(Guid assignmentId, string email, string firstName, string lastName)
         {
-            // Avoid enumerating twice.
-            var cachedAssignments = assignments.ToList();
-            var seatGroups = cachedAssignments
-                .GroupBy(x => x.SeatType)
-                .Select(g => new { SeatType = g.Key, Count = g.Count() });
+            if (string.IsNullOrEmpty(email))
+                throw new ArgumentNullException("email");
 
-            // Validate preconditions for the operation.
-            foreach (var seatGroup in seatGroups)
+            SeatAssignment current;
+            if (!this.seats.TryGetValue(assignmentId, out current))
+                throw new ArgumentOutOfRangeException("assignmentId");
+
+            if (!email.Equals(current.Email, StringComparison.InvariantCultureIgnoreCase))
             {
-                var available = 0;
-                if (!availableSeats.TryGetValue(seatGroup.SeatType, out available))
+                if (current.Email != null)
                 {
-                    throw new ArgumentException(string.Format(
-                        "Seat type '{0}' cannot be assigned as it does not exist for the order.",
-                        seatGroup.SeatType));
+                    this.Update(new SeatUnassigned(this.Id) { AssignmentId = assignmentId, SeatType = current.SeatType });
                 }
 
-                if (seatGroup.Count > available)
-                    throw new ArgumentException("Cannot assign more seats than available.");
+                this.Update(new SeatAssigned(this.Id)
+                                {
+                                    AssignmentId = assignmentId,
+                                    SeatType = current.SeatType,
+                                    Email = email,
+                                    FirstName = firstName,
+                                    LastName = lastName,
+                                });
             }
-
-            // Raise one event for each assignment.
-            cachedAssignments.ForEach(x => base.Update(Mapper.Map(x, new SeatAssignmentAdded(x.Id))));
+            else if (!string.Equals(firstName, current.FirstName, StringComparison.InvariantCultureIgnoreCase)
+                || !string.Equals(lastName, current.LastName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                Update(new SeatAssignmentUpdated(this.Id) { AssignmentId = assignmentId, FirstName = firstName, LastName = lastName, SeatType = current.SeatType });
+            }
         }
 
-        public void ReleaseSeats(IEnumerable<SeatAssignment> assignments)
+        public void Unassign(Guid assignmentId)
         {
-            // Avoid enumerating twice.
-            var cachedAssignments = assignments.ToList();
-            var seatGroups = cachedAssignments
-                .GroupBy(x => x.SeatType)
-                .Select(g => new { SeatType = g.Key, Count = g.Count() });
+            SeatAssignment current;
+            if (!this.seats.TryGetValue(assignmentId, out current))
+                throw new ArgumentOutOfRangeException("assignmentId");
 
-            // Validate preconditions for the operation.
-            foreach (var seatGroup in seatGroups)
+            if (current.Email != null)
             {
-                var available = 0;
-                if (!availableSeats.TryGetValue(seatGroup.SeatType, out available))
-                {
-                    throw new ArgumentException(string.Format(
-                        "Seat type '{0}' cannot be released as it does not exist for the order.",
-                        seatGroup.SeatType));
-                }
-            }
-
-            // Raise one event for each removed assignment.
-            cachedAssignments.ForEach(x => base.Update(Mapper.Map(x, new SeatAssignmentRemoved(x.Id))));
-        }
-
-        public void UpdateSeats(IEnumerable<SeatAssignment> assignments)
-        {
-            // Raise one event for each updated assignment.
-            foreach (var assignment in assignments)
-            {
-                base.Update(Mapper.Map(assignment, new SeatAssignmentUpdated(assignment.Id)));
+                this.Update(new SeatUnassigned(this.Id) { AssignmentId = assignmentId });
             }
         }
 
         private void OnCreated(SeatAssignmentsCreated e)
         {
-            this.availableSeats = e.Seats.ToDictionary(x => x.SeatType, x => x.Quantity);
+            this.seats = e.Seats.ToDictionary(x => x.SeatAssignmentId, x => new SeatAssignment { AssignmentId = x.SeatAssignmentId, SeatType = x.SeatType });
         }
 
-        private void OnAssignmentAdded(SeatAssignmentAdded e)
+        private void OnSeatAssigned(SeatAssigned e)
         {
-            // A seat was assigned, so we have one less remaining.
-            availableSeats[e.SeatType] -= 1;
+            this.seats[e.AssignmentId] = Mapper.Map(e, new SeatAssignment());
         }
 
-        private void OnAssignmentRemoved(SeatAssignmentRemoved e)
+        private void OnSeatUnassigned(SeatUnassigned e)
         {
-            // A seat became unassigned again, so we have one more remaining now.
-            availableSeats[e.SeatType] += 1;
+            this.seats[e.AssignmentId] = Mapper.Map(e, new SeatAssignment());
+        }
+
+        private void OnSeatAssignmentUpdated(SeatAssignmentUpdated e)
+        {
+            this.seats[e.AssignmentId] = Mapper.Map(e, new SeatAssignment { Email = this.seats[e.AssignmentId].Email });
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Conference.Web.Public.Controllers
 {
     using System;
     using System.Linq;
+    using System.Threading;
     using System.Web.Mvc;
     using Registration.ReadModel;
     using System.Collections.Generic;
@@ -31,7 +32,8 @@ namespace Conference.Web.Public.Controllers
 
         static OrderController()
         {
-            Mapper.CreateMap<SeatAssignmentDTO, SeatAssignment>();
+            Mapper.CreateMap<SeatAssignmentDTO, AssignSeat>()
+                .ForMember(x => x.AssignmentId, x=> x.MapFrom(i => i.Id));
         }
 
         public OrderController(IOrderDao orderDao, ISeatAssignmentsDao assignmentsDao, ICommandBus bus)
@@ -65,35 +67,29 @@ namespace Conference.Web.Public.Controllers
                 // Ignore posted seats that we don't have saved already.
                 .Where(pair => pair.Saved != null && pair.New != null)
                 // Only process those where they don't remain unassigned.
-                .Where(pair => !(pair.Saved.Email == null && pair.New.Email == null))
+                .Where(pair => pair.Saved.Email != null || pair.New.Email != null)
                 .ToList();
 
-            var removed = pairs
-                .Where(x => x.Saved.Email != null && x.New.Email != x.Saved.Email)
-                .Select(x => Mapper.Map<SeatAssignment>(x.Saved))
-                .ToList();
+            var unassigned = pairs
+                .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Email) && string.IsNullOrWhiteSpace(x.New.Email))
+                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = orderId, AssignmentId = x.Saved.Id });
 
-            var added = pairs
-                .Where(x => x.Saved.Email != x.New.Email && x.New.Email != null)
-                .Select(x => Mapper.Map<SeatAssignment>(x.New))
-                .ToList();
+            var changed = pairs
+                .Where(x => !string.Equals(x.Saved.Email, x.New.Email, StringComparison.InvariantCultureIgnoreCase)
+                            || !string.Equals(x.Saved.FirstName, x.New.FirstName, StringComparison.CurrentCulture)
+                            || !string.Equals(x.Saved.LastName, x.New.LastName, StringComparison.CurrentCulture))
+                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = orderId }));
 
-            var updated = pairs
-                .Where(x => x.New.Email == x.Saved.Email &&
-                    (x.New.FirstName != x.Saved.FirstName || x.New.LastName != x.Saved.LastName))
-                .Select(x => Mapper.Map<SeatAssignment>(x.New))
-                .ToList();
+            var commands = unassigned.Union(changed).ToList();
+            if (commands.Count > 0)
+            {
+                this.bus.Send(commands);
+            }
 
-            // Removed goes first so the state can be cleared.
-            // NOTE: what about out of order processing? It's significant here...
-            if (removed.Any())
-                this.bus.Send(new ReleaseAssignedSeats { OrderId = orderId, Seats = removed });
-            if (added.Any())
-                this.bus.Send(new AssignSeats { OrderId = orderId, Seats = added });
-            if (updated.Any())
-                this.bus.Send(new UpdateAssignedSeats { OrderId = orderId, Seats = updated });
-
-            return View(new SeatAssignmentsDTO(orderId, seats));
+            // TODO: Will have a display page, so we can redirect to a different one. Right now, because this is eventually consistent,
+            // the user will not see his changes.
+            Thread.Sleep(1000);
+            return RedirectToAction("Display");
         }
 
         [HttpGet]
