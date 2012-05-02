@@ -21,9 +21,8 @@ namespace Conference.Web.Public.Models
 
         public OrderItemDTO OrderItem { get; set; }
 
-        public decimal Total
-        {
-            get { return this.SeatType.Price * this.OrderItem.ReservedSeats; }
-        }
+        public bool PartiallyFulfilled { get; set; }
+
+        public int MaxSeatSelection { get; set; }
     }
 }

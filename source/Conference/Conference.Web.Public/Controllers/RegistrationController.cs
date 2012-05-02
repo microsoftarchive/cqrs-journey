@@ -244,7 +244,8 @@ namespace Conference.Web.Public.Controllers
                                 new OrderItemViewModel
                                 {
                                     SeatType = s,
-                                    OrderItem = new OrderItemDTO(s.Id, 0)
+                                    OrderItem = new OrderItemDTO(s.Id, 0),
+                                    MaxSeatSelection = 20
                                 }).ToList(),
                 };
 
@@ -262,6 +263,11 @@ namespace Conference.Web.Public.Controllers
             {
                 var seat = viewModel.Items.First(s => s.SeatType.Id == line.SeatType);
                 seat.OrderItem = line;
+                if (line.RequestedSeats > line.ReservedSeats)
+                {
+                    seat.PartiallyFulfilled = true;
+                    seat.MaxSeatSelection = line.ReservedSeats;
+                }
             }
 
             return viewModel;

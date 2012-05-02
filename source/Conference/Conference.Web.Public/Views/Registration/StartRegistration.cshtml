@@ -33,19 +33,18 @@
                              </tr>
                              @for (var i = 0; i < this.Model.Items.Count; i++)
                              {
-                                 var partialFulfillment = this.Model.Items[i].OrderItem.ReservedSeats < this.Model.Items[i].OrderItem.RequestedSeats;
-                                 <tr class="lineItem@(partialFulfillment ? " content__table__error" : "")">
+                                 <tr class="lineItem@(this.Model.Items[i].PartiallyFulfilled ? " content__table__error" : "")">
                                      <td>
                                          @Html.DisplayFor(model => model.Items[i].SeatType.Name)
                                          <p class="content__note">@Html.DisplayFor(model => model.Items[i].SeatType.Description)</p>
                                      </td>
                                      <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model.Items[i].SeatType.Price)</span>
                                      </td>
-                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, partialFulfillment ? this.Model.Items[i].OrderItem.ReservedSeats + 1 : 20), this.Model.Items[i].OrderItem.ReservedSeats), new { @class = "itemQuantity" })
+                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, this.Model.Items[i].MaxSeatSelection + 1), this.Model.Items[i].OrderItem.ReservedSeats), new { @class = "itemQuantity" })
                                          @Html.Hidden("Seats[" + i + "].SeatType", this.Model.Items[i].SeatType.Id)
                                      </td>
                                  </tr>
-                                 if(partialFulfillment)
+                                 if (this.Model.Items[i].PartiallyFulfilled)
                                  {
                                     <tr>
                                         <td class="content__table__error-info" colspan="5">
