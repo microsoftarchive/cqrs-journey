@@ -49,7 +49,7 @@ namespace Registration.Tests.RegistrationProcessFixture
         [Fact]
         public void then_locks_seats()
         {
-            Assert.Equal(2, sut.Commands.Count());
+            Assert.Equal(1, sut.Commands.Count());
         }
 
         [Fact]
@@ -72,16 +72,6 @@ namespace Registration.Tests.RegistrationProcessFixture
         {
             Assert.True(sut.ReservationAutoExpiration.HasValue);
             Assert.Equal(orderPlaced.ReservationAutoExpiration, sut.ReservationAutoExpiration.Value);
-        }
-
-        [Fact]
-        public void then_enqueues_expiration_message_using_expected_value_from_order_plus_buffer()
-        {
-            var message = sut.Commands.Single(x => x.Body is ExpireRegistrationProcess);
-
-            Assert.True(message.Delay > TimeSpan.FromMinutes(22));
-            Assert.True(message.Delay < TimeSpan.FromMinutes(30));
-            Assert.Equal(sut.Id, ((ExpireRegistrationProcess)message.Body).ProcessId);
         }
     }
 
@@ -169,13 +159,6 @@ namespace Registration.Tests.RegistrationProcessFixture
                     SourceId = this.conferenceId,
                     ReservationId = makeReservationCommand.ReservationId,
                     ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
-                });
-
-            this.sut.Handle(
-                new OrderReservationCompleted
-                {
-                    SourceId = this.orderId,
-                    Seats = new[] { new SeatQuantity(seatType, 2) }
                 });
         }
     }

@@ -25,7 +25,6 @@ namespace Registration
         private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
 
         private List<SeatQuantity> seats;
-        private bool isReadyForConfirmation;
         private bool isConfirmed;
         private Guid conferenceId;
 
@@ -128,7 +127,6 @@ namespace Registration
 
         private void OnOrderReservationCompleted(OrderReservationCompleted e)
         {
-            this.isReadyForConfirmation = true;
             this.seats = e.Seats.ToList();
         }
 

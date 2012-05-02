@@ -253,7 +253,7 @@ CREATE TABLE [ConferenceRegistration].[OrderItemsView](
 	[SeatType] [uniqueidentifier] NOT NULL,
 	[RequestedSeats] [int] NOT NULL,
 	[ReservedSeats] [int] NOT NULL,
-	[OrderDTO_OrderId] [uniqueidentifier] NULL,
+	[OrderDTO_OrderId] [uniqueidentifier] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -296,6 +296,7 @@ ALTER TABLE [ConferenceManagement].[SeatTypes] CHECK CONSTRAINT [FK_ConferenceMa
 GO
 ALTER TABLE [ConferenceRegistration].[OrderItemsView]  WITH CHECK ADD  CONSTRAINT [OrderDTO_Lines] FOREIGN KEY([OrderDTO_OrderId])
 REFERENCES [ConferenceRegistration].[OrdersView] ([OrderId])
+ON DELETE CASCADE
 GO
 ALTER TABLE [ConferenceRegistration].[OrderItemsView] CHECK CONSTRAINT [OrderDTO_Lines]
 GO

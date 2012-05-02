@@ -36,7 +36,7 @@ namespace Registration.Handlers
 
         public void Handle(OrderPlaced @event)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
                 var dto = new OrderDTO(@event.SourceId, OrderDTO.States.PendingReservation, @event.Version)
                 {
@@ -44,35 +44,41 @@ namespace Registration.Handlers
                 };
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
 
-                repository.Save(dto);
+                context.Save(dto);
             }
         }
 
         public void Handle(OrderRegistrantAssigned @event)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<OrderDTO>(@event.SourceId);
+                var dto = context.Find<OrderDTO>(@event.SourceId);
                 dto.RegistrantEmail = @event.Email;
 
                 dto.OrderVersion = @event.Version;
 
-                repository.Save(dto);
+                context.Save(dto);
             }
         }
 
         public void Handle(OrderUpdated @event)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = repository.Set<OrderDTO>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
-                dto.Lines.Clear();
+                var dto = context.Set<OrderDTO>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
+
+                var linesSet = context.Set<OrderItemDTO>();
+                foreach (var line in linesSet)
+                {
+                    linesSet.Remove(line);
+                }
+
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
 
                 dto.State = OrderDTO.States.PendingReservation;
                 dto.OrderVersion = @event.Version;
 
-                repository.Save(dto);
+                context.Save(dto);
             }
         }
 
@@ -88,9 +94,9 @@ namespace Registration.Handlers
 
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = repository.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == orderId);
+                var dto = context.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == orderId);
                 foreach (var seat in seats)
                 {
                     var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);
@@ -102,7 +108,7 @@ namespace Registration.Handlers
 
                 dto.OrderVersion = orderVersion;
 
-                repository.Save(dto);
+                context.Save(dto);
             }
         }
     }

@@ -36,8 +36,8 @@
                                  var partialFulfillment = this.Model.Items[i].OrderItem.ReservedSeats < this.Model.Items[i].OrderItem.RequestedSeats;
                                  <tr class="lineItem@(partialFulfillment ? " content__table__error" : "")">
                                      <td>
-                                         @Html.DisplayFor(model => this.Model.Items[i].SeatType.Name)
-                                         <p class="content__note">@Html.DisplayFor(model => this.Model.Items[i].SeatType.Description)</p>
+                                         @Html.DisplayFor(model => model.Items[i].SeatType.Name)
+                                         <p class="content__note">@Html.DisplayFor(model => model.Items[i].SeatType.Description)</p>
                                      </td>
                                      <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model.Items[i].SeatType.Price)</span>
                                      </td>
@@ -120,22 +120,23 @@
 <script type="text/javascript" src="@Url.Content("~/Scripts/Conference.js")"></script>
 <script type="text/javascript" src="@Url.Content("~/Content/reg-time-info/reg-time-info.js")"></script>
 <script type="text/javascript">
-$(function() {
-    function calculateTotals() {
-        var total = 0;
-        $(".lineItem").each(function(index, item) {
-            var unitPrice = $(item).find(".unitPrice").text();
-            var quantity = $(item).find(".itemQuantity input").val();
-            total += unitPrice * quantity;
-        });
+    $(function () {
+        function calculateTotals() {
+            var total = 0;
+            $(".lineItem").each(function (index, item) {
+                var unitPrice = $(item).find(".unitPrice").text();
+                var quantity = $(item).find(".itemQuantity input").val();
+                total += unitPrice * quantity;
+            });
 
-        // round to 2 decimals
-        total = Math.round(total * 100) / 100;
-        $("#total").text(total);
-    }
+            // round to 2 decimals
+            total = Math.round(total * 100) / 100;
+            $("#total").text(total);
+        }
 
-    $(".itemQuantity input").change(calculateTotals);
-});
+        $(".itemQuantity input").change(calculateTotals);
+        calculateTotals();
+    });
 </script>
 @if (ViewBag.ExpirationDateUTC != DateTime.MinValue)
 { 

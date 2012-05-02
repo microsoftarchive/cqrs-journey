@@ -76,7 +76,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
-            var result = (ViewResult)this.sut.StartRegistration((Guid?)null);
+            var result = (ViewResult)this.sut.StartRegistration();
             // How to force OnResultExecuting?
             // TODO: instead, can create an action filter an test that cross-cutting concern separately.
 
@@ -221,6 +221,9 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                     {
                         Lines = { new OrderItemDTO(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
+            Mock.Get(this.orderDao)
+                .Setup(r => r.GetTotalledOrder(orderId))
+                .Returns(new TotalledOrder { OrderId = orderId });
 
             var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
 

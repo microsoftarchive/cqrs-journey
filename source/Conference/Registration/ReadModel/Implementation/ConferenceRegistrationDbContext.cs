@@ -14,8 +14,10 @@
 namespace Registration.ReadModel.Implementation
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
+    using System.Data.Entity.Infrastructure;
 
     /// <summary>
     /// A repository stored in a database for the views.
@@ -35,6 +37,7 @@ namespace Registration.ReadModel.Implementation
 
             // Make the name of the views match exactly the name of the corresponding property.
             modelBuilder.Entity<OrderDTO>().ToTable("OrdersView", SchemaName);
+            modelBuilder.Entity<OrderDTO>().HasMany(c => c.Lines).WithRequired().Map(c => c.MapKey("OrderDTO_OrderId"));
             modelBuilder.Entity<OrderItemDTO>().ToTable("OrderItemsView", SchemaName);
             modelBuilder.Entity<TotalledOrder>().ToTable("TotalledOrders", SchemaName);
             modelBuilder.Entity<TotalledOrder>().HasMany(c => c.Lines).WithRequired().HasForeignKey(x => x.OrderId);

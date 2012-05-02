@@ -23,7 +23,6 @@ namespace Registration
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
-        IEventHandler<OrderReservationCompleted>,
         IEventHandler<PaymentCompleted>,
         IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireRegistrationProcess>
@@ -74,23 +73,6 @@ namespace Registration
                 lock (lockObject)
                 {
                     var process = context.Find(x => x.ReservationId == @event.ReservationId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(@event);
-
-                        context.Save(process);
-                    }
-                }
-            }
-        }
-
-        public void Handle(OrderReservationCompleted @event)
-        {
-            using (var context = this.contextFactory.Invoke())
-            {
-                lock (lockObject)
-                {
-                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
                     if (process != null)
                     {
                         process.Handle(@event);

@@ -80,15 +80,6 @@ namespace Registration
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
                     });
-
-                var bufferTime = TimeSpan.FromMinutes(5);
-                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
-                this.ExpirationCommandId = expirationCommand.Id;
-
-                this.AddCommand(new Envelope<ICommand>(expirationCommand)
-                {
-                    Delay = this.ReservationAutoExpiration.Value.Subtract(DateTime.UtcNow).Add(bufferTime),
-                });
             }
             else
             {
@@ -120,24 +111,29 @@ namespace Registration
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
+                var expirationTime = this.ReservationAutoExpiration.Value;
+                this.State = ProcessState.ReservationConfirmationReceived;
+
+                if (this.ExpirationCommandId == Guid.Empty)
+                {
+                    var bufferTime = TimeSpan.FromMinutes(5);
+
+                    var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                    this.ExpirationCommandId = expirationCommand.Id;
+
+                    this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                    {
+                        Delay = expirationTime.Subtract(DateTime.UtcNow).Add(bufferTime),
+                    });
+                }
+
+
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
                     Seats = message.ReservationDetails.ToList(),
-                    Expiration = this.ReservationAutoExpiration.Value,
+                    Expiration = expirationTime,
                 });
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public void Handle(OrderReservationCompleted @event)
-        {
-            if (this.State == ProcessState.AwaitingReservationConfirmation)
-            {
-                this.State = ProcessState.ReservationConfirmationReceived;
             }
             else
             {
