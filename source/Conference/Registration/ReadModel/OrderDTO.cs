@@ -22,7 +22,7 @@ namespace Registration.ReadModel
     {
         public enum States
         {
-            Created = 0,
+            PendingReservation = 0,
             PartiallyReserved = 1,
             ReservationCompleted = 2,
             Rejected = 3,

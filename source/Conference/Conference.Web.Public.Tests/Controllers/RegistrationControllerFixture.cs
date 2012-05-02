@@ -121,7 +121,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             var orderId = Guid.NewGuid();
 
-            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(new OrderDTO(orderId, OrderDTO.States.Created));
+            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(new OrderDTO(orderId, OrderDTO.States.PendingReservation));
 
             var registration =
                 new RegisterToConference

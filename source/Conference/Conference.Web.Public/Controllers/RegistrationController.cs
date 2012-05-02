@@ -51,17 +51,16 @@ namespace Conference.Web.Public.Controllers
             {
                 orderId = Guid.NewGuid();
                 viewModel = this.CreateViewModel();
+                this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
+                ViewBag.PartiallFulfilled = false;
             }
             else
             {
                 var order = this.orderDao.GetOrderDetails(orderId.Value);
                 orderVersion = order.OrderVersion;
                 viewModel = this.CreateViewModel(order);
-
-                if (order.State == OrderDTO.States.PartiallyReserved)
-                {
-                    this.ModelState.AddModelError("", "Some seats could not be fully reserved");
-                }
+                ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
+                ViewBag.PartiallFulfilled = order.State == OrderDTO.States.PartiallyReserved;
             }
 
             ViewBag.OrderId = orderId;
@@ -92,7 +91,7 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
-            var order = this.WaitUntilUpdated(orderId, orderVersion);
+            var order = this.WaitUntilSeatsAreAssigned(orderId, orderVersion);
             if (order == null)
             {
                 return View("ReservationUnknown");
@@ -268,7 +267,7 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private OrderDTO WaitUntilUpdated(Guid orderId, int lastOrderVersion)
+        private OrderDTO WaitUntilSeatsAreAssigned(Guid orderId, int lastOrderVersion)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 
@@ -276,7 +275,7 @@ namespace Conference.Web.Public.Controllers
             {
                 var order = this.orderDao.GetOrderDetails(orderId);
 
-                if (order != null && order.State != OrderDTO.States.Created && order.OrderVersion > lastOrderVersion)
+                if (order != null && order.State != OrderDTO.States.PendingReservation && order.OrderVersion > lastOrderVersion)
                 {
                     return order;
                 }

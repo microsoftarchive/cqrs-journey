@@ -38,7 +38,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.Created, @event.Version)
+                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.PendingReservation, @event.Version)
                 {
                     AccessCode = @event.AccessCode,
                 };
@@ -69,6 +69,7 @@ namespace Registration.Handlers
                 dto.Lines.Clear();
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
 
+                dto.State = OrderDTO.States.PendingReservation;
                 dto.OrderVersion = @event.Version;
 
                 repository.Save(dto);

@@ -75,7 +75,7 @@ namespace Registration
             var totals = pricingService.CalculateTotal(this.conferenceId, reserved.AsReadOnly());
 
             // Is there an order item which didn't get an exact reservation?
-            if (this.seats.Any(item => !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
+            if (this.seats.Any(item => item.Quantity != 0 && !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
             {
                 this.Update(new OrderPartiallyReserved { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
