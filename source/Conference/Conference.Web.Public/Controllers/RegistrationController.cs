@@ -58,7 +58,7 @@ namespace Conference.Web.Public.Controllers
             {
                 var order = this.orderDao.GetDraftOrder(orderId.Value);
 
-                if (order.State == OrderDTO.States.Confirmed)
+                if (order.State == DraftOrder.States.Confirmed)
                 {
                     return View("ShowCompletedOrder");
                 }
@@ -113,7 +113,7 @@ namespace Conference.Web.Public.Controllers
                 return this.RedirectToAction("StartRegistration", new { conferenceCode = this.Conference.Code, orderId, orderVersion = order.OrderVersion });
             }
 
-            if (order.State == OrderDTO.States.Confirmed)
+            if (order.State == DraftOrder.States.Confirmed)
             {
                 return View("ShowCompletedOrder");
             }

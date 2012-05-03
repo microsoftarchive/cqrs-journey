@@ -97,16 +97,15 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == @event.SourceId);
+                var dto = context.Set<DraftOrder>().Include(x => x.Lines).First(x => x.OrderId == @event.SourceId);
 
-                dto.State = OrderDTO.States.Confirmed;
+                dto.State = DraftOrder.States.Confirmed;
                 dto.OrderVersion = @event.Version;
 
                 context.Save(dto);
             }
         }
 
-        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
             using (var context = this.contextFactory.Invoke())
