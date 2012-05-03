@@ -11,14 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration
 {
-    using System;
-
-    public class ConferenceAliasDTO
+    public class Attendee
     {
-        public Guid Id { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

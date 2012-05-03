@@ -31,7 +31,7 @@ namespace Conference.Web.Public.Controllers
 
         static OrderController()
         {
-            Mapper.CreateMap<SeatAssignmentDTO, AssignSeat>();
+            Mapper.CreateMap<Seat, AssignSeat>();
         }
 
         public OrderController(IOrderDao orderDao, ISeatAssignmentsDao assignmentsDao, ICommandBus bus)
@@ -44,7 +44,7 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult Display(string conferenceCode, Guid orderId)
         {
-            var order = orderDao.GetTotalledOrder(orderId);
+            var order = orderDao.GetDraftOrder(orderId);
             if (order == null)
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
@@ -63,7 +63,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(string conferenceCode, Guid orderId, List<SeatAssignmentDTO> seats)
+        public ActionResult AssignSeats(string conferenceCode, Guid orderId, List<Seat> seats)
         {
             var saved = assignmentsDao.Find(orderId);
             if (saved == null)

@@ -15,22 +15,23 @@ namespace Registration.ReadModel
 {
     using System;
 
-    public class OrderItemDTO
+    public class Seat
     {
-        public OrderItemDTO(Guid seatType, int requestedSeats)
+        public Seat()
         {
-            this.Id = Guid.NewGuid();
+        }
+
+        public Seat(int position, Guid seatType)
+        {
+            this.Position = position;
             this.SeatType = seatType;
-            this.RequestedSeats = requestedSeats;
         }
 
-        protected OrderItemDTO()
-        {
-        }
-
-        public Guid Id { get; private set; }
+        public int Position { get; set; }
         public Guid SeatType { get; set; }
-        public int RequestedSeats { get; set; }
-        public int ReservedSeats { get; set; }
+
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

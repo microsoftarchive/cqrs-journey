@@ -15,7 +15,7 @@ namespace Registration.ReadModel
 {
     using System;
 
-    public class ConferenceDescriptionDTO
+    public class ConferenceDetails
     {
         public Guid Id { get; set; }
         public string Code { get; set; }

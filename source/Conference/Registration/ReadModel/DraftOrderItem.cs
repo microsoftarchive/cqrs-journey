@@ -14,36 +14,23 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
 
-    public class TotalledOrder
+    public class DraftOrderItem
     {
-        public TotalledOrder()
+        public DraftOrderItem(Guid seatType, int requestedSeats)
         {
-            this.Lines = new ObservableCollection<TotalledOrderLine>();
+            this.Id = Guid.NewGuid();
+            this.SeatType = seatType;
+            this.RequestedSeats = requestedSeats;
         }
 
-        [Key]
-        public Guid OrderId { get; set; }
-        public IList<TotalledOrderLine> Lines { get; set; }
-        public decimal Total { get; set; }
-    }
-
-    public class TotalledOrderLine
-    {
-        public TotalledOrderLine()
+        protected DraftOrderItem()
         {
-            this.TotalledOrderLineId = Guid.NewGuid();
         }
 
-        [Key]
-        public Guid TotalledOrderLineId { get; set; }
-        public Guid OrderId { get; set; }
-        public string Description { get; set; }
-        public decimal UnitPrice { get; set; }
-        public int Quantity { get; set; }
-        public decimal LineTotal { get; set; }
+        public Guid Id { get; private set; }
+        public Guid SeatType { get; set; }
+        public int RequestedSeats { get; set; }
+        public int ReservedSeats { get; set; }
     }
 }

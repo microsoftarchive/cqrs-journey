@@ -41,13 +41,13 @@ namespace Registration.Handlers
 
         static SeatAssignmentsViewModelGenerator()
         {
-            Mapper.CreateMap<SeatAssigned, SeatAssignmentDTO>();
-            Mapper.CreateMap<SeatAssignmentUpdated, SeatAssignmentDTO>();
+            Mapper.CreateMap<SeatAssigned, Seat>();
+            Mapper.CreateMap<SeatAssignmentUpdated, Seat>();
         }
 
         public void Handle(SeatAssignmentsCreated @event)
         {
-            var dto = new SeatAssignmentsDTO(@event.SourceId, @event.Seats.Select(i => new SeatAssignmentDTO(i.Position, i.SeatType)));
+            var dto = new OrderSeats(@event.SourceId, @event.Seats.Select(i => new Seat(i.Position, i.SeatType)));
             Save(dto);
         }
 
@@ -93,7 +93,7 @@ namespace Registration.Handlers
             }
         }
 
-        private SeatAssignmentsDTO Find(Guid id)
+        private OrderSeats Find(Guid id)
         {
             var dto = this.storage.Find("SeatAssignments-" + id);
             if (dto == null)
@@ -102,11 +102,11 @@ namespace Registration.Handlers
             using (var stream = new MemoryStream(dto))
             using (var reader = new StreamReader(stream))
             {
-                return (SeatAssignmentsDTO)this.serializer.Deserialize(reader);
+                return (OrderSeats)this.serializer.Deserialize(reader);
             }
         }
 
-        private void Save(SeatAssignmentsDTO dto)
+        private void Save(OrderSeats dto)
         {
             using (var writer = new StringWriter())
             {

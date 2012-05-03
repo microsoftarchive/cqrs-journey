@@ -14,28 +14,35 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
-    public class ConferenceSeatTypeDTO
+    public class Conference
     {
-        public ConferenceSeatTypeDTO(Guid id, string name, string description, decimal price, int quantity)
+        public Conference(Guid id, string code, string name, string description, DateTimeOffset startDate, IEnumerable<SeatType> seats)
         {
             this.Id = id;
+            this.Code = code;
             this.Name = name;
             this.Description = description;
-            this.Price = price;
-            this.Quantity = quantity;
+            this.StartDate = startDate;
+            this.Seats = new ObservableCollection<SeatType>(seats);
         }
 
-        protected ConferenceSeatTypeDTO()
+        protected Conference()
         {
+            this.Seats = new ObservableCollection<SeatType>();
         }
 
         [Key]
         public Guid Id { get; set; }
+        public string Code { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public ICollection<SeatType> Seats { get; set; }
+
+        public bool IsPublished { get; set; }
     }
 }

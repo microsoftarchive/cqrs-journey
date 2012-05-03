@@ -14,24 +14,22 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
-    public class SeatAssignmentDTO
+    public class OrderSeats
     {
-        public SeatAssignmentDTO()
+        public OrderSeats()
         {
         }
 
-        public SeatAssignmentDTO(int position, Guid seatType)
+        public OrderSeats(Guid id, IEnumerable<Seat> seats)
         {
-            this.Position = position;
-            this.SeatType = seatType;
+            this.Id = id;
+            this.Seats = seats.ToList();
         }
 
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        public Guid Id { get; set; }
+        public IList<Seat> Seats { get; set; }
     }
 }

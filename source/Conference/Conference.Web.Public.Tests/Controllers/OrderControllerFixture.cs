@@ -53,13 +53,13 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         {
             // Arrange
             var orderId = Guid.NewGuid();
-            var orderDto = new OrderDTO(orderId, OrderDTO.States.PendingReservation)
+            var orderDto = new DraftOrder(orderId, DraftOrder.States.PendingReservation)
             {
                 RegistrantEmail = "info@contoso.com",
                 AccessCode = "asdf",
             };
 
-            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(orderDto);
+            Mock.Get(this.orderDao).Setup(r => r.GetDraftOrder(orderId)).Returns(orderDto);
 
             // Act
             var result = (ViewResult)this.sut.Display("conference", orderId);

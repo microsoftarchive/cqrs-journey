@@ -11,18 +11,31 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Models
+namespace Registration.ReadModel
 {
-    using Registration.ReadModel;
+    using System;
+    using System.ComponentModel.DataAnnotations;
 
-    public class OrderItemViewModel
+    public class SeatType
     {
-        public SeatType SeatType { get; set; }
+        public SeatType(Guid id, string name, string description, decimal price, int quantity)
+        {
+            this.Id = id;
+            this.Name = name;
+            this.Description = description;
+            this.Price = price;
+            this.Quantity = quantity;
+        }
 
-        public DraftOrderItem OrderItem { get; set; }
+        protected SeatType()
+        {
+        }
 
-        public bool PartiallyFulfilled { get; set; }
-
-        public int MaxSeatSelection { get; set; }
+        [Key]
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
     }
 }

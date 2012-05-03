@@ -36,11 +36,11 @@ namespace Registration.Handlers
             var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).ToArray();
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Query<TotalledOrder>().Include(x => x.Lines).FirstOrDefault(x => x.OrderId == @event.SourceId);
+                var dto = context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(x => x.OrderId == @event.SourceId);
                 if (dto == null)
                 {
-                    dto = new TotalledOrder { OrderId = @event.SourceId };
-                    context.Set<TotalledOrder>().Add(dto);
+                    dto = new PricedOrder { OrderId = @event.SourceId };
+                    context.Set<PricedOrder>().Add(dto);
                 }
                 else
                 {
@@ -54,7 +54,7 @@ namespace Registration.Handlers
                 if (seatTypeIds.Length > 0)
                 {
                     // if there are no seat type IDs, there is no need for the following IN query.
-                    var seatTypeDescriptions = context.Query<ConferenceSeatTypeDTO>().Where(x => seatTypeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
+                    var seatTypeDescriptions = context.Query<SeatType>().Where(x => seatTypeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
 
                     foreach (var orderLine in @event.Lines)
                     {
@@ -89,10 +89,10 @@ namespace Registration.Handlers
             // No need to keep this totalled order alive if it is expired.
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Find<TotalledOrder>(@event.SourceId);
+                var dto = context.Find<PricedOrder>(@event.SourceId);
                 if (dto != null)
                 {
-                    context.Set<TotalledOrder>().Remove(dto);
+                    context.Set<PricedOrder>().Remove(dto);
                     context.SaveChanges();
                 }
             }

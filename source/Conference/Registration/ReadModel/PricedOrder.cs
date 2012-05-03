@@ -18,31 +18,32 @@ namespace Registration.ReadModel
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
-    public class ConferenceDTO
+    public class PricedOrder
     {
-        public ConferenceDTO(Guid id, string code, string name, string description, DateTimeOffset startDate, IEnumerable<ConferenceSeatTypeDTO> seats)
+        public PricedOrder()
         {
-            this.Id = id;
-            this.Code = code;
-            this.Name = name;
-            this.Description = description;
-            this.StartDate = startDate;
-            this.Seats = new ObservableCollection<ConferenceSeatTypeDTO>(seats);
-        }
-
-        protected ConferenceDTO()
-        {
-            this.Seats = new ObservableCollection<ConferenceSeatTypeDTO>();
+            this.Lines = new ObservableCollection<TotalledOrderLine>();
         }
 
         [Key]
-        public Guid Id { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public ICollection<ConferenceSeatTypeDTO> Seats { get; set; }
+        public Guid OrderId { get; set; }
+        public IList<TotalledOrderLine> Lines { get; set; }
+        public decimal Total { get; set; }
+    }
 
-        public bool IsPublished { get; set; }
+    public class TotalledOrderLine
+    {
+        public TotalledOrderLine()
+        {
+            this.TotalledOrderLineId = Guid.NewGuid();
+        }
+
+        [Key]
+        public Guid TotalledOrderLineId { get; set; }
+        public Guid OrderId { get; set; }
+        public string Description { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int Quantity { get; set; }
+        public decimal LineTotal { get; set; }
     }
 }

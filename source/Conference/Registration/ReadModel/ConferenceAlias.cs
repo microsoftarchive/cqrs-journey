@@ -14,22 +14,11 @@
 namespace Registration.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
 
-    public class SeatAssignmentsDTO
+    public class ConferenceAlias
     {
-        public SeatAssignmentsDTO()
-        {
-        }
-
-        public SeatAssignmentsDTO(Guid id, IEnumerable<SeatAssignmentDTO> seats)
-        {
-            this.Id = id;
-            this.Seats = seats.ToList();
-        }
-
         public Guid Id { get; set; }
-        public IList<SeatAssignmentDTO> Seats { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
     }
 }

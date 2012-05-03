@@ -49,6 +49,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attendee.cs" />
     <Compile Include="Commands\AssignRegistrantDetails.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
@@ -90,19 +91,19 @@
     <Compile Include="OrderLine.cs" />
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
-    <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
+    <Compile Include="ReadModel\ConferenceAlias.cs" />
     <Compile Include="ReadModel\Implementation\SeatAssignmentsDao.cs" />
-    <Compile Include="ReadModel\SeatAssignmentDTO.cs" />
+    <Compile Include="ReadModel\Seat.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
-    <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
+    <Compile Include="ReadModel\ConferenceDetails.cs" />
     <Compile Include="ReadModel\ISeatAssignmentsDao.cs" />
-    <Compile Include="ReadModel\TotalledOrder.cs" />
-    <Compile Include="ReadModel\SeatAssignmentsDTO.cs" />
+    <Compile Include="ReadModel\PricedOrder.cs" />
+    <Compile Include="ReadModel\OrderSeats.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
@@ -110,10 +111,10 @@
     <Compile Include="OrderItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
-    <Compile Include="ReadModel\ConferenceDTO.cs" />
-    <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
-    <Compile Include="ReadModel\OrderDTO.cs" />
-    <Compile Include="ReadModel\OrderItemDTO.cs" />
+    <Compile Include="ReadModel\Conference.cs" />
+    <Compile Include="ReadModel\SeatType.cs" />
+    <Compile Include="ReadModel\DraftOrder.cs" />
+    <Compile Include="ReadModel\DraftOrderItem.cs" />
     <Compile Include="RegistrationProcess.cs" />
     <Compile Include="Reservation.cs" />
     <Compile Include="SeatAssignments.cs" />

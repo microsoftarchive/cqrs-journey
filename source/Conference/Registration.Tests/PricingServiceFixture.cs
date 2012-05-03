@@ -25,15 +25,15 @@ namespace Registration.Tests
         public static readonly Guid ConferenceId = Guid.NewGuid();
         private Mock<IConferenceDao> dao;
         private PricingService sut;
-        private ConferenceSeatTypeDTO[] seatTypes;
+        private SeatType[] seatTypes;
 
         public PricingServiceFixture()
         {
             this.dao = new Mock<IConferenceDao>();
             this.seatTypes = new[]
                                 {
-                                    new ConferenceSeatTypeDTO(Guid.NewGuid(), "Name1", "Desc1", 15.10m, 999),
-                                    new ConferenceSeatTypeDTO(Guid.NewGuid(), "Name2", "Desc2", 9.987m, 600),
+                                    new SeatType(Guid.NewGuid(), "Name1", "Desc1", 15.10m, 999),
+                                    new SeatType(Guid.NewGuid(), "Name2", "Desc2", 9.987m, 600),
                                 };
             dao.Setup(d => d.GetPublishedSeatTypes(ConferenceId)).Returns(seatTypes);
 

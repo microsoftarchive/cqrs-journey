@@ -49,14 +49,14 @@ Sed ac nibh mauris. Curabitur et purus odio, vitae iaculis augue. Donec sceleris
 
 Quisque pellentesque, est volutpat viverra tristique, erat enim tincidunt risus, vel consectetur nulla quam et justo. Ut nec condimentum felis. Vivamus bibendum risus ut nibh scelerisque eget sodales purus tincidunt. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non libero ante. Mauris felis dolor, aliquam vitae luctus vel, elementum in mauris. Donec a risus purus. Fusce sit amet lobortis velit. Nam lacinia sagittis fermentum. Nulla sapien erat, cursus a porta non, malesuada ut erat. Vivamus pharetra erat eu metus varius vel placerat nunc interdum. Sed tristique, risus eu sollicitudin aliquam, nibh purus rhoncus dolor, in elementum arcu orci eu lorem. Cras a diam mattis nisl laoreet tempus quis in nunc. Aliquam erat volutpat.";
 
-                context.Set<ConferenceDTO>().Add(
-                    new ConferenceDTO(
+                context.Set<Conference>().Add(
+                    new Conference(
                         Guid.Empty,
                         "pnpsymposium",
                         "P&P Symposium",
                         description,
                         DateTimeOffset.UtcNow.AddMonths(2),
-                        new[] { new ConferenceSeatTypeDTO(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), "Test Seat", "Test Description", 10, 50) })
+                        new[] { new SeatType(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), "Test Seat", "Test Description", 10, 50) })
                         {
                             IsPublished = true
                         });

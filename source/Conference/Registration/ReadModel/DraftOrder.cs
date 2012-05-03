@@ -18,7 +18,7 @@ namespace Registration.ReadModel
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
-    public class OrderDTO
+    public class DraftOrder
     {
         public enum States
         {
@@ -29,7 +29,7 @@ namespace Registration.ReadModel
             Confirmed = 4,
         }
 
-        public OrderDTO(Guid orderId, States state, int orderVersion = 0)
+        public DraftOrder(Guid orderId, States state, int orderVersion = 0)
             : this()
         {
             this.OrderId = orderId;
@@ -37,9 +37,9 @@ namespace Registration.ReadModel
             this.OrderVersion = orderVersion;
         }
 
-        protected OrderDTO()
+        protected DraftOrder()
         {
-            this.Lines = new ObservableCollection<OrderItemDTO>();
+            this.Lines = new ObservableCollection<DraftOrderItem>();
         }
 
         [Key]
@@ -47,7 +47,7 @@ namespace Registration.ReadModel
 
         public DateTime? ReservationExpirationDate { get; set; }
 
-        public ICollection<OrderItemDTO> Lines { get; private set; }
+        public ICollection<DraftOrderItem> Lines { get; private set; }
 
         public int StateValue { get; private set; }
 
