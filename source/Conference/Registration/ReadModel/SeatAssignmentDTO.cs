@@ -21,13 +21,13 @@ namespace Registration.ReadModel
         {
         }
 
-        public SeatAssignmentDTO(Guid id, Guid seatType)
+        public SeatAssignmentDTO(int position, Guid seatType)
         {
-            this.Id = id;
+            this.Position = position;
             this.SeatType = seatType;
         }
 
-        public Guid Id { get; set; }
+        public int Position { get; set; }
         public Guid SeatType { get; set; }
 
         public string FirstName { get; set; }

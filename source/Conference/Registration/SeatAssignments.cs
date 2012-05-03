@@ -24,7 +24,7 @@ namespace Registration
     {
         class SeatAssignment
         {
-            public Guid AssignmentId { get; set; }
+            public int Position { get; set; }
             public Guid SeatType { get; set; }
 
             public string FirstName { get; set; }
@@ -32,7 +32,7 @@ namespace Registration
             public string Email { get; set; }
         }
 
-        private Dictionary<Guid, SeatAssignment> seats = new Dictionary<Guid, SeatAssignment>();
+        private Dictionary<int, SeatAssignment> seats = new Dictionary<int, SeatAssignment>();
 
         static SeatAssignments()
         {
@@ -45,11 +45,17 @@ namespace Registration
             : this(id)
         {
             // Add as many assignments as seats there are.
-            var all = seats.SelectMany(seat =>
-                    Enumerable
-                        .Range(0, seat.Quantity)
-                        .Select(i => new SeatAssignmentsCreated.SeatAssignmentInfo { SeatAssignmentId = Guid.NewGuid(), SeatType = seat.SeatType }));
-            base.Update(new SeatAssignmentsCreated { Seats = all.ToList() });
+            var i = 0;
+            var all = new List<SeatAssignmentsCreated.SeatAssignmentInfo>();
+            foreach (var seatQuantity in seats)
+            {
+                for (int j = 0; j < seatQuantity.Quantity; j++)
+                {
+                    all.Add(new SeatAssignmentsCreated.SeatAssignmentInfo { Position = i++, SeatType = seatQuantity.SeatType });
+                }
+            }
+           
+            base.Update(new SeatAssignmentsCreated { Seats = all });
         }
 
         public SeatAssignments(Guid id, IEnumerable<IVersionedEvent> history)
@@ -70,25 +76,25 @@ namespace Registration
             base.Handles<SeatAssignmentUpdated>(this.OnSeatAssignmentUpdated);
         }
 
-        public void AssignSeat(Guid assignmentId, string email, string firstName, string lastName)
+        public void AssignSeat(int position, string email, string firstName, string lastName)
         {
             if (string.IsNullOrEmpty(email))
                 throw new ArgumentNullException("email");
 
             SeatAssignment current;
-            if (!this.seats.TryGetValue(assignmentId, out current))
-                throw new ArgumentOutOfRangeException("assignmentId");
+            if (!this.seats.TryGetValue(position, out current))
+                throw new ArgumentOutOfRangeException("position");
 
             if (!email.Equals(current.Email, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (current.Email != null)
                 {
-                    this.Update(new SeatUnassigned(this.Id) { AssignmentId = assignmentId, SeatType = current.SeatType });
+                    this.Update(new SeatUnassigned(this.Id) { Position = position, SeatType = current.SeatType });
                 }
 
                 this.Update(new SeatAssigned(this.Id)
                                 {
-                                    AssignmentId = assignmentId,
+                                    Position = position,
                                     SeatType = current.SeatType,
                                     Email = email,
                                     FirstName = firstName,
@@ -98,40 +104,40 @@ namespace Registration
             else if (!string.Equals(firstName, current.FirstName, StringComparison.InvariantCultureIgnoreCase)
                 || !string.Equals(lastName, current.LastName, StringComparison.InvariantCultureIgnoreCase))
             {
-                Update(new SeatAssignmentUpdated(this.Id) { AssignmentId = assignmentId, FirstName = firstName, LastName = lastName, SeatType = current.SeatType });
+                Update(new SeatAssignmentUpdated(this.Id) { Position = position, FirstName = firstName, LastName = lastName, SeatType = current.SeatType });
             }
         }
 
-        public void Unassign(Guid assignmentId)
+        public void Unassign(int position)
         {
             SeatAssignment current;
-            if (!this.seats.TryGetValue(assignmentId, out current))
-                throw new ArgumentOutOfRangeException("assignmentId");
+            if (!this.seats.TryGetValue(position, out current))
+                throw new ArgumentOutOfRangeException("position");
 
             if (current.Email != null)
             {
-                this.Update(new SeatUnassigned(this.Id) { AssignmentId = assignmentId });
+                this.Update(new SeatUnassigned(this.Id) { Position = position });
             }
         }
 
         private void OnCreated(SeatAssignmentsCreated e)
         {
-            this.seats = e.Seats.ToDictionary(x => x.SeatAssignmentId, x => new SeatAssignment { AssignmentId = x.SeatAssignmentId, SeatType = x.SeatType });
+            this.seats = e.Seats.ToDictionary(x => x.Position, x => new SeatAssignment { Position = x.Position, SeatType = x.SeatType });
         }
 
         private void OnSeatAssigned(SeatAssigned e)
         {
-            this.seats[e.AssignmentId] = Mapper.Map(e, new SeatAssignment());
+            this.seats[e.Position] = Mapper.Map(e, new SeatAssignment());
         }
 
         private void OnSeatUnassigned(SeatUnassigned e)
         {
-            this.seats[e.AssignmentId] = Mapper.Map(e, new SeatAssignment());
+            this.seats[e.Position] = Mapper.Map(e, new SeatAssignment());
         }
 
         private void OnSeatAssignmentUpdated(SeatAssignmentUpdated e)
         {
-            this.seats[e.AssignmentId] = Mapper.Map(e, new SeatAssignment { Email = this.seats[e.AssignmentId].Email });
+            this.seats[e.Position] = Mapper.Map(e, new SeatAssignment { Email = this.seats[e.Position].Email });
         }
     }
 }

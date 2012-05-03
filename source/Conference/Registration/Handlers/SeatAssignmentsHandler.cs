@@ -46,7 +46,7 @@ namespace Registration.Handlers
             var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
             if (assignments != null)
             {
-                assignments.AssignSeat(command.AssignmentId, command.Email, command.FirstName, command.LastName);
+                assignments.AssignSeat(command.Position, command.Email, command.FirstName, command.LastName);
                 assignmentsRepo.Save(assignments);
             }
         }
@@ -56,7 +56,7 @@ namespace Registration.Handlers
             var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
             if (assignments != null)
             {
-                assignments.Unassign(command.AssignmentId);
+                assignments.Unassign(command.Position);
                 assignmentsRepo.Save(assignments);
             }
         }

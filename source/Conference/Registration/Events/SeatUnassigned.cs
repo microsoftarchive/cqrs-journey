@@ -23,7 +23,7 @@ namespace Registration.Events
             this.SourceId = sourceId;
         }
 
-        public Guid AssignmentId { get; set; }
+        public int Position { get; set; }
         public Guid SeatType { get; set; }
     }
 }

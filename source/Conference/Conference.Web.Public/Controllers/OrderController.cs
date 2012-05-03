@@ -20,20 +20,18 @@ namespace Conference.Web.Public.Controllers
     using Registration.ReadModel;
     using System.Collections.Generic;
     using Registration.Commands;
-    using Registration;
     using AutoMapper;
     using Infrastructure.Messaging;
 
     public class OrderController : Controller
     {
         private readonly IOrderDao orderDao;
-        private ISeatAssignmentsDao assignmentsDao;
-        private ICommandBus bus;
+        private readonly ISeatAssignmentsDao assignmentsDao;
+        private readonly ICommandBus bus;
 
         static OrderController()
         {
-            Mapper.CreateMap<SeatAssignmentDTO, AssignSeat>()
-                .ForMember(x => x.AssignmentId, x=> x.MapFrom(i => i.Id));
+            Mapper.CreateMap<SeatAssignmentDTO, AssignSeat>();
         }
 
         public OrderController(IOrderDao orderDao, ISeatAssignmentsDao assignmentsDao, ICommandBus bus)
@@ -63,7 +61,7 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
             var pairs = seats
-                .Select(dto => new { Saved = saved.Seats.FirstOrDefault(x => x.Id == dto.Id), New = dto })
+                .Select(dto => new { Saved = saved.Seats.FirstOrDefault(x => x.Position == dto.Position), New = dto })
                 // Ignore posted seats that we don't have saved already.
                 .Where(pair => pair.Saved != null && pair.New != null)
                 // Only process those where they don't remain unassigned.
@@ -72,7 +70,7 @@ namespace Conference.Web.Public.Controllers
 
             var unassigned = pairs
                 .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Email) && string.IsNullOrWhiteSpace(x.New.Email))
-                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = orderId, AssignmentId = x.Saved.Id });
+                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = orderId, Position = x.Saved.Position });
 
             var changed = pairs
                 .Where(x => !string.Equals(x.Saved.Email, x.New.Email, StringComparison.InvariantCultureIgnoreCase)

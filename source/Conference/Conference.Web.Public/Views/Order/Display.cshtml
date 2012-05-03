@@ -27,8 +27,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.HiddenFor(model => model.Seats[i].Id)
-                                        @Html.Hidden("Seats[" + i + "].Id", this.Model.Seats[i].Id)
+                                        @Html.HiddenFor(model => model.Seats[i].Position)
                                         <!-- TODO: grab the seat type name from somewhere? -->
                                         @Html.DisplayFor(model => model.Seats[i].SeatType)
                                         @Html.HiddenFor(model => model.Seats[i].SeatType)

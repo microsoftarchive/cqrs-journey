@@ -21,9 +21,7 @@ namespace Registration.Events
     {
         public class SeatAssignmentInfo
         {
-            //Why can't this be an integer?
-            public Guid SeatAssignmentId { get; set; }
-
+            public int Position { get; set; }
             public Guid SeatType { get; set; }
         }
 

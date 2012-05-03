@@ -47,7 +47,7 @@ namespace Registration.Handlers
 
         public void Handle(SeatAssignmentsCreated @event)
         {
-            var dto = new SeatAssignmentsDTO(@event.SourceId, @event.Seats.Select(i => new SeatAssignmentDTO(i.SeatAssignmentId, i.SeatType)));
+            var dto = new SeatAssignmentsDTO(@event.SourceId, @event.Seats.Select(i => new SeatAssignmentDTO(i.Position, i.SeatType)));
             Save(dto);
         }
 
@@ -56,7 +56,7 @@ namespace Registration.Handlers
             var dto = Find(@event.SourceId);
             if (dto != null)
             {
-                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId);
+                var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
                     Mapper.Map(@event, seat);
@@ -70,7 +70,7 @@ namespace Registration.Handlers
             var dto = Find(@event.SourceId);
             if (dto != null)
             {
-                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId);
+                var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
                     seat.Email = seat.FirstName = seat.LastName = null;
@@ -84,7 +84,7 @@ namespace Registration.Handlers
             var dto = Find(@event.SourceId);
             if (dto != null)
             {
-                var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.AssignmentId);
+                var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
                     Mapper.Map(@event, seat);
