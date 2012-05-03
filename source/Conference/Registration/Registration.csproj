@@ -79,7 +79,7 @@
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
     <Compile Include="ReadModel\ConferenceAlias.cs" />
-    <Compile Include="ReadModel\Seat.cs" />
+    <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />

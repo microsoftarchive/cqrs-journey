@@ -14,22 +14,22 @@
 namespace Registration.ReadModel
 {
 
-    public class Seat
+    public class OrderSeat
     {
-        public Seat()
+        public OrderSeat()
         {
             this.Attendee = new PersonalInfo();
         }
 
-        public Seat(int position, string seatType)
+        public OrderSeat(int position, string seatName)
         {
             this.Position = position;
-            this.SeatType = seatType;
+            this.SeatName = seatName;
             this.Attendee = new PersonalInfo();
         }
 
         public int Position { get; set; }
-        public string SeatType { get; set; }
+        public string SeatName { get; set; }
         public PersonalInfo Attendee { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace Conference.Web.Public.Controllers
 
         static OrderController()
         {
-            Mapper.CreateMap<Seat, AssignSeat>();
+            Mapper.CreateMap<OrderSeat, AssignSeat>();
         }
 
         public OrderController(IConferenceDao conferenceDao, IOrderDao orderDao, ICommandBus bus)
@@ -61,7 +61,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(Guid orderId, Guid assignmentsId, List<Seat> seats)
+        public ActionResult AssignSeats(Guid orderId, Guid assignmentsId, List<OrderSeat> seats)
         {
             var saved = this.orderDao.FindOrderSeats(orderId);
             if (saved == null)

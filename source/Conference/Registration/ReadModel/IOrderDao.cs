@@ -19,7 +19,6 @@ namespace Registration.ReadModel
     {
         // TODO: GetOrderDetails is being used by many views. Have tailored projections for different needs.
         DraftOrder GetDraftOrder(Guid orderId);
-        Guid GetConferenceId(Guid orderId);
 
         Guid? LocateOrder(string email, string accessCode);
 

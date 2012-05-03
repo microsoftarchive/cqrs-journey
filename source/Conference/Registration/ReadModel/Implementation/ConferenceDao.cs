@@ -28,9 +28,9 @@ namespace Registration.ReadModel.Implementation
 
         public ConferenceDetails GetConferenceDetails(string conferenceCode)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository
+                return context
                     .Query<Conference>()
                     .Where(dto => dto.Code == conferenceCode)
                     .Select(x => new ConferenceDetails { Id = x.Id, Code = x.Code, Name = x.Name, Description = x.Description, StartDate = x.StartDate })
@@ -40,9 +40,9 @@ namespace Registration.ReadModel.Implementation
 
         public ConferenceAlias GetConferenceAlias(string conferenceCode)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository
+                return context
                     .Query<Conference>()
                     .Where(dto => dto.Code == conferenceCode)
                     .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name })
@@ -52,9 +52,9 @@ namespace Registration.ReadModel.Implementation
 
         public IList<ConferenceAlias> GetPublishedConferences()
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository
+                return context
                     .Query<Conference>()
                     .Where(dto => dto.IsPublished)
                     .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name })
@@ -64,20 +64,24 @@ namespace Registration.ReadModel.Implementation
 
         public IList<SeatType> GetPublishedSeatTypes(Guid conferenceId)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository.Query<SeatType>()
+                return context.Query<SeatType>()
                     .Where(c => c.ConferenceId == conferenceId)
                     .ToList();
             }
         }
 
-        public IList<SeatTypeName> GetSeatTypeNames(Guid conferenceId)
+        public IList<SeatTypeName> GetSeatTypeNames(IEnumerable<Guid> seatTypes)
         {
-            using (var repository = this.contextFactory.Invoke())
+            var distinctIds = seatTypes.Distinct().ToArray();
+            if (distinctIds.Length == 0)
+                return new List<SeatTypeName>();
+
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository.Query<SeatType>()
-                    .Where(c => c.ConferenceId == conferenceId)
+                return context.Query<SeatType>()
+                    .Where(x => distinctIds.Contains(x.Id))
                     .Select(s => new SeatTypeName { Id = s.Id, Name = s.Name })
                     .ToList();
             }
