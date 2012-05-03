@@ -29,7 +29,7 @@
                                 <td>@Html.DisplayFor(model => model.Order.Lines[i].Description)</td>
                                 <td style="text-align: right">$@Html.DisplayFor(model => model.Order.Lines[i].UnitPrice)</td>
                                 <td>@Html.DisplayFor(model => model.Order.Lines[i].Quantity)</td>
-                                <td>@Html.DisplayFor(model => model.Order.Lines[i].LineTotal)</td>
+                                <td>$@Html.DisplayFor(model => model.Order.Lines[i].LineTotal)</td>
                             </tr>
                         }
                         <tr>
