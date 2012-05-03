@@ -38,11 +38,11 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.PendingReservation, @event.Version)
+                var dto = new DraftOrder(@event.SourceId, @event.ConferenceId, DraftOrder.States.PendingReservation, @event.Version)
                 {
                     AccessCode = @event.AccessCode,
                 };
-                dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
+                dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
 
                 context.Save(dto);
             }
@@ -52,7 +52,7 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Find<OrderDTO>(@event.SourceId);
+                var dto = context.Find<DraftOrder>(@event.SourceId);
                 dto.RegistrantEmail = @event.Email;
 
                 dto.OrderVersion = @event.Version;
@@ -65,17 +65,17 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Set<OrderDTO>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
+                var dto = context.Set<DraftOrder>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
 
-                var linesSet = context.Set<OrderItemDTO>();
+                var linesSet = context.Set<DraftOrderItem>();
                 foreach (var line in linesSet.ToList())
                 {
                     linesSet.Remove(line);
                 }
 
-                dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
+                dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
 
-                dto.State = OrderDTO.States.PendingReservation;
+                dto.State = DraftOrder.States.PendingReservation;
                 dto.OrderVersion = @event.Version;
 
                 context.Save(dto);
@@ -84,19 +84,19 @@ namespace Registration.Handlers
 
         public void Handle(OrderPartiallyReserved @event)
         {
-            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Version, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, DraftOrder.States.PartiallyReserved, @event.Version, @event.Seats);
         }
 
         public void Handle(OrderReservationCompleted @event)
         {
-            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Version, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, DraftOrder.States.ReservationCompleted, @event.Version, @event.Seats);
         }
 
-        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == orderId);
+                var dto = context.Set<DraftOrder>().Include(x => x.Lines).First(x => x.OrderId == orderId);
                 foreach (var seat in seats)
                 {
                     var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);

@@ -15,23 +15,10 @@ namespace Registration.ReadModel
 {
     using System;
 
-    public class SeatAssignmentDTO
+    public class ConferenceAlias
     {
-        public SeatAssignmentDTO()
-        {
-        }
-
-        public SeatAssignmentDTO(int position, Guid seatType)
-        {
-            this.Position = position;
-            this.SeatType = seatType;
-        }
-
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
     }
 }

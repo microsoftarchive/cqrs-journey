@@ -17,9 +17,9 @@ namespace Conference.Web.Public.Models
 
     public class OrderItemViewModel
     {
-        public ConferenceSeatTypeDTO SeatType { get; set; }
+        public SeatType SeatType { get; set; }
 
-        public OrderItemDTO OrderItem { get; set; }
+        public DraftOrderItem OrderItem { get; set; }
 
         public bool PartiallyFulfilled { get; set; }
 

@@ -44,7 +44,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                repository.Set<ConferenceDTO>().Add(new ConferenceDTO(@event.SourceId, @event.Slug, @event.Name, @event.Description, @event.StartDate, Enumerable.Empty<ConferenceSeatTypeDTO>()));
+                repository.Set<Conference>().Add(new Conference(@event.SourceId, @event.Slug, @event.Name, @event.Description, @event.StartDate, Enumerable.Empty<SeatType>()));
 
                 repository.SaveChanges();
             }
@@ -54,7 +54,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var confDto = repository.Find<ConferenceDTO>(@event.SourceId);
+                var confDto = repository.Find<Conference>(@event.SourceId);
                 if (confDto != null)
                 {
                     confDto.Code = @event.Slug;
@@ -71,7 +71,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<ConferenceDTO>(@event.SourceId);
+                var dto = repository.Find<Conference>(@event.SourceId);
                 if (dto != null)
                 {
                     dto.IsPublished = true;
@@ -85,7 +85,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<ConferenceDTO>(@event.SourceId);
+                var dto = repository.Find<Conference>(@event.SourceId);
                 if (dto != null)
                 {
                     dto.IsPublished = false;
@@ -99,10 +99,10 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<ConferenceDTO>(@event.ConferenceId);
+                var dto = repository.Find<Conference>(@event.ConferenceId);
                 if (dto != null)
                 {
-                    dto.Seats.Add(new ConferenceSeatTypeDTO(@event.SourceId, @event.Name, @event.Description, @event.Price, @event.Quantity));
+                    dto.Seats.Add(new SeatType(@event.SourceId, @event.ConferenceId, @event.Name, @event.Description, @event.Price, @event.Quantity));
 
                     this.bus.Send(new AddSeats
                     {
@@ -120,7 +120,7 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                var dto = repository.Set<ConferenceDTO>().Include(x => x.Seats).FirstOrDefault(x => x.Id == @event.ConferenceId);
+                var dto = repository.Set<Conference>().Include(x => x.Seats).FirstOrDefault(x => x.Id == @event.ConferenceId);
                 if (dto != null)
                 {
                     var seat = dto.Seats.FirstOrDefault(x => x.Id == @event.SourceId);

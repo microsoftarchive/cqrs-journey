@@ -56,11 +56,11 @@ namespace Conference.Web.Public.Controllers
             }
             else
             {
-                var order = this.orderDao.GetOrderDetails(orderId.Value);
+                var order = this.orderDao.GetDraftOrder(orderId.Value);
                 orderVersion = order.OrderVersion;
                 viewModel = this.CreateViewModel(order);
                 ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
-                ViewBag.PartiallFulfilled = order.State == OrderDTO.States.PartiallyReserved;
+                ViewBag.PartiallFulfilled = order.State == DraftOrder.States.PartiallyReserved;
             }
 
             ViewBag.OrderId = orderId;
@@ -97,12 +97,12 @@ namespace Conference.Web.Public.Controllers
                 return View("ReservationUnknown");
             }
 
-            if (order.State == OrderDTO.States.Rejected)
+            if (order.State == DraftOrder.States.Rejected)
             {
                 return View("ReservationRejected");
             }
 
-            if (order.State == OrderDTO.States.PartiallyReserved)
+            if (order.State == DraftOrder.States.PartiallyReserved)
             {
                 return this.RedirectToAction("StartRegistration", new { conferenceCode = this.Conference.Code, orderId, orderVersion = order.OrderVersion });
             }
@@ -112,7 +112,7 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.Conference.Code, orderId = orderId });
             }
 
-            var totalledOrder = orderDao.GetTotalledOrder(orderId);
+            var totalledOrder = orderDao.GetPricedOrder(orderId);
             if (totalledOrder == null)
             {
                 return View("ReservationUnknown");
@@ -140,7 +140,7 @@ namespace Conference.Web.Public.Controllers
                 return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
-            var order = this.orderDao.GetOrderDetails(orderId);
+            var order = this.orderDao.GetDraftOrder(orderId);
 
             // TODO check conference and order exist.
             // TODO validate that order belongs to the user.
@@ -182,7 +182,7 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0)]
         public ActionResult ThankYou(string conferenceCode, Guid orderId)
         {
-            var order = this.orderDao.GetOrderDetails(orderId);
+            var order = this.orderDao.GetDraftOrder(orderId);
 
             return View(order);
         }
@@ -210,7 +210,7 @@ namespace Conference.Web.Public.Controllers
 
         private InitiateThirdPartyProcessorPayment CreatePaymentCommand(Guid orderId)
         {
-            var totalledOrder = this.orderDao.GetTotalledOrder(orderId);
+            var totalledOrder = this.orderDao.GetPricedOrder(orderId);
             // TODO: should add the line items?
 
             var description = "Registration for " + this.Conference.Name;
@@ -244,7 +244,7 @@ namespace Conference.Web.Public.Controllers
                                 new OrderItemViewModel
                                 {
                                     SeatType = s,
-                                    OrderItem = new OrderItemDTO(s.Id, 0),
+                                    OrderItem = new DraftOrderItem(s.Id, 0),
                                     MaxSeatSelection = 20
                                 }).ToList(),
                 };
@@ -252,7 +252,7 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private OrderViewModel CreateViewModel(OrderDTO order)
+        private OrderViewModel CreateViewModel(DraftOrder order)
         {
             var viewModel = this.CreateViewModel();
             viewModel.Id = order.OrderId;
@@ -273,15 +273,15 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private OrderDTO WaitUntilSeatsAreAssigned(Guid orderId, int lastOrderVersion)
+        private DraftOrder WaitUntilSeatsAreAssigned(Guid orderId, int lastOrderVersion)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 
             while (DateTime.Now < deadline)
             {
-                var order = this.orderDao.GetOrderDetails(orderId);
+                var order = this.orderDao.GetDraftOrder(orderId);
 
-                if (order != null && order.State != OrderDTO.States.PendingReservation && order.OrderVersion > lastOrderVersion)
+                if (order != null && order.State != DraftOrder.States.PendingReservation && order.OrderVersion > lastOrderVersion)
                 {
                     return order;
                 }
@@ -292,8 +292,8 @@ namespace Conference.Web.Public.Controllers
             return null;
         }
 
-        private ConferenceAliasDTO conference;
-        protected ConferenceAliasDTO Conference
+        private ConferenceAlias conference;
+        protected ConferenceAlias Conference
         {
             get
             {

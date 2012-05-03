@@ -11,20 +11,38 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.ReadModel
 {
     using System;
-    using Infrastructure.EventSourcing;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
-    public class SeatUnassigned : VersionedEvent
+    public class Conference
     {
-        public SeatUnassigned(Guid sourceId)
+        public Conference(Guid id, string code, string name, string description, DateTimeOffset startDate, IEnumerable<SeatType> seats)
         {
-            this.SourceId = sourceId;
+            this.Id = id;
+            this.Code = code;
+            this.Name = name;
+            this.Description = description;
+            this.StartDate = startDate;
+            this.Seats = new ObservableCollection<SeatType>(seats);
         }
 
-        public Guid OrderId { get; set; }
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
+        protected Conference()
+        {
+            this.Seats = new ObservableCollection<SeatType>();
+        }
+
+        [Key]
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTimeOffset StartDate { get; set; }
+        public ICollection<SeatType> Seats { get; set; }
+
+        public bool IsPublished { get; set; }
     }
 }

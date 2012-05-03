@@ -77,7 +77,7 @@ namespace Conference.Web.Public.Controllers
             return this.Redirect(paymentRejectedUrl);
         }
 
-        private ThirdPartyProcessorPaymentDetailsDTO WaitUntilAvailable(Guid paymentId)
+        private ThirdPartyProcessorPaymentDetails WaitUntilAvailable(Guid paymentId)
         {
             var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
 

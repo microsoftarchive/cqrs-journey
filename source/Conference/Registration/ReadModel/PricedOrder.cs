@@ -11,29 +11,39 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.ReadModel
+namespace Registration.ReadModel
 {
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
-    public class PaymentItemDTO
+    public class PricedOrder
     {
-        public PaymentItemDTO(Guid id, string description, decimal price)
+        public PricedOrder()
         {
-            this.Id = id;
-            this.Description = description;
-            this.Price = price;
-        }
-
-        protected PaymentItemDTO()
-        {
+            this.Lines = new ObservableCollection<PricedOrderLine>();
         }
 
         [Key]
-        public virtual Guid Id { get; private set; }
+        public Guid OrderId { get; set; }
+        public IList<PricedOrderLine> Lines { get; set; }
+        public decimal Total { get; set; }
+    }
 
-        public virtual string Description { get; private set; }
+    public class PricedOrderLine
+    {
+        public PricedOrderLine()
+        {
+            this.LineId = Guid.NewGuid();
+        }
 
-        public virtual decimal Price { get; private set; }
+        [Key]
+        public Guid LineId { get; set; }
+        public Guid OrderId { get; set; }
+        public string Description { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int Quantity { get; set; }
+        public decimal LineTotal { get; set; }
     }
 }

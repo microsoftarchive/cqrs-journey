@@ -13,11 +13,10 @@
 
 namespace Registration.Handlers
 {
-    using System;
-    using Infrastructure.Messaging.Handling;
-    using Registration.Events;
     using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging.Handling;
     using Registration.Commands;
+    using Registration.Events;
 
     public class SeatAssignmentsHandler :
         IEventHandler<OrderPaymentConfirmed>,
@@ -46,7 +45,7 @@ namespace Registration.Handlers
             var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
             if (assignments != null)
             {
-                assignments.AssignSeat(command.Position, command.Email, command.FirstName, command.LastName);
+                assignments.AssignSeat(command.Position, command.Attendee);
                 assignmentsRepo.Save(assignments);
             }
         }

@@ -11,20 +11,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.ReadModel
 {
     using System;
-    using Infrastructure.EventSourcing;
 
-    public class SeatUnassigned : VersionedEvent
+    public class SeatTypeName
     {
-        public SeatUnassigned(Guid sourceId)
-        {
-            this.SourceId = sourceId;
-        }
-
-        public Guid OrderId { get; set; }
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
     }
 }
