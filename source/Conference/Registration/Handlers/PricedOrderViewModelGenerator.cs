@@ -22,11 +22,11 @@ namespace Registration.Handlers
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
-    public class TotalledOrderViewModelGenerator : IEventHandler<OrderTotalsCalculated>, IEventHandler<OrderExpired>
+    public class PricedOrderViewModelGenerator : IEventHandler<OrderTotalsCalculated>, IEventHandler<OrderExpired>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
-        public TotalledOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
+        public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
@@ -44,7 +44,7 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    var linesSet = context.Set<TotalledOrderLine>();
+                    var linesSet = context.Set<PricedOrderLine>();
                     foreach (var line in dto.Lines.ToList())
                     {
                         linesSet.Remove(line);
@@ -58,7 +58,7 @@ namespace Registration.Handlers
 
                     foreach (var orderLine in @event.Lines)
                     {
-                        var line = new TotalledOrderLine
+                        var line = new PricedOrderLine
                                        {
                                            LineTotal = orderLine.LineTotal
                                        };
@@ -76,7 +76,7 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    dto.Lines.AddRange(@event.Lines.Select(x => new TotalledOrderLine { LineTotal = x.LineTotal }));
+                    dto.Lines.AddRange(@event.Lines.Select(x => new PricedOrderLine { LineTotal = x.LineTotal }));
                 }
 
                 dto.Total = @event.Total;

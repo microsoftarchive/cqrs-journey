@@ -71,7 +71,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         [Fact(Skip = "Need to refactor into a testable cross-cutting concern.")]
         public void when_executing_result_then_makes_conference_alias_available_to_view()
         {
-            var seats = new[] { new SeatType(Guid.NewGuid(), "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(Guid.NewGuid(), conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
@@ -89,7 +89,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_starting_registration_then_returns_view_with_registration_for_conference()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
 
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
@@ -114,14 +114,14 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_specifying_seats_for_a_valid_registration_then_places_registration_and_redirects_to_action()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
 
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             var orderId = Guid.NewGuid();
 
-            Mock.Get(this.orderDao).Setup(r => r.GetDraftOrder(orderId)).Returns(new DraftOrder(orderId, DraftOrder.States.PendingReservation));
+            Mock.Get(this.orderDao).Setup(r => r.GetDraftOrder(orderId)).Returns(new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.PendingReservation));
 
             var registration =
                 new RegisterToConference
@@ -155,7 +155,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_displaying_payment_and_registration_information_for_a_partially_reserved_order_then_redirects_back_to_seat_selection()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
 
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
@@ -165,7 +165,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.orderDao)
                 .Setup(r => r.GetDraftOrder(orderId))
                 .Returns(
-                    new DraftOrder(orderId, DraftOrder.States.PartiallyReserved, orderVersion)
+                    new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.PartiallyReserved, orderVersion)
                     {
                         Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
@@ -183,7 +183,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_displaying_payment_and_registration_information_for_a_not_yet_updated_order_then_shows_wait_page()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
 
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
@@ -193,7 +193,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.orderDao)
                 .Setup(r => r.GetDraftOrder(orderId))
                 .Returns(
-                    new DraftOrder(orderId, DraftOrder.States.ReservationCompleted, orderVersion)
+                    new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted, orderVersion)
                     {
                         Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
@@ -207,7 +207,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_displaying_payment_and_registration_information_for_a_fully_reserved_order_then_shows_input_page()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
 
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
@@ -217,7 +217,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.orderDao)
                 .Setup(r => r.GetDraftOrder(orderId))
                 .Returns(
-                    new DraftOrder(orderId, DraftOrder.States.ReservationCompleted, orderVersion)
+                    new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted, orderVersion)
                     {
                         Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
@@ -247,7 +247,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             // Arrange
             var seatId = Guid.NewGuid();
 
-            var order = new DraftOrder(orderId, DraftOrder.States.ReservationCompleted);
+            var order = new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted);
             order.Lines.Add(new DraftOrderItem(seatId, 5) { ReservedSeats = 5 });
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.GetDraftOrder(orderId))

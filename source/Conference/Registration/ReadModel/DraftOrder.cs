@@ -29,10 +29,11 @@ namespace Registration.ReadModel
             Confirmed = 4,
         }
 
-        public DraftOrder(Guid orderId, States state, int orderVersion = 0)
+        public DraftOrder(Guid orderId, Guid conferenceId, States state, int orderVersion = 0)
             : this()
         {
             this.OrderId = orderId;
+            this.ConferenceId = conferenceId;
             this.State = state;
             this.OrderVersion = orderVersion;
         }
@@ -44,6 +45,8 @@ namespace Registration.ReadModel
 
         [Key]
         public Guid OrderId { get; private set; }
+
+        public Guid ConferenceId { get; private set; }
 
         public DateTime? ReservationExpirationDate { get; set; }
 

@@ -38,7 +38,7 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = new DraftOrder(@event.SourceId, DraftOrder.States.PendingReservation, @event.Version)
+                var dto = new DraftOrder(@event.SourceId, @event.ConferenceId, DraftOrder.States.PendingReservation, @event.Version)
                 {
                     AccessCode = @event.AccessCode,
                 };

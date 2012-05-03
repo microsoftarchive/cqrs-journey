@@ -23,5 +23,6 @@ namespace Registration.ReadModel
 
         IList<ConferenceAlias> GetPublishedConferences();
         IList<SeatType> GetPublishedSeatTypes(Guid conferenceId);
+        IList<SeatTypeName> GetSeatTypeNames(Guid conferenceId);
     }
 }

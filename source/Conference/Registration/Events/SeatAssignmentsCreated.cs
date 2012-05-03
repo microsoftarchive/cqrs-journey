@@ -14,8 +14,8 @@
 namespace Registration.Events
 {
     using System;
-    using Infrastructure.EventSourcing;
     using System.Collections.Generic;
+    using Infrastructure.EventSourcing;
 
     public class SeatAssignmentsCreated : VersionedEvent
     {
@@ -25,6 +25,7 @@ namespace Registration.Events
             public Guid SeatType { get; set; }
         }
 
+        public Guid OrderId { get; set; }
         public IEnumerable<SeatAssignmentInfo> Seats { get; set; }
     }
 }

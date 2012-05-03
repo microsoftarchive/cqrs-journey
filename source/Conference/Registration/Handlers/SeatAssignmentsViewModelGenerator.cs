@@ -14,6 +14,7 @@
 namespace Registration.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -32,9 +33,17 @@ namespace Registration.Handlers
     {
         private readonly IBlobStorage storage;
         private readonly ITextSerializer serializer;
+        private IConferenceDao conferenceDao;
+        private IOrderDao orderDao;
 
-        public SeatAssignmentsViewModelGenerator(IBlobStorage storage, ITextSerializer serializer)
+        public SeatAssignmentsViewModelGenerator(
+            IConferenceDao conferenceDao,
+            IOrderDao orderDao,
+            IBlobStorage storage,
+            ITextSerializer serializer)
         {
+            this.conferenceDao = conferenceDao;
+            this.orderDao = orderDao;
             this.storage = storage;
             this.serializer = serializer;
         }
@@ -47,13 +56,18 @@ namespace Registration.Handlers
 
         public void Handle(SeatAssignmentsCreated @event)
         {
-            var dto = new OrderSeats(@event.SourceId, @event.Seats.Select(i => new Seat(i.Position, i.SeatType)));
+            var conferenceId = this.orderDao.GetConferenceId(@event.OrderId);
+            var seatTypes = this.conferenceDao.GetSeatTypeNames(conferenceId).ToDictionary(x => x.Id, x => x.Name);
+
+            var dto = new OrderSeats(@event.SourceId, @event.OrderId, @event.Seats.Select(i =>
+                new Seat(i.Position, seatTypes.TryGetValue(i.SeatType))));
+
             Save(dto);
         }
 
         public void Handle(SeatAssigned @event)
         {
-            var dto = Find(@event.SourceId);
+            var dto = Find(@event.OrderId);
             if (dto != null)
             {
                 var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
@@ -67,13 +81,13 @@ namespace Registration.Handlers
 
         public void Handle(SeatUnassigned @event)
         {
-            var dto = Find(@event.SourceId);
+            var dto = Find(@event.OrderId);
             if (dto != null)
             {
                 var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
-                    seat.Email = seat.FirstName = seat.LastName = null;
+                    seat.Attendee.Email = seat.Attendee.FirstName = seat.Attendee.LastName = null;
                     Save(dto);
                 }
             }
@@ -81,7 +95,7 @@ namespace Registration.Handlers
 
         public void Handle(SeatAssignmentUpdated @event)
         {
-            var dto = Find(@event.SourceId);
+            var dto = Find(@event.OrderId);
             if (dto != null)
             {
                 var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
@@ -111,7 +125,7 @@ namespace Registration.Handlers
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, dto);
-                this.storage.Save("SeatAssignments-" + dto.Id, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
+                this.storage.Save("SeatAssignments-" + dto.OrderId, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
             }
         }
     }

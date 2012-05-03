@@ -23,10 +23,9 @@ namespace Registration.Events
             this.SourceId = sourceId;
         }
 
+        public Guid OrderId { get; set; }
         public int Position { get; set; }
         public Guid SeatType { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public PersonalInfo Attendee { get; set; }
     }
 }

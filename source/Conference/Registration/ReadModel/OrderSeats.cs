@@ -21,15 +21,18 @@ namespace Registration.ReadModel
     {
         public OrderSeats()
         {
+            this.Seats = new List<Seat>();
         }
 
-        public OrderSeats(Guid id, IEnumerable<Seat> seats)
+        public OrderSeats(Guid id, Guid orderId, IEnumerable<Seat> seats)
         {
             this.Id = id;
+            this.OrderId = orderId;
             this.Seats = seats.ToList();
         }
 
         public Guid Id { get; set; }
+        public Guid OrderId { get; set; }
         public IList<Seat> Seats { get; set; }
     }
 }

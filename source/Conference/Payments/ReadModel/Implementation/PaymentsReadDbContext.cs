@@ -33,10 +33,7 @@ namespace Payments.ReadModel.Implementation
         {
             base.OnModelCreating(modelBuilder);
 
-            // Make the name of the views match exactly the name of the corresponding property.
-            modelBuilder.Entity<ThirdPartyProcessorPaymentDetailsDTO>().ToTable("ThirdPartyProcessorPaymentDetailsView", SchemaName);
-            // modelBuilder.Entity<OrderDTO>().HasMany(c => c.Lines).WithRequired().Map(c => c.MapKey("OrdersView_Id"));
-            //modelBuilder.Entity<PaymentItemDTO>().ToTable("PaymentItemView");
+            modelBuilder.Entity<ThirdPartyProcessorPaymentDetails>().ToTable("ThirdPartyProcessorPaymentDetailsView", SchemaName);
         }
 
         public T Find<T>(Guid id) where T : class

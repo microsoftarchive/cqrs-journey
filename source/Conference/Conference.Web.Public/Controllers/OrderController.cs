@@ -14,14 +14,13 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Web.Mvc;
-    using Registration.ReadModel;
     using System.Collections.Generic;
-    using Registration.Commands;
+    using System.Linq;
+    using System.Web.Mvc;
     using AutoMapper;
     using Infrastructure.Messaging;
+    using Registration.Commands;
+    using Registration.ReadModel;
 
     public class OrderController : Controller
     {
@@ -44,7 +43,7 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult Display(string conferenceCode, Guid orderId)
         {
-            var order = orderDao.GetDraftOrder(orderId);
+            var order = orderDao.GetPricedOrder(orderId);
             if (order == null)
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
@@ -63,7 +62,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(string conferenceCode, Guid orderId, List<Seat> seats)
+        public ActionResult AssignSeats(string conferenceCode, Guid orderId, Guid assignmentsId, List<Seat> seats)
         {
             var saved = assignmentsDao.Find(orderId);
             if (saved == null)
@@ -71,21 +70,23 @@ namespace Conference.Web.Public.Controllers
 
             var pairs = seats
                 .Select(dto => new { Saved = saved.Seats.FirstOrDefault(x => x.Position == dto.Position), New = dto })
-                // Ignore posted seats that we don't have saved already.
+                // Ignore posted seats that we don't have saved already: pair.Saved == null
+                // This may be because the client sent mangled or incorrect data so we couldn't 
+                // find a matching saved seat.
+                // Also, if pair.New is null, it's because it's an invalid null entry 
+                // in the list of seats, so we ignore that too.
                 .Where(pair => pair.Saved != null && pair.New != null)
                 // Only process those where they don't remain unassigned.
-                .Where(pair => pair.Saved.Email != null || pair.New.Email != null)
+                .Where(pair => pair.Saved.Attendee.Email != null || pair.New.Attendee.Email != null)
                 .ToList();
 
             var unassigned = pairs
-                .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Email) && string.IsNullOrWhiteSpace(x.New.Email))
+                .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Attendee.Email) && string.IsNullOrWhiteSpace(x.New.Attendee.Email))
                 .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = orderId, Position = x.Saved.Position });
 
             var changed = pairs
-                .Where(x => !string.Equals(x.Saved.Email, x.New.Email, StringComparison.InvariantCultureIgnoreCase)
-                            || !string.Equals(x.Saved.FirstName, x.New.FirstName, StringComparison.CurrentCulture)
-                            || !string.Equals(x.Saved.LastName, x.New.LastName, StringComparison.CurrentCulture))
-                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = orderId }));
+                .Where(x => x.Saved.Attendee != x.New.Attendee)
+                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = assignmentsId }));
 
             var commands = unassigned.Union(changed).ToList();
             if (commands.Count > 0)

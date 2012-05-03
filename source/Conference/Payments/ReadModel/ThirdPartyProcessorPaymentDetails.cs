@@ -16,24 +16,37 @@ namespace Payments.ReadModel
     using System;
     using System.ComponentModel.DataAnnotations;
 
-    public class PaymentItemDTO
+    public class ThirdPartyProcessorPaymentDetails
     {
-        public PaymentItemDTO(Guid id, string description, decimal price)
+        public ThirdPartyProcessorPaymentDetails(Guid id, ThirdPartyProcessorPayment.States state, Guid paymentSourceId, string description, decimal totalAmount)
         {
             this.Id = id;
+            this.State = state;
+            this.PaymentSourceId = paymentSourceId;
             this.Description = description;
-            this.Price = price;
+            this.TotalAmount = totalAmount;
         }
 
-        protected PaymentItemDTO()
+        protected ThirdPartyProcessorPaymentDetails()
         {
         }
 
         [Key]
-        public virtual Guid Id { get; private set; }
+        public Guid Id { get; private set; }
 
-        public virtual string Description { get; private set; }
+        public int StateValue { get; private set; }
 
-        public virtual decimal Price { get; private set; }
+        [NotMapped]
+        public ThirdPartyProcessorPayment.States State
+        {
+            get { return (ThirdPartyProcessorPayment.States)this.StateValue; }
+            set { this.StateValue = (int)value; }
+        }
+
+        public Guid PaymentSourceId { get; private set; }
+
+        public string Description { get; private set; }
+
+        public decimal TotalAmount { get; private set; }
     }
 }

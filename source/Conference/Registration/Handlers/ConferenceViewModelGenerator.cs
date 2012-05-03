@@ -102,7 +102,7 @@ namespace Registration.Handlers
                 var dto = repository.Find<Conference>(@event.ConferenceId);
                 if (dto != null)
                 {
-                    dto.Seats.Add(new SeatType(@event.SourceId, @event.Name, @event.Description, @event.Price, @event.Quantity));
+                    dto.Seats.Add(new SeatType(@event.SourceId, @event.ConferenceId, @event.Name, @event.Description, @event.Price, @event.Quantity));
 
                     this.bus.Send(new AddSeats
                     {

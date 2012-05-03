@@ -66,8 +66,20 @@ namespace Registration.ReadModel.Implementation
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                // NOTE: If the ConferenceSeatTypeDTO had the ConferenceId property exposed, this query should be simpler. Why do we need to hide the FKs in the read model?
-                return repository.Query<Conference>().Where(c => c.Id == conferenceId).Select(c => c.Seats).FirstOrDefault().ToList();
+                return repository.Query<SeatType>()
+                    .Where(c => c.ConferenceId == conferenceId)
+                    .ToList();
+            }
+        }
+
+        public IList<SeatTypeName> GetSeatTypeNames(Guid conferenceId)
+        {
+            using (var repository = this.contextFactory.Invoke())
+            {
+                return repository.Query<SeatType>()
+                    .Where(c => c.ConferenceId == conferenceId)
+                    .Select(s => new SeatTypeName { Id = s.Id, Name = s.Name })
+                    .ToList();
             }
         }
     }

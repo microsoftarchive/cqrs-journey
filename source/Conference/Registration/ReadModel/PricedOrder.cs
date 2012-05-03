@@ -22,24 +22,24 @@ namespace Registration.ReadModel
     {
         public PricedOrder()
         {
-            this.Lines = new ObservableCollection<TotalledOrderLine>();
+            this.Lines = new ObservableCollection<PricedOrderLine>();
         }
 
         [Key]
         public Guid OrderId { get; set; }
-        public IList<TotalledOrderLine> Lines { get; set; }
+        public IList<PricedOrderLine> Lines { get; set; }
         public decimal Total { get; set; }
     }
 
-    public class TotalledOrderLine
+    public class PricedOrderLine
     {
-        public TotalledOrderLine()
+        public PricedOrderLine()
         {
-            this.TotalledOrderLineId = Guid.NewGuid();
+            this.LineId = Guid.NewGuid();
         }
 
         [Key]
-        public Guid TotalledOrderLineId { get; set; }
+        public Guid LineId { get; set; }
         public Guid OrderId { get; set; }
         public string Description { get; set; }
         public decimal UnitPrice { get; set; }

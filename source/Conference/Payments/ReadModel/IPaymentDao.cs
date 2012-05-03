@@ -17,6 +17,6 @@ namespace Payments.ReadModel
 
     public interface IPaymentDao
     {
-        ThirdPartyProcessorPaymentDetailsDTO GetThirdPartyProcessorPaymentDetails(Guid paymentId);
+        ThirdPartyProcessorPaymentDetails GetThirdPartyProcessorPaymentDetails(Guid paymentId);
     }
 }
