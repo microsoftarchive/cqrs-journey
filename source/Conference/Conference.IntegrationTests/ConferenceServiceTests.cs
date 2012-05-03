@@ -73,7 +73,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_finding_seats_by_non_existing_conference_id_then_returns_empty()
         {
-            var conference = service.FindSeats(Guid.NewGuid());
+            var conference = service.FindSeatTypes(Guid.NewGuid());
 
             Assert.Empty(conference);
         }
@@ -81,7 +81,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_creating_seat_then_throws()
         {
-            Assert.Throws<ObjectNotFoundException>(() => service.CreateSeat(Guid.NewGuid(), new SeatInfo()));
+            Assert.Throws<ObjectNotFoundException>(() => service.CreateSeat(Guid.NewGuid(), new SeatType()));
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_updating_seat_for_non_existing_conference_then_throws()
         {
-            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(Guid.NewGuid(), new SeatInfo()));
+            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(Guid.NewGuid(), new SeatType()));
         }
 
         [Fact]
@@ -146,7 +146,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
                 IsPublished = true,
                 Seats = 
                 {
-                    new SeatInfo
+                    new SeatType
                     {
                         Name = "general", 
                         Description = "general description", 
@@ -208,7 +208,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_finding_seats_by_non_existing_conference_id_then_returns_empty()
         {
-            var conference = service.FindSeats(this.conference.Id);
+            var conference = service.FindSeatTypes(this.conference.Id);
 
             Assert.NotEmpty(conference);
         }
@@ -224,7 +224,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_creating_seat_then_adds_to_conference()
         {
-            var seat = new SeatInfo
+            var seat = new SeatType
             {
                 Name = "precon",
                 Description = "precon desc",
@@ -234,7 +234,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
 
             service.CreateSeat(this.conference.Id, seat);
 
-            var seats = service.FindSeats(this.conference.Id);
+            var seats = service.FindSeatTypes(this.conference.Id);
 
             Assert.Equal(2, seats.Count());
         }
@@ -242,7 +242,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_creating_seat_then_seat_created_is_published()
         {
-            var seat = new SeatInfo
+            var seat = new SeatType
             {
                 Name = "precon",
                 Description = "precon desc",
@@ -265,7 +265,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_creating_seat_then_can_find_seat()
         {
-            var seat = new SeatInfo
+            var seat = new SeatType
             {
                 Name = "precon",
                 Description = "precon desc",
@@ -275,7 +275,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
 
             service.CreateSeat(this.conference.Id, seat);
 
-            Assert.NotNull(service.FindSeat(seat.Id));
+            Assert.NotNull(service.FindSeatType(seat.Id));
         }
 
         [Fact]
@@ -296,7 +296,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_updating_non_existing_seat_then_throws()
         {
-            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(this.conference.Id, new SeatInfo()));
+            Assert.Throws<ObjectNotFoundException>(() => service.UpdateSeat(this.conference.Id, new SeatType()));
         }
 
         [Fact]
@@ -309,7 +309,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
 
             service.UpdateSeat(this.conference.Id, seat);
 
-            var saved = service.FindSeat(seat.Id);
+            var saved = service.FindSeatType(seat.Id);
 
             Assert.Equal(seat.Name, saved.Name);
             Assert.Equal(seat.Description, saved.Description);
@@ -369,11 +369,11 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
         [Fact]
         public void when_deleting_seat_then_updates_conference_seats()
         {
-            Assert.Equal(1, service.FindSeats(this.conference.Id).Count());
+            Assert.Equal(1, service.FindSeatTypes(this.conference.Id).Count());
 
             service.DeleteSeat(this.conference.Seats.First().Id);
 
-            Assert.Equal(0, service.FindSeats(this.conference.Id).Count());
+            Assert.Equal(0, service.FindSeatTypes(this.conference.Id).Count());
         }
 
         [Fact]

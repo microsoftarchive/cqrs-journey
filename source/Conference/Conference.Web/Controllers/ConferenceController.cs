@@ -179,12 +179,12 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            return PartialView(this.Service.FindSeats(this.Conference.Id));
+            return PartialView(this.Service.FindSeatTypes(this.Conference.Id));
         }
 
         public ActionResult SeatRow(Guid id)
         {
-            return PartialView("SeatGrid", new SeatInfo[] { this.Service.FindSeat(id) });
+            return PartialView("SeatGrid", new SeatType[] { this.Service.FindSeatType(id) });
         }
 
         public ActionResult CreateSeat()
@@ -193,7 +193,7 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateSeat(SeatInfo seat)
+        public ActionResult CreateSeat(SeatType seat)
         {
             if (this.Conference == null)
             {
@@ -205,7 +205,7 @@ namespace Conference.Web.Admin.Controllers
                 seat.Id = Guid.NewGuid();
                 this.Service.CreateSeat(this.Conference.Id, seat);
 
-                return PartialView("SeatGrid", new SeatInfo[] { seat });
+                return PartialView("SeatGrid", new SeatType[] { seat });
             }
 
             return PartialView("EditSeat", seat);
@@ -218,11 +218,11 @@ namespace Conference.Web.Admin.Controllers
                 return HttpNotFound();
             }
 
-            return PartialView(this.Service.FindSeat(id));
+            return PartialView(this.Service.FindSeatType(id));
         }
 
         [HttpPost]
-        public ActionResult EditSeat(SeatInfo seat)
+        public ActionResult EditSeat(SeatType seat)
         {
             if (this.Conference == null)
             {
@@ -240,7 +240,7 @@ namespace Conference.Web.Admin.Controllers
                     return HttpNotFound();
                 }
 
-                return PartialView("SeatGrid", new SeatInfo[] { seat });
+                return PartialView("SeatGrid", new SeatType[] { seat });
             }
 
             return PartialView(seat);
@@ -250,6 +250,17 @@ namespace Conference.Web.Admin.Controllers
         public void DeleteSeat(Guid id)
         {
             this.Service.DeleteSeat(id);
+        }
+
+        #endregion
+
+        #region Orders
+
+        public ViewResult Orders()
+        {
+            var orders = this.Service.FindOrders(this.Conference.Id);
+
+            return View(orders);
         }
 
         #endregion

@@ -26,7 +26,8 @@ namespace Conference
         }
 
         public virtual DbSet<ConferenceInfo> Conferences { get; set; }
-        public virtual DbSet<SeatInfo> Seats { get; set; }
+        public virtual DbSet<SeatType> Seats { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -37,7 +38,10 @@ namespace Conference
             // Make seat infos required to have a conference info associated, but without 
             // having to add a navigation property (don't polute the object model).
             modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
-            modelBuilder.Entity<SeatInfo>().ToTable("SeatTypes", SchemaName);
+            modelBuilder.Entity<SeatType>().ToTable("SeatTypes", SchemaName);
+            modelBuilder.Entity<Order>().ToTable("Orders", SchemaName);
+            modelBuilder.Entity<OrderSeat>().ToTable("OrderSeats", SchemaName);
+            modelBuilder.Entity<OrderSeat>().HasKey(seat => new { seat.OrderId, seat.Position });
         }
     }
 }

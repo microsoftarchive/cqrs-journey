@@ -62,7 +62,7 @@ namespace Conference
             }
         }
 
-        public void CreateSeat(Guid conferenceId, SeatInfo seat)
+        public void CreateSeat(Guid conferenceId, SeatType seat)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
@@ -93,7 +93,7 @@ namespace Conference
             }
         }
 
-        public IEnumerable<SeatInfo> FindSeats(Guid conferenceId)
+        public IEnumerable<SeatType> FindSeatTypes(Guid conferenceId)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
@@ -101,15 +101,25 @@ namespace Conference
                     .Where(x => x.Id == conferenceId)
                     .Select(x => x.Seats)
                     .FirstOrDefault() ??
-                    Enumerable.Empty<SeatInfo>();
+                    Enumerable.Empty<SeatType>();
             }
         }
 
-        public SeatInfo FindSeat(Guid seatId)
+        public SeatType FindSeatType(Guid seatTypeId)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
-                return context.Seats.Find(seatId);
+                return context.Seats.Find(seatTypeId);
+            }
+        }
+
+        public IEnumerable<Order> FindOrders(Guid conferenceId)
+        {
+            using (var context = new ConferenceContext(this.nameOrConnectionString))
+            {
+                return context.Orders.Include("Seats.SeatInfo")
+                    .Where(x => x.ConferenceId == conferenceId)
+                    .ToList();
             }
         }
 
@@ -128,7 +138,7 @@ namespace Conference
             }
         }
 
-        public void UpdateSeat(Guid conferenceId, SeatInfo seat)
+        public void UpdateSeat(Guid conferenceId, SeatType seat)
         {
             using (var context = new ConferenceContext(this.nameOrConnectionString))
             {
@@ -224,7 +234,7 @@ namespace Conference
             });
         }
 
-        private void PublishSeatCreated(Guid conferenceId, SeatInfo seat)
+        private void PublishSeatCreated(Guid conferenceId, SeatType seat)
         {
             // TODO: replace with AutoMapper one-liner
             this.eventBus.Publish(new SeatCreated
