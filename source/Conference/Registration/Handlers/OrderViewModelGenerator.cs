@@ -36,56 +36,67 @@ namespace Registration.Handlers
 
         public void Handle(OrderPlaced @event)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.Created)
+                var dto = new OrderDTO(@event.SourceId, OrderDTO.States.PendingReservation, @event.Version)
                 {
                     AccessCode = @event.AccessCode,
                 };
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
 
-                repository.Save(dto);
+                context.Save(dto);
             }
         }
 
         public void Handle(OrderRegistrantAssigned @event)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<OrderDTO>(@event.SourceId);
+                var dto = context.Find<OrderDTO>(@event.SourceId);
                 dto.RegistrantEmail = @event.Email;
 
-                repository.Save(dto);
+                dto.OrderVersion = @event.Version;
+
+                context.Save(dto);
             }
         }
 
         public void Handle(OrderUpdated @event)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = repository.Find<OrderDTO>(@event.SourceId);
-                dto.Lines.Clear();
+                var dto = context.Set<OrderDTO>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
+
+                var linesSet = context.Set<OrderItemDTO>();
+                foreach (var line in linesSet.ToList())
+                {
+                    linesSet.Remove(line);
+                }
+
                 dto.Lines.AddRange(@event.Seats.Select(seat => new OrderItemDTO(seat.SeatType, seat.Quantity)));
 
-                repository.Save(dto);
+                dto.State = OrderDTO.States.PendingReservation;
+                dto.OrderVersion = @event.Version;
+
+                context.Save(dto);
             }
         }
 
         public void Handle(OrderPartiallyReserved @event)
         {
-            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.PartiallyReserved, @event.Version, @event.Seats);
         }
 
         public void Handle(OrderReservationCompleted @event)
         {
-            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Seats);
+            this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, OrderDTO.States.ReservationCompleted, @event.Version, @event.Seats);
         }
 
-        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, IEnumerable<SeatQuantity> seats)
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var dto = repository.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == orderId);
+                var dto = context.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == orderId);
                 foreach (var seat in seats)
                 {
                     var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);
@@ -95,7 +106,9 @@ namespace Registration.Handlers
                 dto.State = state;
                 dto.ReservationExpirationDate = reservationExpiration;
 
-                repository.Save(dto);
+                dto.OrderVersion = orderVersion;
+
+                context.Save(dto);
             }
         }
     }

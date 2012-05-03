@@ -1,11 +1,11 @@
 ﻿@model Registration.ReadModel.OrderDTO
 @{
-    ViewBag.Title = "Registration confirmed for " + ViewBag.Conference.Name;
+    ViewBag.Title = "Registration received for " + ViewBag.Conference.Name;
 }
 <h1 class="page__head page__wrapper">Thank you</h1>
 <div class="page__content">
     <div class="page__wrapper content-main">
-        <p>You will receive a confirmation e-mail in a few minutes.</p>
+        <p>You will receive an update e-mail in a few minutes.</p>
         <p>You can access you order at any time to update or assign attendes using the provided e-mail address and the order locator code <strong>@Model.AccessCode</strong>.</p>
         <br />
         <p>@Html.ActionLink("Go back to conference", "Display", new { controller = "Conference", conferenceCode = ViewBag.Conference.Code })</p>

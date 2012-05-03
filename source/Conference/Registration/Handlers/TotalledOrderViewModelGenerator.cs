@@ -40,10 +40,15 @@ namespace Registration.Handlers
                 if (dto == null)
                 {
                     dto = new TotalledOrder { OrderId = @event.SourceId };
+                    context.Set<TotalledOrder>().Add(dto);
                 }
                 else
                 {
-                    dto.Lines.Clear();
+                    var linesSet = context.Set<TotalledOrderLine>();
+                    foreach (var line in dto.Lines.ToList())
+                    {
+                        linesSet.Remove(line);
+                    }
                 }
 
                 if (seatTypeIds.Length > 0)
@@ -65,7 +70,7 @@ namespace Registration.Handlers
                             line.UnitPrice = seatOrderLine.UnitPrice;
                             line.Quantity = seatOrderLine.Quantity;
                         }
-                        
+
                         dto.Lines.Add(line);
                     }
                 }
@@ -76,13 +81,13 @@ namespace Registration.Handlers
 
                 dto.Total = @event.Total;
 
-                context.Save(dto);
+                context.SaveChanges();
             }
         }
         public void Handle(OrderExpired @event)
         {
             // No need to keep this totalled order alive if it is expired.
-            using(var context = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<TotalledOrder>(@event.SourceId);
                 if (dto != null)

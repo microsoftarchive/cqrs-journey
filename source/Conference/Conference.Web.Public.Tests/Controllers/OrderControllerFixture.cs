@@ -53,7 +53,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         {
             // Arrange
             var orderId = Guid.NewGuid();
-            var orderDto = new OrderDTO(orderId, OrderDTO.States.Created)
+            var orderDto = new OrderDTO(orderId, OrderDTO.States.PendingReservation)
             {
                 RegistrantEmail = "info@contoso.com",
                 AccessCode = "asdf",

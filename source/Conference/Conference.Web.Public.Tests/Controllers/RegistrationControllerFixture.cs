@@ -21,6 +21,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Web.Public.Controllers;
+    using Conference.Web.Public.Models;
     using Infrastructure.Messaging;
     using Moq;
     using Payments.Contracts.Commands;
@@ -100,11 +101,13 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Assert.NotNull(result);
             Assert.Equal("", result.ViewName);
 
-            var resultModel = result.Model as IList<ConferenceSeatTypeDTO>;
+            var resultModel = (OrderViewModel)result.Model;
             Assert.NotNull(resultModel);
-            Assert.Equal(1, resultModel.Count);
-            Assert.Equal("Test Seat", resultModel[0].Name);
-            Assert.Equal("Description", resultModel[0].Description);
+            Assert.Equal(1, resultModel.Items.Count);
+            Assert.Equal("Test Seat", resultModel.Items[0].SeatType.Name);
+            Assert.Equal("Description", resultModel.Items[0].SeatType.Description);
+            Assert.Equal(0, resultModel.Items[0].OrderItem.RequestedSeats);
+            Assert.Equal(0, resultModel.Items[0].OrderItem.ReservedSeats);
         }
 
         [Fact]
@@ -118,7 +121,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             var orderId = Guid.NewGuid();
 
-            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(new OrderDTO(orderId, OrderDTO.States.Created));
+            Mock.Get(this.orderDao).Setup(r => r.GetOrderDetails(orderId)).Returns(new OrderDTO(orderId, OrderDTO.States.PendingReservation));
 
             var registration =
                 new RegisterToConference
@@ -128,7 +131,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 };
 
             // Act
-            var result = (RedirectToRouteResult)this.sut.StartRegistration(registration);
+            var result = (RedirectToRouteResult)this.sut.StartRegistration(registration, 0);
 
             // Assert
             Assert.Equal(null, result.RouteValues["controller"]);
@@ -146,6 +149,86 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                                 && ((RegisterToConference)e.Body).Seats.ElementAt(0).Quantity == 10
                                 && ((RegisterToConference)e.Body).Seats.ElementAt(0).SeatType == seatTypeId)),
                     Times.Once());
+        }
+
+        [Fact]
+        public void when_displaying_payment_and_registration_information_for_a_partially_reserved_order_then_redirects_back_to_seat_selection()
+        {
+            var seatTypeId = Guid.NewGuid();
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", "Description", 10, 50) };
+
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
+
+            var orderId = Guid.NewGuid();
+            var orderVersion = 10;
+
+            Mock.Get(this.orderDao)
+                .Setup(r => r.GetOrderDetails(orderId))
+                .Returns(
+                    new OrderDTO(orderId, OrderDTO.States.PartiallyReserved, orderVersion)
+                    {
+                        Lines = { new OrderItemDTO(seatTypeId, 10) { ReservedSeats = 5 } }
+                    });
+
+            var result = (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
+
+            Assert.Equal(null, result.RouteValues["controller"]);
+            Assert.Equal("StartRegistration", result.RouteValues["action"]);
+            Assert.Equal(this.conferenceAlias.Code, result.RouteValues["conferenceCode"]);
+            Assert.Equal(orderId, result.RouteValues["orderId"]);
+            Assert.Equal(orderVersion, result.RouteValues["orderVersion"]);
+        }
+
+        [Fact]
+        public void when_displaying_payment_and_registration_information_for_a_not_yet_updated_order_then_shows_wait_page()
+        {
+            var seatTypeId = Guid.NewGuid();
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", "Description", 10, 50) };
+
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
+
+            var orderId = Guid.NewGuid();
+            var orderVersion = 10;
+
+            Mock.Get(this.orderDao)
+                .Setup(r => r.GetOrderDetails(orderId))
+                .Returns(
+                    new OrderDTO(orderId, OrderDTO.States.ReservationCompleted, orderVersion)
+                    {
+                        Lines = { new OrderItemDTO(seatTypeId, 10) { ReservedSeats = 5 } }
+                    });
+
+            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
+
+            Assert.Equal("ReservationUnknown", result.ViewName);
+        }
+
+        [Fact]
+        public void when_displaying_payment_and_registration_information_for_a_fully_reserved_order_then_shows_input_page()
+        {
+            var seatTypeId = Guid.NewGuid();
+            var seats = new[] { new ConferenceSeatTypeDTO(seatTypeId, "Test Seat", "Description", 10, 50) };
+
+            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
+
+            var orderId = Guid.NewGuid();
+            var orderVersion = 10;
+
+            Mock.Get(this.orderDao)
+                .Setup(r => r.GetOrderDetails(orderId))
+                .Returns(
+                    new OrderDTO(orderId, OrderDTO.States.ReservationCompleted, orderVersion)
+                    {
+                        Lines = { new OrderItemDTO(seatTypeId, 10) { ReservedSeats = 5 } }
+                    });
+            Mock.Get(this.orderDao)
+                .Setup(r => r.GetTotalledOrder(orderId))
+                .Returns(new TotalledOrder { OrderId = orderId });
+
+            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
+
+            Assert.Equal(string.Empty, result.ViewName);
+            var model = (RegistrationViewModel)result.Model;
         }
 
         [Fact]
@@ -183,7 +266,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             // Act
             var result =
-                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment);
+                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment, 0);
 
             // Assert
             Mock.Get<ICommandBus>(this.bus)
