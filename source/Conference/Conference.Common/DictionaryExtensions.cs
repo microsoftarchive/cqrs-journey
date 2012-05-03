@@ -11,42 +11,32 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.ReadModel
+namespace System.Collections.Generic
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
-    public class ThirdPartyProcessorPaymentDetailsDTO
+    /// <summary>
+    /// Usability extensions for dictionaries.
+    /// </summary>
+    public static class DictionaryExtensions
     {
-        public ThirdPartyProcessorPaymentDetailsDTO(Guid id, ThirdPartyProcessorPayment.States state, Guid paymentSourceId, string description, decimal totalAmount)
+        /// <summary>
+        /// Gets an item from the dictionary, if it's found.
+        /// </summary>
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
-            this.Id = id;
-            this.State = state;
-            this.PaymentSourceId = paymentSourceId;
-            this.Description = description;
-            this.TotalAmount = totalAmount;
+            return dictionary.TryGetValue(key, default(TValue));
         }
 
-        protected ThirdPartyProcessorPaymentDetailsDTO()
+        /// <summary>
+        /// Gets an item from the dictionary, if it's found. Otherwise, 
+        /// returns the specified default value.
+        /// </summary>
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
         {
+            var result = defaultValue;
+            if (!dictionary.TryGetValue(key, out result))
+                return defaultValue;
+
+            return result;
         }
-
-        [Key]
-        public Guid Id { get; private set; }
-
-        public int StateValue { get; private set; }
-
-        [NotMapped]
-        public ThirdPartyProcessorPayment.States State
-        {
-            get { return (ThirdPartyProcessorPayment.States)this.StateValue; }
-            set { this.StateValue = (int)value; }
-        }
-
-        public Guid PaymentSourceId { get; private set; }
-
-        public string Description { get; private set; }
-
-        public decimal TotalAmount { get; private set; }
     }
 }

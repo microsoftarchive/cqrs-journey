@@ -25,11 +25,11 @@ namespace Payments.ReadModel.Implementation
             this.contextFactory = contextFactory;
         }
 
-        public ThirdPartyProcessorPaymentDetailsDTO GetThirdPartyProcessorPaymentDetails(Guid paymentId)
+        public ThirdPartyProcessorPaymentDetails GetThirdPartyProcessorPaymentDetails(Guid paymentId)
         {
             using (var repository = this.contextFactory())
             {
-                return repository.Query<ThirdPartyProcessorPaymentDetailsDTO>().Where(dto => dto.Id == paymentId).FirstOrDefault();
+                return repository.Query<ThirdPartyProcessorPaymentDetails>().Where(dto => dto.Id == paymentId).FirstOrDefault();
             }
         }
     }

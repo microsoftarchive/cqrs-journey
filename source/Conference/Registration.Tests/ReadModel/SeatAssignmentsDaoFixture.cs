@@ -39,7 +39,7 @@ namespace Registration.Tests.ReadModel
         [Fact]
         public void when_finding_existing_dao_then_deserializes_blob_and_returns_instance()
         {
-            var dto = new SeatAssignmentsDTO();
+            var dto = new OrderSeats();
             var storage = Mock.Of<IBlobStorage>(x => x.Find(It.IsAny<string>()) == new byte[0]);
             var serializer = Mock.Of<ITextSerializer>(x => x.Deserialize(It.IsAny<TextReader>()) == dto);
             var dao = new SeatAssignmentsDao(storage, serializer);

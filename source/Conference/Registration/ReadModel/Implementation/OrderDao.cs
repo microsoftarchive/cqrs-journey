@@ -26,11 +26,22 @@ namespace Registration.ReadModel.Implementation
             this.contextFactory = contextFactory;
         }
 
-        public OrderDTO GetOrderDetails(Guid orderId)
+        public Guid GetConferenceId(Guid orderId)
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<OrderDTO>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+                return repository.Query<DraftOrder>()
+                    .Where(o => o.OrderId == orderId)
+                    .Select(o => o.ConferenceId)
+                    .FirstOrDefault();
+            }
+        }
+
+        public DraftOrder GetDraftOrder(Guid orderId)
+        {
+            using (var repository = this.contextFactory.Invoke())
+            {
+                return repository.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
 
@@ -39,7 +50,7 @@ namespace Registration.ReadModel.Implementation
             using (var repository = this.contextFactory.Invoke())
             {
                 var orderProjection = repository
-                    .Query<OrderDTO>()
+                    .Query<DraftOrder>()
                     .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
                     .Select(o => new { o.OrderId })
                     .FirstOrDefault();
@@ -53,11 +64,11 @@ namespace Registration.ReadModel.Implementation
             }
         }
 
-        public TotalledOrder GetTotalledOrder(Guid orderId)
+        public PricedOrder GetPricedOrder(Guid orderId)
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<TotalledOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+                return repository.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
     }

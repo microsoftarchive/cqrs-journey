@@ -11,25 +11,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Payments.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.ComponentModel.DataAnnotations;
 
-    public class SeatAssignmentsDTO
+    public class PaymentItem
     {
-        public SeatAssignmentsDTO()
-        {
-        }
-
-        public SeatAssignmentsDTO(Guid id, IEnumerable<SeatAssignmentDTO> seats)
+        public PaymentItem(Guid id, string description, decimal price)
         {
             this.Id = id;
-            this.Seats = seats.ToList();
+            this.Description = description;
+            this.Price = price;
         }
 
-        public Guid Id { get; set; }
-        public IList<SeatAssignmentDTO> Seats { get; set; }
+        protected PaymentItem()
+        {
+        }
+
+        [Key]
+        public virtual Guid Id { get; private set; }
+
+        public virtual string Description { get; private set; }
+
+        public virtual decimal Price { get; private set; }
     }
 }

@@ -18,7 +18,7 @@ namespace Conference.Web.Public.Models
 
     public class RegistrationViewModel
     {
-        public TotalledOrder Order { get; set; }
+        public PricedOrder Order { get; set; }
 
         public AssignRegistrantDetails RegistrantDetails { get; set; }
     }

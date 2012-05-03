@@ -53,8 +53,8 @@
     <Compile Include="ReadModel\Implementation\PaymentsReadDbContext.cs" />
     <Compile Include="ReadModel\Implementation\PaymentsReadDbContextInitializer.cs" />
     <Compile Include="ReadModel\IPaymentDao.cs" />
-    <Compile Include="ReadModel\PaymentItemDTO.cs" />
-    <Compile Include="ReadModel\ThirdPartyProcessorPaymentDetailsDTO.cs" />
+    <Compile Include="ReadModel\PaymentItem.cs" />
+    <Compile Include="ReadModel\ThirdPartyProcessorPaymentDetails.cs" />
     <Compile Include="ThirdPartyProcessorPayment.cs" />
     <Compile Include="ThirdPartyProcessorPaymentItem.cs" />
   </ItemGroup>

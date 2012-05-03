@@ -13,12 +13,23 @@
 
 namespace Registration.ReadModel
 {
-    using System;
 
-    public class ConferenceAliasDTO
+    public class Seat
     {
-        public Guid Id { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
+        public Seat()
+        {
+            this.Attendee = new PersonalInfo();
+        }
+
+        public Seat(int position, string seatType)
+        {
+            this.Position = position;
+            this.SeatType = seatType;
+            this.Attendee = new PersonalInfo();
+        }
+
+        public int Position { get; set; }
+        public string SeatType { get; set; }
+        public PersonalInfo Attendee { get; set; }
     }
 }

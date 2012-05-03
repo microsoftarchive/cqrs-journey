@@ -11,39 +11,42 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Payments.ReadModel
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
 
-    public class TotalledOrder
+    public class ThirdPartyProcessorPaymentDetails
     {
-        public TotalledOrder()
+        public ThirdPartyProcessorPaymentDetails(Guid id, ThirdPartyProcessorPayment.States state, Guid paymentSourceId, string description, decimal totalAmount)
         {
-            this.Lines = new ObservableCollection<TotalledOrderLine>();
+            this.Id = id;
+            this.State = state;
+            this.PaymentSourceId = paymentSourceId;
+            this.Description = description;
+            this.TotalAmount = totalAmount;
+        }
+
+        protected ThirdPartyProcessorPaymentDetails()
+        {
         }
 
         [Key]
-        public Guid OrderId { get; set; }
-        public IList<TotalledOrderLine> Lines { get; set; }
-        public decimal Total { get; set; }
-    }
+        public Guid Id { get; private set; }
 
-    public class TotalledOrderLine
-    {
-        public TotalledOrderLine()
+        public int StateValue { get; private set; }
+
+        [NotMapped]
+        public ThirdPartyProcessorPayment.States State
         {
-            this.TotalledOrderLineId = Guid.NewGuid();
+            get { return (ThirdPartyProcessorPayment.States)this.StateValue; }
+            set { this.StateValue = (int)value; }
         }
 
-        [Key]
-        public Guid TotalledOrderLineId { get; set; }
-        public Guid OrderId { get; set; }
-        public string Description { get; set; }
-        public decimal UnitPrice { get; set; }
-        public int Quantity { get; set; }
-        public decimal LineTotal { get; set; }
+        public Guid PaymentSourceId { get; private set; }
+
+        public string Description { get; private set; }
+
+        public decimal TotalAmount { get; private set; }
     }
 }
