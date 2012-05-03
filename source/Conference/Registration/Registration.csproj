@@ -79,12 +79,7 @@
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
     <Compile Include="ReadModel\ConferenceAlias.cs" />
-<<<<<<< HEAD
-    <Compile Include="ReadModel\Seat.cs" />
-=======
-    <Compile Include="ReadModel\Implementation\SeatAssignmentsDao.cs" />
     <Compile Include="ReadModel\OrderSeat.cs" />
->>>>>>> 55b7d5b... Cleaned-up the way we lookup seat type names for both the pricing and the seat availability generation.
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />
