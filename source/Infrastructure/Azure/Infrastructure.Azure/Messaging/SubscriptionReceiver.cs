@@ -59,7 +59,11 @@ namespace Infrastructure.Azure.Messaging
         {
         }
 
-        public SubscriptionReceiver(MessagingSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy, RetryStrategy blockingRetryStrategy)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
+        /// automatically creating the topic and subscription if they don't exist.
+        /// </summary>
+        protected SubscriptionReceiver(MessagingSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy, RetryStrategy blockingRetryStrategy)
         {
             this.settings = settings;
             this.subscription = subscription;

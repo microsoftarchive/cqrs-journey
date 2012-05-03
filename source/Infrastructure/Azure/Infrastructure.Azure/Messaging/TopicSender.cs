@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
@@ -39,6 +40,15 @@ namespace Infrastructure.Azure.Messaging
         /// automatically creating the given topic if it does not exist.
         /// </summary>
         public TopicSender(MessagingSettings settings, string topic)
+            : this(settings, topic, GetRetryStrategy())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TopicSender"/> class, 
+        /// automatically creating the given topic if it does not exist.
+        /// </summary>
+        protected TopicSender(MessagingSettings settings, string topic, RetryStrategy retryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
@@ -60,12 +70,12 @@ namespace Infrastructure.Azure.Messaging
             { }
 
             // TODO: This could be injected.
-            var retryStrategy = new ExponentialBackoff(
-                10,
-                TimeSpan.FromMilliseconds(100),
-                TimeSpan.FromSeconds(15),
-                TimeSpan.FromSeconds(1));
             this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
+            this.retryPolicy.Retrying +=
+                (s, e) =>
+                {
+                    Trace.TraceError("An error occurred in attempt number {1} to send a message: {0}", e.LastException.Message, e.CurrentRetryCount);
+                };
 
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
             this.topicClient = factory.CreateTopicClient(this.topic);
@@ -74,29 +84,31 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Asynchronously sends the specified message.
         /// </summary>
-        public void SendAsync(BrokeredMessage message)
+        public void SendAsync(Func<BrokeredMessage> messageFactory)
         {
-            // TODO: what about retries? Watch-out for message reuse. Need to recreate it before retry.
             // Always send async.
-            this.topicClient.BeginSend(message, ar =>
-            {
-                try
+            this.retryPolicy.ExecuteAction(
+                ac =>
                 {
-                    this.topicClient.EndSend(ar);
-                }
-                finally
+                    this.DoBeginSendMessage(messageFactory(), ac);
+                },
+                ar =>
                 {
-                    message.Dispose();
-                }
-            }, null);
+                    this.DoEndSendMessage(ar);
+                },
+                () => { },
+                ex =>
+                {
+                    Trace.TraceError("An unrecoverable error occurred while trying to send a message:\r\n{0}", ex);
+                });
         }
 
-        public void SendAsync(IEnumerable<BrokeredMessage> messages)
+        public void SendAsync(IEnumerable<Func<BrokeredMessage>> messageFactories)
         {
             // TODO: batch/transactional sending?
-            foreach (var message in messages)
+            foreach (var messageFactory in messageFactories)
             {
-                this.SendAsync(message);
+                this.SendAsync(messageFactory);
             }
         }
 
@@ -106,33 +118,48 @@ namespace Infrastructure.Azure.Messaging
             Exception exception = null;
             this.retryPolicy.ExecuteAction(
                 ac =>
-                    {
-                        var message = messageFactory.Invoke();
-                        this.topicClient.BeginSend(message, ac, message);
-                    },
+                {
+                    this.DoBeginSendMessage(messageFactory(), ac);
+                },
                 ar =>
-                    {
-                        try
-                        {
-                            this.topicClient.EndSend(ar);
-                        }
-                        finally
-                        {
-                            using (ar.AsyncState as IDisposable) { }
-                        }
-                    },
+                {
+                    this.DoEndSendMessage(ar);
+                },
                 () => resetEvent.Set(),
                 ex =>
-                    {
-                        exception = ex;
-                        resetEvent.Set();
-                    });
+                {
+                    Trace.TraceError("An unrecoverable error occurred while trying to send a message:\r\n{0}", ex);
+                    exception = ex;
+                    resetEvent.Set();
+                });
 
             resetEvent.WaitOne();
             if (exception != null)
             {
                 throw exception;
             }
+        }
+
+        protected virtual void DoBeginSendMessage(BrokeredMessage message, AsyncCallback ac)
+        {
+            this.topicClient.BeginSend(message, ac, message);
+        }
+
+        protected virtual void DoEndSendMessage(IAsyncResult ar)
+        {
+            try
+            {
+                this.topicClient.EndSend(ar);
+            }
+            finally
+            {
+                using (ar.AsyncState as IDisposable) { }
+            }
+        }
+
+        private static RetryStrategy GetRetryStrategy()
+        {
+            return new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1));
         }
     }
 }

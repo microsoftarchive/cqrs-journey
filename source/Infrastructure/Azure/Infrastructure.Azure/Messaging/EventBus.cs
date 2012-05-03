@@ -13,6 +13,7 @@
 
 namespace Infrastructure.Azure.Messaging
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -45,9 +46,7 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void Publish(IEvent @event)
         {
-            var message = BuildMessage(@event);
-
-            this.sender.SendAsync(message);
+            this.sender.SendAsync(() => BuildMessage(@event));
         }
 
         /// <summary>
@@ -55,9 +54,9 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void Publish(IEnumerable<IEvent> events)
         {
-            var messages = events.Select(this.BuildMessage);
+            var messageFactories = events.Select<IEvent, Func<BrokeredMessage>>(e => () => this.BuildMessage(e));
 
-            this.sender.SendAsync(messages);
+            this.sender.SendAsync(messageFactories);
         }
 
         private BrokeredMessage BuildMessage(IEvent @event)

@@ -59,7 +59,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
                 receiver.Start();
 
-                sender.SendAsync(new BrokeredMessage(data));
+                sender.SendAsync(() => new BrokeredMessage(data));
 
                 signal.Wait();
             }
@@ -96,7 +96,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
                 receiver.Start();
 
-                sender.SendAsync(new BrokeredMessage(data));
+                sender.SendAsync(() => new BrokeredMessage(data));
 
                 Assert.True(signal.Wait(TimeSpan.FromSeconds(10)), "Test timed out");
             }
@@ -131,7 +131,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
                 receiver.Start();
 
-                sender.SendAsync(new BrokeredMessage(data));
+                sender.SendAsync(() => new BrokeredMessage(data));
 
                 Assert.True(signal.Wait(TimeSpan.FromSeconds(10)), "Test timed out");
                 Thread.Sleep(TimeSpan.FromMilliseconds(500));
