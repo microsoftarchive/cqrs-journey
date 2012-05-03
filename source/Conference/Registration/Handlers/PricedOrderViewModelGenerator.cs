@@ -14,7 +14,6 @@
 namespace Registration.Handlers
 {
     using System;
-    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using Infrastructure.Messaging.Handling;
@@ -25,9 +24,11 @@ namespace Registration.Handlers
     public class PricedOrderViewModelGenerator : IEventHandler<OrderTotalsCalculated>, IEventHandler<OrderExpired>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private IConferenceDao conferenceDao;
 
-        public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
+        public PricedOrderViewModelGenerator(IConferenceDao conferenceDao, Func<ConferenceRegistrationDbContext> contextFactory)
         {
+            this.conferenceDao = conferenceDao;
             this.contextFactory = contextFactory;
         }
 
@@ -51,32 +52,24 @@ namespace Registration.Handlers
                     }
                 }
 
-                if (seatTypeIds.Length > 0)
-                {
-                    // if there are no seat type IDs, there is no need for the following IN query.
-                    var seatTypeDescriptions = context.Query<SeatType>().Where(x => seatTypeIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).ToList();
+                var seatTypeDescriptions = this.conferenceDao.GetSeatTypeNames(seatTypeIds);
 
-                    foreach (var orderLine in @event.Lines)
+                foreach (var orderLine in @event.Lines)
+                {
+                    var line = new PricedOrderLine
                     {
-                        var line = new PricedOrderLine
-                                       {
-                                           LineTotal = orderLine.LineTotal
-                                       };
+                        LineTotal = orderLine.LineTotal
+                    };
 
-                        var seatOrderLine = orderLine as SeatOrderLine;
-                        if (seatOrderLine != null)
-                        {
-                            line.Description = seatTypeDescriptions.Where(x => x.Id == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
-                            line.UnitPrice = seatOrderLine.UnitPrice;
-                            line.Quantity = seatOrderLine.Quantity;
-                        }
-
-                        dto.Lines.Add(line);
+                    var seatOrderLine = orderLine as SeatOrderLine;
+                    if (seatOrderLine != null)
+                    {
+                        line.Description = seatTypeDescriptions.Where(x => x.Id == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
+                        line.UnitPrice = seatOrderLine.UnitPrice;
+                        line.Quantity = seatOrderLine.Quantity;
                     }
-                }
-                else
-                {
-                    dto.Lines.AddRange(@event.Lines.Select(x => new PricedOrderLine { LineTotal = x.LineTotal }));
+
+                    dto.Lines.Add(line);
                 }
 
                 dto.Total = @event.Total;
