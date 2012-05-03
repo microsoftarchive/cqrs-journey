@@ -221,6 +221,7 @@
     <Content Include="Views\Registration\ShowExpiredOrder.cshtml" />
     <Content Include="Views\Shared\_OrderDetails.cshtml" />
     <Content Include="Views\Order\Display.cshtml" />
+    <Content Include="Views\Registration\ShowCompletedOrder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

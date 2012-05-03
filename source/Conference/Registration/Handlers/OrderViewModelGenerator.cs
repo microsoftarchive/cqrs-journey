@@ -25,7 +25,8 @@ namespace Registration.Handlers
     public class OrderViewModelGenerator :
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
-        IEventHandler<OrderRegistrantAssigned>
+        IEventHandler<OrderRegistrantAssigned>,
+        IEventHandler<OrderPaymentConfirmed>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
@@ -92,6 +93,20 @@ namespace Registration.Handlers
             this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, DraftOrder.States.ReservationCompleted, @event.Version, @event.Seats);
         }
 
+        public void Handle(OrderPaymentConfirmed @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Set<OrderDTO>().Include(x => x.Lines).First(x => x.OrderId == @event.SourceId);
+
+                dto.State = OrderDTO.States.Confirmed;
+                dto.OrderVersion = @event.Version;
+
+                context.Save(dto);
+            }
+        }
+
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, OrderDTO.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
             using (var context = this.contextFactory.Invoke())
