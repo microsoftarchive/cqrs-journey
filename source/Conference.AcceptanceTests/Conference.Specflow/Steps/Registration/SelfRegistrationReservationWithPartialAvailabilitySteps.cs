@@ -11,10 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using W = WatiN.Core;
 
@@ -36,7 +33,7 @@ namespace Conference.Specflow.Steps.Registration
         [When(@"the Registrant proceed to make the Reservation with missing or invalid data")]
         public void WhenTheRegistrantProceedToMakeTheReservationWithMissingOrInvalidData()
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonID);
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
         }
     }
 }

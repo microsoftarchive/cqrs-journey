@@ -11,13 +11,9 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TechTalk.SpecFlow;
 
-namespace Conference.Specflow.Steps.Conference
+namespace Conference.Specflow.Steps.Management
 {
     [Binding]
     public class DiscountsConfigurationSteps
@@ -35,7 +31,7 @@ namespace Conference.Specflow.Steps.Conference
         }
 
         [Given(@"the Business Customer enter the 'NEWCODE' Promotional Code and these attributes")]
-        public void GivenTheBusinessCustomerEnterTheNEWCODEPromotionalCodeAndTheseAttributes(Table table)
+        public void GivenTheBusinessCustomerEnterTheNewcodePromotionalCodeAndTheseAttributes(Table table)
         {
             ScenarioContext.Current.Pending();
         }

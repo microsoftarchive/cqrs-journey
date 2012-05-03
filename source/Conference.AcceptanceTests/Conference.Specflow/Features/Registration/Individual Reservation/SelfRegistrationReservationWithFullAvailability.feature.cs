@@ -128,8 +128,10 @@ this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line 37
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.Given("the total should read $749");
 #line 38
+ testRunner.When("the Registrant proceed to make the Reservation");
+#line 39
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -144,25 +146,24 @@ this.FeatureBackground();
             table3.AddRow(new string[] {
                         "Additional cocktail party",
                         "1"});
-#line 39
+#line 40
  testRunner.And("these Order Items should be reserved", ((string)(null)), table3);
-#line 44
- testRunner.And("the total should read $749");
 #line 45
+ testRunner.And("the total should read $749");
+#line 46
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
             " Order Items initially available")]
         [Xunit.TraitAttribute("Description", "All the Order Items are available and all get waitlisted")]
         public virtual void AllTheOrderItemsAreAvailableAndAllGetWaitlisted()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and all get waitlisted", new string[] {
-                        "Ignore"});
-#line 54
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are available and all get waitlisted", ((string[])(null)));
+#line 52
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
@@ -175,9 +176,9 @@ this.FeatureBackground();
                         "CQRS Workshop"});
             table4.AddRow(new string[] {
                         "Additional cocktail party"});
-#line 55
+#line 53
  testRunner.Given("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table4);
-#line 60
+#line 58
  testRunner.When("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
@@ -188,21 +189,20 @@ this.FeatureBackground();
                         "CQRS Workshop"});
             table5.AddRow(new string[] {
                         "Additional cocktail party"});
-#line 61
+#line 59
  testRunner.Then("the Registrant is offered to be waitlisted for these Order Items", ((string)(null)), table5);
 #line hidden
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with all" +
             " Order Items initially available")]
         [Xunit.TraitAttribute("Description", "All Seat Types are available, one get reserved and two get waitlisted")]
         public virtual void AllSeatTypesAreAvailableOneGetReservedAndTwoGetWaitlisted()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All Seat Types are available, one get reserved and two get waitlisted", new string[] {
-                        "Ignore"});
-#line 74
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All Seat Types are available, one get reserved and two get waitlisted", ((string[])(null)));
+#line 69
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
@@ -213,9 +213,9 @@ this.FeatureBackground();
                         "CQRS Workshop"});
             table6.AddRow(new string[] {
                         "Additional cocktail party"});
-#line 75
+#line 70
  testRunner.Given("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table6);
-#line 79
+#line 74
  testRunner.When("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
@@ -224,7 +224,7 @@ this.FeatureBackground();
                         "CQRS Workshop"});
             table7.AddRow(new string[] {
                         "Additional cocktail party"});
-#line 80
+#line 75
  testRunner.Then("the Registrant is offered to be waitlisted for these Order Items", ((string)(null)), table7);
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
@@ -233,11 +233,11 @@ this.FeatureBackground();
             table8.AddRow(new string[] {
                         "General admission",
                         "1"});
-#line 84
+#line 79
  testRunner.And("these Order Items should be reserved", ((string)(null)), table8);
-#line 87
+#line 82
  testRunner.And("the total should read $199");
-#line 88
+#line 83
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();

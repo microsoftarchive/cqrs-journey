@@ -13,20 +13,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading;
+using Conference.Common.Entity;
 using Infrastructure.Azure;
 using Infrastructure.Azure.Messaging;
 using Infrastructure.Messaging;
 using Infrastructure.Serialization;
-using Newtonsoft.Json;
 using Registration;
 using Registration.Commands;
 using TechTalk.SpecFlow;
-using System.Data.Entity;
-using Conference.Common.Entity;
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     static class ConferenceHelper
     {
@@ -38,8 +37,8 @@ namespace Conference.Specflow
 
         public static ConferenceInfo PopulateConfereceData(Table table, string conferenceSlug)
         {
-            ConferenceService svc = new ConferenceService(BuildEventBus());
-            ConferenceInfo conference = svc.FindConference(conferenceSlug);
+            var svc = new ConferenceService(BuildEventBus());
+            var conference = svc.FindConference(conferenceSlug);
 
             if (null != conference)
             {
@@ -58,16 +57,15 @@ namespace Conference.Specflow
 
         public static Guid ReserveSeats(ConferenceInfo conference, Table table)
         {
-            List<SeatQuantity> seats = new List<SeatQuantity>();
+            var seats = new List<SeatQuantity>();
 
             foreach (var row in table.Rows)
             {
                 var seatInfo = conference.Seats.FirstOrDefault(s => s.Name == row["seat type"]);
-                if (seatInfo != null)
-                {
-                    int qt = row.ContainsKey("quantity") ? Int32.Parse(row["quantity"]) : seatInfo.Quantity;
-                    seats.Add(new SeatQuantity(seatInfo.Id, qt));
-                }
+                if (seatInfo == null) 
+                    throw new InvalidOperationException("seat type not found");
+                var qt = row.ContainsKey("quantity") ? Int32.Parse(row["quantity"]) : seatInfo.Quantity;
+                seats.Add(new SeatQuantity(seatInfo.Id, qt));
             }
 
             var seatReservation = new MakeSeatReservation
@@ -120,7 +118,7 @@ namespace Conference.Specflow
 
             foreach (var row in seats.Rows)
             {
-                SeatInfo seat = new SeatInfo()
+                var seat = new SeatInfo()
                 {
                     Id = Guid.NewGuid(),
                     Description = row["seat type"],

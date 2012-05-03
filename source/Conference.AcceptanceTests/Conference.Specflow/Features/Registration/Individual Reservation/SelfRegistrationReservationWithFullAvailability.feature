@@ -34,6 +34,7 @@ Background:
 #Initial state	: 3 available
 #End state		: 3 reserved	
 Scenario: All the Order Items are available and all get reserved
+	Given the total should read $749
 	When the Registrant proceed to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
@@ -48,9 +49,6 @@ Scenario: All the Order Items are available and all get reserved
 #2
 #Initial state	: 3 available
 #End state		: 3 waitlisted
-
-#Next release
-@Ignore
 Scenario: All the Order Items are available and all get waitlisted
 	Given these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 |
@@ -68,9 +66,6 @@ Scenario: All the Order Items are available and all get waitlisted
 #3
 #Initial state	: 3 available
 #End state		: 2 waitlisted, 1 reserved
-
-#Next release
-@Ignore
 Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	Given these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 |

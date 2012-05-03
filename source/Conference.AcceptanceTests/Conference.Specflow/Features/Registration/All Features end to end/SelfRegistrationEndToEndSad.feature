@@ -51,29 +51,6 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	And the countdown started
 
 
-#Initial state	: 1 available, 2 waitlisted and 1a & 1w selected
-#End state		: 1 reserved,  1 waitlisted confirmed  
-
-# Next release
-@Ignore
-Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
-	Given the list of available Order Items selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
-	| seat type     | quantity |
-	| CQRS Workshop | 1        |
-	And these other order items get reserved
-	| seat type         | quantity |
-	| General admission | 1        |	
-	And the countdown started
-
-
 Scenario: Checkout:Registrant Invalid Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
@@ -123,16 +100,3 @@ And the Attendees should get an email informing about the conference and the Sea
 	| Access code | email address            | Seat type         |
 	| 6789-1      | gregoryweber@contoso.com | General admission |
 
-
-# Next release
-@Ignore
-Scenario: Complete Seats allocation
-Given the ConfirmSuccessfulRegistration for the selected Order Items
-And the Order Access code is 6789
-And the Registrant assign the purchased seats to attendees as following
-	| First name | Last name | email address            | Seat type                 |
-	| Gregory    | Weber     | gregoryweber@contoso.com | Additional cocktail party |
-Then the Registrant should be get a Seat Assignment confirmation
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address            | Seat type                 |
-	| 6789-2      | gregoryweber@contoso.com | Additional cocktail party |

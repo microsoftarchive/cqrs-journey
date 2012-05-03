@@ -11,14 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TechTalk.SpecFlow;
 using WatiN.Core;
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     [Binding]
     public static class ScenarioContextExtension
@@ -30,7 +27,7 @@ namespace Conference.Specflow
                 !ScenarioContext.Current.ScenarioInfo.Tags.Contains(Constants.NoWatiN))
             {
                 // Set Visible property as true for showing up IE instance (typically used when debugging). 
-                Browser browser = new IE() { Visible = true };
+                Browser browser = new IE { Visible = true };
                 ScenarioContext.Current.Set(browser);
             }
         }
@@ -39,7 +36,7 @@ namespace Conference.Specflow
         public static void AfterScenario()
         {
             Browser browser;
-            if (ScenarioContext.Current.TryGetValue<Browser>(out browser))
+            if (ScenarioContext.Current.TryGetValue(out browser))
             {
                 browser.Close();
             }

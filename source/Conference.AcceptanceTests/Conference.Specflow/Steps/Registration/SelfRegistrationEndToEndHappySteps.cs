@@ -11,11 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System.Text.RegularExpressions;
+using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using W = WatiN.Core;
 
-namespace Conference.Specflow.Steps.Registration.EndToEnd
+namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
     public class SelfRegistrationEndToEndHappySteps

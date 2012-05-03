@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Management.DiscountsConfiguration
+namespace Conference.Specflow.Features.Management.Discounts
 {
     using TechTalk.SpecFlow;
     
@@ -34,7 +34,7 @@ namespace Conference.Specflow.Features.Management.DiscountsConfiguration
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Codes configuration scenarios for creating and editing Promotional Co" +
                     "des settings", "In order to create or update a Promotional Code\r\nAs a Business Customer\r\nI want t" +
                     "o be able to create or update a Promotional Code and set its properties", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
@@ -111,7 +111,7 @@ testRunner.And("the Seat Types configuration", ((string)(null)), table2);
         }
         
         [Xunit.FactAttribute(Skip="Ignored")]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
         [Xunit.TraitAttribute("Description", "Create a new Promotional Code")]
         public virtual void CreateANewPromotionalCode()
@@ -123,7 +123,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 33
-testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
+testRunner.Given("the Business Customer proceed to create a Promotional Code");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "Discount",
@@ -138,7 +138,7 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
 #line 34
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table3);
 #line 37
-testRunner.When("the \'Save\' option is selected");
+testRunner.When("the Business Customer proceed to save the new information");
 #line 38
 testRunner.Then("the new Promotional Code is added to the list of existing codes");
 #line hidden
@@ -146,7 +146,7 @@ testRunner.Then("the new Promotional Code is added to the list of existing codes
         }
         
         [Xunit.FactAttribute(Skip="Ignored")]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
         [Xunit.TraitAttribute("Description", "Create a new Promotional Code with with exceeding quota")]
         public virtual void CreateANewPromotionalCodeWithWithExceedingQuota()
@@ -158,7 +158,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 45
-testRunner.Given("the Business Customer selects \'Add new Promotional code\' option");
+testRunner.Given("the Business Customer proceed to create a Promotional Code");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "Discount",
@@ -173,7 +173,7 @@ testRunner.Given("the Business Customer selects \'Add new Promotional code\' opt
 #line 46
 testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table4);
 #line 49
-testRunner.When("the \'Save\' option is selected");
+testRunner.When("the Business Customer proceed to save the new information");
 #line 50
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");
@@ -182,7 +182,7 @@ testRunner.Then("an error message will show up describing that the quota value e
         }
         
         [Xunit.FactAttribute(Skip="Ignored")]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
         [Xunit.TraitAttribute("Description", "Update an existing Promotional Code")]
         public virtual void UpdateAnExistingPromotionalCode()
@@ -200,7 +200,7 @@ testRunner.And("the Scope is updated with value \'CQRS Workshop\'");
 #line 59
 testRunner.And("the Quota is updated with the value \'50\'");
 #line 60
-testRunner.When("the \'Save\' option is selected");
+testRunner.When("the Business Customer proceed to save the new information");
 #line 61
 testRunner.Then("updated values are reflected in the selected Promotional Code");
 #line hidden
@@ -208,7 +208,7 @@ testRunner.Then("updated values are reflected in the selected Promotional Code")
         }
         
         [Xunit.FactAttribute(Skip="Ignored")]
-        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes Configuration scenarios for creating and editing Promotional Co" +
+        [Xunit.TraitAttribute("FeatureTitle", "Promotional Codes configuration scenarios for creating and editing Promotional Co" +
             "des settings")]
         [Xunit.TraitAttribute("Description", "Update an existing Promotional Code with exceeding quota")]
         public virtual void UpdateAnExistingPromotionalCodeWithExceedingQuota()
@@ -226,7 +226,7 @@ testRunner.And("the Scope is updated with value \'CQRS Workshop\'");
 #line 70
 testRunner.And("the Quota is updated with the value \'200\'");
 #line 71
-testRunner.When("the \'Save\' option is selected");
+testRunner.When("the Business Customer proceed to save the new information");
 #line 72
 testRunner.Then("an error message will show up describing that the quota value exceeds the total s" +
                     "eats for the specified Seat Type");

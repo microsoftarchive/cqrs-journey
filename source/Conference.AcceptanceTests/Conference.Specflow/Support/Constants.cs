@@ -12,12 +12,9 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Configuration;
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     static class Constants
     {
@@ -26,13 +23,13 @@ namespace Conference.Specflow
 
         public static class UI
         {
-            public const string NextStepButtonID = "Next";
+            public const string NextStepButtonId = "Next";
             public const string ReservationSuccessfull = "Seats information";
             public const string FindOrderSuccessfull = "Assign Seats";
             public const string RegistrationSuccessfull = "You will receive a confirmation e-mail in a few minutes.";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(12); // Wait > 5 secs, longer than page retry 
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); // Wait > 5 secs, longer than page retry 
         }
 
         public static string RegistrationPage(string conferenceSlug)

@@ -12,12 +12,10 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using WatiN.Core;
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     public static class IEExtension
     {

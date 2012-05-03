@@ -12,28 +12,27 @@
 // ==============================================================================================================
 
 using System;
-using TechTalk.SpecFlow;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using W = WatiN.Core;
 using System.Threading;
-using Registration.ReadModel;
-using System.Linq;
+using Conference.Specflow.Support;
+using TechTalk.SpecFlow;
 using Xunit;
+using W = WatiN.Core;
 
-namespace Conference.Specflow.Steps.Registration.EndToEnd
+namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
     public class CommonSteps
     {
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference with the slug code (.*)")]
-        public void GivenTheListOfTheAvailableOrderItemsForTheCQRSSummit2012Conference(string conferenceSlug, Table table)
+        public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(string conferenceSlug, Table table)
         {
             // Populate Conference data
             var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
 
             // Store for later use
-            ScenarioContext.Current.Set<ConferenceInfo>(conferenceInfo);
+            ScenarioContext.Current.Set(conferenceInfo);
 
             // Navigate to Registration page
             ScenarioContext.Current.Get<W.Browser>().GoTo(Constants.RegistrationPage(conferenceSlug));
@@ -90,16 +89,22 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             ScenarioContext.Current.Set<Guid>(reservationId, "reservationId");
         }
 
+        [Given(@"the total should read \$(.*)")]
+        public void GivenTheTotalShouldRead(int value)
+        {
+            ThenTheTotalShouldRead(value);
+        }
+
         [When(@"the Registrant proceed to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
-            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonID, Constants.UI.ReservationSuccessfull);
+            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonId, Constants.UI.ReservationSuccessfull);
         }
 
         [When(@"the Registrant proceed to Checkout:Payment")]
         public void WhenTheRegistrantProceedToCheckoutPayment()
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonID);
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
         }
 
         [Then(@"the Registrant is offered to be waitlisted for these Order Items")]
@@ -118,7 +123,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         [Then(@"the total should read \$(.*)")]
         public void ThenTheTotalShouldRead(int value)
         {
-            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString()),
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
                 string.Format("The following text was not found on the page: {0}", value)); 
         }
 
@@ -135,14 +140,14 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             var countdown = ScenarioContext.Current.Get<W.Browser>().Div("countdown_time").Text;
 
             Assert.False(string.IsNullOrWhiteSpace(countdown));
-            TimeSpan countdownTime = TimeSpan.ParseExact(countdown, @"mm\:ss", CultureInfo.InvariantCulture);
+            var countdownTime = TimeSpan.ParseExact(countdown, @"mm\:ss", CultureInfo.InvariantCulture);
             Assert.True(countdownTime.Minutes > 0 && countdownTime.Minutes < 15);
         }
 
         [Then(@"the payment options should be offered for a total of \$(.*)")]
         public void ThenThePaymentOptionsShouldBeOfferedForATotalOf(int value)
         {
-            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString()),
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
                 string.Format("The following text was not found on the page: {0}", value)); 
         }
 
@@ -163,8 +168,8 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
             var browser = ScenarioContext.Current.Get<W.Browser>(); 
             foreach (var row in table.Rows)
             {
-                Assert.True(browser.ContainsValueInTableRow(row["seat type"], "0"),
-                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], "0"));                
+                Assert.False(browser.ContainsValueInTableRow(row["seat type"], ""),
+                    string.Format("The following text was not found on the page: {0}", row["seat type"]));                
             }
         }
 
@@ -195,7 +200,7 @@ namespace Conference.Specflow.Steps.Registration.EndToEnd
         {
             // Restore the available setes previous to the reservation
             Guid reservationId;
-            if (ScenarioContext.Current.TryGetValue<Guid>("reservationId", out reservationId))
+            if (ScenarioContext.Current.TryGetValue("reservationId", out reservationId))
             {
                 ConferenceHelper.CancelSeatReservation(ScenarioContext.Current.Get<ConferenceInfo>().Id, reservationId);
             }
