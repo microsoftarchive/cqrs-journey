@@ -44,17 +44,26 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult Display(string conferenceCode, Guid orderId)
         {
-            var order = orderDao.GetOrderDetails(orderId);
+            var order = orderDao.GetTotalledOrder(orderId);
             if (order == null)
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
+            return View(order);
+        }
+
+        [HttpGet]
+        [OutputCache(Duration = 0)]
+        public ActionResult AssignSeats(string conferenceCode, Guid orderId)
+        {
             var assignments = assignmentsDao.Find(orderId);
+            if (assignments == null)
+                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
             return View(assignments);
         }
 
         [HttpPost]
-        public ActionResult Display(string conferenceCode, Guid orderId, List<SeatAssignmentDTO> seats)
+        public ActionResult AssignSeats(string conferenceCode, Guid orderId, List<SeatAssignmentDTO> seats)
         {
             var saved = assignmentsDao.Find(orderId);
             if (saved == null)
@@ -84,9 +93,6 @@ namespace Conference.Web.Public.Controllers
                 this.bus.Send(commands);
             }
 
-            // TODO: Will have a display page, so we can redirect to a different one. Right now, because this is eventually consistent,
-            // the user will not see his changes.
-            Thread.Sleep(1000);
             return RedirectToAction("Display");
         }
 
