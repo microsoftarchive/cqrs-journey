@@ -57,6 +57,12 @@ namespace Conference.Web.Public.Controllers
             else
             {
                 var order = this.orderDao.GetDraftOrder(orderId.Value);
+
+                if (order.State == DraftOrder.States.Confirmed)
+                {
+                    return View("ShowCompletedOrder");
+                }
+
                 orderVersion = order.OrderVersion;
                 viewModel = this.CreateViewModel(order);
                 ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
@@ -105,6 +111,11 @@ namespace Conference.Web.Public.Controllers
             if (order.State == DraftOrder.States.PartiallyReserved)
             {
                 return this.RedirectToAction("StartRegistration", new { conferenceCode = this.Conference.Code, orderId, orderVersion = order.OrderVersion });
+            }
+
+            if (order.State == DraftOrder.States.Confirmed)
+            {
+                return View("ShowCompletedOrder");
             }
 
             if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
