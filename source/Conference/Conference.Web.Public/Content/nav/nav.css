@@ -62,7 +62,7 @@ See the License for the specific language governing permissions and limitations 
 	margin: 5px 0 0 0;
 	}
 
-button.nav__right {
+.nav__right {
     vertical-align: middle;
     margin-right: 2px;
 }
