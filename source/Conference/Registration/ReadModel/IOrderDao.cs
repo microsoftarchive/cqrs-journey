@@ -24,5 +24,7 @@ namespace Registration.ReadModel
         Guid? LocateOrder(string email, string accessCode);
 
         PricedOrder GetPricedOrder(Guid orderId);
+
+        OrderSeats FindOrderSeats(Guid orderId);
     }
 }

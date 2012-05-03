@@ -121,6 +121,7 @@
     <Compile Include="AppRoutes.cs" />
     <Compile Include="Areas\ThirdPartyProcessor\Controllers\ThirdPartyProcessorPaymentController.cs" />
     <Compile Include="Areas\ThirdPartyProcessor\ThirdPartyProcessorAreaRegistration.cs" />
+    <Compile Include="ConferenceTenantController.cs" />
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\DefaultController.cs" />
     <Compile Include="Controllers\OrderController.cs" />
