@@ -89,7 +89,7 @@ namespace Conference.Web.Public.Controllers
 
             return RedirectToAction(
                 "SpecifyRegistrantAndPaymentDetails",
-                new { conferenceCode = this.Conference.Code, orderId = command.OrderId, orderVersion = orderVersion });
+                new { conferenceCode = this.ConferenceCode, orderId = command.OrderId, orderVersion = orderVersion });
         }
 
         [HttpGet]
@@ -109,7 +109,7 @@ namespace Conference.Web.Public.Controllers
 
             if (order.State == DraftOrder.States.PartiallyReserved)
             {
-                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.Conference.Code, orderId, orderVersion = order.OrderVersion });
+                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
             }
 
             if (order.State == DraftOrder.States.Confirmed)
@@ -241,7 +241,7 @@ namespace Conference.Web.Public.Controllers
 
         private OrderViewModel CreateViewModel()
         {
-            var seatTypes = this.conferenceDao.GetPublishedSeatTypes(this.ConferenceAlias.Id);
+            var seatTypes = this.ConferenceDao.GetPublishedSeatTypes(this.ConferenceAlias.Id);
             var viewModel =
                 new OrderViewModel
                 {
