@@ -173,8 +173,8 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<IEventHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
 
             // Conference management integration
-            container.RegisterType<Conference.ConferenceContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceManagement"));
-            container.RegisterType<IEventHandler, Conference.OrderEventHandler>("Conference.OrderEventHandler");
+            container.RegisterType<global::Conference.ConferenceContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceManagement"));
+            container.RegisterType<IEventHandler, global::Conference.OrderEventHandler>("Conference.OrderEventHandler");
 
             return container;
         }

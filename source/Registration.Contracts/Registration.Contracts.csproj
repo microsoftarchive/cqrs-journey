@@ -45,6 +45,7 @@
     <Compile Include="Events\OrderTotalsCalculated.cs" />
     <Compile Include="Events\OrderUpdated.cs" />
     <Compile Include="OrderLine.cs" />
+    <Compile Include="PersonalInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Events\SeatAssigned.cs" />
     <Compile Include="Events\SeatAssignmentsCreated.cs" />

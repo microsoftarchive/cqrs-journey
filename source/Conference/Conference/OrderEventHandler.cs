@@ -65,14 +65,14 @@ namespace Conference
 
         public void Handle(SeatAssigned @event)
         {
-            ProcessOrder(@event.SourceId, order =>
+            ProcessOrder(@event.OrderId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
-                    seat.Attendee.FirstName = @event.FirstName;
-                    seat.Attendee.LastName = @event.LastName;
-                    seat.Attendee.Email = @event.Email;
+                    seat.Attendee.FirstName = @event.Attendee.FirstName;
+                    seat.Attendee.LastName = @event.Attendee.LastName;
+                    seat.Attendee.Email = @event.Attendee.Email;
                 }
                 else
                 {
@@ -80,9 +80,9 @@ namespace Conference
                     {
                         Attendee = new Attendee
                         {
-                            FirstName = @event.FirstName,
-                            LastName = @event.LastName,
-                            Email = @event.Email,
+                            FirstName = @event.Attendee.FirstName,
+                            LastName = @event.Attendee.LastName,
+                            Email = @event.Attendee.Email,
                         }
                     });
                 }
@@ -91,20 +91,20 @@ namespace Conference
 
         public void Handle(SeatAssignmentUpdated @event)
         {
-            ProcessOrder(@event.SourceId, order =>
+            ProcessOrder(@event.OrderId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
-                    seat.Attendee.FirstName = @event.FirstName;
-                    seat.Attendee.LastName = @event.LastName;
+                    seat.Attendee.FirstName = @event.Attendee.FirstName;
+                    seat.Attendee.LastName = @event.Attendee.LastName;
                 }
             });
         }
 
         public void Handle(SeatUnassigned @event)
         {
-            ProcessOrder(@event.SourceId, order =>
+            ProcessOrder(@event.OrderId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)

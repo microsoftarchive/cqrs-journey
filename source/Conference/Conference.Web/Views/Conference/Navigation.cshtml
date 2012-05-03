@@ -1,10 +1,10 @@
 ﻿<div class="navigation">
     <!-- TODO: make a reusable control? -->
     @Html.ActionLink("Home", "Index", "Home") | 
-    <strong>@Html.ActionLink("Conference Details", "Index", new { slug = @Model.Slug })</strong> | 
-    @Html.ActionLink("Seat Types", "Seats", new { slug = @Model.Slug }) | 
+    <strong>@Html.ActionLink("Conference Details", "Index", new { slug = ViewBag.Slug })</strong> | 
+    @Html.ActionLink("Seat Types", "Seats", new { slug = ViewBag.Slug }) | 
     <a href="#">Venue Details</a> |
     <a href="#">Registrations</a> |
     <a href="#">Sessions</a> |
-    @Html.ActionLink("Orders & Attendees", "Orders", new { slug = @Model.Slug })
+    @Html.ActionLink("Orders & Attendees", "Orders", new { slug = ViewBag.Slug })
 </div>
