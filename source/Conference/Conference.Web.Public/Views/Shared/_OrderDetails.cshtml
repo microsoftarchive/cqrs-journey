@@ -1,0 +1,25 @@
+﻿@model Registration.ReadModel.TotalledOrder
+
+<table class="content__table_first-cell-wide">
+    <tr>
+        <th style="width: 75%">Registration type</th>
+        <th scope="col" style="text-align: right">Price</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Total</th>
+    </tr>
+    @for (var i = 0; i < this.Model.Lines.Count; i++)
+    {
+        <tr>
+            <td>@Html.DisplayFor(model => model.Lines[i].Description)</td>
+            <td style="text-align: right">$@Html.DisplayFor(model => model.Lines[i].UnitPrice)</td>
+            <td>@Html.DisplayFor(model => model.Lines[i].Quantity)</td>
+            <td>$@Html.DisplayFor(model => model.Lines[i].LineTotal)</td>
+        </tr>
+    }
+    <tr>
+        <td></td>
+        <td></td>
+        <td class="content__table-cell_right content__cell_total">Total:</td>
+        <td class="content__cell_total content__table-cell_left">$@Html.DisplayFor(model => model.Total)</td>
+    </tr>
+</table>

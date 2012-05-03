@@ -16,29 +16,7 @@
             <div class="content-main__main">
                 <div class="content-main__header">Seats information</div>
                 <div class="content">
-                    <table class="content__table_first-cell-wide">
-                        <tr>
-                            <th style="width: 75%">Registration type</th>
-                            <th scope="col" style="text-align: right">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Total</th>
-                        </tr>
-                        @for (var i = 0; i < this.Model.Order.Lines.Count; i++)
-                        {
-                            <tr>
-                                <td>@Html.DisplayFor(model => model.Order.Lines[i].Description)</td>
-                                <td style="text-align: right">$@Html.DisplayFor(model => model.Order.Lines[i].UnitPrice)</td>
-                                <td>@Html.DisplayFor(model => model.Order.Lines[i].Quantity)</td>
-                                <td>$@Html.DisplayFor(model => model.Order.Lines[i].LineTotal)</td>
-                            </tr>
-                        }
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td class="content__table-cell_right content__cell_total">Total:</td>
-                            <td class="content__cell_total content__table-cell_left">$@Html.DisplayFor(model => model.Order.Total)</td>
-                        </tr>
-                    </table>
+                    @Html.Partial("_OrderDetails", this.Model.Order)
                 </div>
                 @using (Html.BeginForm())
                 {
@@ -116,7 +94,7 @@
                         <button id="Next" class="nav__right" type="submit">Proceed
                             <span class="nav__right-small js-creditcard-proceed">Proceed to Third Party</span>
                             <span class="nav__right-small js-invoiceme-proceed" style="display: none;">Proceed to Pay by Invoice</span>
-                        </button> @*TODO: Fix alignment*@
+                        </button>
 @*                        <a class="nav__right" href="#">
                             Proceed
                             <span class="nav__right-small js-creditcard-proceed">Proceed to PayPal</span>

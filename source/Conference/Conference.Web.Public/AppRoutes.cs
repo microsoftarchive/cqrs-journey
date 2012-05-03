@@ -61,6 +61,11 @@ namespace Conference.Web.Public
                 new { controller = "Order", action = "Find" });
 
             routes.MapRoute(
+                "AssignSeats",
+                "{conferenceCode}/order/{orderId}/seats",
+                new { controller = "Order", action = "AssignSeats" });
+
+            routes.MapRoute(
                 "OrderDisplay",
                 "{conferenceCode}/order/{orderId}",
                 new { controller = "Order", action = "Display" });

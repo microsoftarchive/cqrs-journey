@@ -212,13 +212,15 @@
     <Content Include="Views\Registration\StartRegistration.cshtml" />
     <Content Include="Views\Registration\ThankYou.cshtml" />
     <Content Include="Views\Order\Find.cshtml" />
-    <Content Include="Views\Order\Display.cshtml" />
+    <Content Include="Views\Order\AssignSeats.cshtml" />
     <Content Include="Views\Registration\SpecifyRegistrantAndPaymentDetails.cshtml" />
     <Content Include="Areas\ThirdPartyProcessor\Views\Web.config" />
     <Content Include="Areas\ThirdPartyProcessor\Views\ThirdPartyProcessorPayment\Pay.cshtml" />
     <Content Include="Views\Payment\WaitForPayment.cshtml" />
     <Content Include="Views\Registration\_RegistrationDetailsEditor.cshtml" />
     <Content Include="Views\Registration\ShowExpiredOrder.cshtml" />
+    <Content Include="Views\Shared\_OrderDetails.cshtml" />
+    <Content Include="Views\Order\Display.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
