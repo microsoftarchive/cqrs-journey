@@ -41,6 +41,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Handling;
     using Infrastructure.Sql.Messaging.Implementation;
+
 #else
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
@@ -170,6 +171,10 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterType<ICommandHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
             container.RegisterType<IEventHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
+
+            // Conference management integration
+            container.RegisterType<global::Conference.ConferenceContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceManagement"));
+            container.RegisterType<IEventHandler, global::Conference.OrderEventHandler>("Conference.OrderEventHandler");
 
             return container;
         }

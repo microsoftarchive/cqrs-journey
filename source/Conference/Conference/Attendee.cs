@@ -11,28 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Conference
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
-    public class SeatInfo
+    [ComplexType]
+    public class Attendee
     {
-        public SeatInfo()
-        {
-            this.Id = Guid.NewGuid();
-        }
-
-        public Guid Id { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Name { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Description { get; set; }
-
-        public int Quantity { get; set; }
-
-        public decimal Price { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
     }
 }

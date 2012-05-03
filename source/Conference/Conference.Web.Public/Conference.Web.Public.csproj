@@ -250,6 +250,10 @@
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
+      <Name>Registration.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Conference.Common\Conference.Common.csproj">
       <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
       <Name>Conference.Common</Name>
