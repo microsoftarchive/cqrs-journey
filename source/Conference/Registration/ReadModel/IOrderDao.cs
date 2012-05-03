@@ -25,6 +25,6 @@ namespace Registration.ReadModel
 
         PricedOrder GetPricedOrder(Guid orderId);
 
-        SeatAssignmentsDTO FindSeatAssignments(Guid orderId);
+        OrderSeats FindOrderSeats(Guid orderId);
     }
 }

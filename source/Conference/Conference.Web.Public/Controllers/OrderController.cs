@@ -19,7 +19,6 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using AutoMapper;
     using Infrastructure.Messaging;
-    using Registration;
     using Registration.Commands;
     using Registration.ReadModel;
 
@@ -54,17 +53,17 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0)]
         public ActionResult AssignSeats(string conferenceCode, Guid orderId)
         {
-            var assignments = assignmentsDao.Find(orderId);
+            var assignments = this.orderDao.FindOrderSeats(orderId);
             if (assignments == null)
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
-            return View(order);
+            return View(assignments);
         }
 
         [HttpPost]
         public ActionResult AssignSeats(string conferenceCode, Guid orderId, Guid assignmentsId, List<Seat> seats)
         {
-            var saved = this.orderDao.FindSeatAssignments(orderId);
+            var saved = this.orderDao.FindOrderSeats(orderId);
             if (saved == null)
                 return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 

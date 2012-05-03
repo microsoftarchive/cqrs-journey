@@ -18,7 +18,7 @@ namespace Conference.Web.Public
 
     public abstract class ConferenceTenantController : Controller
     {
-        private ConferenceAliasDTO conferenceAlias;
+        private ConferenceAlias conferenceAlias;
         private string conferenceCode;
 
         protected ConferenceTenantController(IConferenceDao conferenceDao)
@@ -38,7 +38,7 @@ namespace Conference.Web.Public
             internal set { this.conferenceCode = value; }
         }
 
-        public ConferenceAliasDTO ConferenceAlias
+        public ConferenceAlias ConferenceAlias
         {
             get
             {

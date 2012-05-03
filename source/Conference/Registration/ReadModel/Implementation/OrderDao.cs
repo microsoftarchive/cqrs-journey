@@ -79,7 +79,7 @@ namespace Registration.ReadModel.Implementation
             }
         }
 
-        public SeatAssignmentsDTO FindSeatAssignments(Guid assignmentsId)
+        public OrderSeats FindOrderSeats(Guid assignmentsId)
         {
             var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
             if (blob == null)
@@ -88,7 +88,7 @@ namespace Registration.ReadModel.Implementation
             using (var stream = new MemoryStream(blob))
             using (var reader = new StreamReader(stream))
             {
-                return (SeatAssignmentsDTO)this.serializer.Deserialize(reader);
+                return (OrderSeats)this.serializer.Deserialize(reader);
             }
         }
     }

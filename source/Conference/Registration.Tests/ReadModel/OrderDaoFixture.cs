@@ -31,7 +31,7 @@ namespace Registration.Tests.ReadModel
             storage.SetReturnsDefault<byte[]>(null);
             var dao = new OrderDao(() => new ConferenceRegistrationDbContext("OrderDaoFixture"), storage.Object, Mock.Of<ITextSerializer>());
 
-            var dto = dao.FindSeatAssignments(Guid.NewGuid());
+            var dto = dao.FindOrderSeats(Guid.NewGuid());
 
             Assert.Null(dto);
         }
@@ -44,7 +44,7 @@ namespace Registration.Tests.ReadModel
             var serializer = Mock.Of<ITextSerializer>(x => x.Deserialize(It.IsAny<TextReader>()) == dto);
             var dao = new OrderDao(() => new ConferenceRegistrationDbContext("OrderDaoFixture"), storage, serializer);
 
-            var result = dao.FindSeatAssignments(Guid.NewGuid());
+            var result = dao.FindOrderSeats(Guid.NewGuid());
 
             Assert.Same(result, dto);
         }

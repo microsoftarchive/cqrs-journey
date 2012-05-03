@@ -59,7 +59,7 @@ namespace Conference.Web.Public.Tests
         [Fact]
         public void when_rendering_view_then_sets_conference_view_model()
         {
-            var dto = new ConferenceAliasDTO();
+            var dto = new ConferenceAlias();
             this.dao.Setup(x => x.GetConferenceAlias("demo"))
                 .Returns(dto);
 
@@ -85,7 +85,6 @@ namespace Conference.Web.Public.Tests
 
             Assert.True(result);
             Assert.Null((object)this.sut.ViewBag.Conference);
-            this.dao.Verify(x => x.GetConferenceAlias("demo"), Times.Never());
         }
 
         [Fact]

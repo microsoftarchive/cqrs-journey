@@ -105,13 +105,13 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         {
             // Arrange
             var orderId = Guid.NewGuid();
-            var dto = new TotalledOrder
+            var dto = new PricedOrder
             {
                 OrderId = orderId,
                 Total = 200,
             };
 
-            this.orderDao.Setup(r => r.GetTotalledOrder(orderId)).Returns(dto);
+            this.orderDao.Setup(r => r.GetPricedOrder(orderId)).Returns(dto);
 
             // Act
             var result = (ViewResult)this.sut.Display(orderId);
