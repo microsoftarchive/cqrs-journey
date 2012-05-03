@@ -13,79 +13,79 @@
 
 namespace Registration.Tests
 {
-	using System;
-	using Infrastructure.Messaging;
-	using Infrastructure.Messaging.Handling;
-	using Infrastructure.Messaging.InMemory;
-	using Xunit;
-	using Moq;
-	using System.Threading;
+    using System;
+    using System.Threading;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Messaging.InMemory;
+    using Moq;
+    using Xunit;
 
-	public class MemoryCommandBusFixture
-	{
-		[Fact]
-		public void WhenSendingCommand_ThenInvokesCompatibleHandler()
-		{
-			var handler = new Mock<ICommandHandler<TestCommand>>();
-			var e = new ManualResetEvent(false);
-			handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
-				.Callback(() => e.Set());
+    public class MemoryCommandBusFixture
+    {
+        [Fact]
+        public void WhenSendingCommand_ThenInvokesCompatibleHandler()
+        {
+            var handler = new Mock<ICommandHandler<TestCommand>>();
+            var e = new ManualResetEvent(false);
+            handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
+                .Callback(() => e.Set());
 
-			var bus = new MemoryCommandBus(handler.Object);
+            var bus = new MemoryCommandBus(handler.Object);
 
-			bus.Send(new TestCommand());
+            bus.Send(new TestCommand());
 
-			e.WaitOne(1000);
+            e.WaitOne(2000);
 
-			handler.Verify(x => x.Handle(It.IsAny<TestCommand>()));
-		}
+            handler.Verify(x => x.Handle(It.IsAny<TestCommand>()));
+        }
 
-		[Fact]
-		public void WhenSendingCommand_ThenDoesNotInvokeIncompatibleHandler()
-		{
-			var compatibleHandler = new Mock<ICommandHandler<TestCommand>>();
-			var incompatibleHandler = new Mock<ICommandHandler<FooCommand>>();
-			var e = new ManualResetEvent(false);
+        [Fact]
+        public void WhenSendingCommand_ThenDoesNotInvokeIncompatibleHandler()
+        {
+            var compatibleHandler = new Mock<ICommandHandler<TestCommand>>();
+            var incompatibleHandler = new Mock<ICommandHandler<FooCommand>>();
+            var e = new ManualResetEvent(false);
 
-			compatibleHandler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
-				.Callback(() => e.Set());
+            compatibleHandler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
+                .Callback(() => e.Set());
 
-			var bus = new MemoryCommandBus(incompatibleHandler.Object, compatibleHandler.Object);
+            var bus = new MemoryCommandBus(incompatibleHandler.Object, compatibleHandler.Object);
 
-			bus.Send(new TestCommand());
+            bus.Send(new TestCommand());
 
-			e.WaitOne(1000);
+            e.WaitOne(2000);
 
-			incompatibleHandler.Verify(x => x.Handle(It.IsAny<FooCommand>()), Times.Never());
-		}
+            incompatibleHandler.Verify(x => x.Handle(It.IsAny<FooCommand>()), Times.Never());
+        }
 
-		[Fact]
-		public void WhenSendingMultipleCommands_ThenInvokesCompatibleHandlerMultipleTimes()
-		{
-			var handler = new Mock<ICommandHandler<TestCommand>>();
-			var e = new ManualResetEvent(false);
-			
-			var called = 0;
-			handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
-				.Callback(() => { if (Interlocked.Increment(ref called) == 4) e.Set(); });
+        [Fact]
+        public void WhenSendingMultipleCommands_ThenInvokesCompatibleHandlerMultipleTimes()
+        {
+            var handler = new Mock<ICommandHandler<TestCommand>>();
+            var e = new ManualResetEvent(false);
 
-			var bus = new MemoryCommandBus(handler.Object);
+            var called = 0;
+            handler.Setup(x => x.Handle(It.IsAny<TestCommand>()))
+                .Callback(() => { if (Interlocked.Increment(ref called) == 4) e.Set(); });
 
-			bus.Send(new [] { new TestCommand(), new TestCommand(), new TestCommand(), new TestCommand() });
+            var bus = new MemoryCommandBus(handler.Object);
 
-			e.WaitOne(1000);
+            bus.Send(new[] { new TestCommand(), new TestCommand(), new TestCommand(), new TestCommand() });
 
-			Assert.Equal(4, called);
-		}
+            e.WaitOne(2000);
 
-		public class TestCommand : ICommand
-		{
-			public Guid Id { get; set; }
-		}
+            Assert.Equal(4, called);
+        }
 
-		public class FooCommand : ICommand
-		{
-			public Guid Id { get; set; }
-		}
-	}
+        public class TestCommand : ICommand
+        {
+            public Guid Id { get; set; }
+        }
+
+        public class FooCommand : ICommand
+        {
+            public Guid Id { get; set; }
+        }
+    }
 }

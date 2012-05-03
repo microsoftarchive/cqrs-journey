@@ -79,7 +79,6 @@
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
     <Compile Include="ReadModel\ConferenceAlias.cs" />
-    <Compile Include="ReadModel\Implementation\SeatAssignmentsDao.cs" />
     <Compile Include="ReadModel\Seat.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
@@ -87,7 +86,6 @@
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
     <Compile Include="ReadModel\ConferenceDetails.cs" />
-    <Compile Include="ReadModel\ISeatAssignmentsDao.cs" />
     <Compile Include="ReadModel\PricedOrder.cs" />
     <Compile Include="ReadModel\OrderSeats.cs" />
     <Compile Include="ReadModel\SeatTypeName.cs" />

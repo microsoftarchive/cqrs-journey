@@ -23,7 +23,7 @@ namespace Conference.Web.Public.Controllers
     using Registration.Commands;
     using Registration.ReadModel;
 
-    public class RegistrationController : Controller
+    public class RegistrationController : ConferenceTenantController
     {
         public const string ThirdPartyProcessorPayment = "thirdParty";
         public const string InvoicePayment = "invoice";
@@ -31,13 +31,12 @@ namespace Conference.Web.Public.Controllers
 
         private readonly ICommandBus commandBus;
         private readonly IOrderDao orderDao;
-        private readonly IConferenceDao conferenceDao;
 
         public RegistrationController(ICommandBus commandBus, IOrderDao orderDao, IConferenceDao conferenceDao)
+            : base(conferenceDao)
         {
             this.commandBus = commandBus;
             this.orderDao = orderDao;
-            this.conferenceDao = conferenceDao;
         }
 
         [HttpGet]
@@ -85,12 +84,12 @@ namespace Conference.Web.Public.Controllers
 
             // TODO: validate incoming seat types correspond to the conference.
 
-            command.ConferenceId = this.Conference.Id;
+            command.ConferenceId = this.ConferenceAlias.Id;
             this.commandBus.Send(command);
 
             return RedirectToAction(
                 "SpecifyRegistrantAndPaymentDetails",
-                new { conferenceCode = this.Conference.Code, orderId = command.OrderId, orderVersion = orderVersion });
+                new { conferenceCode = this.ConferenceCode, orderId = command.OrderId, orderVersion = orderVersion });
         }
 
         [HttpGet]
@@ -110,7 +109,7 @@ namespace Conference.Web.Public.Controllers
 
             if (order.State == DraftOrder.States.PartiallyReserved)
             {
-                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.Conference.Code, orderId, orderVersion = order.OrderVersion });
+                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
             }
 
             if (order.State == DraftOrder.States.Confirmed)
@@ -120,7 +119,7 @@ namespace Conference.Web.Public.Controllers
 
             if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
             {
-                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.Conference.Code, orderId = orderId });
+                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
             var totalledOrder = orderDao.GetPricedOrder(orderId);
@@ -163,7 +162,7 @@ namespace Conference.Web.Public.Controllers
 
             if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
             {
-                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.Conference.Code, orderId = orderId });
+                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
             switch (paymentType)
@@ -191,7 +190,7 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0)]
-        public ActionResult ThankYou(string conferenceCode, Guid orderId)
+        public ActionResult ThankYou(Guid orderId)
         {
             var order = this.orderDao.GetDraftOrder(orderId);
 
@@ -204,15 +203,15 @@ namespace Conference.Web.Public.Controllers
 
             this.commandBus.Send(new ICommand[] { command, paymentCommand });
 
-            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.Conference.Code, orderId });
-            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.Conference.Code, orderId });
+            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
+            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId });
 
             return RedirectToAction(
                 "ThirdPartyProcessorPayment",
                 "Payment",
                 new
                 {
-                    conferenceCode = this.Conference.Code,
+                    conferenceCode = this.ConferenceAlias.Code,
                     paymentId = paymentCommand.PaymentId,
                     paymentAcceptedUrl,
                     paymentRejectedUrl
@@ -224,14 +223,14 @@ namespace Conference.Web.Public.Controllers
             var totalledOrder = this.orderDao.GetPricedOrder(orderId);
             // TODO: should add the line items?
 
-            var description = "Registration for " + this.Conference.Name;
+            var description = "Registration for " + this.ConferenceAlias.Name;
             var totalAmount = totalledOrder.Total;
 
             var paymentCommand =
                 new InitiateThirdPartyProcessorPayment
                 {
                     PaymentId = Guid.NewGuid(),
-                    ConferenceId = this.Conference.Id,
+                    ConferenceId = this.ConferenceAlias.Id,
                     PaymentSourceId = orderId,
                     Description = description,
                     TotalAmount = totalAmount
@@ -242,13 +241,13 @@ namespace Conference.Web.Public.Controllers
 
         private OrderViewModel CreateViewModel()
         {
-            var seatTypes = this.conferenceDao.GetPublishedSeatTypes(this.Conference.Id);
+            var seatTypes = this.ConferenceDao.GetPublishedSeatTypes(this.ConferenceAlias.Id);
             var viewModel =
                 new OrderViewModel
                 {
-                    ConferenceId = this.Conference.Id,
-                    ConferenceCode = this.Conference.Code,
-                    ConferenceName = this.Conference.Name,
+                    ConferenceId = this.ConferenceAlias.Id,
+                    ConferenceCode = this.ConferenceAlias.Code,
+                    ConferenceName = this.ConferenceAlias.Name,
                     Items =
                         seatTypes.Select(
                             s =>
@@ -301,31 +300,6 @@ namespace Conference.Web.Public.Controllers
             }
 
             return null;
-        }
-
-        private ConferenceAlias conference;
-        protected ConferenceAlias Conference
-        {
-            get
-            {
-                if (this.conference == null)
-                {
-                    var conferenceCode = (string)ControllerContext.RouteData.Values["conferenceCode"];
-                    this.conference = this.conferenceDao.GetConferenceAlias(conferenceCode);
-                }
-
-                return this.conference;
-            }
-        }
-
-        protected override void OnResultExecuting(ResultExecutingContext filterContext)
-        {
-            base.OnResultExecuting(filterContext);
-
-            if (filterContext.Result is ViewResultBase)
-            {
-                this.ViewBag.Conference = this.Conference;
-            }
         }
     }
 }
