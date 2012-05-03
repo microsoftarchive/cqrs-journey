@@ -1,4 +1,4 @@
-﻿@model IList<Registration.ReadModel.ConferenceSeatTypeDTO>
+﻿@model Conference.Web.Public.Models.OrderViewModel
 @{
     ViewBag.Title = "Register to " + ViewBag.Conference.Name;
 }
@@ -16,9 +16,10 @@
                      <div class="content-main__header">Register</div>
                      <div class="content">
                          @*TODO: fix styling for validation*@
-                         @Html.ValidationSummary()
+                         @Html.ValidationSummary(true)
 
                          @Html.Hidden("OrderId")
+                         @Html.Hidden("OrderVersion")
                          <p>Please make your selection. <br />
                              @*You can enter promotional code below if you have one.*@
                          </p>
@@ -30,19 +31,28 @@
                                  @*<th scope="col">Available</th>*@
                                  <th scope="col">Quantity</th>
                              </tr>
-                             @for (var i = 0; i < this.Model.Count; i++)
+                             @for (var i = 0; i < this.Model.Items.Count; i++)
                              {
-                                 <tr class="lineItem">
+                                 <tr class="lineItem@(this.Model.Items[i].PartiallyFulfilled ? " content__table__error" : "")">
                                      <td>
-                                         @Html.DisplayFor(model => model[i].Name)
-                                         <p class="content__note">@Html.DisplayFor(model => model[i].Description)</p>
+                                         @Html.DisplayFor(model => model.Items[i].SeatType.Name)
+                                         <p class="content__note">@Html.DisplayFor(model => model.Items[i].SeatType.Description)</p>
                                      </td>
-                                     <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model[i].Price)</span>
+                                     <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model.Items[i].SeatType.Price)</span>
                                      </td>
-                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, 20)), new { @class="itemQuantity" })
-                                         @Html.Hidden("Seats[" + i + "].SeatType", Model[i].Id)
+                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, this.Model.Items[i].MaxSeatSelection + 1), this.Model.Items[i].OrderItem.ReservedSeats), new { @class = "itemQuantity" })
+                                         @Html.Hidden("Seats[" + i + "].SeatType", this.Model.Items[i].SeatType.Id)
                                      </td>
                                  </tr>
+                                 if (this.Model.Items[i].PartiallyFulfilled)
+                                 {
+                                    <tr>
+                                        <td class="content__table__error-info" colspan="5">
+                                            <label class="form__chb__ite">
+                                                Could not reserve all requested seats</label>.
+                                        </td>
+                                    </tr>
+                                 }
                              }
                              <tr>
                                  @*<td>
@@ -66,6 +76,19 @@
         </div>
         <div class="content-main__aside">
             <div class="content-main__header"></div>
+            @if (ViewBag.ExpirationDateUTC != DateTime.MinValue)
+            { 
+			<div id="countdown" class="reg-time-info">
+				<div id="countdown_time" data-targetDate="@DateTimeExtensions.ToEpochMilliseconds(this.ViewBag.ExpirationDateUTC)" class="reg-time-info__title">
+					7:18
+				</div>
+				<div  id="countdown_warning" class="reg-time-info__txt">
+					<p>
+						Please complete registration within 15:00 minutes. After 15:00 minutes, the reservation we're holding will be released to others.
+					</p>
+				</div>
+			</div>
+            }
         </div>
         <div class="g-clear"></div>
     </div>
@@ -93,22 +116,39 @@
 @section Scripts
 {
 <script type="text/javascript" src="@Url.Content("~/Content/form/form.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/Conference.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/Content/reg-time-info/reg-time-info.js")"></script>
 <script type="text/javascript">
-$(function() {
-    function calculateTotals() {
-        var total = 0;
-        $(".lineItem").each(function(index, item) {
-            var unitPrice = $(item).find(".unitPrice").text();
-            var quantity = $(item).find(".itemQuantity input").val();
-            total += unitPrice * quantity;
-        });
+    $(function () {
+        function calculateTotals() {
+            var total = 0;
+            $(".lineItem").each(function (index, item) {
+                var unitPrice = $(item).find(".unitPrice").text();
+                var quantity = $(item).find(".itemQuantity input").val();
+                total += unitPrice * quantity;
+            });
 
-        // round to 2 decimals
-        total = Math.round(total * 100) / 100;
-        $("#total").text(total);
+            // round to 2 decimals
+            total = Math.round(total * 100) / 100;
+            $("#total").text(total);
+        }
+
+        $(".itemQuantity input").change(calculateTotals);
+        calculateTotals();
+    });
+</script>
+@if (ViewBag.ExpirationDateUTC != DateTime.MinValue)
+{ 
+<script type="text/javascript">
+
+    function reservationTimedOut() {
+        window.location = '@Url.Action("ShowExpiredOrder", "Registration", new { conferenceCode = this.ViewBag.Conference.Code, orderId = this.ViewBag.OrderId })';
     }
 
-    $(".itemQuantity input").change(calculateTotals);
-});
+    $(document).ready(function () {
+        Conference.StartTimer('countdown_time', reservationTimedOut);
+    });
+
 </script>
+}
 }

@@ -16,12 +16,13 @@ namespace Registration
     using System;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
+    using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;
-    using Payments.Contracts.Events;
 
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
+        IEventHandler<OrderUpdated>,
         IEventHandler<PaymentCompleted>,
         IEventHandler<SeatsReserved>,
         ICommandHandler<ExpireRegistrationProcess>
@@ -44,6 +45,23 @@ namespace Registration
                 lock (lockObject)
                 {
                     context.Save(process);
+                }
+            }
+        }
+
+        public void Handle(OrderUpdated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                lock (lockObject)
+                {
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                    if (process != null)
+                    {
+                        process.Handle(@event);
+
+                        context.Save(process);
+                    }
                 }
             }
         }
