@@ -5,5 +5,6 @@
     @Html.ActionLink("Seat Types", "Seats", new { slug = @Model.Slug }) | 
     <a href="#">Venue Details</a> |
     <a href="#">Registrations</a> |
-    <a href="#">Sessions</a>
+    <a href="#">Sessions</a> |
+    @Html.ActionLink("Orders & Attendees", "Orders", new { slug = @Model.Slug })
 </div>

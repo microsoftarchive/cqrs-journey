@@ -14,32 +14,16 @@
 namespace Conference
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
-    using Common.Utils;
 
-    public class ConferenceInfo
+    public class SeatType
     {
-        public ConferenceInfo()
+        public SeatType()
         {
             this.Id = Guid.NewGuid();
-            this.Seats = new ObservableCollection<SeatType>();
-            this.AccessCode = HandleGenerator.Generate(6);
         }
 
         public Guid Id { get; set; }
-
-        [StringLength(6, MinimumLength = 6)]
-        public string AccessCode { get; set; }
-
-        [Display(Name = "Owner")]
-        [Required(AllowEmptyStrings = false)]
-        public string OwnerName { get; set; }
-
-        [Display(Name = "Email")]
-        [Required(AllowEmptyStrings = false)]
-        public string OwnerEmail { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
@@ -47,22 +31,8 @@ namespace Conference
         [Required(AllowEmptyStrings = false)]
         public string Description { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
-        public string Slug { get; set; }
+        public int Quantity { get; set; }
 
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
-        [Display(Name = "Start")]
-        public DateTime StartDate { get; set; }
-
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
-        [Display(Name = "End")]
-        public DateTime EndDate { get; set; }
-
-        [Display(Name = "Is Published?")]
-        public bool IsPublished { get; set; }
-
-        public bool WasEverPublished { get; set; }
-
-        public ICollection<SeatType> Seats { get; set; }
+        public decimal Price { get; set; }
     }
 }
