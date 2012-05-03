@@ -19,33 +19,33 @@ namespace Conference.Web.Public.Controllers
     using System.Web.Mvc;
     using AutoMapper;
     using Infrastructure.Messaging;
+    using Registration;
     using Registration.Commands;
     using Registration.ReadModel;
 
-    public class OrderController : Controller
+    public class OrderController : ConferenceTenantController
     {
         private readonly IOrderDao orderDao;
-        private readonly ISeatAssignmentsDao assignmentsDao;
-        private readonly ICommandBus bus;
+        private ICommandBus bus;
 
         static OrderController()
         {
             Mapper.CreateMap<Seat, AssignSeat>();
         }
 
-        public OrderController(IOrderDao orderDao, ISeatAssignmentsDao assignmentsDao, ICommandBus bus)
+        public OrderController(IConferenceDao conferenceDao, IOrderDao orderDao, ICommandBus bus)
+            : base(conferenceDao)
         {
             this.orderDao = orderDao;
-            this.assignmentsDao = assignmentsDao;
             this.bus = bus;
         }
 
         [HttpGet]
-        public ActionResult Display(string conferenceCode, Guid orderId)
+        public ActionResult Display(Guid orderId)
         {
             var order = orderDao.GetPricedOrder(orderId);
             if (order == null)
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             return View(order);
         }
@@ -58,15 +58,15 @@ namespace Conference.Web.Public.Controllers
             if (assignments == null)
                 return RedirectToAction("Find", new { conferenceCode = conferenceCode });
 
-            return View(assignments);
+            return View(order);
         }
 
         [HttpPost]
         public ActionResult AssignSeats(string conferenceCode, Guid orderId, Guid assignmentsId, List<Seat> seats)
         {
-            var saved = assignmentsDao.Find(orderId);
+            var saved = this.orderDao.FindSeatAssignments(orderId);
             if (saved == null)
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             var pairs = seats
                 .Select(dto => new { Saved = saved.Seats.FirstOrDefault(x => x.Position == dto.Position), New = dto })
@@ -98,23 +98,23 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult Find(string conferenceCode)
+        public ActionResult Find()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult Find(string conferenceCode, string email, string accessCode)
+        public ActionResult Find(string email, string accessCode)
         {
             var orderId = orderDao.LocateOrder(email, accessCode);
 
             if (!orderId.HasValue)
             {
                 // TODO: 404?
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
             }
 
-            return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = orderId.Value });
+            return RedirectToAction("Display", new { conferenceCode = this.ConferenceCode, orderId = orderId.Value });
         }
     }
 }

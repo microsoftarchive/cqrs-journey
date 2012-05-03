@@ -15,15 +15,22 @@ namespace Registration.ReadModel.Implementation
 {
     using System;
     using System.Data.Entity;
+    using System.IO;
     using System.Linq;
+    using Infrastructure.Blob;
+    using Infrastructure.Serialization;
 
     public class OrderDao : IOrderDao
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private IBlobStorage blobStorage;
+        private ITextSerializer serializer;
 
-        public OrderDao(Func<ConferenceRegistrationDbContext> contextFactory)
+        public OrderDao(Func<ConferenceRegistrationDbContext> contextFactory, IBlobStorage blobStorage, ITextSerializer serializer)
         {
             this.contextFactory = contextFactory;
+            this.blobStorage = blobStorage;
+            this.serializer = serializer;
         }
 
         public Guid GetConferenceId(Guid orderId)
@@ -69,6 +76,19 @@ namespace Registration.ReadModel.Implementation
             using (var repository = this.contextFactory.Invoke())
             {
                 return repository.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+            }
+        }
+
+        public SeatAssignmentsDTO FindSeatAssignments(Guid assignmentsId)
+        {
+            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
+            if (blob == null)
+                return null;
+
+            using (var stream = new MemoryStream(blob))
+            using (var reader = new StreamReader(stream))
+            {
+                return (SeatAssignmentsDTO)this.serializer.Deserialize(reader);
             }
         }
     }

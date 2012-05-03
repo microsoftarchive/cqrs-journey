@@ -14,7 +14,9 @@
 namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Web.Mvc;
+    using System.Web.Routing;
     using Conference.Web.Public.Controllers;
     using Infrastructure.Messaging;
     using Moq;
@@ -24,22 +26,30 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
     public class given_controller
     {
         protected readonly OrderController sut;
-        protected readonly IOrderDao orderDao;
-        protected readonly ISeatAssignmentsDao assignmentsDao;
+        protected readonly Mock<IOrderDao> orderDao;
+        protected readonly List<ICommand> commands = new List<ICommand>();
 
         public given_controller()
         {
-            this.orderDao = Mock.Of<IOrderDao>();
-            this.assignmentsDao = Mock.Of<ISeatAssignmentsDao>();
+            this.orderDao = new Mock<IOrderDao>();
 
-            this.sut = new OrderController(this.orderDao, this.assignmentsDao, Mock.Of<ICommandBus>());
+            var bus = new Mock<ICommandBus>();
+            bus.Setup(x => x.Send(It.IsAny<Envelope<ICommand>>()))
+               .Callback<Envelope<ICommand>>(x => commands.Add(x.Body));
+
+            this.sut = new OrderController(Mock.Of<IConferenceDao>(), this.orderDao.Object, bus.Object);
+
+            var routeData = new RouteData();
+            routeData.Values.Add("conferenceCode", "conference");
+
+            this.sut.ControllerContext = Mock.Of<ControllerContext>(x => x.RouteData == routeData);
         }
 
         [Fact]
         public void when_displaying_invalid_order_id_then_redirects_to_find()
         {
             // Act
-            var result = (RedirectToRouteResult)this.sut.Display("conference", Guid.NewGuid());
+            var result = (RedirectToRouteResult)this.sut.Display(Guid.NewGuid());
 
             // Assert
             Assert.NotNull(result);
@@ -48,32 +58,11 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
             Assert.Equal("conference", result.RouteValues["conferenceCode"]);
         }
 
-        [Fact(Skip = "Changed requirement from refactoring to seat assignments. Pending fix.")]
-        public void when_display_valid_order_then_renders_view_with_order_dto()
-        {
-            // Arrange
-            var orderId = Guid.NewGuid();
-            var orderDto = new DraftOrder(orderId, Guid.NewGuid(), DraftOrder.States.PendingReservation)
-            {
-                RegistrantEmail = "info@contoso.com",
-                AccessCode = "asdf",
-            };
-
-            Mock.Get(this.orderDao).Setup(r => r.GetDraftOrder(orderId)).Returns(orderDto);
-
-            // Act
-            var result = (ViewResult)this.sut.Display("conference", orderId);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(orderDto, result.Model);
-        }
-
         [Fact]
         public void when_find_order_then_renders_view()
         {
             // Act
-            var result = (ViewResult)this.sut.Find("conference");
+            var result = (ViewResult)this.sut.Find();
 
             // Assert
             Assert.NotNull(result);
@@ -85,10 +74,10 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         {
             // Arrange
             var orderId = Guid.NewGuid();
-            Mock.Get(this.orderDao).Setup(r => r.LocateOrder("info@contoso.com", "asdf")).Returns(orderId);
+            this.orderDao.Setup(r => r.LocateOrder("info@contoso.com", "asdf")).Returns(orderId);
 
             // Act
-            var result = (RedirectToRouteResult)this.sut.Find("conference", "info@contoso.com", "asdf");
+            var result = (RedirectToRouteResult)this.sut.Find("info@contoso.com", "asdf");
 
             // Assert
             Assert.NotNull(result);
@@ -102,13 +91,34 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         public void when_find_order_with_invalid_locator_then_redirects_to_find()
         {
             // Act
-            var result = (RedirectToRouteResult)this.sut.Find("conference", "info@contoso.com", "asdf");
+            var result = (RedirectToRouteResult)this.sut.Find("info@contoso.com", "asdf");
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(null, result.RouteValues["controller"]);
             Assert.Equal("Find", result.RouteValues["action"]);
             Assert.Equal("conference", result.RouteValues["conferenceCode"]);
+        }
+
+        [Fact]
+        public void when_display_valid_order_then_renders_view_with_priced_order()
+        {
+            // Arrange
+            var orderId = Guid.NewGuid();
+            var dto = new TotalledOrder
+            {
+                OrderId = orderId,
+                Total = 200,
+            };
+
+            this.orderDao.Setup(r => r.GetTotalledOrder(orderId)).Returns(dto);
+
+            // Act
+            var result = (ViewResult)this.sut.Display(orderId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(dto, result.Model);
         }
     }
 }

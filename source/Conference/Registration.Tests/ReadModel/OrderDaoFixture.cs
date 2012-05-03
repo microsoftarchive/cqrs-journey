@@ -22,16 +22,16 @@ namespace Registration.Tests.ReadModel
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class SeatAssignmentsDaoFixture
+    public class OrderDaoFixture
     {
         [Fact]
         public void when_finding_non_existing_assignment_then_returns_null()
         {
             var storage = new Mock<IBlobStorage>();
             storage.SetReturnsDefault<byte[]>(null);
-            var dao = new SeatAssignmentsDao(storage.Object, Mock.Of<ITextSerializer>());
+            var dao = new OrderDao(() => new ConferenceRegistrationDbContext("OrderDaoFixture"), storage.Object, Mock.Of<ITextSerializer>());
 
-            var dto = dao.Find(Guid.NewGuid());
+            var dto = dao.FindSeatAssignments(Guid.NewGuid());
 
             Assert.Null(dto);
         }
@@ -42,9 +42,9 @@ namespace Registration.Tests.ReadModel
             var dto = new OrderSeats();
             var storage = Mock.Of<IBlobStorage>(x => x.Find(It.IsAny<string>()) == new byte[0]);
             var serializer = Mock.Of<ITextSerializer>(x => x.Deserialize(It.IsAny<TextReader>()) == dto);
-            var dao = new SeatAssignmentsDao(storage, serializer);
+            var dao = new OrderDao(() => new ConferenceRegistrationDbContext("OrderDaoFixture"), storage, serializer);
 
-            var result = dao.Find(Guid.NewGuid());
+            var result = dao.FindSeatAssignments(Guid.NewGuid());
 
             Assert.Same(result, dto);
         }
