@@ -165,6 +165,10 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
             container.RegisterType<IEventHandler, TotalledOrderViewModelGenerator>("TotalledOrderViewModelGenerator");
             container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");
+            container.RegisterType<IEventHandler, SeatAssignmentsViewModelGenerator>("SeatAssignmentsViewModelGenerator");
+
+            container.RegisterType<ICommandHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
+            container.RegisterType<IEventHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
 
             return container;
         }

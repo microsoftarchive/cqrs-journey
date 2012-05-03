@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\..\packages\AutoMapper.2.1.267\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
@@ -50,6 +53,8 @@
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
     <Compile Include="Commands\ConfirmOrderPayment.cs" />
+    <Compile Include="Commands\UnassignSeat.cs" />
+    <Compile Include="Commands\AssignSeat.cs" />
     <Compile Include="Commands\ExpireRegistrationProcess.cs" />
     <Compile Include="Commands\RejectOrder.cs" />
     <Compile Include="Commands\MarkSeatsAsReserved.cs" />
@@ -60,7 +65,11 @@
     <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
     <Compile Include="Database\SeatsAvailabilityRepository.cs" />
+    <Compile Include="Events\SeatAssigned.cs" />
+    <Compile Include="Events\SeatUnassigned.cs" />
+    <Compile Include="Events\SeatAssignmentUpdated.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
+    <Compile Include="Events\SeatAssignmentsCreated.cs" />
     <Compile Include="Events\SeatsReservationCancelled.cs" />
     <Compile Include="Events\SeatsReservationCommitted.cs" />
     <Compile Include="Events\OrderPaymentConfirmed.cs" />
@@ -73,6 +82,8 @@
     <Compile Include="Handlers\ConferenceViewModelGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
+    <Compile Include="Handlers\SeatAssignmentsHandler.cs" />
+    <Compile Include="Handlers\SeatAssignmentsViewModelGenerator.cs" />
     <Compile Include="Handlers\TotalledOrderViewModelGenerator.cs" />
     <Compile Include="IPricingService.cs" />
     <Compile Include="Events\OrderTotalsCalculated.cs" />
@@ -80,6 +91,8 @@
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
     <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
+    <Compile Include="ReadModel\Implementation\SeatAssignmentsDao.cs" />
+    <Compile Include="ReadModel\SeatAssignmentDTO.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
@@ -87,7 +100,9 @@
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
     <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
+    <Compile Include="ReadModel\ISeatAssignmentsDao.cs" />
     <Compile Include="ReadModel\TotalledOrder.cs" />
+    <Compile Include="ReadModel\SeatAssignmentsDTO.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
@@ -101,6 +116,7 @@
     <Compile Include="ReadModel\OrderItemDTO.cs" />
     <Compile Include="RegistrationProcess.cs" />
     <Compile Include="Reservation.cs" />
+    <Compile Include="SeatAssignments.cs" />
     <Compile Include="SeatQuantity.cs" />
     <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>

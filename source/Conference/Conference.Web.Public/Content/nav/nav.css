@@ -20,9 +20,11 @@ See the License for the specific language governing permissions and limitations 
 }
 .nav__left,
 .nav__right {
-    height: 48px;
+    /*height: 50px;*/
     text-decoration: none;
     line-height: 28px;
+    min-height: 48px;
+    /*padding-top: 4px;*/
     padding-bottom: 9px;
 }
 .nav__left {
@@ -42,14 +44,15 @@ See the License for the specific language governing permissions and limitations 
     overflow: hidden;
     font-family: "Segoe UI light";
     font-size: 36px;
-    background:no-repeat right top url(nav__right.png);
+    background:no-repeat right center url(nav__right.png);
     padding-right: 48px;
     float: right;
     color: #ff9900;
 	text-align: right;
+    vertical-align: middle;
 	}
 .nav__right:hover {
-    background:no-repeat right top url(nav__right_a.png);
+    background:no-repeat right center url(nav__right_a.png);
 	color: #ffcc33;
 	}
 .nav__right-small {
@@ -58,3 +61,8 @@ See the License for the specific language governing permissions and limitations 
 	display: block;
 	margin: 5px 0 0 0;
 	}
+
+button.nav__right {
+    vertical-align: middle;
+    margin-right: 2px;
+}
