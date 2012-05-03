@@ -67,6 +67,7 @@
     <Compile Include="OrderFixture.cs" />
     <Compile Include="PricingServiceFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadModel\SeatAssignmentsDaoFixture.cs" />
     <Compile Include="SeatsAvailabilityFixture.cs" />
     <Compile Include="RegistrationProcessFixture.cs" />
     <Compile Include="RegistrationProcessRouterFixture.cs" />

@@ -37,6 +37,7 @@
       <Setting name="DbContext.Payments" />
       <Setting name="DbContext.ConferenceRegistration" />
       <Setting name="DbContext.SqlBus" />
+      <Setting name="DbContext.BlobStorage" />
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
@@ -46,6 +47,7 @@
     <ConfigurationSettings>
       <Setting name="DbContext.Payments" />
       <Setting name="DbContext.EventStore" />
+      <Setting name="DbContext.BlobStorage" />
       <Setting name="DbContext.ConferenceRegistrationProcesses" />
       <Setting name="DbContext.ConferenceRegistration" />
       <Setting name="DbContext.SqlBus" />
