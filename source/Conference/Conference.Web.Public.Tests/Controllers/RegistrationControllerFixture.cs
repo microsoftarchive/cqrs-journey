@@ -64,25 +64,10 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var context = Mock.Of<HttpContextBase>(c => c.Request == requestMock.Object && c.Response == responseMock.Object);
 
             this.sut = new RegistrationController(this.bus, this.orderDao, this.conferenceDao);
+            this.sut.ConferenceAlias = conferenceAlias;
+            this.sut.ConferenceCode = conferenceAlias.Code;
             this.sut.ControllerContext = new ControllerContext(context, this.routeData, this.sut);
             this.sut.Url = new UrlHelper(new RequestContext(context, this.routeData), this.routes);
-        }
-
-        [Fact(Skip = "Need to refactor into a testable cross-cutting concern.")]
-        public void when_executing_result_then_makes_conference_alias_available_to_view()
-        {
-            var seats = new[] { new SeatType(Guid.NewGuid(), conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
-            // Arrange
-            Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
-
-            // Act
-            var result = (ViewResult)this.sut.StartRegistration();
-            // How to force OnResultExecuting?
-            // TODO: instead, can create an action filter an test that cross-cutting concern separately.
-
-            // Assert
-            Assert.NotNull(result.ViewData["Conference"]);
-            Assert.Same(conferenceAlias, result.ViewData["Conference"]);
         }
 
         [Fact]

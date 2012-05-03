@@ -26,24 +26,26 @@ namespace Conference.Web.Public
             this.ConferenceDao = conferenceDao;
         }
 
-        protected IConferenceDao ConferenceDao { get; private set; }
+        public IConferenceDao ConferenceDao { get; private set; }
 
-        protected string ConferenceCode
+        public string ConferenceCode
         {
             get
             {
                 return this.conferenceCode ??
                     (this.conferenceCode = (string)ControllerContext.RouteData.Values["conferenceCode"]);
             }
+            internal set { this.conferenceCode = value; }
         }
 
-        protected ConferenceAliasDTO ConferenceAlias
+        public ConferenceAliasDTO ConferenceAlias
         {
             get
             {
                 return this.conferenceAlias ??
                     (this.conferenceAlias = this.ConferenceDao.GetConferenceAlias(this.ConferenceCode));
             }
+            internal set { this.conferenceAlias = value; }
         }
 
         protected override void OnActionExecuting(ActionExecutingContext filterContext)
