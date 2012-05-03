@@ -134,13 +134,9 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [ConferenceRegistration].[OrdersView](
+CREATE TABLE [ConferenceRegistration].[PricedOrders](
 	[OrderId] [uniqueidentifier] NOT NULL,
-	[ReservationExpirationDate] [datetime] NULL,
-	[StateValue] [int] NOT NULL,
-	[OrderVersion] [int] NOT NULL,
-	[RegistrantEmail] [nvarchar](max) NULL,
-	[AccessCode] [nvarchar](max) NULL,
+	[Total] [decimal](18, 2) NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[OrderId] ASC
@@ -167,9 +163,14 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [ConferenceRegistration].[TotalledOrders](
+CREATE TABLE [ConferenceRegistration].[OrdersView](
 	[OrderId] [uniqueidentifier] NOT NULL,
-	[Total] [decimal](18, 2) NOT NULL,
+	[ConferenceId] [uniqueidentifier] NOT NULL,
+	[ReservationExpirationDate] [datetime] NULL,
+	[StateValue] [int] NOT NULL,
+	[OrderVersion] [int] NOT NULL,
+	[RegistrantEmail] [nvarchar](max) NULL,
+	[AccessCode] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[OrderId] ASC
@@ -180,16 +181,15 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [ConferenceRegistration].[TotalledOrderLines](
-	[TotalledOrderLineId] [uniqueidentifier] NOT NULL,
-	[OrderId] [uniqueidentifier] NOT NULL,
-	[Description] [nvarchar](max) NULL,
-	[UnitPrice] [decimal](18, 2) NOT NULL,
-	[Quantity] [int] NOT NULL,
-	[LineTotal] [decimal](18, 2) NOT NULL,
+CREATE TABLE [ConferenceRegistration].[OrderItemsView](
+	[Id] [uniqueidentifier] NOT NULL,
+	[SeatType] [uniqueidentifier] NOT NULL,
+	[RequestedSeats] [int] NOT NULL,
+	[ReservedSeats] [int] NOT NULL,
+	[DraftOrder_OrderId] [uniqueidentifier] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
-	[TotalledOrderLineId] ASC
+	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
@@ -248,15 +248,16 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [ConferenceRegistration].[OrderItemsView](
-	[Id] [uniqueidentifier] NOT NULL,
-	[SeatType] [uniqueidentifier] NOT NULL,
-	[RequestedSeats] [int] NOT NULL,
-	[ReservedSeats] [int] NOT NULL,
-	[OrderDTO_OrderId] [uniqueidentifier] NOT NULL,
+CREATE TABLE [ConferenceRegistration].[PricedOrderLines](
+	[LineId] [uniqueidentifier] NOT NULL,
+	[OrderId] [uniqueidentifier] NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[UnitPrice] [decimal](18, 2) NOT NULL,
+	[Quantity] [int] NOT NULL,
+	[LineTotal] [decimal](18, 2) NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
-	[Id] ASC
+	[LineId] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
@@ -264,24 +265,24 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [ConferenceRegistration].[ConferenceSeatsView](
+CREATE TABLE [ConferenceRegistration].[ConferenceSeatTypesView](
 	[Id] [uniqueidentifier] NOT NULL,
+	[ConferenceId] [uniqueidentifier] NOT NULL,
 	[Name] [nvarchar](max) NULL,
 	[Description] [nvarchar](max) NULL,
 	[Price] [decimal](18, 2) NOT NULL,
 	[Quantity] [int] NOT NULL,
-	[ConferencesView_Id] [uniqueidentifier] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
-ALTER TABLE [ConferenceRegistration].[TotalledOrderLines]  WITH CHECK ADD  CONSTRAINT [TotalledOrder_Lines] FOREIGN KEY([OrderId])
-REFERENCES [ConferenceRegistration].[TotalledOrders] ([OrderId])
+ALTER TABLE [ConferenceRegistration].[OrderItemsView]  WITH CHECK ADD  CONSTRAINT [DraftOrder_Lines] FOREIGN KEY([DraftOrder_OrderId])
+REFERENCES [ConferenceRegistration].[OrdersView] ([OrderId])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ConferenceRegistration].[TotalledOrderLines] CHECK CONSTRAINT [TotalledOrder_Lines]
+ALTER TABLE [ConferenceRegistration].[OrderItemsView] CHECK CONSTRAINT [DraftOrder_Lines]
 GO
 ALTER TABLE [ConferencePayments].[ThidPartyProcessorPaymentItems]  WITH CHECK ADD  CONSTRAINT [ThirdPartyProcessorPayment_Items] FOREIGN KEY([ThirdPartyProcessorPayment_Id])
 REFERENCES [ConferencePayments].[ThirdPartyProcessorPayments] ([Id])
@@ -294,15 +295,15 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [ConferenceManagement].[SeatTypes] CHECK CONSTRAINT [FK_ConferenceManagement.SeatTypes_ConferenceManagement.Conferences_ConferenceInfo_Id]
 GO
-ALTER TABLE [ConferenceRegistration].[OrderItemsView]  WITH CHECK ADD  CONSTRAINT [OrderDTO_Lines] FOREIGN KEY([OrderDTO_OrderId])
-REFERENCES [ConferenceRegistration].[OrdersView] ([OrderId])
+ALTER TABLE [ConferenceRegistration].[PricedOrderLines]  WITH CHECK ADD  CONSTRAINT [PricedOrder_Lines] FOREIGN KEY([OrderId])
+REFERENCES [ConferenceRegistration].[PricedOrders] ([OrderId])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ConferenceRegistration].[OrderItemsView] CHECK CONSTRAINT [OrderDTO_Lines]
+ALTER TABLE [ConferenceRegistration].[PricedOrderLines] CHECK CONSTRAINT [PricedOrder_Lines]
 GO
-ALTER TABLE [ConferenceRegistration].[ConferenceSeatsView]  WITH CHECK ADD  CONSTRAINT [ConferenceDTO_Seats] FOREIGN KEY([ConferencesView_Id])
+ALTER TABLE [ConferenceRegistration].[ConferenceSeatTypesView]  WITH CHECK ADD  CONSTRAINT [Conference_Seats] FOREIGN KEY([ConferenceId])
 REFERENCES [ConferenceRegistration].[ConferencesView] ([Id])
 ON DELETE CASCADE
 GO
-ALTER TABLE [ConferenceRegistration].[ConferenceSeatsView] CHECK CONSTRAINT [ConferenceDTO_Seats]
+ALTER TABLE [ConferenceRegistration].[ConferenceSeatTypesView] CHECK CONSTRAINT [Conference_Seats]
 GO
