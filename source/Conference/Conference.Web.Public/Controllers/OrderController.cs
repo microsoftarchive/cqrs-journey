@@ -25,7 +25,7 @@ namespace Conference.Web.Public.Controllers
     public class OrderController : ConferenceTenantController
     {
         private readonly IOrderDao orderDao;
-        private ICommandBus bus;
+        private readonly ICommandBus bus;
 
         static OrderController()
         {
@@ -51,17 +51,17 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0)]
-        public ActionResult AssignSeats(string conferenceCode, Guid orderId)
+        public ActionResult AssignSeats(Guid orderId)
         {
             var assignments = this.orderDao.FindOrderSeats(orderId);
             if (assignments == null)
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             return View(assignments);
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(string conferenceCode, Guid orderId, Guid assignmentsId, List<Seat> seats)
+        public ActionResult AssignSeats(Guid orderId, Guid assignmentsId, List<Seat> seats)
         {
             var saved = this.orderDao.FindOrderSeats(orderId);
             if (saved == null)
