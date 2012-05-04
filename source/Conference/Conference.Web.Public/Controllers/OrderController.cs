@@ -68,23 +68,24 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             var pairs = seats
-                .Select(dto => new { Saved = saved.Seats.FirstOrDefault(x => x.Position == dto.Position), New = dto })
+                // If a seat is null, it's because it's an invalid null entry 
+                // in the list of seats, so we ignore it.
+                .Where(seat => seat != null)
+                .Select(seat => new { Saved = saved.Seats.FirstOrDefault(x => x.Position == seat.Position), New = seat })
                 // Ignore posted seats that we don't have saved already: pair.Saved == null
                 // This may be because the client sent mangled or incorrect data so we couldn't 
                 // find a matching saved seat.
-                // Also, if pair.New is null, it's because it's an invalid null entry 
-                // in the list of seats, so we ignore that too.
-                .Where(pair => pair.Saved != null && pair.New != null)
-                // Only process those where they don't remain unassigned.
+                .Where(pair => pair.Saved != null)
+                // Only process those that have an email (i.e. they are or were assigned)
                 .Where(pair => pair.Saved.Attendee.Email != null || pair.New.Attendee.Email != null)
                 .ToList();
 
             var unassigned = pairs
                 .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Attendee.Email) && string.IsNullOrWhiteSpace(x.New.Attendee.Email))
-                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = orderId, Position = x.Saved.Position });
+                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = assignmentsId, Position = x.Saved.Position });
 
             var changed = pairs
-                .Where(x => x.Saved.Attendee != x.New.Attendee)
+                .Where(x => x.Saved.Attendee != x.New.Attendee && x.New.Attendee.Email != null)
                 .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = assignmentsId }));
 
             var commands = unassigned.Union(changed).ToList();
