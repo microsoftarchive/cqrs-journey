@@ -35,17 +35,17 @@ namespace Registration.ReadModel.Implementation
 
         public DraftOrder GetDraftOrder(Guid orderId)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+                return context.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
 
         public Guid? LocateOrder(string email, string accessCode)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                var orderProjection = repository
+                var orderProjection = context
                     .Query<DraftOrder>()
                     .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
                     .Select(o => new { o.OrderId })
@@ -62,15 +62,28 @@ namespace Registration.ReadModel.Implementation
 
         public PricedOrder GetPricedOrder(Guid orderId)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+                return context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
 
-        public OrderSeats FindOrderSeats(Guid assignmentsId)
+        public OrderSeats FindOrderSeats(Guid orderId)
         {
-            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
+            Guid? assignmentsId = null;
+            using (var context = this.contextFactory.Invoke())
+            {
+                // Grab the correlation ID from the order.
+                assignmentsId = (from order in context.Query<PricedOrder>()
+                                 where order.OrderId == orderId
+                                 select order.AssignmentsId)
+                                .FirstOrDefault();
+            }
+
+            if (assignmentsId == null)
+                return null;
+
+            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId.Value);
             if (blob == null)
                 return null;
 

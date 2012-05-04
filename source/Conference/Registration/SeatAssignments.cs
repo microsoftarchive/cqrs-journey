@@ -34,7 +34,6 @@ namespace Registration
         }
 
         private Dictionary<int, SeatAssignment> seats = new Dictionary<int, SeatAssignment>();
-        private Guid orderId;
 
         static SeatAssignments()
         {
@@ -43,7 +42,13 @@ namespace Registration
             Mapper.CreateMap<SeatAssignmentUpdated, SeatAssignment>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SeatAssignments"/> class.
+        /// </summary>
+        /// <param name="orderId">The order id that triggers this seat assignments creation.</param>
+        /// <param name="seats">The order seats.</param>
         public SeatAssignments(Guid orderId, IEnumerable<SeatQuantity> seats)
+            // Note that we don't use the order id as the assignments id
             : this(Guid.NewGuid())
         {
             // Add as many assignments as seats there are.
@@ -91,12 +96,11 @@ namespace Registration
             {
                 if (current.Attendee.Email != null)
                 {
-                    this.Update(new SeatUnassigned(this.Id) { OrderId = orderId, Position = position, SeatType = current.SeatType });
+                    this.Update(new SeatUnassigned(this.Id) { Position = position });
                 }
 
                 this.Update(new SeatAssigned(this.Id)
                 {
-                    OrderId = orderId,
                     Position = position,
                     SeatType = current.SeatType,
                     Attendee = attendee,
@@ -107,9 +111,7 @@ namespace Registration
             {
                 Update(new SeatAssignmentUpdated(this.Id)
                 {
-                    OrderId = orderId,
                     Position = position,
-                    SeatType = current.SeatType,
                     Attendee = attendee,
                 });
             }
@@ -123,19 +125,13 @@ namespace Registration
 
             if (current.Attendee.Email != null)
             {
-                this.Update(new SeatUnassigned(this.Id)
-                {
-                    OrderId = this.orderId,
-                    SeatType = current.SeatType,
-                    Position = position
-                });
+                this.Update(new SeatUnassigned(this.Id) { Position = position });
             }
         }
 
         private void OnCreated(SeatAssignmentsCreated e)
         {
             this.seats = e.Seats.ToDictionary(x => x.Position, x => new SeatAssignment { Position = x.Position, SeatType = x.SeatType });
-            this.orderId = e.OrderId;
         }
 
         private void OnSeatAssigned(SeatAssigned e)
@@ -145,13 +141,15 @@ namespace Registration
 
         private void OnSeatUnassigned(SeatUnassigned e)
         {
-            this.seats[e.Position] = Mapper.Map(e, new SeatAssignment());
+            this.seats[e.Position] = Mapper.Map(e, new SeatAssignment { SeatType = this.seats[e.Position].SeatType });
         }
 
         private void OnSeatAssignmentUpdated(SeatAssignmentUpdated e)
         {
             this.seats[e.Position] = Mapper.Map(e, new SeatAssignment
             {
+                // Seat type is also never received again from the client.
+                SeatType = this.seats[e.Position].SeatType,
                 // The email property is not received for updates, as those 
                 // are for the same attendee essentially.
                 Attendee = new PersonalInfo { Email = this.seats[e.Position].Attendee.Email }
