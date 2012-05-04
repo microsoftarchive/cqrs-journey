@@ -33,17 +33,6 @@ namespace Registration.ReadModel.Implementation
             this.serializer = serializer;
         }
 
-        public Guid GetConferenceId(Guid orderId)
-        {
-            using (var repository = this.contextFactory.Invoke())
-            {
-                return repository.Query<DraftOrder>()
-                    .Where(o => o.OrderId == orderId)
-                    .Select(o => o.ConferenceId)
-                    .FirstOrDefault();
-            }
-        }
-
         public DraftOrder GetDraftOrder(Guid orderId)
         {
             using (var repository = this.contextFactory.Invoke())

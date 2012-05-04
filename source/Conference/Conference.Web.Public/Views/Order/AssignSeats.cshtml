@@ -30,8 +30,7 @@
                                     <td>
                                         @Html.HiddenFor(model => model.Seats[i].Position)
                                         <!-- TODO: grab the seat type name from somewhere? -->
-                                        @Html.DisplayFor(model => model.Seats[i].SeatType)
-                                        @Html.HiddenFor(model => model.Seats[i].SeatType)
+                                        @Html.DisplayFor(model => model.Seats[i].SeatName)
                                     </td>
                                     <td>
                                         @Html.EditorFor(model => model.Seats[i].Attendee.FirstName)

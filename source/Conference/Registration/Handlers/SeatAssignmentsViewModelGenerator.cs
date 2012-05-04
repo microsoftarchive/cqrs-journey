@@ -50,17 +50,17 @@ namespace Registration.Handlers
 
         static SeatAssignmentsViewModelGenerator()
         {
-            Mapper.CreateMap<SeatAssigned, Seat>();
-            Mapper.CreateMap<SeatAssignmentUpdated, Seat>();
+            Mapper.CreateMap<SeatAssigned, OrderSeat>();
+            Mapper.CreateMap<SeatAssignmentUpdated, OrderSeat>();
         }
 
         public void Handle(SeatAssignmentsCreated @event)
         {
-            var conferenceId = this.orderDao.GetConferenceId(@event.OrderId);
-            var seatTypes = this.conferenceDao.GetSeatTypeNames(conferenceId).ToDictionary(x => x.Id, x => x.Name);
+            var seatTypes = this.conferenceDao.GetSeatTypeNames(@event.Seats.Select(x => x.SeatType))
+                .ToDictionary(x => x.Id, x => x.Name);
 
             var dto = new OrderSeats(@event.SourceId, @event.OrderId, @event.Seats.Select(i =>
-                new Seat(i.Position, seatTypes.TryGetValue(i.SeatType))));
+                new OrderSeat(i.Position, seatTypes.TryGetValue(i.SeatType))));
 
             Save(dto);
         }
