@@ -17,13 +17,18 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using Conference.Common.Entity;
-using Infrastructure.Azure;
-using Infrastructure.Azure.Messaging;
-using Infrastructure.Messaging;
-using Infrastructure.Serialization;
 using Registration;
 using Registration.Commands;
 using TechTalk.SpecFlow;
+using Infrastructure.Messaging;
+using Infrastructure.Serialization;
+#if LOCAL
+    using Infrastructure.Sql.Messaging;
+    using Infrastructure.Sql.Messaging.Implementation;
+#else
+    using Infrastructure.Azure;
+    using Infrastructure.Azure.Messaging;
+#endif
 
 namespace Conference.Specflow.Support
 {
@@ -49,8 +54,12 @@ namespace Conference.Specflow.Support
 
             conference = BuildConferenceInfo(table, conferenceSlug);
             svc.CreateConference(conference);
+            // Wait for the events to be processed
+            // This delay may be removed after fixing the events ordering issue 
+            Thread.Sleep(Constants.WaitTimeout);
             svc.Publish(conference.Id);
             // Wait for the events to be processed
+            // This delay may be removed after fixing the events ordering issue 
             Thread.Sleep(Constants.WaitTimeout);
             return conference;
         }
@@ -64,7 +73,12 @@ namespace Conference.Specflow.Support
                 var seatInfo = conference.Seats.FirstOrDefault(s => s.Name == row["seat type"]);
                 if (seatInfo == null) 
                     throw new InvalidOperationException("seat type not found");
-                var qt = row.ContainsKey("quantity") ? Int32.Parse(row["quantity"]) : seatInfo.Quantity;
+                
+                int qt;
+                if (!row.ContainsKey("quantity") ||
+                    !Int32.TryParse(row["quantity"], out qt))
+                    qt = seatInfo.Quantity;
+                
                 seats.Add(new SeatQuantity(seatInfo.Id, qt));
             }
 
@@ -94,6 +108,9 @@ namespace Conference.Specflow.Support
             
             var commandBus = BuildCommandBus();
             commandBus.Send(seatReservation);
+
+            // Wait for the events to be processed
+            Thread.Sleep(Constants.WaitTimeout);
         }
 
         public static ICommandBus GetCommandBus()
@@ -135,9 +152,7 @@ namespace Conference.Specflow.Support
         private static IEventBus BuildEventBus()
         {
 #if LOCAL
-            // TODO: this WON'T work to integrate across both websites!
-            // Populate upfront the Mgmt DB with SB instances before using this option
-            return new MemoryEventBus();
+            return new EventBus(GetMessageSender("SqlBus.Events"), new JsonTextSerializer());
 #else
             return new EventBus(GetTopicSender("events"), new MetadataProvider(), new JsonTextSerializer());
 #endif
@@ -146,18 +161,23 @@ namespace Conference.Specflow.Support
         private static ICommandBus BuildCommandBus()
         {
 #if LOCAL
-            // TODO: this WON'T work to integrate across both websites!
-            // Populate upfront the Mgmt DB with SB instances before using this option
-            return new MemoryCommandBus();
+            return new CommandBus(GetMessageSender("SqlBus.Commands"), new JsonTextSerializer());
 #else
             return new CommandBus(GetTopicSender("commands"), new MetadataProvider(), new JsonTextSerializer());
 #endif
         }
 
+#if LOCAL
+        private static MessageSender GetMessageSender(string tableName)
+        {
+            return new MessageSender(Database.DefaultConnectionFactory, "SqlBus", tableName);
+        }
+#else
         private static TopicSender GetTopicSender(string topic)
         {
             var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             return new TopicSender(settings, "conference/" + topic);
         }
+#endif
     }
 }

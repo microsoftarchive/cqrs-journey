@@ -32,6 +32,11 @@ Background:
 #	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
 
+Scenario: No selected Seat Type
+When the Registrant proceed to make the Reservation with missing or invalid data	
+Then the message 'One or more items are required' will show up
+
+
 #Initial state	: 3 available
 #End state		: 2 waitlisted, 1 reserved
 Scenario: All Seat Types are available, one get reserved and two get waitlisted

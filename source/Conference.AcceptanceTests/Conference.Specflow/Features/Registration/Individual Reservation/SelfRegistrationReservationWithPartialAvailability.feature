@@ -25,80 +25,80 @@ Background:
 	| Additional cocktail party | $50  | 100   |
 
 
-#1
-#Initial state	: 3 waitlisted and 3 selected
-#End state		: 3 waitlisted confirmed  
- Scenario: All the Order Items are offered to be waitlisted and all are selected, then all get confirmed	
-	Given these Seat Types becomes unavailable before the Registrant make the reservation
-	| seat type                 |
-	| General admission         |
-	| CQRS Workshop             |
-	| Additional cocktail party |
-	And the list of Order Items offered to be waitlisted and selected by the Registrant
+#Initial state	: 3 selected and none available
+#End state		: 3 not reserved  
+ Scenario: All the Order Items are selected and none are available, then none get reserved	
+ 	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
+	And these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 |
 	| General admission         |
 	| CQRS Workshop             |
 	| Additional cocktail party |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                |
+	| General admission         | 0        | Could not reserve all requested seats. |
+	| CQRS Workshop             | 0        | Could not reserve all requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all requested seats. |
+	And the countdown started
 
 
-#2
-#Initial state	: 3 waitlisted and 2 selected
-#End state		: 2 waitlisted confirmed  
-
-#Next release
-@Ignore
-Scenario: All order items are waitlisted and 2 are selected and all get confirmed	
-	Given these Seat Types becomes unavailable before the Registrant make the reservation
-	| seat type                 |
-	| General admission         |
-	| CQRS Workshop             |
-	| Additional cocktail party |
-	And the list of Order Items offered to be waitlisted and selected by the Registrant
+#Initial state	: 3 selected and two get reserved
+#End state		: 1 reserved and 2 not get reserved  
+ Scenario: All the Order Items are selected and two not available, then one get reserved and two not	
+ 	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation			
-	Then these Order Itmes get confirmed being waitlisted
-	| seat type         | waitlist seats |
-	| General admission | 1              |
-	| CQRS Workshop     | 1              |
+	| Additional cocktail party | 1        |
+	And these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 |
+	| CQRS Workshop             |
+	| Additional cocktail party |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                |
+	| General admission         | 1        |                                        |
+	| CQRS Workshop             | 0        | Could not reserve all requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all requested seats. |
+	And the countdown started
 
 
-#3
-#Initial state	: 1 available, 2 waitlisted and 3 selected
-#End state		: 1 reserved,  2 waitlisted confirmed  
-
-#Next release
-@Ignore
-Scenario: 1 order item is available, 2 are waitlisted and all are selected, then all get confirmed	
-	Given the list of available Order Items selected by the Registrant
-	| seat type         | quantity |
-	| General admission | 1        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
+#Initial state	: 3 selected and 1 get partially reserved and 1 get all reserved
+#End state		: 2 reserved and 1 not get reserved  
+ Scenario: All the Order Items are selected, one is partially available and one none available, then two get reserved and one not	
+ 	Given the selected Order Items
 	| seat type                 | quantity |
+	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
+	And these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 1        |
-	And these other order items get reserved
-	| seat type         | quantity |
-	| General admission | 1        |
+	| CQRS Workshop             | 10       |
+	| Additional cocktail party |          |
+	And the Registrant proceed to make the Reservation with seats already reserved 		
+	And the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                |
+	| General admission         | 1        |                                        |
+	| CQRS Workshop             | 1        |                                        |
+	| Additional cocktail party | 0        | Could not reserve all requested seats. |
+	And the total should read $699
+	When the Registrant proceed to make the Reservation
+	Then the Reservation is confirmed for all the selected Order Items
+	And these Order Items should be reserved
+		| seat type         | quantity |
+		| General admission | 1        |
+		| CQRS Workshop     | 1        |
+	And the total should read $699
+	And the countdown started
 
 
-#4
 #Initial state	: 1 available, 2 waitlisted but only 2w selected
 #End state		: 2 waitlisted confirmed  
-
 #Next release
 @Ignore
 Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2 get confirmed	
@@ -116,10 +116,8 @@ Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2
 	| Additional cocktail party | 1        |
 
 
-#5
 #Initial state	: 1 available, 2 waitlisted and only 1a selected
 #End state		: 1 reserved 
-
 #Next release
 @Ignore
 Scenario: 1 order item is available,  2 are waitlisted and 1 available is selected, then only 1 get reserved	
@@ -136,10 +134,8 @@ Scenario: 1 order item is available,  2 are waitlisted and 1 available is select
 	| General admission | 1        |
 
 
-#6
 #Initial state	: 1 available, 2 waitlisted and 1a & 1w selected
 #End state		: 1 reserved,  1 waitlisted confirmed  
-
 #Next release
 @Ignore
 Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
@@ -159,8 +155,4 @@ Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlis
 	| General admission | 1        |
 
 
-#7
-Scenario: No selected Seat Type
-When the Registrant proceed to make the Reservation with missing or invalid data	
-Then the message 'One or more items are required' will show up
 

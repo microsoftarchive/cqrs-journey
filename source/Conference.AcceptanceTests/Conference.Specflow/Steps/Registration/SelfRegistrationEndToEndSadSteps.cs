@@ -26,5 +26,10 @@ namespace Conference.Specflow.Steps.Registration
             ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.RejectPaymentInputValue);
         }
 
+        [When(@"the Registrant proceed to make the Reservation with missing or invalid data")]
+        public void WhenTheRegistrantProceedToMakeTheReservationWithMissingOrInvalidData()
+        {
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
+        }
     }
 }

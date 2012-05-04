@@ -13,6 +13,7 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
+using Xunit;
 using W = WatiN.Core;
 
 namespace Conference.Specflow.Steps.Registration
@@ -30,10 +31,15 @@ namespace Conference.Specflow.Steps.Registration
             }
         }
 
-        [When(@"the Registrant proceed to make the Reservation with missing or invalid data")]
-        public void WhenTheRegistrantProceedToMakeTheReservationWithMissingOrInvalidData()
+        [Given(@"the Registrant is offered to select any of these available seats")]
+        [Then(@"the Registrant is offered to select any of these available seats")]
+        public void ThenTheRegistrantIsOfferedToSelectAnyOfTheseAvailableSeats(Table table)
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+            foreach (var row in table.Rows)
+            {
+                Assert.True(browser.ContainsListItemsInTableRow(row["seat type"], row["selected"], row["message"]));
+            }
         }
     }
 }

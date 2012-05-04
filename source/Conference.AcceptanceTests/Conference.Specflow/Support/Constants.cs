@@ -25,8 +25,9 @@ namespace Conference.Specflow.Support
         {
             public const string NextStepButtonId = "Next";
             public const string ReservationSuccessfull = "Seats information";
-            public const string FindOrderSuccessfull = "Assign Seats";
-            public const string RegistrationSuccessfull = "You will receive a confirmation e-mail in a few minutes.";
+            public const string ReservationUnsuccessfull = "Could not reserve all requested seats.";
+            public const string FindOrderSuccessfull = "Purchase details";
+            public const string RegistrationSuccessfull = "Thank you";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
             public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); // Wait > 5 secs, longer than page retry 

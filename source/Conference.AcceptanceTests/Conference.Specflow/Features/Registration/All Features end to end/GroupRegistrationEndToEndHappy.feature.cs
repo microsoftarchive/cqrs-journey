@@ -215,8 +215,7 @@ this.FeatureBackground();
 #line 60
  testRunner.When("the Registrant proceed to confirm the payment");
 #line 61
-    testRunner.Then("the message \'You will receive a confirmation e-mail in a few minutes.\' will show " +
-                    "up");
+    testRunner.Then("the message \'Thank you\' will show up");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",

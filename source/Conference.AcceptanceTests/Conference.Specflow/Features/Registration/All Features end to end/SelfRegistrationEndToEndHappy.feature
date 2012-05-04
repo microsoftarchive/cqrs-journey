@@ -60,7 +60,7 @@ Scenario: Checkout:Payment and sucessfull Order completed
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
-    Then the message 'You will receive a confirmation e-mail in a few minutes.' will show up
+    Then the message 'Thank you' will show up
 	And the Order should be created with the following Order Items
 		| seat type                 | quantity |
 		| General admission         | 1        |

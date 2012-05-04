@@ -71,7 +71,7 @@ namespace Conference.Specflow.Steps.Registration
         {
             var controller = ScenarioContext.Current.Get<RegistrationController>();
             var registration = ScenarioContext.Current.Get<RegisterToConference>();
-            var redirect = controller.StartRegistration(registration.OrderId) as RedirectToRouteResult;
+            var redirect = controller.StartRegistration(registration, controller.ViewBag.OrderVersion) as RedirectToRouteResult;
             
             Assert.NotNull(redirect);
 
@@ -107,8 +107,7 @@ namespace Conference.Specflow.Steps.Registration
             foreach (var row in table.Rows)
             {
                 var seat = model.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
-                Assert.NotNull(seat);
-                Assert.Equal(0, seat.Quantity);
+                Assert.Null(seat);
             }
         }
 

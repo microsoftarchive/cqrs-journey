@@ -72,6 +72,26 @@ namespace Conference.Specflow.Support
             return false;
         }
 
+        public static bool ContainsListItemsInTableRow(this Browser browser, string rowName, string maxItems)
+        {
+            return ContainsListItemsInTableRow(browser, rowName, maxItems, null);
+        }
+
+        public static bool ContainsListItemsInTableRow(this Browser browser, string rowName, string selected, string message)
+        {
+            //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
+            var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
+            if (tr != null && tr.Lists.Count > 0)
+            {
+                var list = tr.Lists.First();
+                var nextRow = tr.NextSibling as TableRow;
+                return list.OwnListItems[0].Text == selected &&
+                       (string.IsNullOrWhiteSpace(message) || nextRow.Text.Trim() == message);
+            }
+            
+            return false;
+        }
+
         public static void SetInputvalue(this Browser browser, string inputId, string value, string attributeValue = null)
         {
             var input = browser.TextField(inputId);

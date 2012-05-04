@@ -48,24 +48,6 @@ namespace Conference.Specflow.Steps.Registration
             }
         }
 
-        [Given(@"the Promotional Codes")]
-        public void GivenThePromotionalCodes(Table table)
-        {
-            ScenarioContext.Current.Pending();
-        }
-
-        [Given(@"the Registrant proceed to make the Reservation")]
-        public void GivenTheRegistrantProceedToMakeTheReservation()
-        {
-            WhenTheRegistrantProceedToMakeTheReservation();
-        }
-
-        [Given(@"the Registrant proceed to Checkout:Payment")]
-        public void GivenTheRegistrantProceedToCheckoutPayment()
-        {
-            WhenTheRegistrantProceedToCheckoutPayment();
-        }
-
         [Given(@"the Registrant enter these details")]
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
@@ -86,31 +68,28 @@ namespace Conference.Specflow.Steps.Registration
         {
             var reservationId = ConferenceHelper.ReserveSeats(ScenarioContext.Current.Get<ConferenceInfo>(), table);
             // Store for revert the reservation after scenario ends
-            ScenarioContext.Current.Set<Guid>(reservationId, "reservationId");
+            ScenarioContext.Current.Set(reservationId, "reservationId");
         }
 
-        [Given(@"the total should read \$(.*)")]
-        public void GivenTheTotalShouldRead(int value)
-        {
-            ThenTheTotalShouldRead(value);
-        }
-
+        [Given(@"the Registrant proceed to make the Reservation")]
         [When(@"the Registrant proceed to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
             ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonId, Constants.UI.ReservationSuccessfull);
         }
 
+        [Given(@"the Registrant proceed to make the Reservation with seats already reserved")]
+        [When(@"the Registrant proceed to make the Reservation with seats already reserved")]
+        public void WhenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
+        {
+            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonId, Constants.UI.ReservationUnsuccessfull);
+        }
+
+        [Given(@"the Registrant proceed to Checkout:Payment")]
         [When(@"the Registrant proceed to Checkout:Payment")]
         public void WhenTheRegistrantProceedToCheckoutPayment()
         {
             ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
-        }
-
-        [Then(@"the Registrant is offered to be waitlisted for these Order Items")]
-        public void ThenTheRegistrantIsOfferedToBeWaitlistedForTheseOrderItems(Table table)
-        {
-            ThenTheReservationIsConfirmedForAllTheSelectedOrderItems();
         }
 
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
@@ -120,6 +99,7 @@ namespace Conference.Specflow.Steps.Registration
                 string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull)); 
         }
 
+        [Given(@"the total should read \$(.*)")]
         [Then(@"the total should read \$(.*)")]
         public void ThenTheTotalShouldRead(int value)
         {
@@ -191,8 +171,11 @@ namespace Conference.Specflow.Steps.Registration
             browser.Click("find");
             ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.FindOrderSuccessfull, Constants.UI.WaitTimeout.Seconds);
 
-            Assert.True(browser.SafeContainsText(accessCode),
-                   string.Format("The following text was not found on the page: {0}", accessCode));
+            foreach (var row in table.Rows)
+            {
+                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]),
+                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));
+            }
         }
 
         [AfterScenario]
