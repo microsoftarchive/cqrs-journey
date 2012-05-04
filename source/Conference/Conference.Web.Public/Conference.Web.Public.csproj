@@ -209,7 +209,6 @@
       <Link>CQRS-journey.licenseheader</Link>
     </None>
     <Content Include="Views\Registration\ReservationUnknown.cshtml" />
-    <Content Include="Views\Registration\ReservationRejected.cshtml" />
     <Content Include="Views\Registration\StartRegistration.cshtml" />
     <Content Include="Views\Registration\ThankYou.cshtml" />
     <Content Include="Views\Order\Find.cshtml" />
