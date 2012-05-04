@@ -209,7 +209,6 @@
       <Link>CQRS-journey.licenseheader</Link>
     </None>
     <Content Include="Views\Registration\ReservationUnknown.cshtml" />
-    <Content Include="Views\Registration\ReservationRejected.cshtml" />
     <Content Include="Views\Registration\StartRegistration.cshtml" />
     <Content Include="Views\Registration\ThankYou.cshtml" />
     <Content Include="Views\Order\Find.cshtml" />
@@ -223,6 +222,7 @@
     <Content Include="Views\Shared\_OrderDetails.cshtml" />
     <Content Include="Views\Order\Display.cshtml" />
     <Content Include="Views\Registration\ShowCompletedOrder.cshtml" />
+    <Content Include="App_Code\ConferenceHelpers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

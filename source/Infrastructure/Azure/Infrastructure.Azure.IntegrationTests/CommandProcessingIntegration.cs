@@ -161,8 +161,8 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
             var bus = new CommandBus(sender.Object, new MetadataProvider(), new JsonTextSerializer());
 
             BrokeredMessage message = null;
-            sender.Setup(x => x.SendAsync(It.IsAny<BrokeredMessage>()))
-                .Callback<BrokeredMessage>(m => message = m);
+            sender.Setup(x => x.Send(It.IsAny<Func<BrokeredMessage>>()))
+                .Callback<Func<BrokeredMessage>>(mf => message = mf());
 
             bus.Send(new Envelope<ICommand>(new FooCommand()) { Delay = TimeSpan.FromMinutes(5) });
 
@@ -177,10 +177,12 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
             var bus = new CommandBus(sender.Object, new MetadataProvider(), new JsonTextSerializer());
 
             BrokeredMessage message = null;
-            sender.Setup(x => x.SendAsync(It.IsAny<IEnumerable<BrokeredMessage>>()))
-                .Callback<IEnumerable<BrokeredMessage>>(messages =>
-                    message = messages.First(m =>
-                        m.ScheduledEnqueueTimeUtc > DateTime.UtcNow.Add(TimeSpan.FromMinutes(4))));
+            sender.Setup(x => x.Send(It.IsAny<Func<BrokeredMessage>>()))
+                .Callback<Func<BrokeredMessage>>(mf =>
+                {
+                    var m = mf();
+                    if (m.ScheduledEnqueueTimeUtc > DateTime.UtcNow.Add(TimeSpan.FromMinutes(4))) message = m;
+                });
 
             bus.Send(new[] 
             {

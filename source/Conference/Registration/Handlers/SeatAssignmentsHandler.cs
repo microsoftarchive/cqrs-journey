@@ -35,9 +35,12 @@ namespace Registration.Handlers
         public void Handle(OrderPaymentConfirmed @event)
         {
             var order = this.ordersRepo.Find(@event.SourceId);
-            var assignments = order.CreateSeatAssignments();
+            if (order != null)
+            {
+                var assignments = order.CreateSeatAssignments();
 
-            assignmentsRepo.Save(assignments);
+                assignmentsRepo.Save(assignments);
+            }
         }
 
         public void Handle(AssignSeat command)

@@ -17,42 +17,38 @@ See the License for the specific language governing permissions and limitations 
     overflow: hidden;
     font-family: "Segoe UI light";
     font-size: 36px;
+	padding: 20px 0 0 0;
 }
 .nav__left,
 .nav__right {
-    /*height: 50px;*/
+    min-height: 40px;
     text-decoration: none;
     line-height: 28px;
-    min-height: 48px;
-    /*padding-top: 4px;*/
     padding-bottom: 9px;
+	border: none;
+	font-family: "Segoe UI light";
+    font-size: 36px;
 }
 .nav__left {
-    background:no-repeat left top url(nav__left.png);
+    background:no-repeat left 1px url(nav__left.png);
     padding-left: 48px;
     float: left;
     color: #0099ff;
 	text-align: right;
 }
 .nav__left:hover {
-	background:no-repeat left top url(nav__left_a.png);
+	background:no-repeat left 1px url(nav__left_a.png);
 	color: #33ccff;
 	}
 .nav__right {
-    border-width: 0;
-    border-style: none;
-    overflow: hidden;
-    font-family: "Segoe UI light";
-    font-size: 36px;
-    background:no-repeat right center url(nav__right.png);
+    background:no-repeat right 1px url(nav__right.png);
     padding-right: 48px;
     float: right;
     color: #ff9900;
 	text-align: right;
-    vertical-align: middle;
 	}
 .nav__right:hover {
-    background:no-repeat right center url(nav__right_a.png);
+    background:no-repeat right 1px url(nav__right_a.png);
 	color: #ffcc33;
 	}
 .nav__right-small {
@@ -61,8 +57,3 @@ See the License for the specific language governing permissions and limitations 
 	display: block;
 	margin: 5px 0 0 0;
 	}
-
-.nav__right {
-    vertical-align: middle;
-    margin-right: 2px;
-}
