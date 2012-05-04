@@ -26,7 +26,8 @@ namespace Registration.Handlers
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>,
-        IEventHandler<OrderPaymentConfirmed>
+        IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderTotalsCalculated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
@@ -97,12 +98,28 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Set<DraftOrder>().Include(x => x.Lines).First(x => x.OrderId == @event.SourceId);
+                var dto = context.Find<DraftOrder>(@event.SourceId);
 
                 dto.State = DraftOrder.States.Confirmed;
-                dto.OrderVersion = @event.Version;
-
+                if (dto.OrderVersion < @event.Version)
+                {
+                    dto.OrderVersion = @event.Version;
+                }
                 context.Save(dto);
+            }
+        }
+
+        public void Handle(OrderTotalsCalculated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<DraftOrder>(@event.SourceId);
+
+                if (dto.OrderVersion < @event.Version)
+                {
+                    dto.OrderVersion = @event.Version;
+                    context.Save(dto);
+                }
             }
         }
 

@@ -208,7 +208,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                     });
             Mock.Get(this.orderDao)
                 .Setup(r => r.GetPricedOrder(orderId))
-                .Returns(new PricedOrder { OrderId = orderId });
+                .Returns(new PricedOrder { OrderId = orderId, OrderVersion = orderVersion});
 
             var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
 

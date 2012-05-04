@@ -15,8 +15,14 @@ namespace Registration.ReadModel
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Linq;
 
+    /// <summary>
+    /// Represents the read model for the set of individual 
+    /// seats purchased in an order, which can be assigned 
+    /// to attendees.
+    /// </summary>
     public class OrderSeats
     {
         public OrderSeats()
@@ -24,14 +30,22 @@ namespace Registration.ReadModel
             this.Seats = new List<OrderSeat>();
         }
 
-        public OrderSeats(Guid id, Guid orderId, IEnumerable<OrderSeat> seats)
+        public OrderSeats(Guid assignmentsId, Guid orderId, IEnumerable<OrderSeat> seats)
         {
-            this.Id = id;
+            this.AssignmentsId = assignmentsId;
             this.OrderId = orderId;
             this.Seats = seats.ToList();
         }
 
-        public Guid Id { get; set; }
+        /// <summary>
+        /// Gets or sets the seat assignments AR identifier.
+        /// </summary>
+        [Key]
+        public Guid AssignmentsId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the order id.
+        /// </summary>
         public Guid OrderId { get; set; }
         public IList<OrderSeat> Seats { get; set; }
     }
