@@ -223,6 +223,7 @@
     <Content Include="Views\Shared\_OrderDetails.cshtml" />
     <Content Include="Views\Order\Display.cshtml" />
     <Content Include="Views\Registration\ShowCompletedOrder.cshtml" />
+    <Content Include="App_Code\ConferenceHelpers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

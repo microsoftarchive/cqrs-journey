@@ -3,10 +3,7 @@
     ViewBag.Title = Model.Name;
 }
 
-<h1 class="page__head page__wrapper"> @*TODO extract into partial view*@
-    @Model.Name
-    <br /><span class="page__head-note">(Experience & Practice)</span>
-</h1>
+@ConferenceHelpers.ConferenceTitle(Model.Name)
 
 <div class="page__content">
     <div class="page__wrapper content-main">
@@ -100,7 +97,7 @@
                 </a>
                 <a class="tile tile_twitter" href="#">
                     <span class="tile__header">Twitter</span>
-                    <span id="tweets" class="tile-slide" data-user="@Url.Encode("#ch9live")">
+                    <span id="tweets" class="tile-slide" data-user="@Url.Encode("@mspnp")">
                   @*    <span class="tile__tweet">
 							<span class="tile__nick"><span class="tile__time">4h ago</span>@gmelnik</span>RT @jasondentler: The work coming out of @mspnp for CQRS is really useful. Nice 180 from the "enterprisey" app block days.
 						</span>

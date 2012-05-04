@@ -1,13 +1,13 @@
 ﻿@model Registration.ReadModel.PricedOrder
 @{
-    ViewBag.Title = "Display Order";
+    ViewBag.Title = "Display Registration";
 }
-<h1 class="page__head page__wrapper">Order details</h1>
+<h1 class="page__head page__wrapper">Registration details</h1>
 <div class="page__content">
     <div class="page__wrapper content-main content-main_assignseats">
         <div class="content-main__wrapper">
             <div class="content-main__main">
-                <div class="content-main__header">Purchase details</div>
+                <div class="content-main__header">Order details</div>
                 <div class="content">
                     @Html.Partial("_OrderDetails", this.Model)
                 </div>
