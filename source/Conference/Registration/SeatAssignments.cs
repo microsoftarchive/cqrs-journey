@@ -123,7 +123,12 @@ namespace Registration
 
             if (current.Attendee.Email != null)
             {
-                this.Update(new SeatUnassigned(this.Id) { Position = position });
+                this.Update(new SeatUnassigned(this.Id)
+                {
+                    OrderId = this.orderId,
+                    SeatType = current.SeatType,
+                    Position = position
+                });
             }
         }
 
