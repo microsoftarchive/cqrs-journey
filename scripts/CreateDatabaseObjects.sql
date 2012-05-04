@@ -37,6 +37,7 @@ GO
 CREATE TABLE [ConferenceManagement].[Orders](
 	[Id] [uniqueidentifier] NOT NULL,
 	[ConferenceId] [uniqueidentifier] NOT NULL,
+	[AssignmentsId] [uniqueidentifier] NULL,
 	[AccessCode] [nvarchar](max) NULL,
 	[RegistrantName] [nvarchar](max) NULL,
 	[RegistrantEmail] [nvarchar](max) NULL,
@@ -73,6 +74,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [ConferenceRegistration].[PricedOrders](
 	[OrderId] [uniqueidentifier] NOT NULL,
+	[AssignmentsId] [uniqueidentifier] NULL,
 	[Total] [decimal](18, 2) NOT NULL,
 	[OrderVersion] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 

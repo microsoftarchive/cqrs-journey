@@ -43,6 +43,11 @@ namespace Conference
         public Guid Id { get; set; }
         public Guid ConferenceId { get; set; }
 
+        /// <summary>
+        /// Used for correlating with the seat assigmnents.
+        /// </summary>
+        public Guid? AssignmentsId { get; set; }
+
         [Display(Name = "Order Code")]
         public string AccessCode { get; set; }
 
