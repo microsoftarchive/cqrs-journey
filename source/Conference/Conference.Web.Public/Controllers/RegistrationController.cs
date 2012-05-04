@@ -170,7 +170,7 @@ namespace Conference.Web.Public.Controllers
             {
                 case ThirdPartyProcessorPayment:
 
-                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId);
+                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
 
                 case InvoicePayment:
                     break;
@@ -198,14 +198,14 @@ namespace Conference.Web.Public.Controllers
             return View(order);
         }
 
-        private ActionResult InitiateRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId)
+        private ActionResult InitiateRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId, int orderVersion)
         {
             var paymentCommand = CreatePaymentCommand(orderId);
 
             this.commandBus.Send(new ICommand[] { command, paymentCommand });
 
             var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
-            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId });
+            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId, orderVersion });
 
             return RedirectToAction(
                 "ThirdPartyProcessorPayment",
