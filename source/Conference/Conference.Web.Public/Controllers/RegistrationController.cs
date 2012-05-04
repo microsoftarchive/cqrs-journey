@@ -41,7 +41,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        [OutputCache(Duration = 0)]
+        [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult StartRegistration(Guid? orderId = null)
         {
             OrderViewModel viewModel;
@@ -94,7 +94,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        [OutputCache(Duration = 0)]
+        [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
             var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
@@ -183,14 +183,14 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        [OutputCache(Duration = 0)]
+        [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult ShowExpiredOrder(Guid orderId)
         {
             return View();
         }
 
         [HttpGet]
-        [OutputCache(Duration = 0)]
+        [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult ThankYou(Guid orderId)
         {
             var order = this.orderDao.GetDraftOrder(orderId);
