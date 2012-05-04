@@ -3,6 +3,22 @@
 
 http://cqrsjourney.github.com
 
+# Release Notes
+
+_4th May 2012_
+
+You can find the release notes that apply to the Psuedo-Production
+Release (V1) of the Contoso Conference Management System [here][releasenotes].
+
+The release notes include information about:
+
+* How to obtain the source code.
+* How to configure the application.
+* How to build the application.
+* How to run the application.
+* How to run the tests.
+* Known issues.
+
 # Contribution Guidelines Overview
 
 If you would like to become involved in the development of the CQRS Journey sample application and guidance, you can contribute in many different ways:
@@ -213,3 +229,5 @@ An easy way to review the docs and comment on them (without using Git, GitHub, o
 ##Inquiries
 
 For any further inquiries, contact the project leader, Grigori Melnik, at _grigori dot melnik at microsoft dot com_
+
+[releasenotes]: https://github.com/mspnp/cqrs-journey-doc/blob/master/Appendix1_Running.markdown
