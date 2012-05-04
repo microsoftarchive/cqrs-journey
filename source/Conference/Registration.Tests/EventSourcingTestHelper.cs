@@ -21,7 +21,7 @@ namespace Registration.Tests
     using Infrastructure.Messaging.Handling;
     using Xunit;
 
-    internal class EventSourcingTestHelper<T> where T : IEventSourced
+    public class EventSourcingTestHelper<T> where T : IEventSourced
     {
         private ICommandHandler handler;
         private readonly RepositoryStub repository;
@@ -51,7 +51,12 @@ namespace Registration.Tests
             ((dynamic)this.handler).Handle((dynamic)command);
         }
 
-        public bool ThenContains<TEvent>() where TEvent: IVersionedEvent
+        public void When(IEvent @event)
+        {
+            ((dynamic)this.handler).Handle((dynamic)@event);
+        }
+
+        public bool ThenContains<TEvent>() where TEvent : IVersionedEvent
         {
             return this.Events.Any(x => x.GetType() == typeof(TEvent));
         }
