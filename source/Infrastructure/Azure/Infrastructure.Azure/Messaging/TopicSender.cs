@@ -86,6 +86,8 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void SendAsync(Func<BrokeredMessage> messageFactory)
         {
+            // TODO: SendAsync is not currently being used by the app or infrastructure.
+            // Consider removing or have a callback notifying the result.
             // Always send async.
             this.retryPolicy.ExecuteAction(
                 ac =>
@@ -142,7 +144,15 @@ namespace Infrastructure.Azure.Messaging
 
         protected virtual void DoBeginSendMessage(BrokeredMessage message, AsyncCallback ac)
         {
-            this.topicClient.BeginSend(message, ac, message);
+            try
+            {
+                this.topicClient.BeginSend(message, ac, message);
+            }
+            catch
+            {
+                message.Dispose();
+                throw;
+            }
         }
 
         protected virtual void DoEndSendMessage(IAsyncResult ar)
