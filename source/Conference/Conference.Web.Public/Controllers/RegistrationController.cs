@@ -27,7 +27,8 @@ namespace Conference.Web.Public.Controllers
     {
         public const string ThirdPartyProcessorPayment = "thirdParty";
         public const string InvoicePayment = "invoice";
-        private const int WaitTimeoutInSeconds = 5;
+        private const int DraftOrderWaitTimeoutInSeconds = 5;
+        private const int PricedOrderWaitTimeoutInSeconds = 1;
 
         private readonly ICommandBus commandBus;
         private readonly IOrderDao orderDao;
@@ -96,7 +97,7 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
-            var order = this.WaitUntilSeatsAreAssigned(orderId, orderVersion);
+            var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
             if (order == null)
             {
                 return View("ReservationUnknown");
@@ -122,8 +123,8 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
-            var totalledOrder = orderDao.GetPricedOrder(orderId);
-            if (totalledOrder == null)
+            var pricedOrder = this.WaitUntilOrderIsPriced(orderId, orderVersion);
+            if (pricedOrder == null)
             {
                 return View("ReservationUnknown");
             }
@@ -136,7 +137,7 @@ namespace Conference.Web.Public.Controllers
                 new RegistrationViewModel
                 {
                     RegistrantDetails = new AssignRegistrantDetails { OrderId = orderId },
-                    Order = totalledOrder
+                    Order = pricedOrder
                 });
         }
 
@@ -283,9 +284,9 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private DraftOrder WaitUntilSeatsAreAssigned(Guid orderId, int lastOrderVersion)
+        private DraftOrder WaitUntilSeatsAreConfirmed(Guid orderId, int lastOrderVersion)
         {
-            var deadline = DateTime.Now.AddSeconds(WaitTimeoutInSeconds);
+            var deadline = DateTime.Now.AddSeconds(DraftOrderWaitTimeoutInSeconds);
 
             while (DateTime.Now < deadline)
             {
@@ -297,6 +298,24 @@ namespace Conference.Web.Public.Controllers
                 }
 
                 Thread.Sleep(500);
+            }
+
+            return null;
+        }
+
+        private PricedOrder WaitUntilOrderIsPriced(Guid orderId, int lastOrderVersion)
+        {
+            var deadline = DateTime.Now.AddSeconds(PricedOrderWaitTimeoutInSeconds);
+
+            while (DateTime.Now < deadline)
+            {
+                var order = this.orderDao.GetPricedOrder(orderId);
+                if (order != null && order.OrderVersion > lastOrderVersion)
+                {
+                    return order;
+                }
+
+                Thread.Sleep(300);
             }
 
             return null;
