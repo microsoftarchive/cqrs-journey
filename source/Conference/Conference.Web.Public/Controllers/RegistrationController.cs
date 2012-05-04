@@ -45,28 +45,36 @@ namespace Conference.Web.Public.Controllers
         public ActionResult StartRegistration(Guid? orderId = null)
         {
             OrderViewModel viewModel;
-            int orderVersion = 0;
+            var orderVersion = 0;
 
             if (!orderId.HasValue)
             {
                 orderId = Guid.NewGuid();
                 viewModel = this.CreateViewModel();
                 this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
-                ViewBag.PartiallFulfilled = false;
             }
             else
             {
-                var order = this.orderDao.GetDraftOrder(orderId.Value);
+                var order = this.WaitUntilSeatsAreConfirmed(orderId.Value, 0);
+
+                if (order == null)
+                {
+                    return View("ReservationUnknown");
+                }
 
                 if (order.State == DraftOrder.States.Confirmed)
                 {
                     return View("ShowCompletedOrder");
                 }
 
+                if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
+                {
+                    return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
+                }
+
                 orderVersion = order.OrderVersion;
                 viewModel = this.CreateViewModel(order);
                 ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
-                ViewBag.PartiallFulfilled = order.State == DraftOrder.States.PartiallyReserved;
             }
 
             ViewBag.OrderId = orderId;
@@ -80,7 +88,7 @@ namespace Conference.Web.Public.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return StartRegistration(command.OrderId);
+                return this.ShowRegistrationEditor(command.OrderId, orderVersion);
             }
 
             // TODO: validate incoming seat types correspond to the conference.
@@ -93,6 +101,29 @@ namespace Conference.Web.Public.Controllers
                 new { conferenceCode = this.ConferenceCode, orderId = command.OrderId, orderVersion = orderVersion });
         }
 
+        private ActionResult ShowRegistrationEditor(Guid orderId, int orderVersion)
+        {
+            OrderViewModel viewModel = null;
+            var existingOrder = orderVersion != 0 ? this.orderDao.GetDraftOrder(orderId) : null;
+
+            if (existingOrder == null)
+            {
+                viewModel = this.CreateViewModel();
+                this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
+            }
+            else
+            {
+                orderVersion = existingOrder.OrderVersion;
+                viewModel = this.CreateViewModel(existingOrder);
+                ViewBag.ExpirationDateUTC = existingOrder.ReservationExpirationDate;
+            }
+
+            ViewBag.OrderId = orderId;
+            ViewBag.OrderVersion = orderVersion;
+
+            return View(viewModel);
+        }
+
         [HttpGet]
         [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
@@ -101,11 +132,6 @@ namespace Conference.Web.Public.Controllers
             if (order == null)
             {
                 return View("ReservationUnknown");
-            }
-
-            if (order.State == DraftOrder.States.Rejected)
-            {
-                return View("ReservationRejected");
             }
 
             if (order.State == DraftOrder.States.PartiallyReserved)
