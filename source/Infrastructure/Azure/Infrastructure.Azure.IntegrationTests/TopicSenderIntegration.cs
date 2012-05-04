@@ -15,7 +15,9 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Infrastructure.Azure.Messaging;
+    using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using Xunit;
@@ -25,12 +27,12 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
         private MessagingSettings settings;
         private string topic = "Test-" + Guid.NewGuid().ToString();
         private SubscriptionClient subscriptionClient;
-        private TopicSender sut;
+        private TestableTopicSender sut;
 
         public given_a_topic_sender()
         {
             this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
-            this.sut = new TopicSender(this.settings, this.topic);
+            this.sut = new TestableTopicSender(this.settings, this.topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
 
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -53,7 +55,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
         {
             var payload = Guid.NewGuid().ToString();
 
-            sut.SendAsync(new BrokeredMessage(payload));
+            sut.SendAsync(() => new BrokeredMessage(payload));
 
             var message = subscriptionClient.Receive(TimeSpan.FromSeconds(5));
             Assert.Equal(payload, message.GetBody<string>());
@@ -65,7 +67,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
             var payload1 = Guid.NewGuid().ToString();
             var payload2 = Guid.NewGuid().ToString();
 
-            sut.SendAsync(new[] { new BrokeredMessage(payload1), new BrokeredMessage(payload2) });
+            sut.SendAsync(new Func<BrokeredMessage>[] { () => new BrokeredMessage(payload1), () => new BrokeredMessage(payload2) });
 
             var messages = new List<string>
                                {
@@ -84,6 +86,71 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 
             var message = subscriptionClient.Receive();
             Assert.Equal(payload, message.GetBody<string>());
+        }
+
+        [Fact]
+        public void when_sending_message_fails_transiently_once_then_retries()
+        {
+            var payload = Guid.NewGuid().ToString();
+
+            var attempt = 0;
+            var signal = new AutoResetEvent(false);
+            var currentDelegate = sut.DoBeginSendMessageDelegate;
+            sut.DoBeginSendMessageDelegate =
+                (mf, ac) =>
+                {
+                    if (attempt++ == 0) throw new TimeoutException();
+                    currentDelegate(mf, ac);
+                    signal.Set();
+                };
+
+            sut.SendAsync(() => new BrokeredMessage(payload));
+
+            var message = subscriptionClient.Receive(TimeSpan.FromSeconds(5));
+            Assert.True(signal.WaitOne(TimeSpan.FromSeconds(5)), "Test timed out");
+            Assert.Equal(payload, message.GetBody<string>());
+            Assert.Equal(2, attempt);
+        }
+
+        [Fact]
+        public void when_sending_message_fails_transiently_multiple_times_then_fails()
+        {
+            var payload = Guid.NewGuid().ToString();
+
+            var currentDelegate = sut.DoBeginSendMessageDelegate;
+            sut.DoBeginSendMessageDelegate =
+                (mf, ac) =>
+                {
+                    throw new TimeoutException();
+                };
+
+            sut.SendAsync(() => new BrokeredMessage(payload));
+
+            var message = subscriptionClient.Receive(TimeSpan.FromSeconds(5));
+            Assert.Null(message);
+        }
+    }
+
+    public class TestableTopicSender : TopicSender
+    {
+        public TestableTopicSender(MessagingSettings settings, string topic, RetryStrategy retryStrategy)
+            : base(settings, topic, retryStrategy)
+        {
+            this.DoBeginSendMessageDelegate = base.DoBeginSendMessage;
+            this.DoEndSendMessageDelegate = base.DoEndSendMessage;
+        }
+
+        public Action<BrokeredMessage, AsyncCallback> DoBeginSendMessageDelegate;
+        public Action<IAsyncResult> DoEndSendMessageDelegate;
+
+        protected override void DoBeginSendMessage(BrokeredMessage messageFactory, AsyncCallback ac)
+        {
+            this.DoBeginSendMessageDelegate(messageFactory, ac);
+        }
+
+        protected override void DoEndSendMessage(IAsyncResult ar)
+        {
+            this.DoEndSendMessageDelegate(ar);
         }
     }
 }

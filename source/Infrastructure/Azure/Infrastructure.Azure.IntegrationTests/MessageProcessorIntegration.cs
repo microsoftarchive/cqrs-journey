@@ -40,7 +40,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             var stream = new MemoryStream();
             new JsonTextSerializer().Serialize(new StreamWriter(stream), "Foo");
             stream.Position = 0;
-            sender.SendAsync(new BrokeredMessage(stream, true));
+            sender.SendAsync(() => new BrokeredMessage(stream, true));
 
             waiter.Wait(5000);
 
@@ -72,7 +72,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             var stream = new MemoryStream();
             new JsonTextSerializer().Serialize(new StreamWriter(stream), "Foo");
             stream.Position = 0;
-            sender.SendAsync(new BrokeredMessage(stream, true));
+            sender.SendAsync(() => new BrokeredMessage(stream, true));
 
             waiter.Wait(5000);
 

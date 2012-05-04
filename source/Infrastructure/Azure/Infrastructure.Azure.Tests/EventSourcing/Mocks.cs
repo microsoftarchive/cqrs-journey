@@ -70,12 +70,12 @@ namespace Infrastructure.Azure.Tests.EventSourcing.Mocks
             this.ResetEvent.Set();
         }
 
-        void IMessageSender.SendAsync(BrokeredMessage message)
+        void IMessageSender.SendAsync(Func<BrokeredMessage> messageFactory)
         {
             throw new NotImplementedException();
         }
 
-        void IMessageSender.SendAsync(IEnumerable<BrokeredMessage> messages)
+        void IMessageSender.SendAsync(IEnumerable<Func<BrokeredMessage>> messageFactories)
         {
             throw new NotImplementedException();
         }

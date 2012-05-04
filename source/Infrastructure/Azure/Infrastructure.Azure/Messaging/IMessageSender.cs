@@ -30,11 +30,11 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Sends the specified message asynchronously.
         /// </summary>
-        void SendAsync(BrokeredMessage message);
+        void SendAsync(Func<BrokeredMessage> messageFactory);
 
         /// <summary>
         /// Sends a batch of messages asynchronously.
         /// </summary>
-        void SendAsync(IEnumerable<BrokeredMessage> messages);
+        void SendAsync(IEnumerable<Func<BrokeredMessage>> messageFactories);
     }
 }
