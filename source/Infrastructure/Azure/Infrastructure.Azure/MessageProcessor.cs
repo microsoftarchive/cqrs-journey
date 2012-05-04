@@ -14,10 +14,11 @@
 namespace Infrastructure.Azure
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Utils;
     using Infrastructure.Serialization;
-    using System.Diagnostics;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
@@ -25,6 +26,7 @@ namespace Infrastructure.Azure
     /// </summary>
     public abstract class MessageProcessor : IDisposable
     {
+        private const int MaxProcessingRetries = 5;
         private bool disposed;
         private bool started = false;
         private readonly IMessageReceiver receiver;
@@ -137,31 +139,22 @@ namespace Infrastructure.Azure
             }
             catch (Exception e)
             {
-                if (args.Message.DeliveryCount > 5)
+                if (args.Message.DeliveryCount > MaxProcessingRetries)
                 {
-                    message.BeginDeadLetter(e.Message, e.ToString(), ar =>
-                    {
-                        message.EndDeadLetter(ar);
-                        message.Dispose();
-                    }, null);
+                    Trace.TraceWarning("An error occurred while processing a new message and will be dead-lettered:\r\n{0}", e);
+                    message.SafeDeadLetter(e.Message, e.ToString());
                 }
                 else
                 {
-                    message.BeginAbandon(ar =>
-                    {
-                        message.EndAbandon(ar);
-                        message.Dispose();
-                    }, null);
+                    Trace.TraceWarning("An error occurred while processing a new message and will be abandoned:\r\n{0}", e);
+                    message.SafeAbandon();
                 }
 
                 return;
             }
 
-            message.BeginComplete(ar =>
-            {
-                message.EndComplete(ar);
-                message.Dispose();
-            }, null);
+            Trace.TraceInformation("The message has been processed and will be completed.");
+            message.SafeComplete();
         }
 
         private void ThrowIfDisposed()

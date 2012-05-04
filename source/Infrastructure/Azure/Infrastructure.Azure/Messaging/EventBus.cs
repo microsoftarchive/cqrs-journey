@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.Messaging
 {
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
@@ -45,9 +44,7 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void Publish(IEvent @event)
         {
-            var message = BuildMessage(@event);
-
-            this.sender.SendAsync(message);
+            this.sender.Send(() => BuildMessage(@event));
         }
 
         /// <summary>
@@ -55,9 +52,10 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void Publish(IEnumerable<IEvent> events)
         {
-            var messages = events.Select(this.BuildMessage);
-
-            this.sender.SendAsync(messages);
+            foreach (var @event in events)
+            {
+                this.Publish(@event);
+            }
         }
 
         private BrokeredMessage BuildMessage(IEvent @event)
