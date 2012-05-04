@@ -31,12 +31,14 @@ namespace Infrastructure.Azure.Messaging
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly MessagingSettings settings;
+        private readonly string topic;
+        private string subscription;
         private readonly object lockObject = new object();
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy initializationRetryPolicy;
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy receiveRetryPolicy;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
-        private string subscription;
+        private readonly NamespaceManager namespaceManager;
 
         /// <summary>
         /// Event raised whenever a message is received. Consumer of 
@@ -66,6 +68,7 @@ namespace Infrastructure.Azure.Messaging
         protected SubscriptionReceiver(MessagingSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy, RetryStrategy blockingRetryStrategy)
         {
             this.settings = settings;
+            this.topic = topic;
             this.subscription = subscription;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
@@ -74,7 +77,7 @@ namespace Infrastructure.Azure.Messaging
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
 
-            var manager = new NamespaceManager(this.serviceUri, this.tokenProvider);
+            this.namespaceManager = new NamespaceManager(this.serviceUri, this.tokenProvider);
 
             this.initializationRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(blockingRetryStrategy);
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
@@ -84,26 +87,9 @@ namespace Infrastructure.Azure.Messaging
                     Trace.TraceError("An error occurred in attempt number {1} to receive a message: {0}", e.LastException.Message, e.CurrentRetryCount);
                 };
 
-            try
-            {
-                var topicDescription =
-                    new TopicDescription(topic)
-                    {
-                        RequiresDuplicateDetection = true,
-                        DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30)
-                    };
 
-                this.initializationRetryPolicy.ExecuteAction(() => manager.CreateTopic(topicDescription));
-            }
-            catch (MessagingEntityAlreadyExistsException)
-            { }
-
-            try
-            {
-                this.initializationRetryPolicy.ExecuteAction(() => manager.CreateSubscription(topic, subscription));
-            }
-            catch (MessagingEntityAlreadyExistsException)
-            { }
+            this.initializationRetryPolicy.ExecuteAction(CreateTopicIfNotExists);
+            this.initializationRetryPolicy.ExecuteAction(CreateSubscriptionIfNotExists);
         }
 
         /// <summary>
@@ -206,6 +192,30 @@ namespace Infrastructure.Azure.Messaging
         protected virtual BrokeredMessage DoReceiveMessage()
         {
             return this.client.Receive(TimeSpan.FromSeconds(10));
+        }
+
+        private void CreateTopicIfNotExists()
+        {
+            var topicDescription =
+                new TopicDescription(this.topic)
+                {
+                    RequiresDuplicateDetection = true,
+                    DuplicateDetectionHistoryTimeWindow = TimeSpan.FromHours(1)
+                };
+            try
+            {
+                this.namespaceManager.CreateTopic(topicDescription);
+            }
+            catch (MessagingEntityAlreadyExistsException) { }
+        }
+
+        private void CreateSubscriptionIfNotExists()
+        {
+            try
+            {
+                this.namespaceManager.CreateSubscription(this.topic, this.subscription);
+            }
+            catch (MessagingEntityAlreadyExistsException) { }
         }
     }
 }
