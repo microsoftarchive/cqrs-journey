@@ -41,6 +41,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Handling;
     using Infrastructure.Sql.Messaging.Implementation;
+
 #else
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
@@ -151,6 +152,7 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
 
             container.RegisterType<IConferenceDao, ConferenceDao>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IOrderDao, OrderDao>(new ContainerControlledLifetimeManager());
             // handlers
 
             container.RegisterType<IEventHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
@@ -163,12 +165,16 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
 
             container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
-            container.RegisterType<IEventHandler, TotalledOrderViewModelGenerator>("TotalledOrderViewModelGenerator");
+            container.RegisterType<IEventHandler, PricedOrderViewModelGenerator>("PricedOrderViewModelGenerator");
             container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");
             container.RegisterType<IEventHandler, SeatAssignmentsViewModelGenerator>("SeatAssignmentsViewModelGenerator");
 
             container.RegisterType<ICommandHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
             container.RegisterType<IEventHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
+
+            // Conference management integration
+            container.RegisterType<global::Conference.ConferenceContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceManagement"));
+            container.RegisterType<IEventHandler, global::Conference.OrderEventHandler>("Conference.OrderEventHandler");
 
             return container;
         }

@@ -183,6 +183,8 @@
     <Content Include="Views\Conference\SeatGrid.cshtml" />
     <Content Include="Views\Conference\EditSeat.cshtml" />
     <Content Include="Views\Conference\Index.cshtml" />
+    <Content Include="Views\Conference\Orders.cshtml" />
+    <Content Include="Views\Conference\OrdersNavigation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">

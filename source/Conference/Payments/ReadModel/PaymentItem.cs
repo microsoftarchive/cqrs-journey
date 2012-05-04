@@ -11,28 +11,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference
+namespace Payments.ReadModel
 {
     using System;
     using System.ComponentModel.DataAnnotations;
 
-    public class SeatInfo
+    public class PaymentItem
     {
-        public SeatInfo()
+        public PaymentItem(Guid id, string description, decimal price)
         {
-            this.Id = Guid.NewGuid();
+            this.Id = id;
+            this.Description = description;
+            this.Price = price;
         }
 
-        public Guid Id { get; set; }
+        protected PaymentItem()
+        {
+        }
 
-        [Required(AllowEmptyStrings = false)]
-        public string Name { get; set; }
+        [Key]
+        public virtual Guid Id { get; private set; }
 
-        [Required(AllowEmptyStrings = false)]
-        public string Description { get; set; }
+        public virtual string Description { get; private set; }
 
-        public int Quantity { get; set; }
-
-        public decimal Price { get; set; }
+        public virtual decimal Price { get; private set; }
     }
 }

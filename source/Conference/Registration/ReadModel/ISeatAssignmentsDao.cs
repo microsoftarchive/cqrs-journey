@@ -20,6 +20,6 @@ namespace Registration.ReadModel
 {
     public interface ISeatAssignmentsDao
     {
-        SeatAssignmentsDTO Find(Guid orderId);
+        OrderSeats Find(Guid orderId);
     }
 }

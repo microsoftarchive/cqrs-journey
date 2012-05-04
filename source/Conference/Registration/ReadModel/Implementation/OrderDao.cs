@@ -15,22 +15,29 @@ namespace Registration.ReadModel.Implementation
 {
     using System;
     using System.Data.Entity;
+    using System.IO;
     using System.Linq;
+    using Infrastructure.Blob;
+    using Infrastructure.Serialization;
 
     public class OrderDao : IOrderDao
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private IBlobStorage blobStorage;
+        private ITextSerializer serializer;
 
-        public OrderDao(Func<ConferenceRegistrationDbContext> contextFactory)
+        public OrderDao(Func<ConferenceRegistrationDbContext> contextFactory, IBlobStorage blobStorage, ITextSerializer serializer)
         {
             this.contextFactory = contextFactory;
+            this.blobStorage = blobStorage;
+            this.serializer = serializer;
         }
 
-        public OrderDTO GetOrderDetails(Guid orderId)
+        public DraftOrder GetDraftOrder(Guid orderId)
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<OrderDTO>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+                return repository.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
 
@@ -39,7 +46,7 @@ namespace Registration.ReadModel.Implementation
             using (var repository = this.contextFactory.Invoke())
             {
                 var orderProjection = repository
-                    .Query<OrderDTO>()
+                    .Query<DraftOrder>()
                     .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
                     .Select(o => new { o.OrderId })
                     .FirstOrDefault();
@@ -53,11 +60,24 @@ namespace Registration.ReadModel.Implementation
             }
         }
 
-        public TotalledOrder GetTotalledOrder(Guid orderId)
+        public PricedOrder GetPricedOrder(Guid orderId)
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                return repository.Query<TotalledOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+                return repository.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+            }
+        }
+
+        public OrderSeats FindOrderSeats(Guid assignmentsId)
+        {
+            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
+            if (blob == null)
+                return null;
+
+            using (var stream = new MemoryStream(blob))
+            using (var reader = new StreamReader(stream))
+            {
+                return (OrderSeats)this.serializer.Deserialize(reader);
             }
         }
     }

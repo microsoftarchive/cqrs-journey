@@ -11,20 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Registration.ReadModel
 {
     using System;
-    using Infrastructure.EventSourcing;
-    using System.Collections.Generic;
 
-    public class SeatAssignmentsCreated : VersionedEvent
+    public class ConferenceAlias
     {
-        public class SeatAssignmentInfo
-        {
-            public int Position { get; set; }
-            public Guid SeatType { get; set; }
-        }
-
-        public IEnumerable<SeatAssignmentInfo> Seats { get; set; }
+        public Guid Id { get; set; }
+        public string Code { get; set; }
+        public string Name { get; set; }
     }
 }

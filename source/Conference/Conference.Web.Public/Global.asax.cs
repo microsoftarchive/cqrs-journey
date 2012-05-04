@@ -102,7 +102,6 @@ namespace Conference.Web.Public
             container.RegisterType<IOrderDao, OrderDao>();
             container.RegisterType<IConferenceDao, ConferenceDao>();
             container.RegisterType<IPaymentDao, PaymentDao>();
-            container.RegisterType<ISeatAssignmentsDao, SeatAssignmentsDao>();
 
             return container;
         }

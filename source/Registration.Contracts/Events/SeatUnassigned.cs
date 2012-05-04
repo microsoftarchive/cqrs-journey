@@ -11,14 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Events
 {
     using System;
+    using Infrastructure.EventSourcing;
 
-    public class ConferenceAliasDTO
+    public class SeatUnassigned : VersionedEvent
     {
-        public Guid Id { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
+        public SeatUnassigned(Guid sourceId)
+        {
+            this.SourceId = sourceId;
+        }
+
+        public Guid OrderId { get; set; }
+        public int Position { get; set; }
+        public Guid SeatType { get; set; }
     }
 }

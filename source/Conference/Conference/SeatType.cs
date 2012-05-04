@@ -11,23 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace Conference
 {
     using System;
-    using Infrastructure.EventSourcing;
+    using System.ComponentModel.DataAnnotations;
 
-    public class SeatAssigned : VersionedEvent
+    public class SeatType
     {
-        public SeatAssigned(Guid sourceId)
+        public SeatType()
         {
-            this.SourceId = sourceId;
+            this.Id = Guid.NewGuid();
         }
 
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
+        public Guid Id { get; set; }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        [Required(AllowEmptyStrings = false)]
+        public string Name { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        public string Description { get; set; }
+
+        public int Quantity { get; set; }
+
+        public decimal Price { get; set; }
     }
 }

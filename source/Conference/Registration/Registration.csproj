@@ -65,59 +65,43 @@
     <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
     <Compile Include="Database\SeatsAvailabilityRepository.cs" />
-    <Compile Include="Events\SeatAssigned.cs" />
-    <Compile Include="Events\SeatUnassigned.cs" />
-    <Compile Include="Events\SeatAssignmentUpdated.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
-    <Compile Include="Events\SeatAssignmentsCreated.cs" />
     <Compile Include="Events\SeatsReservationCancelled.cs" />
     <Compile Include="Events\SeatsReservationCommitted.cs" />
-    <Compile Include="Events\OrderPaymentConfirmed.cs" />
-    <Compile Include="Events\OrderExpired.cs" />
-    <Compile Include="Events\OrderPartiallyReserved.cs" />
-    <Compile Include="Events\OrderRegistrantAssigned.cs" />
-    <Compile Include="Events\OrderReservationCompleted.cs" />
-    <Compile Include="Events\OrderUpdated.cs" />
     <Compile Include="Events\SeatsReserved.cs" />
     <Compile Include="Handlers\ConferenceViewModelGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
     <Compile Include="Handlers\OrderViewModelGenerator.cs" />
     <Compile Include="Handlers\SeatAssignmentsHandler.cs" />
     <Compile Include="Handlers\SeatAssignmentsViewModelGenerator.cs" />
-    <Compile Include="Handlers\TotalledOrderViewModelGenerator.cs" />
+    <Compile Include="Handlers\PricedOrderViewModelGenerator.cs" />
     <Compile Include="IPricingService.cs" />
-    <Compile Include="Events\OrderTotalsCalculated.cs" />
-    <Compile Include="OrderLine.cs" />
     <Compile Include="OrderTotal.cs" />
     <Compile Include="PricingService.cs" />
-    <Compile Include="ReadModel\ConferenceAliasDTO.cs" />
-    <Compile Include="ReadModel\Implementation\SeatAssignmentsDao.cs" />
-    <Compile Include="ReadModel\SeatAssignmentDTO.cs" />
+    <Compile Include="ReadModel\ConferenceAlias.cs" />
+    <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
-    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceDao.cs" />
     <Compile Include="ReadModel\IConferenceDao.cs" />
-    <Compile Include="ReadModel\ConferenceDescriptionDTO.cs" />
-    <Compile Include="ReadModel\ISeatAssignmentsDao.cs" />
-    <Compile Include="ReadModel\TotalledOrder.cs" />
-    <Compile Include="ReadModel\SeatAssignmentsDTO.cs" />
+    <Compile Include="ReadModel\ConferenceDetails.cs" />
+    <Compile Include="ReadModel\PricedOrder.cs" />
+    <Compile Include="ReadModel\OrderSeats.cs" />
+    <Compile Include="ReadModel\SeatTypeName.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
     <Compile Include="Order.cs" />
-    <Compile Include="Events\OrderPlaced.cs" />
     <Compile Include="OrderItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\RegisterToConference.cs" />
-    <Compile Include="ReadModel\ConferenceDTO.cs" />
-    <Compile Include="ReadModel\ConferenceSeatTypeDTO.cs" />
-    <Compile Include="ReadModel\OrderDTO.cs" />
-    <Compile Include="ReadModel\OrderItemDTO.cs" />
+    <Compile Include="ReadModel\Conference.cs" />
+    <Compile Include="ReadModel\SeatType.cs" />
+    <Compile Include="ReadModel\DraftOrder.cs" />
+    <Compile Include="ReadModel\DraftOrderItem.cs" />
     <Compile Include="RegistrationProcess.cs" />
     <Compile Include="Reservation.cs" />
     <Compile Include="SeatAssignments.cs" />
-    <Compile Include="SeatQuantity.cs" />
     <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +115,10 @@
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
+      <Name>Registration.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\Conference.Common\Conference.Common.csproj">
       <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>

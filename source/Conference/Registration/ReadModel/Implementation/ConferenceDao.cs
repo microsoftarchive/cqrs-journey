@@ -26,48 +26,64 @@ namespace Registration.ReadModel.Implementation
             this.contextFactory = contextFactory;
         }
 
-        public ConferenceDescriptionDTO GetDescription(string conferenceCode)
+        public ConferenceDetails GetConferenceDetails(string conferenceCode)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository
-                    .Query<ConferenceDTO>()
+                return context
+                    .Query<Conference>()
                     .Where(dto => dto.Code == conferenceCode)
-                    .Select(x => new ConferenceDescriptionDTO { Id = x.Id, Code = x.Code, Name = x.Name, Description = x.Description, StartDate = x.StartDate })
+                    .Select(x => new ConferenceDetails { Id = x.Id, Code = x.Code, Name = x.Name, Description = x.Description, StartDate = x.StartDate })
                     .FirstOrDefault();
             }
         }
 
-        public ConferenceAliasDTO GetConferenceAlias(string conferenceCode)
+        public ConferenceAlias GetConferenceAlias(string conferenceCode)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository
-                    .Query<ConferenceDTO>()
+                return context
+                    .Query<Conference>()
                     .Where(dto => dto.Code == conferenceCode)
-                    .Select(x => new ConferenceAliasDTO { Id = x.Id, Code = x.Code, Name = x.Name })
+                    .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name })
                     .FirstOrDefault();
             }
         }
 
-        public IList<ConferenceAliasDTO> GetPublishedConferences()
+        public IList<ConferenceAlias> GetPublishedConferences()
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                return repository
-                    .Query<ConferenceDTO>()
+                return context
+                    .Query<Conference>()
                     .Where(dto => dto.IsPublished)
-                    .Select(x => new ConferenceAliasDTO { Id = x.Id, Code = x.Code, Name = x.Name })
+                    .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name })
                     .ToList();
             }
         }
 
-        public IList<ConferenceSeatTypeDTO> GetPublishedSeatTypes(Guid conferenceId)
+        public IList<SeatType> GetPublishedSeatTypes(Guid conferenceId)
         {
-            using (var repository = this.contextFactory.Invoke())
+            using (var context = this.contextFactory.Invoke())
             {
-                // NOTE: If the ConferenceSeatTypeDTO had the ConferenceId property exposed, this query should be simpler. Why do we need to hide the FKs in the read model?
-                return repository.Query<ConferenceDTO>().Where(c => c.Id == conferenceId).Select(c => c.Seats).FirstOrDefault().ToList();
+                return context.Query<SeatType>()
+                    .Where(c => c.ConferenceId == conferenceId)
+                    .ToList();
+            }
+        }
+
+        public IList<SeatTypeName> GetSeatTypeNames(IEnumerable<Guid> seatTypes)
+        {
+            var distinctIds = seatTypes.Distinct().ToArray();
+            if (distinctIds.Length == 0)
+                return new List<SeatTypeName>();
+
+            using (var context = this.contextFactory.Invoke())
+            {
+                return context.Query<SeatType>()
+                    .Where(x => distinctIds.Contains(x.Id))
+                    .Select(s => new SeatTypeName { Id = s.Id, Name = s.Name })
+                    .ToList();
             }
         }
     }

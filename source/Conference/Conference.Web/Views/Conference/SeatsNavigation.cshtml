@@ -4,6 +4,6 @@
     @Html.ActionLink("Conference Details", "Index", new { slug = ViewBag.Slug }) | 
     <strong>@Html.ActionLink("Seat Types", "Seats", new { slug = ViewBag.Slug })</strong> | 
     <a href="#">Venue Details</a> |
-    <a href="#">Registrations</a> |
+    @Html.ActionLink("Registrations", "Orders", new { slug = ViewBag.Slug }) |
     <a href="#">Sessions</a>
 </div>

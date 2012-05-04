@@ -1,4 +1,4 @@
-﻿@model Registration.ReadModel.ConferenceDescriptionDTO
+﻿@model Registration.ReadModel.ConferenceDetails
 @{
     ViewBag.Title = Model.Name;
 }
@@ -72,9 +72,9 @@
             <div class="content-main__header"></div>
             <a class="tile tile_register" href="@Url.Action("StartRegistration", "Registration")">
                 <span class="tile__header">Register <i></i></span>
-                <span class="tile__note">Only <strong>50 seats available</strong>!<br>
+@*                <span class="tile__note">Only <strong>50 seats available</strong>!<br>
                     Register by March 25 //TODO
-                </span>
+                </span>*@
             </a>
         </div>
         <div class="content-main__extra">

@@ -11,25 +11,21 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.Events
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using Infrastructure.EventSourcing;
 
-    public class SeatAssignmentsDTO
+    public class SeatAssignmentsCreated : VersionedEvent
     {
-        public SeatAssignmentsDTO()
+        public class SeatAssignmentInfo
         {
+            public int Position { get; set; }
+            public Guid SeatType { get; set; }
         }
 
-        public SeatAssignmentsDTO(Guid id, IEnumerable<SeatAssignmentDTO> seats)
-        {
-            this.Id = id;
-            this.Seats = seats.ToList();
-        }
-
-        public Guid Id { get; set; }
-        public IList<SeatAssignmentDTO> Seats { get; set; }
+        public Guid OrderId { get; set; }
+        public IEnumerable<SeatAssignmentInfo> Seats { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace Conference.Web.Public.Controllers
 
         public ActionResult Display(string conferenceCode)
         {
-            var conference = this.dao.GetDescription(conferenceCode);
+            var conference = this.dao.GetConferenceDetails(conferenceCode);
 
             // Reply with 404 if not found?
             //if (conference == null)

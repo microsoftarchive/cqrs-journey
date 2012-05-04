@@ -14,78 +14,78 @@
 namespace Conference.Web.Public.Controllers
 {
     using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Web.Mvc;
-    using Registration.ReadModel;
     using System.Collections.Generic;
-    using Registration.Commands;
+    using System.Linq;
+    using System.Web.Mvc;
     using AutoMapper;
     using Infrastructure.Messaging;
+    using Registration.Commands;
+    using Registration.ReadModel;
 
-    public class OrderController : Controller
+    public class OrderController : ConferenceTenantController
     {
         private readonly IOrderDao orderDao;
-        private readonly ISeatAssignmentsDao assignmentsDao;
         private readonly ICommandBus bus;
 
         static OrderController()
         {
-            Mapper.CreateMap<SeatAssignmentDTO, AssignSeat>();
+            Mapper.CreateMap<OrderSeat, AssignSeat>();
         }
 
-        public OrderController(IOrderDao orderDao, ISeatAssignmentsDao assignmentsDao, ICommandBus bus)
+        public OrderController(IConferenceDao conferenceDao, IOrderDao orderDao, ICommandBus bus)
+            : base(conferenceDao)
         {
             this.orderDao = orderDao;
-            this.assignmentsDao = assignmentsDao;
             this.bus = bus;
         }
 
         [HttpGet]
-        public ActionResult Display(string conferenceCode, Guid orderId)
+        public ActionResult Display(Guid orderId)
         {
-            var order = orderDao.GetTotalledOrder(orderId);
+            var order = orderDao.GetPricedOrder(orderId);
             if (order == null)
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             return View(order);
         }
 
         [HttpGet]
         [OutputCache(Duration = 0)]
-        public ActionResult AssignSeats(string conferenceCode, Guid orderId)
+        public ActionResult AssignSeats(Guid orderId)
         {
-            var assignments = assignmentsDao.Find(orderId);
+            var assignments = this.orderDao.FindOrderSeats(orderId);
             if (assignments == null)
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             return View(assignments);
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(string conferenceCode, Guid orderId, List<SeatAssignmentDTO> seats)
+        public ActionResult AssignSeats(Guid orderId, Guid assignmentsId, List<OrderSeat> seats)
         {
-            var saved = assignmentsDao.Find(orderId);
+            var saved = this.orderDao.FindOrderSeats(orderId);
             if (saved == null)
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
             var pairs = seats
                 .Select(dto => new { Saved = saved.Seats.FirstOrDefault(x => x.Position == dto.Position), New = dto })
-                // Ignore posted seats that we don't have saved already.
+                // Ignore posted seats that we don't have saved already: pair.Saved == null
+                // This may be because the client sent mangled or incorrect data so we couldn't 
+                // find a matching saved seat.
+                // Also, if pair.New is null, it's because it's an invalid null entry 
+                // in the list of seats, so we ignore that too.
                 .Where(pair => pair.Saved != null && pair.New != null)
                 // Only process those where they don't remain unassigned.
-                .Where(pair => pair.Saved.Email != null || pair.New.Email != null)
+                .Where(pair => pair.Saved.Attendee.Email != null || pair.New.Attendee.Email != null)
                 .ToList();
 
             var unassigned = pairs
-                .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Email) && string.IsNullOrWhiteSpace(x.New.Email))
+                .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Attendee.Email) && string.IsNullOrWhiteSpace(x.New.Attendee.Email))
                 .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = orderId, Position = x.Saved.Position });
 
             var changed = pairs
-                .Where(x => !string.Equals(x.Saved.Email, x.New.Email, StringComparison.InvariantCultureIgnoreCase)
-                            || !string.Equals(x.Saved.FirstName, x.New.FirstName, StringComparison.CurrentCulture)
-                            || !string.Equals(x.Saved.LastName, x.New.LastName, StringComparison.CurrentCulture))
-                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = orderId }));
+                .Where(x => x.Saved.Attendee != x.New.Attendee)
+                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = assignmentsId }));
 
             var commands = unassigned.Union(changed).ToList();
             if (commands.Count > 0)
@@ -97,23 +97,23 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        public ActionResult Find(string conferenceCode)
+        public ActionResult Find()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult Find(string conferenceCode, string email, string accessCode)
+        public ActionResult Find(string email, string accessCode)
         {
             var orderId = orderDao.LocateOrder(email, accessCode);
 
             if (!orderId.HasValue)
             {
                 // TODO: 404?
-                return RedirectToAction("Find", new { conferenceCode = conferenceCode });
+                return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
             }
 
-            return RedirectToAction("Display", new { conferenceCode = conferenceCode, orderId = orderId.Value });
+            return RedirectToAction("Display", new { conferenceCode = this.ConferenceCode, orderId = orderId.Value });
         }
     }
 }

@@ -14,24 +14,36 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
-    public class SeatAssignmentDTO
+    public class PricedOrder
     {
-        public SeatAssignmentDTO()
+        public PricedOrder()
         {
+            this.Lines = new ObservableCollection<PricedOrderLine>();
         }
 
-        public SeatAssignmentDTO(int position, Guid seatType)
+        [Key]
+        public Guid OrderId { get; set; }
+        public IList<PricedOrderLine> Lines { get; set; }
+        public decimal Total { get; set; }
+    }
+
+    public class PricedOrderLine
+    {
+        public PricedOrderLine()
         {
-            this.Position = position;
-            this.SeatType = seatType;
+            this.LineId = Guid.NewGuid();
         }
 
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
-
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+        [Key]
+        public Guid LineId { get; set; }
+        public Guid OrderId { get; set; }
+        public string Description { get; set; }
+        public decimal UnitPrice { get; set; }
+        public int Quantity { get; set; }
+        public decimal LineTotal { get; set; }
     }
 }

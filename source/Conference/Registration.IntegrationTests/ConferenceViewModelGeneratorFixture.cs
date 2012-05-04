@@ -84,7 +84,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 
             using (var context = new ConferenceRegistrationDbContext(dbName))
             {
-                var dto = context.Find<ConferenceDTO>(conferenceId);
+                var dto = context.Find<Conference>(conferenceId);
 
                 Assert.NotNull(dto);
                 Assert.Equal("name", dto.Name);
@@ -138,7 +138,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 
             using (var context = new ConferenceRegistrationDbContext(dbName))
             {
-                var dto = context.Find<ConferenceDTO>(conferenceId);
+                var dto = context.Find<Conference>(conferenceId);
 
                 Assert.NotNull(dto);
                 Assert.Equal("newname", dto.Name);
@@ -165,7 +165,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 
             using (var context = new ConferenceRegistrationDbContext(dbName))
             {
-                var dto = context.Set<ConferenceDTO>()
+                var dto = context.Set<Conference>()
                     .Where(x => x.Id == conferenceId)
                     .SelectMany(x => x.Seats)
                     .FirstOrDefault(x => x.Id == seatId);
@@ -226,7 +226,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 
             using (var context = new ConferenceRegistrationDbContext(dbName))
             {
-                var dto = context.Set<ConferenceDTO>()
+                var dto = context.Set<Conference>()
                     .Where(x => x.Id == conferenceId)
                     .SelectMany(x => x.Seats)
                     .FirstOrDefault(x => x.Id == seatId);

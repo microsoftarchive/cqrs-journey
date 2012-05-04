@@ -1,4 +1,4 @@
-﻿@model Registration.ReadModel.SeatAssignmentsDTO
+﻿@model Registration.ReadModel.OrderSeats
 @{
     ViewBag.Title = "Assign Seats";
 }
@@ -11,7 +11,8 @@
                 {
                     <div class="content-main__header">Seat assignment</div>
                     <div class="content">
-                        @Html.Hidden("OrderId")
+                        @Html.Hidden("assignmentsId", this.Model.Id)
+                        @Html.HiddenFor(model => model.OrderId)
                         <p>
                             Please assign your purchased seats to the attendees.</p>
                         <h3>
@@ -29,17 +30,16 @@
                                     <td>
                                         @Html.HiddenFor(model => model.Seats[i].Position)
                                         <!-- TODO: grab the seat type name from somewhere? -->
-                                        @Html.DisplayFor(model => model.Seats[i].SeatType)
-                                        @Html.HiddenFor(model => model.Seats[i].SeatType)
+                                        @Html.DisplayFor(model => model.Seats[i].SeatName)
                                     </td>
                                     <td>
-                                        @Html.EditorFor(model => model.Seats[i].FirstName)
+                                        @Html.EditorFor(model => model.Seats[i].Attendee.FirstName)
                                     </td>
                                     <td>
-                                        @Html.EditorFor(model => model.Seats[i].LastName)
+                                        @Html.EditorFor(model => model.Seats[i].Attendee.LastName)
                                     </td>
                                     <td>
-                                        @Html.EditorFor(model => model.Seats[i].Email)
+                                        @Html.EditorFor(model => model.Seats[i].Attendee.Email)
                                     </td>
                                 </tr>
                             }

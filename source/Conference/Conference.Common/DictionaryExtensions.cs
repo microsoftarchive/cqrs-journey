@@ -11,19 +11,32 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Events
+namespace System.Collections.Generic
 {
-    using System;
-    using Infrastructure.EventSourcing;
-
-    public class SeatUnassigned : VersionedEvent
+    /// <summary>
+    /// Usability extensions for dictionaries.
+    /// </summary>
+    public static class DictionaryExtensions
     {
-        public SeatUnassigned(Guid sourceId)
+        /// <summary>
+        /// Gets an item from the dictionary, if it's found.
+        /// </summary>
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
-            this.SourceId = sourceId;
+            return dictionary.TryGetValue(key, default(TValue));
         }
 
-        public int Position { get; set; }
-        public Guid SeatType { get; set; }
+        /// <summary>
+        /// Gets an item from the dictionary, if it's found. Otherwise, 
+        /// returns the specified default value.
+        /// </summary>
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
+        {
+            var result = defaultValue;
+            if (!dictionary.TryGetValue(key, out result))
+                return defaultValue;
+
+            return result;
+        }
     }
 }

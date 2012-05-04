@@ -14,23 +14,31 @@
 namespace Registration.ReadModel
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
 
-    public class OrderItemDTO
+    public class SeatType
     {
-        public OrderItemDTO(Guid seatType, int requestedSeats)
+        public SeatType(Guid id, Guid conferenceId, string name, string description, decimal price, int quantity)
         {
-            this.Id = Guid.NewGuid();
-            this.SeatType = seatType;
-            this.RequestedSeats = requestedSeats;
+            this.Id = id;
+            this.ConferenceId = conferenceId;
+            this.Name = name;
+            this.Description = description;
+            this.Price = price;
+            this.Quantity = quantity;
         }
 
-        protected OrderItemDTO()
+        protected SeatType()
         {
         }
 
-        public Guid Id { get; private set; }
-        public Guid SeatType { get; set; }
-        public int RequestedSeats { get; set; }
-        public int ReservedSeats { get; set; }
+        [Key]
+        public Guid Id { get; set; }
+        public Guid ConferenceId { get; set; }
+
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
     }
 }
