@@ -50,7 +50,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpGet]
-        [OutputCache(Duration = 0)]
+        [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult AssignSeats(Guid orderId)
         {
             var assignments = this.orderDao.FindOrderSeats(orderId);
