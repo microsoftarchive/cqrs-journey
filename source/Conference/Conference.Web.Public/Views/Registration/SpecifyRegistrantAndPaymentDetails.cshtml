@@ -1,4 +1,5 @@
 ﻿@model Conference.Web.Public.Models.RegistrationViewModel
+
 @{
     ViewBag.Title = "Register to " + ViewBag.Conference.Name;
 }
@@ -6,10 +7,8 @@
 {
 }
 
-<h1 class="page__head page__wrapper"> @*TODO extract into partial view*@
-    @ViewBag.Conference.Name
-    <br /><span class="page__head-note">(Experience & Practice)</span>
-</h1>
+@ConferenceHelpers.ConferenceTitle(ViewBag.Conference.Name)
+
 <div class="page__content">
     <div class="page__wrapper content-main content-main_register">
         <div class="content-main__wrapper">
