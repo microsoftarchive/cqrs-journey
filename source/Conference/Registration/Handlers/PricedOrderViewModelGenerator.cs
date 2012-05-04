@@ -16,13 +16,15 @@ namespace Registration.Handlers
     using System;
     using System.Data.Entity;
     using System.Linq;
-    using System.Threading;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
-    public class PricedOrderViewModelGenerator : IEventHandler<OrderTotalsCalculated>, IEventHandler<OrderExpired>
+    public class PricedOrderViewModelGenerator :
+        IEventHandler<OrderTotalsCalculated>,
+        IEventHandler<OrderExpired>,
+        IEventHandler<SeatAssignmentsCreated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
         private IConferenceDao conferenceDao;
@@ -79,6 +81,7 @@ namespace Registration.Handlers
                 context.SaveChanges();
             }
         }
+
         public void Handle(OrderExpired @event)
         {
             // No need to keep this priced order alive if it is expired.
@@ -88,6 +91,22 @@ namespace Registration.Handlers
                 if (dto != null)
                 {
                     context.Set<PricedOrder>().Remove(dto);
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves the seat assignments correlation ID for further lookup.
+        /// </summary>
+        public void Handle(SeatAssignmentsCreated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrder>(@event.OrderId);
+                if (dto != null)
+                {
+                    dto.AssignmentsId = @event.SourceId;
                     context.SaveChanges();
                 }
             }

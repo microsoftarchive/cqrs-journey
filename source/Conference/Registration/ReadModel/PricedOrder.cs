@@ -27,6 +27,12 @@ namespace Registration.ReadModel
 
         [Key]
         public Guid OrderId { get; set; }
+
+        /// <summary>
+        /// Used for correlating with the seat assigmnents.
+        /// </summary>
+        public Guid? AssignmentsId { get; set; }
+
         public IList<PricedOrderLine> Lines { get; set; }
         public decimal Total { get; set; }
         public int OrderVersion { get; set; }

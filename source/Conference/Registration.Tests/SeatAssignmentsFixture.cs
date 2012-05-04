@@ -89,7 +89,6 @@ namespace Registration.Tests.SeatAssignmentsFixture
             },
             new SeatAssigned(assigmentsId)
             {
-                OrderId = orderId,
                 Position = 0,
                 SeatType = seatType,
                 Attendee = new PersonalInfo
@@ -120,7 +119,6 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var @event = sut.ThenHasSingle<SeatAssigned>();
 
             Assert.Equal(1, @event.Position);
-            Assert.Equal(orderId, @event.OrderId);
             Assert.Equal(seatType, @event.SeatType);
             Assert.Equal(assigmentsId, @event.SourceId);
             Assert.Equal(command.Attendee, @event.Attendee);
@@ -139,8 +137,6 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var @event = sut.ThenHasSingle<SeatUnassigned>();
 
             Assert.Equal(0, @event.Position);
-            Assert.Equal(orderId, @event.OrderId);
-            Assert.Equal(seatType, @event.SeatType);
             Assert.Equal(assigmentsId, @event.SourceId);
         }
 
@@ -176,14 +172,11 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var unassign = sut.ThenHasOne<SeatUnassigned>();
 
             Assert.Equal(0, unassign.Position);
-            Assert.Equal(orderId, unassign.OrderId);
-            Assert.Equal(seatType, unassign.SeatType);
             Assert.Equal(assigmentsId, unassign.SourceId);
 
             var assign = sut.ThenHasOne<SeatAssigned>();
 
             Assert.Equal(0, assign.Position);
-            Assert.Equal(orderId, assign.OrderId);
             Assert.Equal(seatType, assign.SeatType);
             Assert.Equal(assigmentsId, assign.SourceId);
             Assert.Equal(command.Attendee, assign.Attendee);
@@ -208,8 +201,6 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var assign = sut.ThenHasSingle<SeatAssignmentUpdated>();
 
             Assert.Equal(0, assign.Position);
-            Assert.Equal(orderId, assign.OrderId);
-            Assert.Equal(seatType, assign.SeatType);
             Assert.Equal(assigmentsId, assign.SourceId);
             Assert.Equal(command.Attendee, assign.Attendee);
         }
