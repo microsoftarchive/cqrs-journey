@@ -16,6 +16,7 @@ namespace Registration.Handlers
     using System;
     using System.Data.Entity;
     using System.Linq;
+    using System.Threading;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
     using Registration.ReadModel;
@@ -73,13 +74,14 @@ namespace Registration.Handlers
                 }
 
                 dto.Total = @event.Total;
+                dto.OrderVersion = @event.Version;
 
                 context.SaveChanges();
             }
         }
         public void Handle(OrderExpired @event)
         {
-            // No need to keep this totalled order alive if it is expired.
+            // No need to keep this priced order alive if it is expired.
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<PricedOrder>(@event.SourceId);

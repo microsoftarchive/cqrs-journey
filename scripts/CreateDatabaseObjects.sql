@@ -74,6 +74,7 @@ GO
 CREATE TABLE [ConferenceRegistration].[PricedOrders](
 	[OrderId] [uniqueidentifier] NOT NULL,
 	[Total] [decimal](18, 2) NOT NULL,
+	[OrderVersion] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[OrderId] ASC
