@@ -51,9 +51,9 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0, NoStore = true)]
-        public ActionResult AssignSeats(Guid orderId)
+        public ActionResult AssignSeats(Guid assignmentsId)
         {
-            var assignments = this.orderDao.FindOrderSeats(orderId);
+            var assignments = this.orderDao.FindOrderSeats(assignmentsId);
             if (assignments == null)
                 return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
@@ -61,9 +61,9 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(Guid orderId, List<OrderSeat> seats)
+        public ActionResult AssignSeats(Guid assignmentsId, List<OrderSeat> seats)
         {
-            var saved = this.orderDao.FindOrderSeats(orderId);
+            var saved = this.orderDao.FindOrderSeats(assignmentsId);
             if (saved == null)
                 return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 
@@ -98,7 +98,7 @@ namespace Conference.Web.Public.Controllers
                 this.bus.Send(commands);
             }
 
-            return RedirectToAction("Display");
+            return RedirectToAction("Display", new { orderId = saved.OrderId });
         }
 
         [HttpGet]

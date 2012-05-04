@@ -68,22 +68,9 @@ namespace Registration.ReadModel.Implementation
             }
         }
 
-        public OrderSeats FindOrderSeats(Guid orderId)
+        public OrderSeats FindOrderSeats(Guid assignmentsId)
         {
-            Guid? assignmentsId = null;
-            using (var context = this.contextFactory.Invoke())
-            {
-                // Grab the correlation ID from the order.
-                assignmentsId = (from order in context.Query<PricedOrder>()
-                                 where order.OrderId == orderId
-                                 select order.AssignmentsId)
-                                .FirstOrDefault();
-            }
-
-            if (assignmentsId == null)
-                return null;
-
-            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId.Value);
+            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
             if (blob == null)
                 return null;
 
