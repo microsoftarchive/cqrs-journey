@@ -16,7 +16,6 @@ namespace Infrastructure.Azure.Messaging
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
@@ -45,14 +44,15 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         public void Send(Envelope<ICommand> command)
         {
-            this.sender.SendAsync(() => BuildMessage(command));
+            this.sender.Send(() => BuildMessage(command));
         }
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
-            var messageFactories = commands.Select<Envelope<ICommand>, Func<BrokeredMessage>>(command => () => BuildMessage(command));
-
-            this.sender.SendAsync(messageFactories);
+            foreach (var command in commands)
+            {
+                this.Send(command);
+            }
         }
 
         private BrokeredMessage BuildMessage(Envelope<ICommand> command)
