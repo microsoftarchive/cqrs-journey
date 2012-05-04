@@ -1,6 +1,7 @@
 ﻿@{
     ViewBag.Title = "Reservation for " + ViewBag.Conference.Name + "has expired";
 }
+@ConferenceHelpers.ConferenceTitle(ViewBag.Conference.Name)
 <h2 class="page__head page__wrapper">
     Your order has expired</h2>
 <div class="page__content">
