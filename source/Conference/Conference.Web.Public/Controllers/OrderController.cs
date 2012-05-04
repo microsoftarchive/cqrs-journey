@@ -61,7 +61,7 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult AssignSeats(Guid orderId, Guid assignmentsId, List<OrderSeat> seats)
+        public ActionResult AssignSeats(Guid orderId, List<OrderSeat> seats)
         {
             var saved = this.orderDao.FindOrderSeats(orderId);
             if (saved == null)
@@ -80,13 +80,17 @@ namespace Conference.Web.Public.Controllers
                 .Where(pair => pair.Saved.Attendee.Email != null || pair.New.Attendee.Email != null)
                 .ToList();
 
+            // NOTE: in the read model, we care about the OrderId, 
+            // but the write side uses a different AR id for the seat 
+            // assignments, so we pass that on when we issue commands.
+
             var unassigned = pairs
                 .Where(x => !string.IsNullOrWhiteSpace(x.Saved.Attendee.Email) && string.IsNullOrWhiteSpace(x.New.Attendee.Email))
-                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = assignmentsId, Position = x.Saved.Position });
+                .Select(x => (ICommand)new UnassignSeat { SeatAssignmentsId = saved.AssignmentsId, Position = x.Saved.Position });
 
             var changed = pairs
                 .Where(x => x.Saved.Attendee != x.New.Attendee && x.New.Attendee.Email != null)
-                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = assignmentsId }));
+                .Select(x => (ICommand)Mapper.Map(x.New, new AssignSeat { SeatAssignmentsId = saved.AssignmentsId }));
 
             var commands = unassigned.Union(changed).ToList();
             if (commands.Count > 0)

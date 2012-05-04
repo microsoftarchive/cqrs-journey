@@ -136,7 +136,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
             // Arrange
             this.orderSeats = new OrderSeats
             {
-                Id = Guid.NewGuid(),
+                AssignmentsId = Guid.NewGuid(),
                 OrderId = Guid.NewGuid(),
                 Seats =
                 {
@@ -184,7 +184,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         public void when_assigning_seats_non_existent_order_id_then_redirects_to_find()
         {
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(Guid.NewGuid(), Guid.NewGuid(), new List<OrderSeat>());
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(Guid.NewGuid(), new List<OrderSeat>());
 
             // Assert
             Assert.NotNull(result);
@@ -196,9 +196,8 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         [Fact]
         public void when_seat_assigned_then_sends_assign_command()
         {
-            var assignmentsId = Guid.NewGuid();
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, assignmentsId, new List<OrderSeat>
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, new List<OrderSeat>
                 {
                     new OrderSeat(1, "Precon") 
                     { 
@@ -216,7 +215,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
             Assert.Equal("Display", result.RouteValues["action"]);
 
             var cmd = this.commands.OfType<AssignSeat>().Single();
-            Assert.Equal(assignmentsId, cmd.SeatAssignmentsId);
+            Assert.Equal(this.orderSeats.AssignmentsId, cmd.SeatAssignmentsId);
             Assert.Equal(1, cmd.Position);
             Assert.Equal("a@a.com", cmd.Attendee.Email);
             Assert.Equal("A", cmd.Attendee.FirstName);
@@ -226,11 +225,8 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         [Fact]
         public void when_invalid_position_seat_assigned_then_ignores_it()
         {
-            // Arrange
-            var assignmentsId = Guid.NewGuid();
-
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, assignmentsId, new List<OrderSeat>
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, new List<OrderSeat>
                 {
                     new OrderSeat(5, "Precon") 
                     { 
@@ -253,11 +249,8 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         [Fact]
         public void when_null_seat_assigned_then_ignores_it()
         {
-            // Arrange
-            var assignmentsId = Guid.NewGuid();
-
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, assignmentsId, new List<OrderSeat>
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, new List<OrderSeat>
                 {
                    null
                 });
@@ -272,11 +265,8 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         [Fact]
         public void when_seat_assigned_email_remains_null_then_ignores_it()
         {
-            // Arrange
-            var assignmentsId = Guid.NewGuid();
-
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, assignmentsId, new List<OrderSeat>
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, new List<OrderSeat>
                 {
                    new OrderSeat { Position = 1, Attendee = new PersonalInfo() },
                 });
@@ -291,11 +281,8 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
         [Fact]
         public void when_previously_assigned_seat_email_becomes_null_then_sends_unassign_command()
         {
-            // Arrange
-            var assignmentsId = Guid.NewGuid();
-
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, assignmentsId, new List<OrderSeat>
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, new List<OrderSeat>
                 {
                    new OrderSeat 
                    { 
@@ -314,18 +301,15 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
             Assert.Equal("Display", result.RouteValues["action"]);
 
             var cmd = this.commands.OfType<UnassignSeat>().Single();
-            Assert.Equal(assignmentsId, cmd.SeatAssignmentsId);
+            Assert.Equal(this.orderSeats.AssignmentsId, cmd.SeatAssignmentsId);
             Assert.Equal(0, cmd.Position);
         }
 
         [Fact]
         public void when_previously_assigned_seat_firstname_changes_then_sends_assign_seat()
         {
-            // Arrange
-            var assignmentsId = Guid.NewGuid();
-
             // Act
-            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, assignmentsId, new List<OrderSeat>
+            var result = (RedirectToRouteResult)this.sut.AssignSeats(this.orderSeats.OrderId, new List<OrderSeat>
                 {
                    new OrderSeat 
                    { 
@@ -344,7 +328,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
             Assert.Equal("Display", result.RouteValues["action"]);
 
             var cmd = this.commands.OfType<AssignSeat>().Single();
-            Assert.Equal(assignmentsId, cmd.SeatAssignmentsId);
+            Assert.Equal(this.orderSeats.AssignmentsId, cmd.SeatAssignmentsId);
             Assert.Equal(0, cmd.Position);
             Assert.Equal("a@a.com", cmd.Attendee.Email);
             Assert.Equal("B", cmd.Attendee.FirstName);
