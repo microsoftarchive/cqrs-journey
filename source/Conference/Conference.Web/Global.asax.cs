@@ -55,7 +55,7 @@ namespace Conference.Web.Admin
 
             routes.MapRoute(
                 name: "Conference",
-                url: "{slug}/{action}",
+                url: "{slug}/{accessCode}/{action}",
                 defaults: new { controller = "Conference", action = "Index" }
             );
 
