@@ -148,15 +148,15 @@ this.FeatureBackground();
             table4.AddRow(new string[] {
                         "General admission",
                         "0",
-                        "Could not reserve all requested seats."});
+                        "Could not reserve all the requested seats."});
             table4.AddRow(new string[] {
                         "CQRS Workshop",
                         "0",
-                        "Could not reserve all requested seats."});
+                        "Could not reserve all the requested seats."});
             table4.AddRow(new string[] {
                         "Additional cocktail party",
                         "0",
-                        "Could not reserve all requested seats."});
+                        "Could not reserve all the requested seats."});
 #line 42
  testRunner.Then("the Registrant is offered to select any of these available seats", ((string)(null)), table4);
 #line 47
@@ -216,11 +216,11 @@ this.FeatureBackground();
             table7.AddRow(new string[] {
                         "CQRS Workshop",
                         "0",
-                        "Could not reserve all requested seats."});
+                        "Could not reserve all the requested seats."});
             table7.AddRow(new string[] {
                         "Additional cocktail party",
                         "0",
-                        "Could not reserve all requested seats."});
+                        "Could not reserve all the requested seats."});
 #line 63
  testRunner.Then("the Registrant is offered to select any of these available seats", ((string)(null)), table7);
 #line 68
@@ -287,7 +287,7 @@ this.FeatureBackground();
             table10.AddRow(new string[] {
                         "Additional cocktail party",
                         "0",
-                        "Could not reserve all requested seats."});
+                        "Could not reserve all the requested seats."});
 #line 84
  testRunner.And("the Registrant is offered to select any of these available seats", ((string)(null)), table10);
 #line 89

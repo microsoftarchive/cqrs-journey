@@ -33,18 +33,18 @@ Background:
 Scenario: End to end Registration implemented using controllers
 	Given the Registrant proceed to make the Reservation
 	And these Order Items should be reserved
-		| seat type                 | quantity |
-		| General admission         | 1        |
-		| Additional cocktail party | 1        |
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |
 	And these Order Items should not be reserved
-		| seat type     |
-		| CQRS Workshop |
+	| seat type     |
+	| CQRS Workshop |
 	And the Registrant enter these details
-		| First name | Last name | email address            |
-		| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address            |
+	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
 	Then the Order should be created with the following Order Items
-		| seat type                 | quantity |
-		| General admission         | 1        |
-		| Additional cocktail party | 1        |
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |

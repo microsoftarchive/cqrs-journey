@@ -63,11 +63,13 @@ Scenario: All the Order Items are available and all get waitlisted
 	| seat type                 |
 	| General admission         |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
-	| seat type                 | quantity |
-	| General admission         | 2        |
-	| Additional cocktail party | 2        |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
+	And the total should read $0
+	And the countdown started
 
 
 #4
@@ -84,17 +86,14 @@ Scenario: All the Order Items are available, 1 becomes partially available, 1 be
 	| seat type                 | quantity |
 	| General admission         | 99       |
 	| Additional cocktail party | 100      |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
-	| seat type                 | quantity |
-	| General admission         | 1        |
-	| Additional cocktail party | 2        |
-	And these Order Items should be reserved
-	| seat type         | quantity |
-	| General admission | 1        |
-	| CQRS Workshop     | 1        |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 1        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 1        |                                            |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
 	And the total should read $699
-
+	And the countdown started
 
 
 

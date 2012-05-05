@@ -14,6 +14,7 @@
 using System;
 using System.Linq;
 using WatiN.Core;
+using WatiN.Core.Exceptions;
 
 namespace Conference.Specflow.Support
 {
@@ -25,13 +26,18 @@ namespace Conference.Specflow.Support
 
             if (!element.Exists)
             {
-                element = browser.Button(Find.ById(controlId));
+                element = browser.Link(Find.ByText(t => t.Contains(controlId))) as Element;
                 if (!element.Exists)
                 {
-                    element = browser.Button(Find.ByValue(controlId));
+                    element = browser.Button(Find.ById(controlId));
                     if (!element.Exists)
                     {
-                        throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
+                        element = browser.Button(Find.ByValue(t => t.Contains(controlId)));
+                        if (!element.Exists)
+                        {
+                            throw new InvalidOperationException(string.Format("Could not find {0} link on the page",
+                                                                              controlId));
+                        }
                     }
                 }
             }
@@ -86,13 +92,13 @@ namespace Conference.Specflow.Support
                 var list = tr.Lists.First();
                 var nextRow = tr.NextSibling as TableRow;
                 return list.OwnListItems[0].Text == selected &&
-                       (string.IsNullOrWhiteSpace(message) || nextRow.Text.Trim() == message);
+                       (string.IsNullOrWhiteSpace(message) || nextRow.Text.Trim().Contains(message));
             }
             
             return false;
         }
 
-        public static void SetInputvalue(this Browser browser, string inputId, string value, string attributeValue = null)
+        public static void SetInput(this Browser browser, string inputId, string value, string attributeValue = null)
         {
             var input = browser.TextField(inputId);
             if (!input.Exists)
@@ -101,6 +107,23 @@ namespace Conference.Specflow.Support
             if (input != null && input.Exists)
             {
                 input.SetAttributeValue("value", value);
+            }
+        }
+
+        public static void SetRowCells(this Browser browser, string firstCellValue, params string[] cellValues)
+        {
+            var firstCell = browser.TableCells.FirstOrDefault(
+                c => c.Text != null && 
+                     c.Text.Trim() == firstCellValue && 
+                     ((TableCell)c.NextSibling).TextFields.First().Value == null);
+
+            if (firstCell == null)
+                throw new ElementNotFoundException(firstCellValue, "", "", null);
+
+            foreach (var cellValue in cellValues)
+            {
+                firstCell = firstCell.NextSibling as TableCell;
+                firstCell.TextFields.First().Value = cellValue;
             }
         }
 

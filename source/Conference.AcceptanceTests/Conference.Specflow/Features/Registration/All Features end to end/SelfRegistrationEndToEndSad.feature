@@ -44,11 +44,11 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	| seat type                 |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 1        |
+	When the Registrant proceed to make the Reservation with seats already reserved		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| CQRS Workshop             | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |  
 	And these Order Items should be reserved
 	| seat type                        | quantity |
 	| General admission                | 1		  |
@@ -59,7 +59,7 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 Scenario: Checkout:Registrant Invalid Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| First name | Last name | email address        |
+	| first name | last name | email address        |
 	| Gregory    |           | gregoryweber@invalid |
 	When the Registrant proceed to Checkout:Payment
 	Then the message 'The LastName field is required.' will show up 	
@@ -68,11 +68,34 @@ Scenario: Checkout:Registrant Invalid Details
 Scenario: Checkout:Payment with cancellation
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| First name | Last name | email address            |
+	| first name | last name | email address            |
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to cancel the payment
     Then the message 'Payment cancelled.' will show up 	
+
+
+Scenario: Partiall Seats allocation
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| first name | last name | email address            |
+	| Gregory    | Weber     | gregoryweber@contoso.com |
+	And the Registrant proceed to Checkout:Payment
+	And the Registrant proceed to confirm the payment
+    And the message 'Thank you' will show up
+	And the Order should be created with the following Order Items
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
+	When the Registrant assign these seats
+	| seat type                 | first name | last name | email address            |
+	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
+	| Additional cocktail party | Gregory    | Weber     | gregoryweber@contoso.com |
+	Then these seats are assigned
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |
 
 
 # Next release
@@ -85,23 +108,4 @@ Scenario: Partial Promotional Code for none of the selected items
 	When the Registrant apply the 'VOLUNTEER' Promotional Code
 	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $500
-
-
-# Next release
-@Ignore
-Scenario: Partiall Seats allocation
-Given the ConfirmSuccessfulRegistration for the selected Order Items
-And the Order Access code is 6789
-And I assign the purchased seats to attendees as following
-	| First name | Last name | email address            | Seat type         |
-	| Gregory    | Weber     | gregoryweber@contoso.com | General admission |
-And leave unassigned these seats
-	| First name | Last name | email address | Seat type                 |
-	|            |           |               | Additional cocktail party |
-Then I should be getting a seat assignment confirmation for the seats
-	| First name | Last name | email address            | Seat type         |
-	| Gregory    | Weber     | gregoryweber@contoso.com | General admission |
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address            | Seat type         |
-	| 6789-1      | gregoryweber@contoso.com | General admission |
 

@@ -149,8 +149,8 @@ this.FeatureBackground();
  testRunner.And("these Order Items should not be reserved", ((string)(null)), table4);
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
-                        "First name",
-                        "Last name",
+                        "first name",
+                        "last name",
                         "email address"});
             table5.AddRow(new string[] {
                         "Gregory",

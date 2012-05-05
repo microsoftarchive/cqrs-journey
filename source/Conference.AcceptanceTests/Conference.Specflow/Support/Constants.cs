@@ -23,10 +23,13 @@ namespace Conference.Specflow.Support
 
         public static class UI
         {
-            public const string NextStepButtonId = "Next";
+            public const string NextStepId = "Next";
+            public const string FindId = "find";
+            public const string ProceedToSeatAssignementId = "Proceed to Seat Assignment";
+            public const string SeatAssignementId = "Assign seats to attendees";
             public const string ReservationSuccessfull = "Seats information";
-            public const string ReservationUnsuccessfull = "Could not reserve all requested seats.";
-            public const string FindOrderSuccessfull = "Purchase details";
+            public const string ReservationUnsuccessfull = "Could not reserve all the requested seats.";
+            public const string FindOrderSuccessfull = "Registration details";
             public const string RegistrationSuccessfull = "Thank you";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";

@@ -48,7 +48,7 @@ namespace Conference.Specflow.Support
             if (null != conference)
             {
                 if(conference.Seats.Count == 0)
-                    svc.FindSeats(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
+                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
                 return conference;
             }
 
@@ -135,7 +135,7 @@ namespace Conference.Specflow.Support
 
             foreach (var row in seats.Rows)
             {
-                var seat = new SeatInfo()
+                var seat = new SeatType()
                 {
                     Id = Guid.NewGuid(),
                     Description = row["seat type"],

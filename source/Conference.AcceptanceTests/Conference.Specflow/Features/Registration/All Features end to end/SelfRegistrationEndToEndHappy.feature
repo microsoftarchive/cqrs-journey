@@ -48,7 +48,7 @@ Scenario: Make a reservation with the selected Order Items
 Scenario: Checkout:Registrant Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| First name | Last name | email address            |
+	| first name | last name | email address            |
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	When the Registrant proceed to Checkout:Payment
 	Then the payment options should be offered for a total of $249
@@ -56,30 +56,37 @@ Scenario: Checkout:Registrant Details
 Scenario: Checkout:Payment and sucessfull Order completed
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| First name | Last name | email address            |
+	| first name | last name | email address            |
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
     Then the message 'Thank you' will show up
 	And the Order should be created with the following Order Items
-		| seat type                 | quantity |
-		| General admission         | 1        |
-		| Additional cocktail party | 1        |
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |
 
-# Next release
-@Ignore
-Scenario: AllocateSeats
-Given the ConfirmSuccessfulRegistration for the selected Order Items
-And the Order Access code is 6789
-And the Registrant assign the purchased seats to attendees as following
-	| First name | Last name | email address            | Seat type                 |
-	| Gregory    | Weber     | gregoryweber@contoso.com | General admission         |
-	| Gregory    | Weber     | gregoryweber@contoso.com | Additional cocktail party |
-Then the Regsitrant should be get a Seat Assignment confirmation
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address            | Seat type                 |
-	| 6789-1      | gregoryweber@contoso.com | General admission         |
-	| 6789-2      | gregoryweber@contoso.com | Additional cocktail party |
+
+Scenario: Allocate all purchased Seats
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| first name | last name | email address            |
+	| Gregory    | Weber     | gregoryweber@contoso.com |
+	And the Registrant proceed to Checkout:Payment
+	And the Registrant proceed to confirm the payment
+    And the message 'Thank you' will show up
+	And the Order should be created with the following Order Items
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |
+	When the Registrant assign these seats
+	| seat type                 | first name | last name | email address            |
+	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
+	| Additional cocktail party | Gregory    | Weber     | gregoryweber@contoso.com |
+	Then these seats are assigned
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |
 
 
 # Next release

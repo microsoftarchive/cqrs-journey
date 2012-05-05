@@ -40,10 +40,10 @@ Background:
 	| Additional cocktail party | 10       |
 	And the Registrant proceed to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
-	| seat type                 | selected | message                                |
-	| General admission         | 2        | Could not reserve all requested seats. |
-	| CQRS Workshop             | 0        | Could not reserve all requested seats. |
-	| Additional cocktail party | 2        |                                        |
+	| seat type                 | selected | message                                    |
+	| General admission         | 2        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 2        |                                            |
 	And the total should read $498
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
@@ -55,21 +55,27 @@ Background:
 	And the countdown started
 
 
-# Next release
-@Ignore
-Scenario: Allocate some purchased Seats for a group
-Given the ConfirmSuccessfulRegistration
-And the order access code is 6789
-And the Registrant assign the group purchased Seats to attendees as following
-	| First name | Last name | email address     | Seat type         |
-	| William    | Weber     | William@Weber.com | General admission |
-And leave unassigned these individual purchased seats
-	| First name | Last name | email address | Seat type                 |
-	| Mani       | Kris      | Mani@Kris.com | Additional cocktail party |
-Then the Registrant should get a Seat Assignment confirmation
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address     | Seat type                        |
-	| 6789-1      | William@Weber.com | General admission                |
+Scenario: Allocate some purchased Seats
+ 	Given the selected Order Items
+	| seat type                 | quantity |
+	| Additional cocktail party | 4        |
+	And the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| first name | last name | email address            |
+	| Gregory    | Weber     | gregoryweber@contoso.com |
+	And the Registrant proceed to Checkout:Payment
+	And the Registrant proceed to confirm the payment
+    And the message 'Thank you' will show up
+	And the Order should be created with the following Order Items
+	| seat type                 | quantity |
+	| Additional cocktail party | 4        |
+	When the Registrant assign these seats
+	| seat type                 | first name | last name | email address       |
+	| Additional cocktail party | Mani       | Kris      | Mani@Kris.com       |
+	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	Then these seats are assigned
+	| seat type                 | quantity |
+	| Additional cocktail party | 4        |
 
 
 

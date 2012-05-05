@@ -115,8 +115,8 @@ namespace Conference.Specflow.Steps.Registration
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
             var model = ScenarioContext.Current.Get<RegistrationViewModel>();
-            model.RegistrantDetails.FirstName = table.Rows[0]["First name"];
-            model.RegistrantDetails.LastName = table.Rows[0]["Last name"];
+            model.RegistrantDetails.FirstName = table.Rows[0]["first name"];
+            model.RegistrantDetails.LastName = table.Rows[0]["last name"];
             model.RegistrantDetails.Email = table.Rows[0]["email address"];
         }
 
@@ -151,7 +151,7 @@ namespace Conference.Specflow.Steps.Registration
             var controller = ScenarioContext.Current.Get<RegistrationController>();
             var model = ScenarioContext.Current.Get<RegistrationViewModel>();
             
-            var order = ((ViewResult)controller.ThankYou(conference.Slug, model.Order.OrderId)).Model as OrderDTO;
+            var order = ((ViewResult)controller.ThankYou(model.Order.OrderId)).Model as DraftOrder;
             Assert.NotNull(order);
 
             foreach (var row in table.Rows)

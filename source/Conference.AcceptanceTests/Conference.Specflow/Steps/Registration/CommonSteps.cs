@@ -25,6 +25,8 @@ namespace Conference.Specflow.Steps.Registration
     [Binding]
     public class CommonSteps
     {
+        #region Given
+
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference with the slug code (.*)")]
         public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(string conferenceSlug, Table table)
         {
@@ -41,7 +43,7 @@ namespace Conference.Specflow.Steps.Registration
         [Given(@"the selected Order Items")]
         public void GivenTheSelectedOrderItems(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>(); 
+            var browser = ScenarioContext.Current.Get<W.Browser>();
             foreach (var row in table.Rows)
             {
                 browser.SelectListInTableRow(row["seat type"], row["quantity"]);
@@ -55,10 +57,10 @@ namespace Conference.Specflow.Steps.Registration
             Thread.Sleep(TimeSpan.FromSeconds(4));
 
             var browser = ScenarioContext.Current.Get<W.Browser>();
-            browser.SetInputvalue("FirstName", table.Rows[0]["First name"]);
-            browser.SetInputvalue("LastName", table.Rows[0]["Last name"]);
-            browser.SetInputvalue("Email", table.Rows[0]["email address"]);
-            browser.SetInputvalue("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
+            browser.SetInput("FirstName", table.Rows[0]["first name"]);
+            browser.SetInput("LastName", table.Rows[0]["last name"]);
+            browser.SetInput("Email", table.Rows[0]["email address"]);
+            browser.SetInput("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
 
             ScenarioContext.Current.Add("email", table.Rows[0]["email address"]);
         }
@@ -72,46 +74,84 @@ namespace Conference.Specflow.Steps.Registration
         }
 
         [Given(@"the Registrant proceed to make the Reservation")]
-        [When(@"the Registrant proceed to make the Reservation")]
-        public void WhenTheRegistrantProceedToMakeTheReservation()
+        public void GivenTheRegistrantProceedToMakeTheReservation()
         {
-            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonId, Constants.UI.ReservationSuccessfull);
+            TheRegistrantProceedToMakeTheReservation();
         }
 
         [Given(@"the Registrant proceed to make the Reservation with seats already reserved")]
+        public void GivenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
+        {
+            TheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved();
+         }
+
+        [Given(@"the Registrant proceed to Checkout:Payment")]
+        public void GivenTheRegistrantProceedToCheckoutPayment()
+        {
+            TheRegistrantProceedToCheckoutPayment();
+        }
+
+        [Given(@"the total should read \$(.*)")]
+        public void GivenTheTotalShouldRead(int value)
+        {
+            TheTotalShouldRead(value);
+        }
+
+        [Given(@"the message '(.*)' will show up")]
+        public void GivenTheMessageWillShowUp(string message)
+        {
+            TheMessageWillShowUp(message);
+        }
+
+        [Given(@"the Order should be created with the following Order Items")]
+        public void GivenTheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
+        {
+            TheOrderShouldBeCreatedWithTheFollowingOrderItems(table);
+        }
+
+        [Given(@"the Registrant proceed to confirm the payment")]
+        public void GivenTheRegistrantProceedToConfirmThePayment()
+        {
+            TheRegistrantProceedToConfirmThePayment();
+        }
+
+        #endregion
+
+        #region When
+
+        [When(@"the Registrant proceed to make the Reservation")]
+        public void WhenTheRegistrantProceedToMakeTheReservation()
+        {
+            TheRegistrantProceedToMakeTheReservation();
+        }
+
         [When(@"the Registrant proceed to make the Reservation with seats already reserved")]
         public void WhenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
-            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepButtonId, Constants.UI.ReservationUnsuccessfull);
+            TheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved();
         }
 
-        [Given(@"the Registrant proceed to Checkout:Payment")]
         [When(@"the Registrant proceed to Checkout:Payment")]
         public void WhenTheRegistrantProceedToCheckoutPayment()
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
+            TheRegistrantProceedToCheckoutPayment();
         }
+
+        [When(@"the Registrant proceed to confirm the payment")]
+        public void WhenTheRegistrantProceedToConfirmThePayment()
+        {
+            TheRegistrantProceedToConfirmThePayment();
+        }
+
+        #endregion
+
+        #region Then
 
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
         public void ThenTheReservationIsConfirmedForAllTheSelectedOrderItems()
         {
             Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSuccessfull),
-                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull)); 
-        }
-
-        [Given(@"the total should read \$(.*)")]
-        [Then(@"the total should read \$(.*)")]
-        public void ThenTheTotalShouldRead(int value)
-        {
-            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
-                string.Format("The following text was not found on the page: {0}", value)); 
-        }
-
-        [Then(@"the message '(.*)' will show up")]
-        public void ThenTheMessageWillShowUp(string message)
-        {
-            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(message),
-                string.Format("The following text was not found on the page: {0}", message)); 
+                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull));
         }
 
         [Then(@"the countdown started")]
@@ -128,55 +168,53 @@ namespace Conference.Specflow.Steps.Registration
         public void ThenThePaymentOptionsShouldBeOfferedForATotalOf(int value)
         {
             Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
-                string.Format("The following text was not found on the page: {0}", value)); 
+                string.Format("The following text was not found on the page: {0}", value));
+        }
+
+        [Then(@"these seats are assigned")]
+        public void ThenTheseSeatsAreAssigned(Table table)
+        {
+            TheseOrderItemsShouldBeReserved(table);
         }
 
         [Then(@"these Order Items should be reserved")]
         public void ThenTheseOrderItemsShouldBeReserved(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>(); 
-            foreach (var row in table.Rows)
-            {
-                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]), 
-                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));             
-            }
+            TheseOrderItemsShouldBeReserved(table);
         }
 
         [Then(@"these Order Items should not be reserved")]
         public void ThenTheseOrderItemsShouldNotBeReserved(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>(); 
+            var browser = ScenarioContext.Current.Get<W.Browser>();
             foreach (var row in table.Rows)
             {
                 Assert.False(browser.ContainsValueInTableRow(row["seat type"], ""),
-                    string.Format("The following text was not found on the page: {0}", row["seat type"]));                
+                    string.Format("The following text was not found on the page: {0}", row["seat type"]));
             }
+        }
+
+        [Then(@"the total should read \$(.*)")]
+        public void ThenTheTotalShouldRead(int value)
+        {
+            TheTotalShouldRead(value);
+        }
+
+        [Then(@"the message '(.*)' will show up")]
+        public void ThenTheMessageWillShowUp(string message)
+        {
+            TheMessageWillShowUp(message);
         }
 
         [Then(@"the Order should be created with the following Order Items")]
         public void ThenTheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>();
-            string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
-            Assert.False(string.IsNullOrWhiteSpace(accessCode));
-
-            Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
-
-            var email = ScenarioContext.Current.Get<string>("email");
-
-            // Navigate to Registration page
-            browser.GoTo(Constants.FindOrderPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
-            browser.SetInputvalue("name", email, "email");
-            browser.SetInputvalue("name", accessCode, "accessCode");
-            browser.Click("find");
-            ScenarioContext.Current.Get<W.Browser>().WaitUntilContainsText(Constants.UI.FindOrderSuccessfull, Constants.UI.WaitTimeout.Seconds);
-
-            foreach (var row in table.Rows)
-            {
-                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]),
-                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));
-            }
+            TheOrderShouldBeCreatedWithTheFollowingOrderItems(table);
         }
+
+        #endregion
+
+        #region Events
 
         [AfterScenario]
         public static void AfterScenario()
@@ -188,5 +226,67 @@ namespace Conference.Specflow.Steps.Registration
                 ConferenceHelper.CancelSeatReservation(ScenarioContext.Current.Get<ConferenceInfo>().Id, reservationId);
             }
         }
+
+        #endregion
+
+        #region Common code
+
+        private void TheseOrderItemsShouldBeReserved(Table table)
+        {
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+            foreach (var row in table.Rows)
+            {
+                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]),
+                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));
+            }
+        }
+
+        private void TheRegistrantProceedToConfirmThePayment()
+        {
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.AcceptPaymentInputValue);
+        }
+
+        private void TheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
+        {
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+
+            // Check id the access code was created
+            string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
+            Assert.False(string.IsNullOrWhiteSpace(accessCode), "Access Code with pattern '[A-Z0-9]{6}' not found");
+
+            // Navigate to the Seat Assignement page
+            browser.Click(Constants.UI.ProceedToSeatAssignementId);
+
+            TheseOrderItemsShouldBeReserved(table);
+        }
+
+        private void TheMessageWillShowUp(string message)
+        {
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(message),
+                string.Format("The following text was not found on the page: {0}", message));
+        }
+
+        private void TheTotalShouldRead(int value)
+        {
+            Assert.True(ScenarioContext.Current.Get<W.Browser>().SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
+                string.Format("The following text was not found on the page: {0}", value));
+        }
+
+        private void TheRegistrantProceedToMakeTheReservation()
+        {
+            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepId, Constants.UI.ReservationSuccessfull);
+        }
+
+        public void TheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
+        {
+            ScenarioContext.Current.Get<W.Browser>().ClickAndWait(Constants.UI.NextStepId, Constants.UI.ReservationUnsuccessfull);
+        }
+
+        public void TheRegistrantProceedToCheckoutPayment()
+        {
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepId);
+        }
+
+        #endregion
     }
 }

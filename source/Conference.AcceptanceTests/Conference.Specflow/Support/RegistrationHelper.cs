@@ -19,6 +19,8 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Conference.Common.Entity;
 using Conference.Web.Public.Controllers;
+using Infrastructure.Serialization;
+using Infrastructure.Sql.Blob;
 using Moq;
 using Payments.ReadModel.Implementation;
 using Registration.ReadModel;
@@ -33,12 +35,13 @@ namespace Conference.Specflow.Support
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<PaymentsReadDbContext>(null);
+            Database.SetInitializer<BlobStorageDbContext>(null);
         }
 
         public static RegistrationController GetRegistrationController(string conferenceCode)
         {
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
-            var orderDao = new OrderDao(ctxFactory);
+            var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
         
             // Setup context mocks
@@ -67,13 +70,6 @@ namespace Conference.Specflow.Support
         {
             var paymentDao = new PaymentDao(() => new PaymentsReadDbContext(PaymentsReadDbContext.SchemaName));
             return new PaymentController(ConferenceHelper.GetCommandBus(), paymentDao);
-        }
-
-        public static OrderDTO GetOrder(string email, string accessCode)
-        {            
-            var orderDao = new OrderDao(() => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName));
-            var locateOrder = orderDao.LocateOrder(email, accessCode);
-            return locateOrder != null ? orderDao.GetOrderDetails(locateOrder.Value) : null;
         }
     }
 }

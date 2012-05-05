@@ -29,7 +29,7 @@ namespace Conference.Specflow.Steps.Registration
         [When(@"the Registrant proceed to make the Reservation with missing or invalid data")]
         public void WhenTheRegistrantProceedToMakeTheReservationWithMissingOrInvalidData()
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepButtonId);
+            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepId);
         }
     }
 }

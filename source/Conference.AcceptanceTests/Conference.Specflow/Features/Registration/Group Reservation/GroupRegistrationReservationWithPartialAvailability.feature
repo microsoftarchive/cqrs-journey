@@ -16,19 +16,20 @@ Feature: Registrant scenarios for registering a group of Attendees for a confere
 	As a Registrant
     I want to be able to select Order Items from one or many of the available and or waitlisted Order Items and make a Reservation
 
-#General preconditions for all the scenarios
+#General preconditions: 
+#In this feature we set the preconditions by scenario to avoid out of sync events for pre-reservations and cancellations 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegPartial
-	| seat type                 | rate | quota |
-	| General admission         | $199 | 100   |
-	| CQRS Workshop             | $500 | 100   |
-	| Additional cocktail party | $50  | 100   |
 
 
 #Initial state	: 3 selected and none available
 #End state		: 3 not reserved  
  Scenario: All the Order Items are selected and none are available, then none get reserved	
- 	Given the selected Order Items
+ 	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegPartial1
+	| seat type                 | rate | quota |
+	| General admission         | $199 | 100   |
+	| CQRS Workshop             | $500 | 100   |
+	| Additional cocktail party | $50  | 100   |
+ 	And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
@@ -40,17 +41,22 @@ Background:
 	| Additional cocktail party |
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
-	| seat type                 | selected | message                                |
-	| General admission         | 0        | Could not reserve all requested seats. |
-	| CQRS Workshop             | 0        | Could not reserve all requested seats. |
-	| Additional cocktail party | 0        | Could not reserve all requested seats. |
+	| seat type                 | selected | message                                    |
+	| General admission         | 0        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
 	And the countdown started
 
 
 #Initial state	: 3 selected and two get unavailable
 #End state		: 1 reserved and 2 not get reserved  
  Scenario: All the Order Items are selected, one partially available and one not available, then one get reserved, one partially reserved and one not	
- 	Given the selected Order Items
+ 	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegPartial2
+	| seat type                 | rate | quota |
+	| General admission         | $199 | 100   |
+	| CQRS Workshop             | $500 | 100   |
+	| Additional cocktail party | $50  | 100   |
+	And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 3        |
 	| CQRS Workshop             | 11       |
@@ -61,10 +67,10 @@ Background:
 	| Additional cocktail party |          |
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
-	| seat type                 | selected | message                                |
-	| General admission         | 3        |                                        |
-	| CQRS Workshop             | 10       | Could not reserve all requested seats. |
-	| Additional cocktail party | 0        | Could not reserve all requested seats. |
+	| seat type                 | selected | message                                    |
+	| General admission         | 3        |                                            |
+	| CQRS Workshop             | 10       | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
 	And the countdown started
 
 
@@ -72,22 +78,27 @@ Background:
 #Initial state	: 3 selected and 3 get partially unavailable (1 full)
 #End state		: 2 reserved (1 partially) and 1 not get reserved  
  Scenario: All the Order Items are selected, two are partially available and one none available, then two get partially reserved and one not	
- 	Given the selected Order Items
+ 	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegPartial3
+	| seat type                 | rate | quota |
+	| General admission         | $199 | 100   |
+	| CQRS Workshop             | $500 | 100   |
+	| Additional cocktail party | $50  | 100   |
+	And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 7        |
 	| CQRS Workshop             | 12       |
 	| Additional cocktail party | 9        |
 	And these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 | quantity |
-	| General admission         |		   |
+	| General admission         | 100      |
 	| CQRS Workshop             | 90       |
 	| Additional cocktail party | 90       |
 	And the Registrant proceed to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
-	| seat type                 | selected | message                                |
-	| General admission         | 0        | Could not reserve all requested seats. |
-	| CQRS Workshop             | 10       |                                        |
-	| Additional cocktail party | 9        |                                        |
+	| seat type                 | selected | message                                    |
+	| General admission         | 0        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 10       | Could not reserve all the requested seats. |
+	| Additional cocktail party | 9        |                                            |
 	And the total should read $5450
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
