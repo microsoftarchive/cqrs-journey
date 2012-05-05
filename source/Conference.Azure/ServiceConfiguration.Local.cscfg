@@ -28,6 +28,7 @@
       <Setting name="DbContext.ConferenceRegistrationProcesses" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.ConferenceRegistration" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="DbContext.SqlBus" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
+      <Setting name="DbContext.ConferenceManagement" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
