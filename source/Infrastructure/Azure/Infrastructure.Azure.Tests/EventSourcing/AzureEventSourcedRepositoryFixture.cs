@@ -116,4 +116,32 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
             return writer.ToString();
         }
     }
+
+    public class when_reading_inexistant_entity
+    {
+        private Guid id;
+        private Mock<IEventStore> eventStore;
+        private AzureEventSourcedRepository<TestEntity> sut;
+
+        public when_reading_inexistant_entity()
+        {
+            this.eventStore = new Mock<IEventStore>();
+            this.sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer());
+            this.id = Guid.NewGuid();
+        }
+
+        [Fact]
+        public void when_finding_then_returns_null()
+        {
+            Assert.Null(sut.Find(id));
+        }
+
+        [Fact]
+        public void when_getting_then_throws()
+        {
+            var actual = Assert.Throws<EntityNotFoundException>(() => sut.Get(id));
+            Assert.Equal(id, actual.EntityId);
+            Assert.Equal("TestEntity", actual.EntityType);
+        }
+    }
 }
