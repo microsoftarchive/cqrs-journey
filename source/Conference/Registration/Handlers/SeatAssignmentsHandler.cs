@@ -34,33 +34,23 @@ namespace Registration.Handlers
 
         public void Handle(OrderPaymentConfirmed @event)
         {
-            var order = this.ordersRepo.Find(@event.SourceId);
-            if (order != null)
-            {
-                var assignments = order.CreateSeatAssignments();
-
-                assignmentsRepo.Save(assignments);
-            }
+            var order = this.ordersRepo.Get(@event.SourceId);
+            var assignments = order.CreateSeatAssignments();
+            assignmentsRepo.Save(assignments);
         }
 
         public void Handle(AssignSeat command)
         {
-            var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
-            if (assignments != null)
-            {
-                assignments.AssignSeat(command.Position, command.Attendee);
-                assignmentsRepo.Save(assignments);
-            }
+            var assignments = this.assignmentsRepo.Get(command.SeatAssignmentsId);
+            assignments.AssignSeat(command.Position, command.Attendee);
+            assignmentsRepo.Save(assignments);
         }
 
         public void Handle(UnassignSeat command)
         {
-            var assignments = this.assignmentsRepo.Find(command.SeatAssignmentsId);
-            if (assignments != null)
-            {
-                assignments.Unassign(command.Position);
-                assignmentsRepo.Save(assignments);
-            }
+            var assignments = this.assignmentsRepo.Get(command.SeatAssignmentsId);
+            assignments.Unassign(command.Position);
+            assignmentsRepo.Save(assignments);
         }
     }
 }

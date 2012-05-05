@@ -52,19 +52,14 @@ namespace Registration.Handlers
 
         public void Handle(MarkSeatsAsReserved command)
         {
-            var order = repository.Find(command.OrderId);
-
-            if (order != null)
-            {
-                order.MarkAsReserved(this.pricingService, command.Expiration, command.Seats);
-                repository.Save(order);
-            }
+            var order = repository.Get(command.OrderId);
+            order.MarkAsReserved(this.pricingService, command.Expiration, command.Seats);
+            repository.Save(order);
         }
 
         public void Handle(RejectOrder command)
         {
             var order = repository.Find(command.OrderId);
-
             if (order != null)
             {
                 order.Expire();
@@ -74,24 +69,16 @@ namespace Registration.Handlers
 
         public void Handle(AssignRegistrantDetails command)
         {
-            var order = repository.Find(command.OrderId);
-
-            if (order != null)
-            {
-                order.AssignRegistrant(command.FirstName, command.LastName, command.Email);
-                repository.Save(order);
-            }
+            var order = repository.Get(command.OrderId);
+            order.AssignRegistrant(command.FirstName, command.LastName, command.Email);
+            repository.Save(order);
         }
 
         public void Handle(ConfirmOrderPayment command)
         {
-            var order = repository.Find(command.OrderId);
-
-            if (order != null)
-            {
-                order.ConfirmPayment();
-                repository.Save(order);
-            }
+            var order = repository.Get(command.OrderId);
+            order.ConfirmPayment();
+            repository.Save(order);
         }
     }
 }

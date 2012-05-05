@@ -25,6 +25,7 @@ namespace Registration.Handlers
     using Registration.Events;
     using Registration.ReadModel;
 
+    // TODO: should work correctly with out of order messages instead of dropping events!
     public class SeatAssignmentsViewModelGenerator :
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
