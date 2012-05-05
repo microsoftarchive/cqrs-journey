@@ -69,6 +69,17 @@ namespace Infrastructure.Sql.EventSourcing
             }
         }
 
+        public T Get(Guid id)
+        {
+            var entity = this.Find(id);
+            if (entity == null)
+            {
+                throw new EntityNotFoundException(id, sourceType);
+            }
+
+            return entity;
+        }
+
         public void Save(T eventSourced)
         {
             // TODO: guarantee that only incremental versions of the event are stored
