@@ -95,9 +95,10 @@
                     </span>
                     <span class="tile__header">Press</span>
                 </a>
-                <a class="tile tile_twitter" href="https://twitter.com/#!/search/@Url.Encode(Model.TwitterSearch)" target="_search">
+                @{ var twitter = Model.TwitterSearch ?? "#cqrsjourney"; }
+                <a class="tile tile_twitter" href="https://twitter.com/#!/search/@Url.Encode(twitter)" target="_search">
                     <span class="tile__header">Twitter</span>
-                    <span id="tweets" class="tile-slide" data-user="@Url.Encode(Model.TwitterSearch)">
+                    <span id="tweets" class="tile-slide" data-user="@Url.Encode(twitter)">
                   @*    <span class="tile__tweet">
 							<span class="tile__nick"><span class="tile__time">4h ago</span>@gmelnik</span>RT @jasondentler: The work coming out of @mspnp for CQRS is really useful. Nice 180 from the "enterprisey" app block days.
 						</span>
