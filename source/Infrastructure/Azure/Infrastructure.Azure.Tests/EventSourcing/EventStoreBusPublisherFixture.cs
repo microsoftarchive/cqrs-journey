@@ -34,12 +34,12 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             this.partitionKey = Guid.NewGuid().ToString();
             this.version = "0001";
             string rowKey = "Unpublished_" + version;
-            this.testEvent = Mock.Of<IEventRecord>(x => 
-                x.PartitionKey == partitionKey 
+            this.testEvent = Mock.Of<IEventRecord>(x =>
+                x.PartitionKey == partitionKey
                 && x.RowKey == rowKey
                 && x.EventType == "TestEventType"
-                && x.SourceId == "TestId" 
-                && x.SourceType == "TestSourceType" 
+                && x.SourceId == "TestId"
+                && x.SourceType == "TestSourceType"
                 && x.Payload == "serialized event");
             this.queue = new Mock<IPendingEventsQueue>();
             queue.Setup(x => x.GetPending(partitionKey)).Returns(new[] { testEvent });
@@ -111,7 +111,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
 
             for (int i = 0; i < pendingKeys.Length; i++)
             {
-                Assert.True(sender.ResetEvent.WaitOne(3000));
+                Assert.True(sender.ResetEvent.WaitOne(5000));
             }
             cancellationTokenSource.Cancel();
         }

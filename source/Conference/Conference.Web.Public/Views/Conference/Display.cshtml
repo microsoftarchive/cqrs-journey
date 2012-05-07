@@ -3,7 +3,7 @@
     ViewBag.Title = Model.Name;
 }
 
-@ConferenceHelpers.ConferenceTitle(Model.Name)
+@ConferenceHelpers.ConferenceTitle(Model.Name, Model.Tagline)
 
 <div class="page__content">
     <div class="page__wrapper content-main">
@@ -94,9 +94,10 @@
                     </span>
                     <span class="tile__header">Press</span>
                 </a>
-                <a class="tile tile_twitter" href="#">
+                @{ var twitter = Model.TwitterSearch ?? "#cqrsjourney"; }
+                <a class="tile tile_twitter" href="https://twitter.com/#!/search/@Url.Encode(twitter)" target="_search">
                     <span class="tile__header">Twitter</span>
-                    <span id="tweets" class="tile-slide" data-user="@Url.Encode("@mspnp")">
+                    <span id="tweets" class="tile-slide" data-user="@Url.Encode(twitter)">
                   @*    <span class="tile__tweet">
 							<span class="tile__nick"><span class="tile__time">4h ago</span>@gmelnik</span>RT @jasondentler: The work coming out of @mspnp for CQRS is really useful. Nice 180 from the "enterprisey" app block days.
 						</span>
@@ -114,7 +115,7 @@
         <div class="content-main__time-n-place time-n-place">
             <div class="time-n-place__date">@Model.StartDate.ToString("MMM d")</div>
             <div class="time-n-place__time">@Model.StartDate.ToString("hh:mm tt")</div>
-            <div class="time-n-place__place">San Diego, US</div>
+            <div class="time-n-place__place">@Model.Location</div>
         </div>
 
     </div>
