@@ -40,7 +40,7 @@ namespace Conference
 
         [Display(Name = "Email")]
         [Required(AllowEmptyStrings = false)]
-        [RegularExpression(@"[\w-]+([\.]?[\w-])*\@[\w-]+([\.][\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
+        [RegularExpression(@"[\w-]+(\.?[\w-])*\@[\w-]+(\.[\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
         public string OwnerEmail { get; set; }
 
         [Required(AllowEmptyStrings = false)]

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-// ==============================================================================================================
+﻿// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
@@ -15,13 +14,14 @@
 namespace Registration
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
     using Registration.Properties;
 
     public class PersonalInfo : IEquatable<PersonalInfo>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        [RegularExpression(@"[\w-]+([\.]?[\w-])*\@[\w-]+([\.][\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
+        [RegularExpression(@"[\w-]+(\.?[\w-])*\@[\w-]+(\.[\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
         public string Email { get; set; }
 
         #region Equality

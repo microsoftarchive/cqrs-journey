@@ -36,7 +36,7 @@ namespace Registration.Commands
         public string LastName { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        [RegularExpression(@"[\w-]+([\.]?[\w-])*\@[\w-]+([\.][\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
+        [RegularExpression(@"[\w-]+(\.?[\w-])*\@[\w-]+(\.[\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
         public string Email { get; set; }
     }
 }
