@@ -22,7 +22,7 @@ namespace Registration.ReadModel
 
         Guid? LocateOrder(string email, string accessCode);
 
-        PricedOrder GetPricedOrder(Guid orderId);
+        PricedOrder FindPricedOrder(Guid orderId);
 
         OrderSeats FindOrderSeats(Guid assignmentsId);
     }

@@ -15,6 +15,7 @@ namespace Registration.Handlers
 {
     using System;
     using System.Data.Entity;
+    using System.Diagnostics;
     using System.Linq;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
@@ -93,6 +94,10 @@ namespace Registration.Handlers
                     context.Set<PricedOrder>().Remove(dto);
                     context.SaveChanges();
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate Priced order corresponding to the expired order.");
+                }
             }
         }
 
@@ -104,8 +109,15 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<PricedOrder>(@event.OrderId);
-                dto.AssignmentsId = @event.SourceId;
-                context.SaveChanges();
+                if (dto != null)
+                {
+                    dto.AssignmentsId = @event.SourceId;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Priced order corresponding to the seat assignments created.");
+                }
             }
         }
     }

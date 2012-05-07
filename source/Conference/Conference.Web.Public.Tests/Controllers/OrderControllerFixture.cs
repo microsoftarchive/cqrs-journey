@@ -116,7 +116,7 @@ namespace Conference.Web.Public.Tests.Controllers.OrderControllerFixture
                 Total = 200,
             };
 
-            this.orderDao.Setup(r => r.GetPricedOrder(orderId)).Returns(dto);
+            this.orderDao.Setup(r => r.FindPricedOrder(orderId)).Returns(dto);
 
             // Act
             var result = (ViewResult)this.sut.Display(orderId);

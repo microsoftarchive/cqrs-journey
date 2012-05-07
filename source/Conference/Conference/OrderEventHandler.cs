@@ -15,6 +15,7 @@ namespace Conference
 {
     using System;
     using System.Data.Entity;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using Infrastructure.Messaging.Handling;
@@ -123,6 +124,10 @@ namespace Conference
                     seat.Attendee.FirstName = @event.Attendee.FirstName;
                     seat.Attendee.LastName = @event.Attendee.LastName;
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate the seat being updated.");
+                }
             });
         }
 
@@ -134,6 +139,10 @@ namespace Conference
                 if (seat != null)
                 {
                     order.Seats.Remove(seat);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate the seat being unassigned.");
                 }
             });
         }
@@ -147,6 +156,10 @@ namespace Conference
                 {
                     orderAction.Invoke(order);
                     context.SaveChanges();
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate the order to process for the current event.");
                 }
             }
         }

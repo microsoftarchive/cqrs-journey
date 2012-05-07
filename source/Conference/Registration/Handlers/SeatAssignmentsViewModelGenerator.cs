@@ -15,6 +15,7 @@ namespace Registration.Handlers
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -78,6 +79,10 @@ namespace Registration.Handlers
                     Save(dto);
                 }
             }
+            else
+            {
+                Trace.TraceError("Failed to locate the order seats read model corresponding to the assigned seat.");
+            }
         }
 
         public void Handle(SeatUnassigned @event)
@@ -91,6 +96,14 @@ namespace Registration.Handlers
                     seat.Attendee.Email = seat.Attendee.FirstName = seat.Attendee.LastName = null;
                     Save(dto);
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate the original seat being unassigned.");
+                }
+            }
+            else
+            {
+                Trace.TraceError("Failed to locate the order seats read model corresponding to the unassigned seat.");
             }
         }
 
@@ -105,6 +118,14 @@ namespace Registration.Handlers
                     Mapper.Map(@event, seat);
                     Save(dto);
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate the original seat being updated.");
+                }
+            }
+            else
+            {
+                Trace.TraceError("Failed to locate the order seats read model corresponding to the updated seat.");
             }
         }
 
