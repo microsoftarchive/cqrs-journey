@@ -48,7 +48,14 @@ namespace Conference
         public string Description { get; set; }
 
         [Required(AllowEmptyStrings = false)]
+        public string Location { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Slug { get; set; }
+
+        public string Tagline { get; set; }
+
+        public string TwitterSearch { get; set; }
 
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
         [Display(Name = "Start")]

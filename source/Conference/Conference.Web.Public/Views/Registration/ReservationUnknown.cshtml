@@ -2,7 +2,7 @@
     ViewBag.Title = "Reservation for " + ViewBag.Conference.Name + " is unknown";
 }
 
-@ConferenceHelpers.ConferenceTitle(ViewBag.Conference.Name)
+@ConferenceHelpers.ConferenceTitle(ViewBag.Conference.Name, ViewBag.Conference.Tagline)
 
 <h2 class="page__head page__wrapper">Cannot determine the state of the registration</h2>
 <div class="page__content">
