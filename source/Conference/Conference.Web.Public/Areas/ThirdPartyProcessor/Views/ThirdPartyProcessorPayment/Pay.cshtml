@@ -1,5 +1,6 @@
 ﻿@{
-    ViewBag.Title = "Fantastic payment processor";
+    ViewBag.Title = "Simulated Third-party Payment Clearing Processor";
+    Layout = "../Shared/_Layout.cshtml";
 }
 <h2>
     Pay</h2>
@@ -9,9 +10,11 @@
         Item: @this.ViewBag.ItemName</div>
     <div>
         Amount: @this.ViewBag.ItemAmount</div>
+    <br />
     
     @Html.Hidden("ReturnUrl")
     @Html.Hidden("CancelReturnUrl")
-    <input type="submit" value="accepted" name="paymentResult" title="Accept"/>
+    <input type="submit" value="accepted" name="paymentResult" title="Accept" /><span>&nbsp;
+        &nbsp;</span>
     <input type="submit" value="rejected" name="paymentResult" title="Reject" />
 }

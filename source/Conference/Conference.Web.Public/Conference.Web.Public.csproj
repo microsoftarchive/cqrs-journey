@@ -223,6 +223,7 @@
     <Content Include="Views\Order\Display.cshtml" />
     <Content Include="Views\Registration\ShowCompletedOrder.cshtml" />
     <Content Include="App_Code\ConferenceHelpers.cshtml" />
+    <Content Include="Areas\ThirdPartyProcessor\Views\Shared\_Layout.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -275,7 +276,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\ThirdPartyProcessor\Models\" />
-    <Folder Include="Areas\ThirdPartyProcessor\Views\Shared\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
