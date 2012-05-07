@@ -14,7 +14,14 @@
 
 		        <div class="g-clear"></div>
                 <div class="nav content-main__nav">
-                    <a class="nav__right" href="@Url.Action("AssignSeats", new { assignmentsId = Model.AssignmentsId })">
+                    <a class="nav__right" href="@if (Model.AssignmentsId.HasValue)
+                                                {
+                                                    @Url.Action("AssignSeats", new { assignmentsId = Model.AssignmentsId, orderId = Model.OrderId });
+                                                }
+                                                else
+                                                {
+                                                    @Url.Action("AssignSeatsForOrder", new { orderId = Model.OrderId });
+                                                }">
                         Assign seats to attendees
                     </a>
                 </div>
