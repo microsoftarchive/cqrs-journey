@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <style>
+        body
+        {
+            font-size: .85em;
+            font-family: "Trebuchet MS" , Verdana, Helvetica, Sans-Serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        Simulated Third-party Payment Clearing Processor</h1>
+    <p>
+        Note: this area represents an external system that the Contoso Conference Management
+        System integrates with. It is meant to showcase the implementation of an integration
+        scenario. For more information on the journey see the <a href="http://pundit.cloudapp.net">
+            Journey Docs</a>.
+        <br />
+        In a real system this is where you would provide your payment details and authorize
+        the payment before returning to the Conference Management System.</p>
+    @RenderBody()
+    <footer>
+    <div>
+        <p><a href="http://cqrsjourney.github.com/">CQRS Journey Project</a>, Microsoft patterns &amp;&nbsp;practices.<br />
+        <span>This is a sample application for learning purposes, not a production system!</span></p>
+    </div>
+</footer>
+</body>
+</html>
