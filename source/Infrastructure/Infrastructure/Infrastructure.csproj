@@ -48,6 +48,7 @@
     <Compile Include="Blob\IBlobStorage.cs" />
     <Compile Include="Database\IAggregateRoot.cs" />
     <Compile Include="Database\IDataContext.cs" />
+    <Compile Include="EntityNotFoundException.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventSourcedRepository.cs" />

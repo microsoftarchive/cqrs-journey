@@ -42,10 +42,21 @@ namespace Conference.Web.Admin.Controllers
             {
                 this.ViewBag.Slug = slug;
                 this.Conference = this.Service.FindConference(slug);
+
                 if (this.Conference != null)
                 {
-                    this.ViewBag.OwnerName = this.Conference.OwnerName;
-                    this.ViewBag.WasEverPublished = this.Conference.WasEverPublished;
+                    // check access
+                    var accessCode = (string)this.ControllerContext.RequestContext.RouteData.Values["accessCode"];
+
+                    if (accessCode == null || !string.Equals(accessCode, this.Conference.AccessCode, StringComparison.Ordinal))
+                    {
+                        filterContext.Result = new HttpUnauthorizedResult("Invalid access code.");
+                    }
+                    else
+                    {
+                        this.ViewBag.OwnerName = this.Conference.OwnerName;
+                        this.ViewBag.WasEverPublished = this.Conference.WasEverPublished;
+                    }
                 }
             }
 
@@ -73,7 +84,7 @@ namespace Conference.Web.Admin.Controllers
             }
 
             // TODO: not very secure ;).
-            return RedirectToAction("Index", new { slug = conference.Slug });
+            return RedirectToAction("Index", new { slug = conference.Slug, accessCode });
         }
 
         public ActionResult Index()
@@ -106,7 +117,7 @@ namespace Conference.Web.Admin.Controllers
                     return View(conference);
                 }
 
-                return RedirectToAction("Index", new { slug = conference.Slug });
+                return RedirectToAction("Index", new { slug = conference.Slug, accessCode = conference.AccessCode });
             }
 
             return View(conference);
@@ -131,7 +142,7 @@ namespace Conference.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 this.Service.UpdateConference(conference);
-                return RedirectToAction("Index", new { slug = conference.Slug });
+                return RedirectToAction("Index", new { slug = conference.Slug, accessCode = conference.AccessCode });
             }
 
             return View(conference);
@@ -147,7 +158,7 @@ namespace Conference.Web.Admin.Controllers
 
             this.Service.Publish(this.Conference.Id);
 
-            return RedirectToAction("Index", new { slug = this.Conference.Slug });
+            return RedirectToAction("Index", new { slug = this.Conference.Slug, accessCode = this.Conference.AccessCode });
         }
 
         [HttpPost]
@@ -160,7 +171,7 @@ namespace Conference.Web.Admin.Controllers
 
             this.Service.Unpublish(this.Conference.Id);
 
-            return RedirectToAction("Index", new { slug = this.Conference.Slug });
+            return RedirectToAction("Index", new { slug = this.Conference.Slug, accessCode = this.Conference.AccessCode });
         }
 
         #endregion

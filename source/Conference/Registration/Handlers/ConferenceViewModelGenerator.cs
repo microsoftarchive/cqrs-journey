@@ -23,6 +23,7 @@ namespace Registration.Handlers
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
+    // TODO: should work correctly with out of order messages instead of dropping events!
     public class ConferenceViewModelGenerator :
         IEventHandler<ConferenceCreated>,
         IEventHandler<ConferenceUpdated>,

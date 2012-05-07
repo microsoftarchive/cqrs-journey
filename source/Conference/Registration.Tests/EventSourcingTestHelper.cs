@@ -16,6 +16,7 @@ namespace Registration.Tests
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Infrastructure;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -76,7 +77,7 @@ namespace Registration.Tests
             return @event;
         }
 
-        class RepositoryStub : IEventSourcedRepository<T>
+        private class RepositoryStub : IEventSourcedRepository<T>
         {
             public readonly List<IVersionedEvent> History = new List<IVersionedEvent>();
             private readonly Action<T> onSave;
@@ -91,7 +92,7 @@ namespace Registration.Tests
                     throw new InvalidCastException(
                         "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
                 }
-                this.entityFactory = (id, events) => (T)constructor.Invoke(new object[] { id, events });
+                this.entityFactory = (id, events) => (T) constructor.Invoke(new object[] { id, events });
             }
 
             T IEventSourcedRepository<T>.Find(Guid id)
@@ -108,6 +109,17 @@ namespace Registration.Tests
             void IEventSourcedRepository<T>.Save(T eventSourced)
             {
                 this.onSave(eventSourced);
+            }
+
+            T IEventSourcedRepository<T>.Get(Guid id)
+            {
+                var entity = ((IEventSourcedRepository<T>)this).Find(id);
+                if (Equals(entity, default(T)))
+                {
+                    throw new EntityNotFoundException(id, "Test");
+                }
+
+                return entity;
             }
         }
     }

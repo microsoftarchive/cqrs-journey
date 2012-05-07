@@ -25,6 +25,7 @@ namespace Registration.Handlers
     using Registration.Events;
     using Registration.ReadModel;
 
+    // TODO: should work correctly with out of order messages instead of dropping events!
     public class SeatAssignmentsViewModelGenerator :
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
@@ -67,7 +68,7 @@ namespace Registration.Handlers
 
         public void Handle(SeatAssigned @event)
         {
-            var dto = Find(@event.OrderId);
+            var dto = Find(@event.SourceId);
             if (dto != null)
             {
                 var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
@@ -81,7 +82,7 @@ namespace Registration.Handlers
 
         public void Handle(SeatUnassigned @event)
         {
-            var dto = Find(@event.OrderId);
+            var dto = Find(@event.SourceId);
             if (dto != null)
             {
                 var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
@@ -95,7 +96,7 @@ namespace Registration.Handlers
 
         public void Handle(SeatAssignmentUpdated @event)
         {
-            var dto = Find(@event.OrderId);
+            var dto = Find(@event.SourceId);
             if (dto != null)
             {
                 var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
@@ -125,7 +126,7 @@ namespace Registration.Handlers
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, dto);
-                this.storage.Save("SeatAssignments-" + dto.OrderId, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
+                this.storage.Save("SeatAssignments-" + dto.AssignmentsId, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
             }
         }
     }

@@ -51,6 +51,7 @@
       <Setting name="DbContext.ConferenceRegistrationProcesses" />
       <Setting name="DbContext.ConferenceRegistration" />
       <Setting name="DbContext.SqlBus" />
+      <Setting name="DbContext.ConferenceManagement" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

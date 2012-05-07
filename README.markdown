@@ -7,7 +7,7 @@ http://cqrsjourney.github.com
 
 _4th May 2012_
 
-You can find the release notes that apply to the Psuedo-Production
+You can find the release notes that apply to the Pseudo-Production
 Release (V1) of the Contoso Conference Management System [here][releasenotes].
 
 The release notes include information about:

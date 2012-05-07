@@ -16,6 +16,7 @@ namespace Conference
     using System;
     using System.Data.Entity;
     using System.Linq;
+    using System.Linq.Expressions;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
 
@@ -41,6 +42,7 @@ namespace Conference
         IEventHandler<OrderRegistrantAssigned>,
         IEventHandler<OrderTotalsCalculated>,
         IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
         IEventHandler<SeatAssignmentUpdated>,
         IEventHandler<SeatUnassigned>
@@ -63,7 +65,7 @@ namespace Conference
 
         public void Handle(OrderRegistrantAssigned @event)
         {
-            ProcessOrder(@event.SourceId, order =>
+            ProcessOrder(order => order.Id == @event.SourceId, order =>
             {
                 order.RegistrantEmail = @event.Email;
                 order.RegistrantName = @event.LastName + ", " + @event.FirstName;
@@ -72,17 +74,22 @@ namespace Conference
 
         public void Handle(OrderTotalsCalculated @event)
         {
-            ProcessOrder(@event.SourceId, order => order.TotalAmount = @event.Total);
+            ProcessOrder(order => order.Id == @event.SourceId, order => order.TotalAmount = @event.Total);
         }
 
         public void Handle(OrderPaymentConfirmed @event)
         {
-            ProcessOrder(@event.SourceId, order => order.Status = Order.OrderStatus.Paid);
+            ProcessOrder(order => order.Id == @event.SourceId, order => order.Status = Order.OrderStatus.Paid);
+        }
+
+        public void Handle(SeatAssignmentsCreated @event)
+        {
+            ProcessOrder(order => order.Id == @event.OrderId, order => order.AssignmentsId = @event.SourceId);
         }
 
         public void Handle(SeatAssigned @event)
         {
-            ProcessOrder(@event.OrderId, order =>
+            ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
@@ -108,7 +115,7 @@ namespace Conference
 
         public void Handle(SeatAssignmentUpdated @event)
         {
-            ProcessOrder(@event.OrderId, order =>
+            ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
@@ -121,7 +128,7 @@ namespace Conference
 
         public void Handle(SeatUnassigned @event)
         {
-            ProcessOrder(@event.OrderId, order =>
+            ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
@@ -131,11 +138,11 @@ namespace Conference
             });
         }
 
-        private void ProcessOrder(Guid orderId, Action<Order> orderAction)
+        private void ProcessOrder(Expression<Func<Order, bool>> lookup, Action<Order> orderAction)
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var order = context.Orders.Include(x => x.Seats).FirstOrDefault(x => x.Id == orderId);
+                var order = context.Orders.Include(x => x.Seats).FirstOrDefault(lookup);
                 if (order != null)
                 {
                     orderAction.Invoke(order);

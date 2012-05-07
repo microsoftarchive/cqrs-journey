@@ -28,6 +28,7 @@
       <Setting name="DbContext.ConferenceRegistration" value="" />
       <Setting name="DbContext.SqlBus" value="" />
       <Setting name="DbContext.BlobStorage" value="" />
+      <Setting name="DbContext.ConferenceManagement" value="" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

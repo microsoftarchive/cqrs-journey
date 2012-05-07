@@ -36,38 +36,27 @@ namespace Registration.Handlers
 
         public void Handle(MakeSeatReservation command)
         {
-            var availability = this.repository.Find(command.ConferenceId);
-            if (availability != null)
-            {
-                availability.MakeReservation(command.ReservationId, command.Seats);
-                this.repository.Save(availability);
-            }
-            // TODO: what if there's no aggregate? how do we tell the process?
+            // TODO: what if there's no aggregate? how do we tell the registration process?
+            var availability = this.repository.Get(command.ConferenceId);
+            availability.MakeReservation(command.ReservationId, command.Seats);
+            this.repository.Save(availability);
         }
 
         public void Handle(CancelSeatReservation command)
         {
-            var availability = this.repository.Find(command.ConferenceId);
-            if (availability != null)
-            {
-                availability.CancelReservation(command.ReservationId);
-                this.repository.Save(availability);
-            }
-            // TODO: what if there's no aggregate? how do we tell the process?
+            var availability = this.repository.Get(command.ConferenceId);
+            availability.CancelReservation(command.ReservationId);
+            this.repository.Save(availability);
         }
 
         public void Handle(CommitSeatReservation command)
         {
-            var availability = this.repository.Find(command.ConferenceId);
-            if (availability != null)
-            {
-                availability.CommitReservation(command.ReservationId);
-                this.repository.Save(availability);
-            }
-            // TODO: what if there's no aggregate? how do we tell the process?
+            var availability = this.repository.Get(command.ConferenceId);
+            availability.CommitReservation(command.ReservationId);
+            this.repository.Save(availability);
         }
 
-        // Events from the conference BC
+        // Commands created from events from the conference BC
 
         public void Handle(AddSeats command)
         {

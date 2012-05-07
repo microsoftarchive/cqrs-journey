@@ -24,6 +24,6 @@ namespace Registration.ReadModel
 
         PricedOrder GetPricedOrder(Guid orderId);
 
-        OrderSeats FindOrderSeats(Guid orderId);
+        OrderSeats FindOrderSeats(Guid assignmentsId);
     }
 }
