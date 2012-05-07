@@ -15,21 +15,21 @@
 <fieldset>
     <legend>Owner Information</legend>
     <div class="display-label">
-        @Html.DisplayNameFor(model => model.OwnerName)
+        @Html.DisplayNameFor(model => model.OwnerName):
     </div>
     <div class="display-label">
         @Html.DisplayFor(model => model.OwnerName)
     </div>        
 
     <div class="display-label">
-        @Html.DisplayNameFor(model => model.OwnerEmail)
+        @Html.DisplayNameFor(model => model.OwnerEmail):
     </div>
     <div class="display-label">
         @Html.DisplayFor(model => model.OwnerEmail)
     </div>
 
     <div class="display-label">
-        @Html.DisplayNameFor(model => model.AccessCode)
+        @Html.DisplayNameFor(model => model.AccessCode):
     </div>
     <div class="display-label">
         @Html.DisplayFor(model => model.AccessCode)
@@ -39,35 +39,49 @@
 <fieldset>
     <legend>Conference Information</legend>
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Name)
+         @Html.DisplayNameFor(model => model.Name):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Name)
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Description)
+         @Html.DisplayNameFor(model => model.Description):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Description)
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Slug)
+         @Html.DisplayNameFor(model => model.Tagline):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Tagline)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Slug):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.Slug)
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.StartDate)
+         @Html.DisplayNameFor(model => model.TwitterSearch):
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.TwitterSearch)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.StartDate):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.StartDate)
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.EndDate)
+         @Html.DisplayNameFor(model => model.EndDate):
     </div>
     <div class="display-field">
         @Html.DisplayFor(model => model.EndDate)

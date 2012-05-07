@@ -20,12 +20,15 @@ namespace Registration.ReadModel
 
     public class Conference
     {
-        public Conference(Guid id, string code, string name, string description, DateTimeOffset startDate, IEnumerable<SeatType> seats)
+        public Conference(Guid id, string code, string name, string description, string location, string tagline, string twitterSearch, DateTimeOffset startDate, IEnumerable<SeatType> seats)
         {
             this.Id = id;
             this.Code = code;
             this.Name = name;
             this.Description = description;
+            this.Location = location;
+            this.Tagline = tagline;
+            this.TwitterSearch = twitterSearch;
             this.StartDate = startDate;
             this.Seats = new ObservableCollection<SeatType>(seats);
         }
@@ -40,6 +43,9 @@ namespace Registration.ReadModel
         public string Code { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string Location { get; set; }
+        public string Tagline { get; set; }
+        public string TwitterSearch { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public ICollection<SeatType> Seats { get; set; }
 

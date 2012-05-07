@@ -140,6 +140,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
                 AccessCode = "qwerty",
                 Name = "test conference",
                 Description = "test conference description",
+                Location = "redmond",
                 Slug = "test",
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(2)),
