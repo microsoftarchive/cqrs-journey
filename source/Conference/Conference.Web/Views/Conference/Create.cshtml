@@ -71,11 +71,35 @@
         </div>
 
         <div class="editor-label">
+            @Html.LabelFor(model => model.Tagline)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Tagline)
+            @Html.ValidationMessageFor(model => model.Tagline)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Location)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Location)
+            @Html.ValidationMessageFor(model => model.Location)
+        </div>
+
+        <div class="editor-label">
             @Html.LabelFor(model => model.Slug)
         </div>
         <div class="editor-field">
             @Html.EditorFor(model => model.Slug)
             @Html.ValidationMessageFor(model => model.Slug)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.TwitterSearch)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.TwitterSearch)
+            @Html.ValidationMessageFor(model => model.TwitterSearch)
         </div>
 
         <div class="editor-label">

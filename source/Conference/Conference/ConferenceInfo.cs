@@ -18,6 +18,7 @@ namespace Conference
     using System.Collections.ObjectModel;
     using System.ComponentModel.DataAnnotations;
     using Common.Utils;
+    using Conference.Properties;
 
     public class ConferenceInfo
     {
@@ -39,6 +40,7 @@ namespace Conference
 
         [Display(Name = "Email")]
         [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"[\w-]+(\.?[\w-])*\@[\w-]+(\.[\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
         public string OwnerEmail { get; set; }
 
         [Required(AllowEmptyStrings = false)]
@@ -48,7 +50,14 @@ namespace Conference
         public string Description { get; set; }
 
         [Required(AllowEmptyStrings = false)]
+        public string Location { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
         public string Slug { get; set; }
+
+        public string Tagline { get; set; }
+
+        public string TwitterSearch { get; set; }
 
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
         [Display(Name = "Start")]

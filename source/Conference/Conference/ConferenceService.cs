@@ -228,7 +228,10 @@ namespace Conference
                 },
                 Name = conference.Name,
                 Description = conference.Description,
+                Location = conference.Location,
                 Slug = conference.Slug,
+                Tagline = conference.Tagline,
+                TwitterSearch = conference.TwitterSearch,
                 StartDate = conference.StartDate,
                 EndDate = conference.EndDate,
             });

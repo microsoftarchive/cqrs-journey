@@ -45,7 +45,16 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
-                repository.Set<Conference>().Add(new Conference(@event.SourceId, @event.Slug, @event.Name, @event.Description, @event.StartDate, Enumerable.Empty<SeatType>()));
+                repository.Set<Conference>().Add(new Conference(
+                    @event.SourceId,
+                    @event.Slug,
+                    @event.Name,
+                    @event.Description,
+                    @event.Location,
+                    @event.Tagline,
+                    @event.TwitterSearch,
+                    @event.StartDate,
+                    Enumerable.Empty<SeatType>()));
 
                 repository.SaveChanges();
             }
@@ -60,8 +69,11 @@ namespace Registration.Handlers
                 {
                     confDto.Code = @event.Slug;
                     confDto.Description = @event.Description;
+                    confDto.Location = @event.Location;
                     confDto.Name = @event.Name;
                     confDto.StartDate = @event.StartDate;
+                    confDto.Tagline = @event.Tagline;
+                    confDto.TwitterSearch = @event.TwitterSearch;
                 }
 
                 repository.SaveChanges();

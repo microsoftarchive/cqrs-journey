@@ -33,7 +33,17 @@ namespace Registration.ReadModel.Implementation
                 return context
                     .Query<Conference>()
                     .Where(dto => dto.Code == conferenceCode)
-                    .Select(x => new ConferenceDetails { Id = x.Id, Code = x.Code, Name = x.Name, Description = x.Description, StartDate = x.StartDate })
+                    .Select(x => new ConferenceDetails
+                    {
+                        Id = x.Id,
+                        Code = x.Code,
+                        Name = x.Name,
+                        Description = x.Description,
+                        Location = x.Location,
+                        Tagline = x.Tagline,
+                        TwitterSearch = x.TwitterSearch,
+                        StartDate = x.StartDate
+                    })
                     .FirstOrDefault();
             }
         }
@@ -46,7 +56,7 @@ namespace Registration.ReadModel.Implementation
                 return context
                     .Query<Conference>()
                     .Where(dto => dto.Code == conferenceCode)
-                    .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name })
+                    .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name, Tagline = x.Tagline })
                     .FirstOrDefault();
             }
         }
@@ -58,7 +68,7 @@ namespace Registration.ReadModel.Implementation
                 return context
                     .Query<Conference>()
                     .Where(dto => dto.IsPublished)
-                    .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name })
+                    .Select(x => new ConferenceAlias { Id = x.Id, Code = x.Code, Name = x.Name, Tagline = x.Tagline })
                     .ToList();
             }
         }

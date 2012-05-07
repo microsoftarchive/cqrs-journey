@@ -11,6 +11,8 @@
                 {
                     <div class="content-main__header">Seat assignment</div>
                     <div class="content">
+                        @*TODO: fix styling for validation*@
+                        @Html.ValidationSummary()
                         @Html.HiddenFor(model => model.OrderId)
                         <p>
                             Please assign your purchased seats to the attendees.</p>

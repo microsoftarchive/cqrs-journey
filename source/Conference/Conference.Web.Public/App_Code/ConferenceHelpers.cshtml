@@ -1,7 +1,9 @@
-﻿@helper ConferenceTitle(string conferenceName)
+﻿@helper ConferenceTitle(string conferenceName, string tagline)
 {
 <h1 class="page__head page__wrapper">
     @conferenceName
-    <br /><span class="page__head-note">(Experience & Practice)</span>
+    @if (!string.IsNullOrEmpty(tagline)) {
+    <br /><span class="page__head-note">(@tagline)</span>
+    }
 </h1>
 }
