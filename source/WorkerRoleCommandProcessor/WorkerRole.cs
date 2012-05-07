@@ -63,9 +63,36 @@ namespace WorkerRoleCommandProcessor
             var cloudStorageAccount =
                 CloudStorageAccount.Parse(RoleEnvironment.GetConfigurationSettingValue("Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString"));
 
-            // Get the logs as fast as possible
-            config.Logs.ScheduledTransferPeriod = TimeSpan.FromMinutes(1);
-            config.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
+            TimeSpan transferPeriod;
+            if (!TimeSpan.TryParse(RoleEnvironment.GetConfigurationSettingValue("Diagnostics.ScheduledTransferPeriod"), out transferPeriod))
+            {
+                transferPeriod = TimeSpan.FromMinutes(1);
+            }
+
+            TimeSpan sampleRate;
+            if (!TimeSpan.TryParse(RoleEnvironment.GetConfigurationSettingValue("Diagnostics.PerformanceCounterSampleRate"), out sampleRate))
+            {
+                sampleRate = TimeSpan.FromSeconds(30);
+            }
+
+            LogLevel logLevel;
+            if (!Enum.TryParse<LogLevel>(RoleEnvironment.GetConfigurationSettingValue("Diagnostics.LogLevelFilter"), out logLevel))
+            {
+                logLevel = LogLevel.Verbose;
+            }
+
+            // Setup performance counters
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Processor(_Total)\% Processor Time",
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.ScheduledTransferPeriod = transferPeriod;
+
+            // Setup logs
+            config.Logs.ScheduledTransferPeriod = transferPeriod;
+            config.Logs.ScheduledTransferLogLevelFilter = logLevel;
 
             DiagnosticMonitor.Start(cloudStorageAccount, config);
 
