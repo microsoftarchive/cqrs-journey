@@ -51,6 +51,19 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0, NoStore = true)]
+        public RedirectToRouteResult AssignSeatsForOrder(Guid orderId)
+        {
+            var order = orderDao.GetPricedOrder(orderId);
+            if (order == null || !order.AssignmentsId.HasValue)
+            {
+                return RedirectToAction("Display", new { orderId });
+            }
+
+            return RedirectToAction("AssignSeats", new { assignmentsId = order.AssignmentsId });
+        }
+
+        [HttpGet]
+        [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult AssignSeats(Guid assignmentsId)
         {
             var assignments = this.orderDao.FindOrderSeats(assignmentsId);
