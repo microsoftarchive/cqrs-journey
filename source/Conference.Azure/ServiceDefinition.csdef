@@ -15,6 +15,9 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="Diagnostics.ScheduledTransferPeriod" />
+      <Setting name="Diagnostics.LogLevelFilter" />
+      <Setting name="Diagnostics.PerformanceCounterSampleRate" />
       <Setting name="DbContext.ConferenceManagement" />
       <Setting name="DbContext.SqlBus" />
     </ConfigurationSettings>
@@ -34,6 +37,9 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="Diagnostics.ScheduledTransferPeriod" />
+      <Setting name="Diagnostics.LogLevelFilter" />
+      <Setting name="Diagnostics.PerformanceCounterSampleRate" />
       <Setting name="DbContext.Payments" />
       <Setting name="DbContext.ConferenceRegistration" />
       <Setting name="DbContext.SqlBus" />
@@ -45,6 +51,9 @@
       <Import moduleName="Diagnostics" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="Diagnostics.ScheduledTransferPeriod" />
+      <Setting name="Diagnostics.LogLevelFilter" />
+      <Setting name="Diagnostics.PerformanceCounterSampleRate" />
       <Setting name="DbContext.Payments" />
       <Setting name="DbContext.EventStore" />
       <Setting name="DbContext.BlobStorage" />
