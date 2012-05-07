@@ -16,6 +16,7 @@ namespace Registration.Commands
     using System;
     using System.ComponentModel.DataAnnotations;
     using Infrastructure.Messaging;
+    using Registration.Properties;
 
     public class AssignRegistrantDetails : ICommand
     {
@@ -35,6 +36,7 @@ namespace Registration.Commands
         public string LastName { get; set; }
 
         [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"[\w-]+([\.]?[\w-])*\@[\w-]+([\.][\w-]+)+", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidEmail")]
         public string Email { get; set; }
     }
 }

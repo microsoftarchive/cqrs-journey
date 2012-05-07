@@ -20,6 +20,7 @@ namespace Conference
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        [RegularExpression(@"[\w-]+([\.]?[\w-])*\@[\w-]+([\.][\w-]+)+")]
         public string Email { get; set; }
     }
 }
