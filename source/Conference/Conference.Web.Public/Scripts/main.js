@@ -109,7 +109,7 @@ $(function () {
             $.getJSON(url, function(json) {
                 var output = [];
                 if (json.results) {
-                    for (var i = 0, len = Math.max(json.results.length, 10); i < len; i++) {
+                    for (var i = 0, len = Math.min(json.results.length, 10); i < len; i++) {
 
                         //instead of appending each result, add each to the buffer array
                         //output.push('<p><img src="' + json.results[i].profile_image_url + '" widt="48" height="48" />' + json.results[i].text + '</p>');
