@@ -53,7 +53,7 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0, NoStore = true)]
         public RedirectToRouteResult AssignSeatsForOrder(Guid orderId)
         {
-            var order = orderDao.GetPricedOrder(orderId);
+            var order = orderDao.FindPricedOrder(orderId);
             if (order == null || !order.AssignmentsId.HasValue)
             {
                 return RedirectToAction("Display", new { orderId });
