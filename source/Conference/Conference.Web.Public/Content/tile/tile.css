@@ -13,6 +13,9 @@ See the License for the specific language governing permissions and limitations 
 ==============================================================================================================
 */
 
+.tile-slide {
+	height:140px;
+}
 .tile {
     width: 240px;
     height: 140px;
@@ -106,7 +109,6 @@ See the License for the specific language governing permissions and limitations 
     float: left;
     margin: 11px 21px 11px 11px;
 }
-
 
 .tile_twitter {
     background: #0099cc;
