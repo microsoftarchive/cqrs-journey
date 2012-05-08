@@ -18,7 +18,7 @@ Feature: Registrant workflow for registering a group of Attendees for a conferen
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegE2Esad
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 20    |
 	| CQRS Workshop             | $500 | 20    |
@@ -65,7 +65,7 @@ Scenario: Allocate some purchased Seats
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
-    And the message 'Thank you' will show up
+    And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| Additional cocktail party | 4        |

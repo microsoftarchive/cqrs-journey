@@ -31,27 +31,15 @@ namespace Conference.Specflow.Steps.Registration
     [Scope(Tag = "SelfRegistrationEndToEndWithInfrastructure")]
     public class SelfRegistrationEndToEndWithInfrastructureSteps
     {
-        [Given(@"the list of the available Order Items for the CQRS summit 2012 conference with the slug code (.*)")]
-        public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(string conferenceSlug, Table table)
-        {
-            // Populate Conference data
-            var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
-
-            // Store for later use
-            ScenarioContext.Current.Set(conferenceInfo);
-
-            // Get the RegistrationController for this conference
-            var controller = RegistrationHelper.GetRegistrationController(conferenceInfo.Slug);
-
-            // Store for later use
-            ScenarioContext.Current.Set(controller);
-        }
-
         [Given(@"the selected Order Items")]
         public void GivenTheSelectedOrderItems(Table table)
         {
+            // Get the RegistrationController for this conference
+            var controller = RegistrationHelper.GetRegistrationController(ScenarioContext.Current.Get<ConferenceInfo>().Slug);
+            // Store for later use
+            ScenarioContext.Current.Set(controller);
+
             var conference = ScenarioContext.Current.Get<ConferenceInfo>();
-            var controller = ScenarioContext.Current.Get<RegistrationController>();
             var orderViewModel = ((ViewResult)controller.StartRegistration()).Model as OrderViewModel;
             Assert.NotNull(orderViewModel);
             var registration = new RegisterToConference { ConferenceId = conference.Id, OrderId = controller.ViewBag.OrderId };

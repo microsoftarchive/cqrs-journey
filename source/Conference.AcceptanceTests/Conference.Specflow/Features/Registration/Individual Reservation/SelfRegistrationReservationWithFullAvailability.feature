@@ -18,7 +18,7 @@ Feature: Self Registrant scenarios for making a Reservation for a Conference sit
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegFull
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
@@ -81,13 +81,18 @@ Scenario: All Seat Types are offered, one get reserved and two get unavailable
 
 
 Scenario: Find a purchased Order
-	Given the Registrant proceed to make the Reservation
+	Given the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 3        |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 2        |
+	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
 	| first name | last name | email address         |
 	| William    | Weber     | William@Weber.com     |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
-    Then the message 'Thank you' will show up
+    Then the Registration process was successful
 	And the Order should be found with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 3        |

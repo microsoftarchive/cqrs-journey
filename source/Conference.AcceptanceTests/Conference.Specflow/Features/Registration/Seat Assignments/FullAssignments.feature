@@ -14,7 +14,7 @@
 Feature: Registrant workflow for assigning all the purchased Order Items.
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code FullSeatAssignments
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
@@ -32,7 +32,7 @@ Scenario: Allocate all purchased Seats for an individual
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
-    And the message 'Thank you' will show up
+    And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
@@ -58,7 +58,7 @@ Scenario: Allocate all purchased Seats for a group
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
-    And the message 'Thank you' will show up
+    And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 4        |

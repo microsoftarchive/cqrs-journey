@@ -89,8 +89,7 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
                         "$50",
                         "100"});
 #line 22
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code SelfRegE2EInfrastructure", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",

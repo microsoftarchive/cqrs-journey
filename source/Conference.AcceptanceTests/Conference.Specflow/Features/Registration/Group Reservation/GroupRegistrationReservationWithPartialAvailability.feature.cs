@@ -68,7 +68,26 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
         
         public virtual void FeatureBackground()
         {
+#line 20
+#line hidden
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "rate",
+                        "quota"});
+            table1.AddRow(new string[] {
+                        "General admission",
+                        "$199",
+                        "100"});
+            table1.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "$500",
+                        "100"});
+            table1.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "$50",
+                        "100"});
 #line 21
+  testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
         }
         
@@ -88,30 +107,10 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
         public virtual void AllTheOrderItemsAreSelectedAndNoneAreAvailableThenNoneGetReserved()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are selected and none are available, then none get reserved", ((string[])(null)));
-#line 26
+#line 29
  this.ScenarioSetup(scenarioInfo);
-#line 21
+#line 20
 this.FeatureBackground();
-#line hidden
-            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type",
-                        "rate",
-                        "quota"});
-            table1.AddRow(new string[] {
-                        "General admission",
-                        "$199",
-                        "100"});
-            table1.AddRow(new string[] {
-                        "CQRS Workshop",
-                        "$500",
-                        "100"});
-            table1.AddRow(new string[] {
-                        "Additional cocktail party",
-                        "$50",
-                        "100"});
-#line 27
-  testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code GroupRegPartial1", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -125,8 +124,8 @@ this.FeatureBackground();
             table2.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 32
-  testRunner.And("the selected Order Items", ((string)(null)), table2);
+#line 30
+  testRunner.Given("the selected Order Items", ((string)(null)), table2);
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type"});
@@ -136,9 +135,9 @@ this.FeatureBackground();
                         "CQRS Workshop"});
             table3.AddRow(new string[] {
                         "Additional cocktail party"});
-#line 37
+#line 35
  testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table3);
-#line 42
+#line 40
  testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -157,9 +156,9 @@ this.FeatureBackground();
                         "Additional cocktail party",
                         "0",
                         "Could not reserve all the requested seats."});
-#line 43
+#line 41
  testRunner.Then("the Registrant is offered to select any of these available seats", ((string)(null)), table4);
-#line 48
+#line 46
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
@@ -174,79 +173,59 @@ this.FeatureBackground();
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are selected, one partially available and one not available, " +
                     "then one get reserved, one partially reserved and one not", ((string[])(null)));
-#line 53
+#line 51
  this.ScenarioSetup(scenarioInfo);
-#line 21
+#line 20
 this.FeatureBackground();
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
-                        "rate",
-                        "quota"});
+                        "quantity"});
             table5.AddRow(new string[] {
                         "General admission",
-                        "$199",
-                        "100"});
+                        "3"});
             table5.AddRow(new string[] {
                         "CQRS Workshop",
-                        "$500",
-                        "100"});
+                        "11"});
             table5.AddRow(new string[] {
                         "Additional cocktail party",
-                        "$50",
-                        "100"});
-#line 54
-  testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code GroupRegPartial2", ((string)(null)), table5);
+                        "1"});
+#line 52
+ testRunner.Given("the selected Order Items", ((string)(null)), table5);
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
                         "quantity"});
             table6.AddRow(new string[] {
-                        "General admission",
-                        "3"});
-            table6.AddRow(new string[] {
                         "CQRS Workshop",
-                        "11"});
+                        "90"});
             table6.AddRow(new string[] {
                         "Additional cocktail party",
-                        "1"});
-#line 59
- testRunner.And("the selected Order Items", ((string)(null)), table6);
+                        ""});
+#line 57
+ testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table6);
+#line 61
+ testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
-                        "quantity"});
-            table7.AddRow(new string[] {
-                        "CQRS Workshop",
-                        "90"});
-            table7.AddRow(new string[] {
-                        "Additional cocktail party",
-                        ""});
-#line 64
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table7);
-#line 68
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
-#line hidden
-            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type",
                         "selected",
                         "message"});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "General admission",
                         "3",
                         ""});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "CQRS Workshop",
                         "10",
                         "Could not reserve all the requested seats."});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "Additional cocktail party",
                         "0",
                         "Could not reserve all the requested seats."});
-#line 69
- testRunner.Then("the Registrant is offered to select any of these available seats", ((string)(null)), table8);
-#line 74
+#line 62
+ testRunner.Then("the Registrant is offered to select any of these available seats", ((string)(null)), table7);
+#line 67
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
@@ -261,102 +240,82 @@ this.FeatureBackground();
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are selected, two are partially available and one none availa" +
                     "ble, then two get partially reserved and one not", ((string[])(null)));
-#line 80
+#line 73
  this.ScenarioSetup(scenarioInfo);
-#line 21
+#line 20
 this.FeatureBackground();
+#line hidden
+            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "quantity"});
+            table8.AddRow(new string[] {
+                        "General admission",
+                        "7"});
+            table8.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "12"});
+            table8.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "9"});
+#line 74
+ testRunner.Given("the selected Order Items", ((string)(null)), table8);
 #line hidden
             TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
-                        "rate",
-                        "quota"});
+                        "quantity"});
             table9.AddRow(new string[] {
                         "General admission",
-                        "$199",
                         "100"});
             table9.AddRow(new string[] {
                         "CQRS Workshop",
-                        "$500",
-                        "100"});
+                        "90"});
             table9.AddRow(new string[] {
                         "Additional cocktail party",
-                        "$50",
-                        "100"});
-#line 81
-  testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code GroupRegPartial3", ((string)(null)), table9);
+                        "90"});
+#line 79
+ testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table9);
+#line 84
+ testRunner.And("the Registrant proceed to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
-                        "quantity"});
+                        "selected",
+                        "message"});
             table10.AddRow(new string[] {
                         "General admission",
-                        "7"});
+                        "0",
+                        "Could not reserve all the requested seats."});
             table10.AddRow(new string[] {
                         "CQRS Workshop",
-                        "12"});
+                        "10",
+                        "Could not reserve all the requested seats."});
             table10.AddRow(new string[] {
                         "Additional cocktail party",
-                        "9"});
-#line 86
- testRunner.And("the selected Order Items", ((string)(null)), table10);
+                        "9",
+                        ""});
+#line 85
+ testRunner.And("the Registrant is offered to select any of these available seats", ((string)(null)), table10);
+#line 90
+ testRunner.And("the total should read $5450");
+#line 91
+ testRunner.When("the Registrant proceed to make the Reservation");
+#line 92
+ testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
             TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
                         "quantity"});
             table11.AddRow(new string[] {
-                        "General admission",
-                        "100"});
-            table11.AddRow(new string[] {
-                        "CQRS Workshop",
-                        "90"});
-            table11.AddRow(new string[] {
-                        "Additional cocktail party",
-                        "90"});
-#line 91
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table11);
-#line 96
- testRunner.And("the Registrant proceed to make the Reservation with seats already reserved");
-#line hidden
-            TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type",
-                        "selected",
-                        "message"});
-            table12.AddRow(new string[] {
-                        "General admission",
-                        "0",
-                        "Could not reserve all the requested seats."});
-            table12.AddRow(new string[] {
-                        "CQRS Workshop",
-                        "10",
-                        "Could not reserve all the requested seats."});
-            table12.AddRow(new string[] {
-                        "Additional cocktail party",
-                        "9",
-                        ""});
-#line 97
- testRunner.And("the Registrant is offered to select any of these available seats", ((string)(null)), table12);
-#line 102
- testRunner.And("the total should read $5450");
-#line 103
- testRunner.When("the Registrant proceed to make the Reservation");
-#line 104
- testRunner.Then("the Reservation is confirmed for all the selected Order Items");
-#line hidden
-            TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type",
-                        "quantity"});
-            table13.AddRow(new string[] {
                         "CQRS Workshop",
                         "10"});
-            table13.AddRow(new string[] {
+            table11.AddRow(new string[] {
                         "Additional cocktail party",
                         "9"});
-#line 105
- testRunner.And("these Order Items should be reserved", ((string)(null)), table13);
-#line 109
+#line 93
+ testRunner.And("these Order Items should be reserved", ((string)(null)), table11);
+#line 97
  testRunner.And("the total should read $5450");
-#line 110
+#line 98
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();

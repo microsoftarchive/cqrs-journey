@@ -19,7 +19,7 @@ Feature: Self Registrant end to end scenario for making a Registration for a Con
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegE2EInfrastructure
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |

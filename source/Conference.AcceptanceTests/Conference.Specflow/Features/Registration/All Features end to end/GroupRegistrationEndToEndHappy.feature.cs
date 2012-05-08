@@ -87,8 +87,7 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
                         "$50",
                         "100"});
 #line 21
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code GroupRegE2Ehappy", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -215,7 +214,7 @@ this.FeatureBackground();
 #line 60
  testRunner.When("the Registrant proceed to confirm the payment");
 #line 61
-    testRunner.Then("the message \'Thank you\' will show up");
+    testRunner.Then("the Registration process was successful");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -264,7 +263,7 @@ this.FeatureBackground();
 #line 75
  testRunner.And("the Registrant proceed to confirm the payment");
 #line 76
-    testRunner.And("the message \'Thank you\' will show up");
+    testRunner.And("the Registration process was successful");
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",

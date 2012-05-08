@@ -82,8 +82,7 @@ namespace Conference.Specflow.Features.Registration.Discounts
                         "Additional cocktail party",
                         "$50"});
 #line 20
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code Discounts", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Promotional Code",

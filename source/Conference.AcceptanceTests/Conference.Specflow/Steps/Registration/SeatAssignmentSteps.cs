@@ -25,7 +25,7 @@ namespace Conference.Specflow.Steps.Registration
         public void WhenTheRegistrantAssignTheseSeats(Table table)
         {
             var browser = ScenarioContext.Current.Get<W.Browser>();
-            browser.Click(Constants.UI.SeatAssignementId);
+            browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
 
             foreach (var row in table.Rows)
             {

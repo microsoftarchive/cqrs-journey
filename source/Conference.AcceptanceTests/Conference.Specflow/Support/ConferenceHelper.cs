@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Conference.Common.Entity;
@@ -54,13 +55,11 @@ namespace Conference.Specflow.Support
 
             conference = BuildConferenceInfo(table, conferenceSlug);
             svc.CreateConference(conference);
-            // Wait for the events to be processed
-            // This delay may be removed after fixing the events ordering issue 
-            Thread.Sleep(Constants.WaitTimeout);
             svc.Publish(conference.Id);
+
             // Wait for the events to be processed
-            // This delay may be removed after fixing the events ordering issue 
             Thread.Sleep(Constants.WaitTimeout);
+
             return conference;
         }
 
@@ -98,21 +97,6 @@ namespace Conference.Specflow.Support
             return seatReservation.ReservationId;
         }
 
-        public static void CancelSeatReservation(Guid conferenceId, Guid reservationId)
-        {
-            var seatReservation = new CancelSeatReservation 
-            { 
-                ConferenceId = conferenceId, 
-                ReservationId = reservationId 
-            };
-            
-            var commandBus = BuildCommandBus();
-            commandBus.Send(seatReservation);
-
-            // Wait for the events to be processed
-            Thread.Sleep(Constants.WaitTimeout);
-        }
-
         public static ICommandBus GetCommandBus()
         {
             return BuildCommandBus();
@@ -125,10 +109,13 @@ namespace Conference.Specflow.Support
                 Description = "Acceptance Tests CQRS summit 2012 conference (" + conferenceSlug + ")",
                 Name = conferenceSlug,
                 Slug = conferenceSlug,
+                Location = "AcceptanceTest",
+                Tagline = "AcceptanceTest",
+                TwitterSearch = "AcceptanceTest",
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(1),
                 OwnerName = "test",
-                OwnerEmail = "testEmail",
+                OwnerEmail = "testEmail@test.net",
                 IsPublished = true,
                 WasEverPublished = true
             };

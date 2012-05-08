@@ -20,6 +20,7 @@ namespace Conference.Specflow.Support
     {
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
         public const string NoWatiN = "NoWatiN";
+        public const string RandomSlug = "(random)";
 
         public static class UI
         {
@@ -33,6 +34,7 @@ namespace Conference.Specflow.Support
             public const string RegistrationSuccessfull = "Thank you";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
+            public const string SeatAssignmentPage = "Assign Seats";
             public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); // Wait > 5 secs, longer than page retry 
         }
 

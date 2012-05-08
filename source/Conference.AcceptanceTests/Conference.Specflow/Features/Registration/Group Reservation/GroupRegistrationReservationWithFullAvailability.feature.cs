@@ -87,8 +87,7 @@ namespace Conference.Specflow.Features.Registration.GroupReservation
                         "$50",
                         "100"});
 #line 21
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code GroupRegFull", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
         }
         

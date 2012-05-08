@@ -18,7 +18,7 @@ Feature: Registrant scenarios for registering a group of Attendees for a confere
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegFull
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |

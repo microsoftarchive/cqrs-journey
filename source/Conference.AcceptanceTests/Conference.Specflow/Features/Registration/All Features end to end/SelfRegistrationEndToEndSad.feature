@@ -17,7 +17,7 @@ Feature: Self Registrant end to end scenario for making a Registration for a Con
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegE2Esad
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 10    |
 	| CQRS Workshop             | $500 | 10    |
@@ -33,8 +33,13 @@ Background:
 
 
 Scenario: No selected Seat Type
-When the Registrant proceed to make the Reservation with missing or invalid data	
-Then the message 'One or more items are required' will show up
+	Given the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 0        |
+	| CQRS Workshop             | 0        |
+	| Additional cocktail party | 0        |
+	When the Registrant proceed to make the Reservation with no selected seats
+	Then the message 'One or more items are required' will show up
 
 
 #Initial state	: 3 available
@@ -72,7 +77,7 @@ Scenario: Checkout:Payment with cancellation
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to cancel the payment
-    Then the message 'Payment cancelled.' will show up 	
+    Then the payment selection page will show up 	
 
 
 Scenario: Partiall Seats allocation
@@ -82,7 +87,7 @@ Scenario: Partiall Seats allocation
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
-    And the message 'Thank you' will show up
+    And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |

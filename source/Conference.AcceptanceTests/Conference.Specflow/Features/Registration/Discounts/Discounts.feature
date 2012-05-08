@@ -17,7 +17,7 @@ Feature: Promotional Code scenarios for applying Promotional Codes to Seat Types
 	I want to be able to enter a Promotional Code and get the specified price reduction
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code Discounts
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate |
 	| General admission         | $199 |
 	| CQRS Workshop             | $500 |

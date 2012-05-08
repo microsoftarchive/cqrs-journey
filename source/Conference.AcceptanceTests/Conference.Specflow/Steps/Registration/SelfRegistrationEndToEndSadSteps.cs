@@ -13,6 +13,7 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
+using Xunit;
 using W = WatiN.Core;
 
 namespace Conference.Specflow.Steps.Registration
@@ -26,10 +27,18 @@ namespace Conference.Specflow.Steps.Registration
             ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.RejectPaymentInputValue);
         }
 
-        [When(@"the Registrant proceed to make the Reservation with missing or invalid data")]
-        public void WhenTheRegistrantProceedToMakeTheReservationWithMissingOrInvalidData()
+        [When(@"the Registrant proceed to make the Reservation with no selected seats")]
+        public void WhenTheRegistrantProceedToMakeTheReservationWithNoSelectedSeats()
         {
             ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepId);
+        }
+
+        [Then(@"the payment selection page will show up")]
+        public void ThenThePaymentSelectionPageWillShowUp()
+        {
+            Assert.True(
+                ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSuccessfull),
+                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull));
         }
     }
 }

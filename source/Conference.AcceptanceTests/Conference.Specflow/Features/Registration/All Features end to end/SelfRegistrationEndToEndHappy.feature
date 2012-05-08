@@ -17,7 +17,7 @@ Feature: Self Registrant end to end scenario for making a Registration for a Con
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegE2Ehappy
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
@@ -60,7 +60,7 @@ Scenario: Checkout:Payment and sucessfull Order completed
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
-    Then the message 'Thank you' will show up
+    Then the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
@@ -74,7 +74,7 @@ Scenario: Allocate all purchased Seats
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
-    And the message 'Thank you' will show up
+    And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |

@@ -19,6 +19,7 @@ using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using Xunit;
 using W = WatiN.Core;
+using Conference.Common.Utils;
 
 namespace Conference.Specflow.Steps.Registration
 {
@@ -27,22 +28,22 @@ namespace Conference.Specflow.Steps.Registration
     {
         #region Given
 
-        [Given(@"the list of the available Order Items for the CQRS summit 2012 conference with the slug code (.*)")]
-        public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(string conferenceSlug, Table table)
+        [Given(@"the list of the available Order Items for the CQRS summit 2012 conference")]
+        public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(Table table)
         {
             // Populate Conference data
-            var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
+            var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, HandleGenerator.Generate(10));
 
             // Store for later use
             ScenarioContext.Current.Set(conferenceInfo);
-
-            // Navigate to Registration page
-            ScenarioContext.Current.Get<W.Browser>().GoTo(Constants.RegistrationPage(conferenceSlug));
         }
 
         [Given(@"the selected Order Items")]
         public void GivenTheSelectedOrderItems(Table table)
         {
+            // Navigate to Registration page
+            ScenarioContext.Current.Get<W.Browser>().GoTo(Constants.RegistrationPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
+
             var browser = ScenarioContext.Current.Get<W.Browser>();
             foreach (var row in table.Rows)
             {
@@ -113,6 +114,12 @@ namespace Conference.Specflow.Steps.Registration
         public void GivenTheRegistrantProceedToConfirmThePayment()
         {
             TheRegistrantProceedToConfirmThePayment();
+        }
+
+        [Given(@"the Registration process was successful")]
+        public void GivenTheRegistrationProcessWasSuccessful()
+        {
+            TheRegistrationProcessWasSuccessful();
         }
 
         #endregion
@@ -212,24 +219,21 @@ namespace Conference.Specflow.Steps.Registration
             TheOrderShouldBeCreatedWithTheFollowingOrderItems(table);
         }
 
-        #endregion
-
-        #region Events
-
-        [AfterScenario]
-        public static void AfterScenario()
+        [Then(@"the Registration process was successful")]
+        public void ThenTheRegistrationProcessWasSuccessful()
         {
-            // Restore the available setes previous to the reservation
-            Guid reservationId;
-            if (ScenarioContext.Current.TryGetValue("reservationId", out reservationId))
-            {
-                ConferenceHelper.CancelSeatReservation(ScenarioContext.Current.Get<ConferenceInfo>().Id, reservationId);
-            }
+            TheRegistrationProcessWasSuccessful();
         }
 
         #endregion
 
         #region Common code
+
+        private void TheRegistrationProcessWasSuccessful()
+        {
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+            browser.WaitUntilContainsText(Constants.UI.RegistrationSuccessfull, Constants.UI.WaitTimeout.Seconds);
+        }
 
         private void TheseOrderItemsShouldBeReserved(Table table)
         {
@@ -253,6 +257,10 @@ namespace Conference.Specflow.Steps.Registration
             // Check id the access code was created
             string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
             Assert.False(string.IsNullOrWhiteSpace(accessCode), "Access Code with pattern '[A-Z0-9]{6}' not found");
+
+            //TODO: Remove after fix
+            // Wait for order events to be digested. 
+            Thread.Sleep(Constants.WaitTimeout);
 
             // Navigate to the Seat Assignement page
             browser.Click(Constants.UI.ProceedToSeatAssignementId);

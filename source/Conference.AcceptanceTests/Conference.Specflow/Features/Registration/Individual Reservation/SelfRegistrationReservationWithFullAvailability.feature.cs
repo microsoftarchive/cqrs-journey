@@ -87,8 +87,7 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
                         "$50",
                         "100"});
 #line 21
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code SelfRegFull", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -268,40 +267,55 @@ this.FeatureBackground();
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
-#line 84
- testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "quantity"});
+            table9.AddRow(new string[] {
+                        "General admission",
+                        "3"});
+            table9.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "1"});
+            table9.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "2"});
+#line 84
+ testRunner.Given("the selected Order Items", ((string)(null)), table9);
+#line 89
+ testRunner.And("the Registrant proceed to make the Reservation");
+#line hidden
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
                         "last name",
                         "email address"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "William",
                         "Weber",
                         "William@Weber.com"});
-#line 85
- testRunner.And("the Registrant enter these details", ((string)(null)), table9);
-#line 88
- testRunner.And("the Registrant proceed to Checkout:Payment");
-#line 89
- testRunner.When("the Registrant proceed to confirm the payment");
 #line 90
-    testRunner.Then("the message \'Thank you\' will show up");
+ testRunner.And("the Registrant enter these details", ((string)(null)), table10);
+#line 93
+ testRunner.And("the Registrant proceed to Checkout:Payment");
+#line 94
+ testRunner.When("the Registrant proceed to confirm the payment");
+#line 95
+    testRunner.Then("the Registration process was successful");
 #line hidden
-            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
                         "quantity"});
-            table10.AddRow(new string[] {
+            table11.AddRow(new string[] {
                         "General admission",
                         "3"});
-            table10.AddRow(new string[] {
+            table11.AddRow(new string[] {
                         "CQRS Workshop",
                         "1"});
-            table10.AddRow(new string[] {
+            table11.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 91
- testRunner.And("the Order should be found with the following Order Items", ((string)(null)), table10);
+#line 96
+ testRunner.And("the Order should be found with the following Order Items", ((string)(null)), table11);
 #line hidden
             this.ScenarioCleanup();
         }

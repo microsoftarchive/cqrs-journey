@@ -18,7 +18,7 @@ Feature: Self Registrant scenarios for making a Reservation for a Conference sit
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegPartial
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
