@@ -40,7 +40,6 @@ namespace WorkerRoleCommandProcessor
                 while (this.running)
                 {
                     Thread.Sleep(10000);
-                    Trace.WriteLine("Command processor working", "Information");
                 }
 
                 processor.Stop();
