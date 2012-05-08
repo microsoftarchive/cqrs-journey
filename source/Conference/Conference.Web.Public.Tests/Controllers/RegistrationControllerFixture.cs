@@ -207,7 +207,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                         Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
             Mock.Get(this.orderDao)
-                .Setup(r => r.GetPricedOrder(orderId))
+                .Setup(r => r.FindPricedOrder(orderId))
                 .Returns(new PricedOrder { OrderId = orderId, OrderVersion = orderVersion});
 
             var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
@@ -238,7 +238,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 .Setup(d => d.GetDraftOrder(orderId))
                 .Returns(order);
             Mock.Get<IOrderDao>(this.orderDao)
-                .Setup(d => d.GetPricedOrder(orderId))
+                .Setup(d => d.FindPricedOrder(orderId))
                 .Returns(new PricedOrder { OrderId = orderId, Total = 100 });
 
             Mock.Get<ICommandBus>(this.bus)

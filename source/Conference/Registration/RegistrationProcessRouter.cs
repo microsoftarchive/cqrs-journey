@@ -14,6 +14,7 @@
 namespace Registration
 {
     using System;
+    using System.Diagnostics;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
@@ -62,6 +63,10 @@ namespace Registration
 
                         context.Save(process);
                     }
+                    else
+                    {
+                        Trace.TraceError("Failed to locate the registration process handling the order with id {0}.", @event.SourceId);
+                    }
                 }
             }
         }
@@ -78,6 +83,10 @@ namespace Registration
                         process.Handle(@event);
 
                         context.Save(process);
+                    }
+                    else
+                    {
+                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", @event.ReservationId);
                     }
                 }
             }
@@ -96,6 +105,10 @@ namespace Registration
 
                         context.Save(process);
                     }
+                    else
+                    {
+                        Trace.TraceError("Failed to locate the registration process to expire with id {0}.", command.ProcessId);
+                    }
                 }
             }
         }
@@ -112,6 +125,10 @@ namespace Registration
                         process.Handle(@event);
 
                         context.Save(process);
+                    }
+                    else
+                    {
+                        Trace.TraceError("Failed to locate the registration process handling the paid order with id {0}.", @event.PaymentSourceId);
                     }
                 }
             }

@@ -60,6 +60,7 @@ namespace Registration.Handlers
         public void Handle(RejectOrder command)
         {
             var order = repository.Find(command.OrderId);
+            // Explicitly idempotent. 
             if (order != null)
             {
                 order.Expire();

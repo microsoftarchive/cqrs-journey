@@ -15,6 +15,7 @@ namespace Registration.Handlers
 {
     using System;
     using System.Data.Entity;
+    using System.Diagnostics;
     using System.Linq;
     using Conference;
     using Infrastructure.Messaging;
@@ -74,9 +75,13 @@ namespace Registration.Handlers
                     confDto.StartDate = @event.StartDate;
                     confDto.Tagline = @event.Tagline;
                     confDto.TwitterSearch = @event.TwitterSearch;
-                }
 
-                repository.SaveChanges();
+                    repository.SaveChanges();
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Conference read model for updated conference with id {0}.", @event.SourceId);
+                }
             }
         }
 
@@ -91,6 +96,10 @@ namespace Registration.Handlers
 
                     repository.Save(dto);
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate Conference read model for published conference with id {0}.", @event.SourceId);
+                }
             }
         }
 
@@ -104,6 +113,10 @@ namespace Registration.Handlers
                     dto.IsPublished = false;
 
                     repository.Save(dto);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Conference read model for unpublished conference with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -125,6 +138,10 @@ namespace Registration.Handlers
                     });
 
                     repository.Save(dto);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Conference read model for created seat, with conference id {0}.", @event.SourceId);
                 }
             }
         }
@@ -170,6 +187,14 @@ namespace Registration.Handlers
                             });
                         }
                     }
+                    else
+                    {
+                        Trace.TraceError("Failed to locate Seat Type read model being updated with id {0}.", @event.SourceId);
+                    }
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Conference read model for updated seat type, with conference id {0}.", @event.SourceId);
                 }
             }
         }

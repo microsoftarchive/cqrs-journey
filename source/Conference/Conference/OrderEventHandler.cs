@@ -15,6 +15,7 @@ namespace Conference
 {
     using System;
     using System.Data.Entity;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using Infrastructure.Messaging.Handling;
@@ -74,22 +75,31 @@ namespace Conference
 
         public void Handle(OrderTotalsCalculated @event)
         {
-            ProcessOrder(order => order.Id == @event.SourceId, order => order.TotalAmount = @event.Total);
+            if (!ProcessOrder(order => order.Id == @event.SourceId, order => order.TotalAmount = @event.Total))
+            {
+                Trace.TraceError("Failed to locate the order with id {0} to apply calculated totals", @event.SourceId);
+            }
         }
 
         public void Handle(OrderPaymentConfirmed @event)
         {
-            ProcessOrder(order => order.Id == @event.SourceId, order => order.Status = Order.OrderStatus.Paid);
+            if (!ProcessOrder(order => order.Id == @event.SourceId, order => order.Status = Order.OrderStatus.Paid))
+            {
+                Trace.TraceError("Failed to locate the order with {0} to apply confirmed payment.", @event.SourceId);
+            }
         }
 
         public void Handle(SeatAssignmentsCreated @event)
         {
-            ProcessOrder(order => order.Id == @event.OrderId, order => order.AssignmentsId = @event.SourceId);
+            if (!ProcessOrder(order => order.Id == @event.OrderId, order => order.AssignmentsId = @event.SourceId))
+            {
+                Trace.TraceError("Failed to locate the order with {0} for the seat assignments being created with id {1}.", @event.OrderId, @event.SourceId);
+            }
         }
 
         public void Handle(SeatAssigned @event)
         {
-            ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
+            if (!ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
@@ -110,12 +120,15 @@ namespace Conference
                         }
                     });
                 }
-            });
+            }))
+            {
+                Trace.TraceError("Failed to locate the order with seat assignments id {0} for the seat assignment being assigned at position {1}.", @event.SourceId, @event.Position);
+            }
         }
 
         public void Handle(SeatAssignmentUpdated @event)
         {
-            ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
+            if (!ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
@@ -123,22 +136,36 @@ namespace Conference
                     seat.Attendee.FirstName = @event.Attendee.FirstName;
                     seat.Attendee.LastName = @event.Attendee.LastName;
                 }
-            });
+                else
+                {
+                    Trace.TraceError("Failed to locate the seat being updated at position {0} for assignment {1}.", @event.Position, @event.SourceId);
+                }
+            }))
+            {
+                Trace.TraceError("Failed to locate the order with seat assignments id {0} for the seat assignment being updated at position {1}.", @event.SourceId, @event.Position);
+            }
         }
 
         public void Handle(SeatUnassigned @event)
         {
-            ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
+            if (!ProcessOrder(order => order.AssignmentsId == @event.SourceId, order =>
             {
                 var seat = order.Seats.FirstOrDefault(x => x.Position == @event.Position);
                 if (seat != null)
                 {
                     order.Seats.Remove(seat);
                 }
-            });
+                else
+                {
+                    Trace.TraceError("Failed to locate the seat being unassigned at position {0} for assignment {1}.", @event.Position, @event.SourceId);
+                }
+            }))
+            {
+                Trace.TraceError("Failed to locate the order with seat assignments id {0} for the seat being unassigned at position {1}.", @event.SourceId, @event.Position);
+            }
         }
 
-        private void ProcessOrder(Expression<Func<Order, bool>> lookup, Action<Order> orderAction)
+        private bool ProcessOrder(Expression<Func<Order, bool>> lookup, Action<Order> orderAction)
         {
             using (var context = this.contextFactory.Invoke())
             {
@@ -147,6 +174,11 @@ namespace Conference
                 {
                     orderAction.Invoke(order);
                     context.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
         }

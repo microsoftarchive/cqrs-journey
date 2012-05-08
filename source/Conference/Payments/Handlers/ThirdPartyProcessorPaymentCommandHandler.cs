@@ -14,9 +14,10 @@
 namespace Payments.Handlers
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
-    using Infrastructure.Messaging.Handling;
     using Infrastructure.Database;
+    using Infrastructure.Messaging.Handling;
     using Payments.Contracts.Commands;
 
     public class ThirdPartyProcessorPaymentCommandHandler :
@@ -57,6 +58,10 @@ namespace Payments.Handlers
                     payment.Complete();
                     repository.Save(payment);
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate the payment entity with id {0} for the completed third party payment.", command.PaymentId);
+                }
             }
         }
 
@@ -72,6 +77,10 @@ namespace Payments.Handlers
                 {
                     payment.Cancel();
                     repository.Save(payment);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate the payment entity with id {0} for the cancelled third party payment.", command.PaymentId);
                 }
             }
         }
