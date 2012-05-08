@@ -109,7 +109,7 @@ $(function () {
             $.getJSON(url, function(json) {
                 var output = [];
                 if (json.results) {
-                    for (var i = 0, len = json.results.length; i < len; i++) {
+                    for (var i = 0, len = Math.max(json.results.length, 10); i < len; i++) {
 
                         //instead of appending each result, add each to the buffer array
                         //output.push('<p><img src="' + json.results[i].profile_image_url + '" widt="48" height="48" />' + json.results[i].text + '</p>');
@@ -120,21 +120,21 @@ $(function () {
                         } else {
                             time = Math.round(timeDifference / 60) + "h ago";
                         }
-                        output.push('<span class="tile__tweet"><span class="tile__nick"><span class="tile__time">' + time + '</span>@' + json.results[i].from_user + '</span>' + json.results[i].text + '</span>');
+                        output.push('<span class="tile__tweet" style="display: none;"><span class="tile__nick"><span class="tile__time">' + time + '</span>@' + json.results[i].from_user + '</span>' + json.results[i].text + '</span>');
                     }
-                }
 
-                //now select the #results element only once and append all the output at once, then slide it into view
-                $("#tweets").html(output.join('')).slideDown('slow');
-                $('.tile_twitter .tile-slide').cycle({
-                    fx: 'scrollUp',
-                    speed: 400,
-                    timeout: 0
-                });
+                    //now select the #results element only once and append all the output at once, then slide it into view
+                    $("#tweets").html(output.join(''));
+                    $('.tile_twitter .tile-slide').cycle({
+                        fx: 'scrollUp',
+                        speed: 400,
+                        timeout: 0
+                    });
+                } else {
+                    setTimeout(getTweets, 2000);
+                }
             });
         }
-
-        setInterval(getTweets, 20000);
     }
 
     //run the getTweets function on document.ready
