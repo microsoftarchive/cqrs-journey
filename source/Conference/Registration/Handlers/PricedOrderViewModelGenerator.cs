@@ -96,7 +96,7 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate Priced order corresponding to the expired order.");
+                    Trace.TraceError("Failed to locate Priced order corresponding to the expired order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -116,7 +116,7 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate Priced order corresponding to the seat assignments created.");
+                    Trace.TraceError("Failed to locate Priced order corresponding to the seat assignments created, order  with id {0}.", @event.OrderId);
                 }
             }
         }

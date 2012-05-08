@@ -78,10 +78,14 @@ namespace Registration.Handlers
                     Mapper.Map(@event, seat);
                     Save(dto);
                 }
+                else
+                {
+                    Trace.TraceError("Failed to locate the seat at position {0} being assigned.", @event.Position);
+                }
             }
             else
             {
-                Trace.TraceError("Failed to locate the order seats read model corresponding to the assigned seat.");
+                Trace.TraceError("Failed to locate the order seats assignments read model corresponding to the assigned seat, assignments id {0}.", @event.SourceId);
             }
         }
 
@@ -98,12 +102,12 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the original seat being unassigned.");
+                    Trace.TraceError("Failed to locate the seat at position {0} being unassigned.", @event.Position);
                 }
             }
             else
             {
-                Trace.TraceError("Failed to locate the order seats read model corresponding to the unassigned seat.");
+                Trace.TraceError("Failed to locate the order seats assignments read model corresponding to the unassigned seat, assignments id {0}.", @event.SourceId);
             }
         }
 
@@ -120,12 +124,12 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the original seat being updated.");
+                    Trace.TraceError("Failed to locate the seat at position {0} being updated.", @event.Position);
                 }
             }
             else
             {
-                Trace.TraceError("Failed to locate the order seats read model corresponding to the updated seat.");
+                Trace.TraceError("Failed to locate the order seats assignments read model corresponding to the updated seat, assignments id {0}.", @event.SourceId);
             }
         }
 

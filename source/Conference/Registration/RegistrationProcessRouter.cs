@@ -65,7 +65,7 @@ namespace Registration
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process handling the order.");
+                        Trace.TraceError("Failed to locate the registration process handling the order with id {0}.", @event.SourceId);
                     }
                 }
             }
@@ -86,7 +86,7 @@ namespace Registration
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process handling the seat reservation.");
+                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", @event.ReservationId);
                     }
                 }
             }
@@ -107,7 +107,7 @@ namespace Registration
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process to expire.");
+                        Trace.TraceError("Failed to locate the registration process to expire with id {0}.", command.ProcessId);
                     }
                 }
             }
@@ -128,7 +128,7 @@ namespace Registration
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process handling the order being paid.");
+                        Trace.TraceError("Failed to locate the registration process handling the paid order with id {0}.", @event.PaymentSourceId);
                     }
                 }
             }

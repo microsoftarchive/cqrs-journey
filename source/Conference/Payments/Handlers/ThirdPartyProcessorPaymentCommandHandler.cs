@@ -60,7 +60,7 @@ namespace Payments.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the payment entity for the completed third party payment.");
+                    Trace.TraceError("Failed to locate the payment entity with id {0} for the completed third party payment.", command.PaymentId);
                 }
             }
         }
@@ -80,7 +80,7 @@ namespace Payments.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the payment entity for the cancelled third party payment.");
+                    Trace.TraceError("Failed to locate the payment entity with id {0} for the cancelled third party payment.", command.PaymentId);
                 }
             }
         }
