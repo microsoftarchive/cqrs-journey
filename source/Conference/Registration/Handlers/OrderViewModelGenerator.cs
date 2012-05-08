@@ -70,7 +70,7 @@ namespace Registration.Handlers
                 var dto = context.Set<DraftOrder>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
 
                 var linesSet = context.Set<DraftOrderItem>();
-                foreach (var line in linesSet.ToList())
+                foreach (var line in dto.Lines.ToArray())
                 {
                     linesSet.Remove(line);
                 }
