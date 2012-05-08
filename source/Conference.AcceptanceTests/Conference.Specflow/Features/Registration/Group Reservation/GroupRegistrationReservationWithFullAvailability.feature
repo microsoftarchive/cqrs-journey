@@ -18,7 +18,7 @@ Feature: Registrant scenarios for registering a group of Attendees for a confere
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegFull
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
@@ -54,9 +54,6 @@ Scenario: All the Order Items are available and some get selected, then only the
 #3
 #Initial state	: 3 available items, 2 selected
 #End state		: 2 offered waitlisted
-
-# Next release
-@Ignore
 Scenario: All the Order Items are available and all get waitlisted
 	Given the selected Order Items
 	| seat type                 | quantity |
@@ -66,19 +63,18 @@ Scenario: All the Order Items are available and all get waitlisted
 	| seat type                 |
 	| General admission         |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
-	| seat type                 | quantity |
-	| General admission         | 2        |
-	| Additional cocktail party | 2        |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
+	And the total should read $0
+	And the countdown started
 
 
 #4
 #Initial state	: 3 available items, 3 selected
 #End state		: 1 reserved, 1 partially reserved, 1 waitlisted
-
-# Next release
-@Ignore
 Scenario: All the Order Items are available, 1 becomes partially available, 1 becomes unavailable and 1 is available,
 	      then 2 are partially offered to get waitlisted and 1 get reserved
 	Given the selected Order Items
@@ -86,21 +82,19 @@ Scenario: All the Order Items are available, 1 becomes partially available, 1 be
 	| General admission         | 2        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And these Seat Types becomes partially unavailable before the Registrant make the reservation
-	| seat type         |
-	| General admission |
 	And these Seat Types becomes unavailable before the Registrant make the reservation
-	| seat type                 |
-	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
 	| seat type                 | quantity |
-	| General admission         | 1        |
-	| Additional cocktail party | 2        |
-	And These other Order Items get reserved
-	| seat type         | quantity |
-	| General admission | 1        |
-	| CQRS Workshop     | 1        |
+	| General admission         | 99       |
+	| Additional cocktail party | 100      |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 1        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 1        |                                            |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
 	And the total should read $699
+	And the countdown started
+
+
 
 

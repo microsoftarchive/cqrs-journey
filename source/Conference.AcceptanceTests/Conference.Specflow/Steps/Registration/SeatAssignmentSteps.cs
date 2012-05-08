@@ -11,34 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using Xunit;
+using Conference.Specflow.Support;
 using W = WatiN.Core;
+using Xunit;
 
 namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
-    public class SelfRegistrationEndToEndSadSteps
+    public class SeatAssignmentSteps
     {
-        [When(@"the Registrant proceed to cancel the payment")]
-        public void WhenTheRegistrantProceedToCancelThePayment()
+        [When(@"the Registrant assign these seats")]
+        public void WhenTheRegistrantAssignTheseSeats(Table table)
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.RejectPaymentInputValue);
-        }
+            var browser = ScenarioContext.Current.Get<W.Browser>();
+            browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
 
-        [When(@"the Registrant proceed to make the Reservation with no selected seats")]
-        public void WhenTheRegistrantProceedToMakeTheReservationWithNoSelectedSeats()
-        {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.NextStepId);
-        }
+            foreach (var row in table.Rows)
+            {
+                browser.SetRowCells(row["seat type"], row["first name"], row["last name"], row["email address"]);
+            }
 
-        [Then(@"the payment selection page will show up")]
-        public void ThenThePaymentSelectionPageWillShowUp()
-        {
-            Assert.True(
-                ScenarioContext.Current.Get<W.Browser>().SafeContainsText(Constants.UI.ReservationSuccessfull),
-                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull));
+            browser.Click(Constants.UI.NextStepId);
         }
     }
 }

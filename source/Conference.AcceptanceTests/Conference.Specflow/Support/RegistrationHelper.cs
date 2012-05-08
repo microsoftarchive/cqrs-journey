@@ -12,21 +12,21 @@
 // ==============================================================================================================
 
 using System;
-using System.Data.Entity;
-using Conference.Common.Entity;
-using Conference.Web.Public.Controllers;
-using Registration.ReadModel;
-using Registration.ReadModel.Implementation;
-using Payments.ReadModel.Implementation;
-using System.Web;
-using System.Web.Hosting;
-using System.IO;
-using Moq;
 using System.Collections.Specialized;
+using System.Data.Entity;
+using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Conference.Common.Entity;
+using Conference.Web.Public.Controllers;
+using Infrastructure.Serialization;
+using Infrastructure.Sql.Blob;
+using Moq;
+using Payments.ReadModel.Implementation;
+using Registration.ReadModel;
+using Registration.ReadModel.Implementation;
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     static class RegistrationHelper
     {
@@ -35,12 +35,13 @@ namespace Conference.Specflow
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<PaymentsReadDbContext>(null);
+            Database.SetInitializer<BlobStorageDbContext>(null);
         }
 
         public static RegistrationController GetRegistrationController(string conferenceCode)
         {
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
-            var orderDao = new OrderDao(ctxFactory);
+            var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
         
             // Setup context mocks
@@ -69,13 +70,6 @@ namespace Conference.Specflow
         {
             var paymentDao = new PaymentDao(() => new PaymentsReadDbContext(PaymentsReadDbContext.SchemaName));
             return new PaymentController(ConferenceHelper.GetCommandBus(), paymentDao);
-        }
-
-        public static OrderDTO GetOrder(string email, string accessCode)
-        {            
-            var orderDao = new OrderDao(() => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName));
-            var orderId = orderDao.LocateOrder(email, accessCode).Value;
-            return orderDao.GetOrderDetails(orderId);
         }
     }
 }

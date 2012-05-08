@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System.Text.RegularExpressions;
+using System.Threading;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using Xunit;
@@ -19,17 +21,30 @@ using W = WatiN.Core;
 namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
-    public class SelfRegistrationReservationWithPartialAvailabilitySteps
+    public class SelfRegistrationReservationWithFullAvailabilitySteps
     {
-        [Given(@"the Registrant is offered to select any of these available seats")]
-        [Then(@"the Registrant is offered to select any of these available seats")]
-        public void ThenTheRegistrantIsOfferedToSelectAnyOfTheseAvailableSeats(Table table)
+        [Then(@"the Order should be found with the following Order Items")]
+        public void ThenTheOrderShouldBeFoundWithTheFollowingOrderItems(Table table)
         {
             var browser = ScenarioContext.Current.Get<W.Browser>();
+            string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
+            Assert.False(string.IsNullOrWhiteSpace(accessCode));
+
+            Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
+
+            var email = ScenarioContext.Current.Get<string>("email");
+
+            // Navigate to Registration page
+            browser.GoTo(Constants.FindOrderPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
+            browser.SetInput("name", email, "email");
+            browser.SetInput("name", accessCode, "accessCode");
+            browser.Click(Constants.UI.FindId);
+            browser.WaitUntilContainsText(Constants.UI.FindOrderSuccessfull, Constants.UI.WaitTimeout.Seconds);
+
             foreach (var row in table.Rows)
             {
-                Assert.True(browser.ContainsListItemsInTableRow(row["seat type"], row["selected"], row["message"]), 
-                    string.Format("some of these text where not found in the current page: '{0}', '{1}', '{2}'", row["seat type"], row["selected"], row["message"]));
+                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]),
+                    string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));
             }
         }
     }

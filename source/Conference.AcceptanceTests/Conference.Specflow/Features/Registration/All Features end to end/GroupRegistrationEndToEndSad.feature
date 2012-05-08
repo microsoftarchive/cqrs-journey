@@ -18,50 +18,64 @@ Feature: Registrant workflow for registering a group of Attendees for a conferen
 
 #General preconditions for all the scenarios
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegE2Esad
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
-	| General admission         | $199 | 2     |
-	| CQRS Workshop             | $500 | 2     |
-	| Additional cocktail party | $50  | 2     |
+	| General admission         | $199 | 20    |
+	| CQRS Workshop             | $500 | 20    |
+	| Additional cocktail party | $50  | 20    |
 
 
-#Initial state	: 3 available items, 2 selected (q=4)
-#End state		: 2 reserved and 1 offered waitlisted
-Scenario: All the Order Items are available, then some get waitlisted and some reserved
-	Given the selected Order Items
+#Initial state	: 3 selected and 1 none available and 1 partially available
+#End state		: 1 reserved, 1 partially reserved and 1 not reserved  
+ Scenario: All the Order Items are selected and none are available, then none get reserved	
+ 	Given the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 3        |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 2        |
+	And these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 | quantity |
+	| General admission         | 18       |
+	| CQRS Workshop             | 20       |
+	| Additional cocktail party | 10       |
+	And the Registrant proceed to make the Reservation with seats already reserved 		
+	And the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 2        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 2        |                                            |
+	And the total should read $498
+	When the Registrant proceed to make the Reservation
+	Then the Reservation is confirmed for all the selected Order Items
+	And these Order Items should be reserved
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	| Additional cocktail party | 2        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
-	| seat type         | quantity |
-	| General admission | 1        |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
-	| seat type         | quantity |
-	| General admission | 1        |
-	And these Order Items should be reserved
-	| seat type                 | quantity |
-	| General admission         | 1        |
-	| Additional cocktail party | 2        |
-	And the total should read $299
+	And the total should read $498
 	And the countdown started
 
 
-# Next release
-@Ignore
-Scenario: Allocate some purchased Seats for a group
-Given the ConfirmSuccessfulRegistration
-And the order access code is 6789
-And the Registrant assign the group purchased Seats to attendees as following
-	| First name | Last name | email address     | Seat type         |
-	| William    | Weber     | William@Weber.com | General admission |
-And leave unassigned these individual purchased seats
-	| First name | Last name | email address | Seat type                 |
-	| Mani       | Kris      | Mani@Kris.com | Additional cocktail party |
-Then the Registrant should get a Seat Assignment confirmation
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address     | Seat type                        |
-	| 6789-1      | William@Weber.com | General admission                |
+Scenario: Allocate some purchased Seats
+ 	Given the selected Order Items
+	| seat type                 | quantity |
+	| Additional cocktail party | 4        |
+	And the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| first name | last name | email address            |
+	| Gregory    | Weber     | gregoryweber@contoso.com |
+	And the Registrant proceed to Checkout:Payment
+	And the Registrant proceed to confirm the payment
+    And the Registration process was successful
+	And the Order should be created with the following Order Items
+	| seat type                 | quantity |
+	| Additional cocktail party | 4        |
+	When the Registrant assign these seats
+	| seat type                 | first name | last name | email address       |
+	| Additional cocktail party | Mani       | Kris      | Mani@Kris.com       |
+	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	Then these seats are assigned
+	| seat type                 | quantity |
+	| Additional cocktail party | 4        |
 
 
 

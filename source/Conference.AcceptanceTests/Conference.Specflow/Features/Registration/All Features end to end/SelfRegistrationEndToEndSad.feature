@@ -17,7 +17,7 @@ Feature: Self Registrant end to end scenario for making a Registration for a Con
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code SelfRegE2Esad
+	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 10    |
 	| CQRS Workshop             | $500 | 10    |
@@ -32,6 +32,16 @@ Background:
 #	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
 
+Scenario: No selected Seat Type
+	Given the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 0        |
+	| CQRS Workshop             | 0        |
+	| Additional cocktail party | 0        |
+	When the Registrant proceed to make the Reservation with no selected seats
+	Then the message 'One or more items are required' will show up
+
+
 #Initial state	: 3 available
 #End state		: 2 waitlisted, 1 reserved
 Scenario: All Seat Types are available, one get reserved and two get waitlisted
@@ -39,11 +49,11 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	| seat type                 |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 1        |
+	When the Registrant proceed to make the Reservation with seats already reserved		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| CQRS Workshop             | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |  
 	And these Order Items should be reserved
 	| seat type                        | quantity |
 	| General admission                | 1		  |
@@ -51,33 +61,10 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	And the countdown started
 
 
-#Initial state	: 1 available, 2 waitlisted and 1a & 1w selected
-#End state		: 1 reserved,  1 waitlisted confirmed  
-
-# Next release
-@Ignore
-Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
-	Given the list of available Order Items selected by the Registrant
-	| seat type                        | quantity |
-	| General admission                | 1        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
-	| seat type     | quantity |
-	| CQRS Workshop | 1        |
-	And these other order items get reserved
-	| seat type         | quantity |
-	| General admission | 1        |	
-	And the countdown started
-
-
 Scenario: Checkout:Registrant Invalid Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| First name | Last name | email address        |
+	| first name | last name | email address        |
 	| Gregory    |           | gregoryweber@invalid |
 	When the Registrant proceed to Checkout:Payment
 	Then the message 'The LastName field is required.' will show up 	
@@ -86,11 +73,34 @@ Scenario: Checkout:Registrant Invalid Details
 Scenario: Checkout:Payment with cancellation
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| First name | Last name | email address            |
+	| first name | last name | email address            |
 	| Gregory    | Weber     | gregoryweber@contoso.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to cancel the payment
-    Then the message 'Payment cancelled.' will show up 	
+    Then the payment selection page will show up 	
+
+
+Scenario: Partiall Seats allocation
+	Given the Registrant proceed to make the Reservation
+	And the Registrant enter these details
+	| first name | last name | email address            |
+	| Gregory    | Weber     | gregoryweber@contoso.com |
+	And the Registrant proceed to Checkout:Payment
+	And the Registrant proceed to confirm the payment
+    And the Registration process was successful
+	And the Order should be created with the following Order Items
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| CQRS Workshop             | 1        |
+	| Additional cocktail party | 1        |
+	When the Registrant assign these seats
+	| seat type                 | first name | last name | email address            |
+	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
+	| Additional cocktail party | Gregory    | Weber     | gregoryweber@contoso.com |
+	Then these seats are assigned
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |
 
 
 # Next release
@@ -104,35 +114,3 @@ Scenario: Partial Promotional Code for none of the selected items
 	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $500
 
-
-# Next release
-@Ignore
-Scenario: Partiall Seats allocation
-Given the ConfirmSuccessfulRegistration for the selected Order Items
-And the Order Access code is 6789
-And I assign the purchased seats to attendees as following
-	| First name | Last name | email address            | Seat type         |
-	| Gregory    | Weber     | gregoryweber@contoso.com | General admission |
-And leave unassigned these seats
-	| First name | Last name | email address | Seat type                 |
-	|            |           |               | Additional cocktail party |
-Then I should be getting a seat assignment confirmation for the seats
-	| First name | Last name | email address            | Seat type         |
-	| Gregory    | Weber     | gregoryweber@contoso.com | General admission |
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address            | Seat type         |
-	| 6789-1      | gregoryweber@contoso.com | General admission |
-
-
-# Next release
-@Ignore
-Scenario: Complete Seats allocation
-Given the ConfirmSuccessfulRegistration for the selected Order Items
-And the Order Access code is 6789
-And the Registrant assign the purchased seats to attendees as following
-	| First name | Last name | email address            | Seat type                 |
-	| Gregory    | Weber     | gregoryweber@contoso.com | Additional cocktail party |
-Then the Registrant should be get a Seat Assignment confirmation
-And the Attendees should get an email informing about the conference and the Seat Type with Seat Access Code
-	| Access code | email address            | Seat type                 |
-	| 6789-2      | gregoryweber@contoso.com | Additional cocktail party |

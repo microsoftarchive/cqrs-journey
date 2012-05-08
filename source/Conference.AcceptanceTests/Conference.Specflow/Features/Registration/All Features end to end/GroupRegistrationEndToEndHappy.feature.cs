@@ -87,8 +87,7 @@ namespace Conference.Specflow.Features.Registration.AllFeaturesEndToEnd
                         "$50",
                         "100"});
 #line 21
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference with th" +
-                    "e slug code GroupRegE2Ehappy", ((string)(null)), table1);
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -169,8 +168,8 @@ this.FeatureBackground();
  testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
-                        "First name",
-                        "Last name",
+                        "first name",
+                        "last name",
                         "email address"});
             table4.AddRow(new string[] {
                         "William",
@@ -201,8 +200,8 @@ this.FeatureBackground();
  testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
-                        "First name",
-                        "Last name",
+                        "first name",
+                        "last name",
                         "email address"});
             table5.AddRow(new string[] {
                         "William",
@@ -215,8 +214,7 @@ this.FeatureBackground();
 #line 60
  testRunner.When("the Registrant proceed to confirm the payment");
 #line 61
-    testRunner.Then("the message \'You will receive a confirmation e-mail in a few minutes.\' will show " +
-                    "up");
+    testRunner.Then("the Registration process was successful");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -236,94 +234,104 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Registrant workflow for registering a group of Attendees for a conference (happy " +
             "path)")]
-        [Xunit.TraitAttribute("Description", "Allocate all purchased Seats for a group")]
-        public virtual void AllocateAllPurchasedSeatsForAGroup()
+        [Xunit.TraitAttribute("Description", "Allocate all purchased Seats")]
+        public virtual void AllocateAllPurchasedSeats()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats for a group", new string[] {
-                        "Ignore"});
-#line 70
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Allocate all purchased Seats", ((string[])(null)));
+#line 69
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
-#line 71
-testRunner.Given("the ConfirmSuccessfulRegistration");
-#line 72
-testRunner.And("the order access code is 6789");
+#line 70
+ testRunner.Given("the Registrant proceed to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
-                        "First name",
-                        "Last name",
-                        "email address",
-                        "Seat type"});
-            table7.AddRow(new string[] {
-                        "William",
-                        "Weber",
-                        "William@Weber.com",
-                        "General admission"});
+                        "first name",
+                        "last name",
+                        "email address"});
             table7.AddRow(new string[] {
                         "Gregory",
-                        "Doe",
-                        "GregoryDoe@live.com",
-                        "General admission"});
-            table7.AddRow(new string[] {
-                        "Oliver",
                         "Weber",
-                        "Oliver@Weber.com",
-                        "CQRS Workshop"});
-            table7.AddRow(new string[] {
-                        "Tim",
-                        "Martin",
-                        "Tim@Martin.com",
-                        "CQRS Workshop"});
-            table7.AddRow(new string[] {
-                        "Mani",
-                        "Kris",
-                        "Mani@Kris.com",
-                        "Additional cocktail party"});
-            table7.AddRow(new string[] {
-                        "Jim",
-                        "Gregory",
-                        "Jim@Gregory.com",
-                        "Additional cocktail party"});
-#line 73
-testRunner.And("the Registrant assign the group purchased Seats to attendees as following", ((string)(null)), table7);
-#line 81
-testRunner.Then("the Registrant should get a Seat Assignment confirmation");
+                        "gregoryweber@contoso.com"});
+#line 71
+ testRunner.And("the Registrant enter these details", ((string)(null)), table7);
+#line 74
+ testRunner.And("the Registrant proceed to Checkout:Payment");
+#line 75
+ testRunner.And("the Registrant proceed to confirm the payment");
+#line 76
+    testRunner.And("the Registration process was successful");
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Access code",
-                        "email address",
-                        "Seat type"});
+                        "seat type",
+                        "quantity"});
             table8.AddRow(new string[] {
-                        "6789-1",
-                        "William@Weber.com",
-                        "General admission"});
+                        "General admission",
+                        "3"});
             table8.AddRow(new string[] {
-                        "6789-2",
-                        "GregoryDoe@live.com",
-                        "General admission"});
+                        "CQRS Workshop",
+                        "1"});
             table8.AddRow(new string[] {
-                        "6789-3",
-                        "Oliver@Weber.com",
-                        "CQRS Workshop"});
-            table8.AddRow(new string[] {
-                        "6789-4",
-                        "Tim@Martin.com",
-                        "CQRS Workshop"});
-            table8.AddRow(new string[] {
-                        "6789-5",
-                        "Mani@Kris.com",
-                        "Additional cocktail party"});
-            table8.AddRow(new string[] {
-                        "6789-6",
-                        "Jim@Gregory.com",
-                        "Additional cocktail party"});
+                        "Additional cocktail party",
+                        "2"});
+#line 77
+ testRunner.And("the Order should be created with the following Order Items", ((string)(null)), table8);
+#line hidden
+            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "first name",
+                        "last name",
+                        "email address"});
+            table9.AddRow(new string[] {
+                        "General admission",
+                        "William",
+                        "Weber",
+                        "William@Weber.com"});
+            table9.AddRow(new string[] {
+                        "General admission",
+                        "Gregory",
+                        "Doe",
+                        "GregoryDoe@live.com"});
+            table9.AddRow(new string[] {
+                        "General admission",
+                        "Oliver",
+                        "Weber",
+                        "Oliver@Weber.com"});
+            table9.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "Tim",
+                        "Martin",
+                        "Tim@Martin.com"});
+            table9.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "Mani",
+                        "Kris",
+                        "Mani@Kris.com"});
+            table9.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "Jim",
+                        "Gregory",
+                        "Jim@Gregory.com"});
 #line 82
-testRunner.And("the Attendees should get an email informing about the conference and the Seat Typ" +
-                    "e with Seat Access Code", ((string)(null)), table8);
+ testRunner.When("the Registrant assign these seats", ((string)(null)), table9);
+#line hidden
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "quantity"});
+            table10.AddRow(new string[] {
+                        "General admission",
+                        "3"});
+            table10.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "1"});
+            table10.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "2"});
+#line 90
+ testRunner.Then("these seats are assigned", ((string)(null)), table10);
 #line hidden
             this.ScenarioCleanup();
         }

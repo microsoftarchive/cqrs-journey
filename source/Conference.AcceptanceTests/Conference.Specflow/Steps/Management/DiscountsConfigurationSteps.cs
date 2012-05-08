@@ -11,19 +11,42 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System.Text.RegularExpressions;
 using TechTalk.SpecFlow;
-using W = WatiN.Core;
 
-namespace Conference.Specflow.Steps.Registration.EndToEnd
+namespace Conference.Specflow.Steps.Management
 {
     [Binding]
-    public class SelfRegistrationEndToEndHappySteps
+    public class DiscountsConfigurationSteps
     {
-        [When(@"the Registrant proceed to confirm the payment")]
-        public void WhenTheRegistrantProceedToConfirmThePayment()
+        [Given(@"the Seat Types configuration")]
+        public void GivenTheSeatTypesConfiguration(Table table)
         {
-            ScenarioContext.Current.Get<W.Browser>().Click(Constants.UI.AcceptPaymentInputValue);
+            ScenarioContext.Current.Pending();
         }
+
+        [Given(@"the Business Customer selects 'Add new Promotional code' option")]
+        public void GivenTheBusinessCustomerSelectsAddNewPromotionalCodeOption()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [Given(@"the Business Customer enter the 'NEWCODE' Promotional Code and these attributes")]
+        public void GivenTheBusinessCustomerEnterTheNewcodePromotionalCodeAndTheseAttributes(Table table)
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [When(@"the 'Save' option is selected")]
+        public void WhenTheSaveOptionIsSelected()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [Then(@"the new Promotional Code is added to the list of existing codes")]
+        public void ThenTheNewPromotionalCodeIsAddedToTheListOfExistingCodes()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
     }
 }

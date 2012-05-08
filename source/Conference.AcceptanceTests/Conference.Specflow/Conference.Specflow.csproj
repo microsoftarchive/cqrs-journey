@@ -92,7 +92,27 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Features\Management\Discounts Configuration\DiscountsConfiguration.feature.cs">
+    <Compile Include="Features\Management\Conference\ConferenceConfiguration.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ConferenceConfiguration.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Management\All Features end to end\ConferenceEndToEndHappy.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ConferenceEndToEndHappy.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Management\All Features end to end\ConferenceEndToEndSad.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ConferenceEndToEndSad.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Management\Seat Types\SeatTypesConfiguration.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SeatTypesConfiguration.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Management\Discounts\DiscountsConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DiscountsConfiguration.feature</DependentUpon>
@@ -164,12 +184,13 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Steps\Conference\DiscountsConfigurationSteps.cs" />
+    <Compile Include="Steps\Management\DiscountsConfigurationSteps.cs" />
+    <Compile Include="Steps\Registration\SeatAssignmentSteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />
     <Compile Include="Steps\Registration\CommonSteps.cs" />
-    <Compile Include="Steps\Registration\SelfRegistrationEndToEndHappySteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndWithInfrastructureSteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
     <Compile Include="Support\ConferenceHelper.cs" />
     <Compile Include="Support\Constants.cs" />
     <Compile Include="Support\IEExtension.cs" />
@@ -183,7 +204,23 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Features\Management\Discounts Configuration\DiscountsConfiguration.feature">
+    <None Include="Features\Management\Conference\ConferenceConfiguration.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ConferenceConfiguration.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Management\All Features end to end\ConferenceEndToEndHappy.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ConferenceEndToEndHappy.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Management\All Features end to end\ConferenceEndToEndSad.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ConferenceEndToEndSad.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Management\Seat Types\SeatTypesConfiguration.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SeatTypesConfiguration.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Management\Discounts\DiscountsConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>DiscountsConfiguration.feature.cs</LastGenOutput>
     </None>
@@ -273,6 +310,14 @@
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
+      <Project>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</Project>
+      <Name>Infrastructure.Sql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
+      <Name>Registration.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

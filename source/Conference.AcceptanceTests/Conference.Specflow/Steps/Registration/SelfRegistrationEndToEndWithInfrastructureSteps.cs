@@ -14,15 +14,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TechTalk.SpecFlow;
-using Conference.Web.Public.Controllers;
 using System.Web.Mvc;
-using Registration.ReadModel;
-using Registration.Commands;
-using Registration;
-using Conference.Web.Public.Models;
 using System.Web.Routing;
+using Conference.Specflow.Support;
+using Conference.Web.Public.Controllers;
+using Conference.Web.Public.Models;
+using Registration;
+using Registration.Commands;
+using Registration.ReadModel;
+using TechTalk.SpecFlow;
 using Xunit;
 
 namespace Conference.Specflow.Steps.Registration
@@ -31,38 +31,27 @@ namespace Conference.Specflow.Steps.Registration
     [Scope(Tag = "SelfRegistrationEndToEndWithInfrastructure")]
     public class SelfRegistrationEndToEndWithInfrastructureSteps
     {
-        [Given(@"the list of the available Order Items for the CQRS summit 2012 conference with the slug code (.*)")]
-        public void GivenTheListOfTheAvailableOrderItemsForTheCQRSSummit2012Conference(string conferenceSlug, Table table)
-        {
-            // Populate Conference data
-            var conferenceInfo = ConferenceHelper.PopulateConfereceData(table, conferenceSlug);
-
-            // Store for later use
-            ScenarioContext.Current.Set<ConferenceInfo>(conferenceInfo);
-
-            // Get the RegistrationController for this conference
-            var controller = RegistrationHelper.GetRegistrationController(conferenceInfo.Slug);
-
-            // Store for later use
-            ScenarioContext.Current.Set<RegistrationController>(controller);
-        }
-
         [Given(@"the selected Order Items")]
         public void GivenTheSelectedOrderItems(Table table)
         {
+            // Get the RegistrationController for this conference
+            var controller = RegistrationHelper.GetRegistrationController(ScenarioContext.Current.Get<ConferenceInfo>().Slug);
+            // Store for later use
+            ScenarioContext.Current.Set(controller);
+
             var conference = ScenarioContext.Current.Get<ConferenceInfo>();
-            var controller = ScenarioContext.Current.Get<RegistrationController>();
-            var seats = ((ViewResult)controller.StartRegistration()).Model as IList<ConferenceSeatTypeDTO>;
-            var registration = new RegisterToConference() { ConferenceId = conference.Id, OrderId = controller.ViewBag.OrderId } ;
- 
+            var orderViewModel = ((ViewResult)controller.StartRegistration()).Model as OrderViewModel;
+            Assert.NotNull(orderViewModel);
+            var registration = new RegisterToConference { ConferenceId = conference.Id, OrderId = controller.ViewBag.OrderId };
+
             foreach (var row in table.Rows)
             {
-                var seatType = seats.FirstOrDefault(s => s.Name == row["seat type"]);
-                Assert.NotNull(seatType);
-                registration.Seats.Add(new SeatQuantity(seatType.Id, Int32.Parse(row["quantity"])));
+                var orderItemViewModel = orderViewModel.Items.FirstOrDefault(s => s.SeatType.Description == row["seat type"]);
+                Assert.NotNull(orderItemViewModel);
+                registration.Seats.Add(new SeatQuantity(orderItemViewModel.SeatType.Id, Int32.Parse(row["quantity"])));
             }
 
-            ScenarioContext.Current.Set<RegisterToConference>(registration);
+            ScenarioContext.Current.Set(registration);
         }
 
         [Given(@"the Registrant proceed to make the Reservation")]
@@ -70,19 +59,21 @@ namespace Conference.Specflow.Steps.Registration
         {
             var controller = ScenarioContext.Current.Get<RegistrationController>();
             var registration = ScenarioContext.Current.Get<RegisterToConference>();
-            var redirect = controller.StartRegistration(registration) as RedirectToRouteResult;
+            var redirect = controller.StartRegistration(registration, controller.ViewBag.OrderVersion) as RedirectToRouteResult;
             
+            Assert.NotNull(redirect);
+
             // Perform external redirection
             var timeout =  DateTime.Now.Add(Constants.UI.WaitTimeout);
             RegistrationViewModel model = null;
             while(DateTime.Now < timeout && model == null)
             {
                 model = ((ViewResult)controller.SpecifyRegistrantAndPaymentDetails(
-                    (Guid)redirect.RouteValues["orderId"])).Model as RegistrationViewModel;
+                    (Guid)redirect.RouteValues["orderId"], controller.ViewBag.OrderVersion)).Model as RegistrationViewModel;
             }
 
             Assert.NotNull(model);
-            ScenarioContext.Current.Set<RegistrationViewModel>(model);
+            ScenarioContext.Current.Set(model);
         }
 
         [Given(@"these Order Items should be reserved")]
@@ -91,7 +82,7 @@ namespace Conference.Specflow.Steps.Registration
             var model = ScenarioContext.Current.Get<RegistrationViewModel>();
             foreach (var row in table.Rows)
             {
-                var seat = model.Order.Items.FirstOrDefault(i => i.SeatTypeDescription == row["seat type"]);
+                var seat = model.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
                 Assert.NotNull(seat);
                 Assert.Equal(Int32.Parse(row["quantity"]), seat.Quantity);
             }
@@ -103,9 +94,8 @@ namespace Conference.Specflow.Steps.Registration
             var model = ScenarioContext.Current.Get<RegistrationViewModel>();
             foreach (var row in table.Rows)
             {
-                var seat = model.Order.Items.FirstOrDefault(i => i.SeatTypeDescription == row["seat type"]);
-                Assert.NotNull(seat);
-                Assert.Equal(0, seat.Quantity);
+                var seat = model.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
+                Assert.Null(seat);
             }
         }
 
@@ -113,8 +103,8 @@ namespace Conference.Specflow.Steps.Registration
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
             var model = ScenarioContext.Current.Get<RegistrationViewModel>();
-            model.RegistrantDetails.FirstName = table.Rows[0]["First name"];
-            model.RegistrantDetails.LastName = table.Rows[0]["Last name"];
+            model.RegistrantDetails.FirstName = table.Rows[0]["first name"];
+            model.RegistrantDetails.LastName = table.Rows[0]["last name"];
             model.RegistrantDetails.Email = table.Rows[0]["email address"];
         }
 
@@ -125,9 +115,11 @@ namespace Conference.Specflow.Steps.Registration
             var controller = ScenarioContext.Current.Get<RegistrationController>();
 
             var result = controller.SpecifyRegistrantAndPaymentDetails(
-                model.RegistrantDetails, RegistrationController.ThirdPartyProcessorPayment) as RedirectToRouteResult;
+                model.RegistrantDetails, RegistrationController.ThirdPartyProcessorPayment, controller.ViewBag.OrderVersion) as RedirectToRouteResult;
 
-            ScenarioContext.Current.Set<RouteValueDictionary>(result.RouteValues);
+            Assert.NotNull(result);
+
+            ScenarioContext.Current.Set(result.RouteValues);
         }
 
         [When(@"the Registrant proceed to confirm the payment")]
@@ -147,11 +139,11 @@ namespace Conference.Specflow.Steps.Registration
             var controller = ScenarioContext.Current.Get<RegistrationController>();
             var model = ScenarioContext.Current.Get<RegistrationViewModel>();
             
-            var order = ((ViewResult)controller.ThankYou(conference.Slug, model.Order.Id)).Model as OrderDTO;
+            var order = ((ViewResult)controller.ThankYou(model.Order.OrderId)).Model as DraftOrder;
+            Assert.NotNull(order);
 
             foreach (var row in table.Rows)
             {
-                string value = row["seat type"];
                 var orderItem = order.Lines.FirstOrDefault(
                     l => l.SeatType == conference.Seats.First(s => s.Description == row["seat type"]).Id);
 
@@ -164,13 +156,13 @@ namespace Conference.Specflow.Steps.Registration
         public static void AfterScenario()
         {
             RegistrationController regController;
-            if (ScenarioContext.Current.TryGetValue<RegistrationController>(out regController))
+            if (ScenarioContext.Current.TryGetValue(out regController))
             {
                 regController.Dispose();
             }
 
             PaymentController paymentController;
-            if (ScenarioContext.Current.TryGetValue<PaymentController>(out paymentController))
+            if (ScenarioContext.Current.TryGetValue(out paymentController))
             {
                 paymentController.Dispose();
             }

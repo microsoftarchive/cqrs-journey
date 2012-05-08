@@ -16,59 +16,87 @@ Feature: Registrant scenarios for registering a group of Attendees for a confere
 	As a Registrant
     I want to be able to select Order Items from one or many of the available and or waitlisted Order Items and make a Reservation
 
-#General preconditions for all the scenarios
+#General preconditions: 
 Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference with the slug code GroupRegPartial
+ 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
 	| Additional cocktail party | $50  | 100   |
 
-#1
-#Initial state	: 3 waitlisted and 3 selected
-#End state		: 3 waitlisted confirmed  
-#Next release
-@Ignore
-Scenario: All the Order Items are offered to be waitlisted and all are selected, then all get confirmed	
-	Given the list of Order Items offered to be waitlisted and selected by the Registrant
+#Initial state	: 3 selected and none available
+#End state		: 3 not reserved  
+ Scenario: All the Order Items are selected and none are available, then none get reserved	
+ 	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	When the Registrant proceed to make the Reservation			
-	Then these Order Itmes get confirmed being waitlisted
-	| seat type                 | quantity |
-	| General admission         | 3        |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 2        |
+	And these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 |
+	| General admission         |
+	| CQRS Workshop             |
+	| Additional cocktail party |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 0        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 0        | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
+	And the countdown started
 
-#2
-#Initial state	: 2 available items and 1 waitlisted, 3 selected
-#End state		: 2 reserved, 2 waitlisted
-#Next release
-@Ignore
-Scenario: 2 the Order Items are available and 1 waitlisted, 1 becomes partially available,
-	      then 2 are partially offered to get waitlisted and 2 get reserved
-	Given the selected available Order Items
-	| seat type         | quantity |
-	| General admission | 7        |
-	| CQRS Workshop     | 2        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                        | quantity |
-	| Additional cocktail party        | 5        |	
-	And these Seat Types becomes partially unavailable before the Registrant make the reservation
-	| seat type         |
-	| General admission |
-	When the Registrant proceed to make the Reservation			
-	Then the Registrant is offered to be waitlisted for these Order Items
+
+#Initial state	: 3 selected and two get unavailable
+#End state		: 1 reserved and 2 not get reserved  
+ Scenario: All the Order Items are selected, one partially available and one not available, then one get reserved, one partially reserved and one not	
+	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 3        |
-	| Additional cocktail party | 5        |
-	And These other Order Items get reserved
-	| seat type         | quantity |
-	| General admission | 4        |
-	| CQRS Workshop     | 2        |
-	And And the total should read $1796
+	| CQRS Workshop             | 11       |
+	| Additional cocktail party | 1        |
+	And these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 | quantity |
+	| CQRS Workshop             | 90       |
+	| Additional cocktail party |          |
+	When the Registrant proceed to make the Reservation with seats already reserved 		
+	Then the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 3        |                                            |
+	| CQRS Workshop             | 10       | Could not reserve all the requested seats. |
+	| Additional cocktail party | 0        | Could not reserve all the requested seats. |
+	And the countdown started
+
+
+
+#Initial state	: 3 selected and 3 get partially unavailable (1 full)
+#End state		: 2 reserved (1 partially) and 1 not get reserved  
+ Scenario: All the Order Items are selected, two are partially available and one none available, then two get partially reserved and one not	
+	Given the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 7        |
+	| CQRS Workshop             | 12       |
+	| Additional cocktail party | 9        |
+	And these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 | quantity |
+	| General admission         | 100      |
+	| CQRS Workshop             | 90       |
+	| Additional cocktail party | 90       |
+	And the Registrant proceed to make the Reservation with seats already reserved 		
+	And the Registrant is offered to select any of these available seats
+	| seat type                 | selected | message                                    |
+	| General admission         | 0        | Could not reserve all the requested seats. |
+	| CQRS Workshop             | 10       | Could not reserve all the requested seats. |
+	| Additional cocktail party | 9        |                                            |
+	And the total should read $5450
+	When the Registrant proceed to make the Reservation
+	Then the Reservation is confirmed for all the selected Order Items
+	And these Order Items should be reserved
+	| seat type                 | quantity |
+	| CQRS Workshop             | 10       |
+	| Additional cocktail party | 9        |
+	And the total should read $5450
+	And the countdown started
+
 
 
 

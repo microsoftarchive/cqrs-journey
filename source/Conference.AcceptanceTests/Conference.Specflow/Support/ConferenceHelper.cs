@@ -13,20 +13,25 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using Infrastructure.Azure;
-using Infrastructure.Azure.Messaging;
-using Infrastructure.Messaging;
-using Infrastructure.Serialization;
-using Newtonsoft.Json;
+using Conference.Common.Entity;
 using Registration;
 using Registration.Commands;
 using TechTalk.SpecFlow;
-using System.Data.Entity;
-using Conference.Common.Entity;
+using Infrastructure.Messaging;
+using Infrastructure.Serialization;
+#if LOCAL
+    using Infrastructure.Sql.Messaging;
+    using Infrastructure.Sql.Messaging.Implementation;
+#else
+    using Infrastructure.Azure;
+    using Infrastructure.Azure.Messaging;
+#endif
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     static class ConferenceHelper
     {
@@ -38,36 +43,42 @@ namespace Conference.Specflow
 
         public static ConferenceInfo PopulateConfereceData(Table table, string conferenceSlug)
         {
-            ConferenceService svc = new ConferenceService(BuildEventBus());
-            ConferenceInfo conference = svc.FindConference(conferenceSlug);
+            var svc = new ConferenceService(BuildEventBus());
+            var conference = svc.FindConference(conferenceSlug);
 
             if (null != conference)
             {
                 if(conference.Seats.Count == 0)
-                    svc.FindSeats(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
+                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
                 return conference;
             }
 
             conference = BuildConferenceInfo(table, conferenceSlug);
             svc.CreateConference(conference);
             svc.Publish(conference.Id);
+
             // Wait for the events to be processed
             Thread.Sleep(Constants.WaitTimeout);
+
             return conference;
         }
 
         public static Guid ReserveSeats(ConferenceInfo conference, Table table)
         {
-            List<SeatQuantity> seats = new List<SeatQuantity>();
+            var seats = new List<SeatQuantity>();
 
             foreach (var row in table.Rows)
             {
                 var seatInfo = conference.Seats.FirstOrDefault(s => s.Name == row["seat type"]);
-                if (seatInfo != null)
-                {
-                    int qt = row.ContainsKey("quantity") ? Int32.Parse(row["quantity"]) : seatInfo.Quantity;
-                    seats.Add(new SeatQuantity(seatInfo.Id, qt));
-                }
+                if (seatInfo == null) 
+                    throw new InvalidOperationException("seat type not found");
+                
+                int qt;
+                if (!row.ContainsKey("quantity") ||
+                    !Int32.TryParse(row["quantity"], out qt))
+                    qt = seatInfo.Quantity;
+                
+                seats.Add(new SeatQuantity(seatInfo.Id, qt));
             }
 
             var seatReservation = new MakeSeatReservation
@@ -86,18 +97,6 @@ namespace Conference.Specflow
             return seatReservation.ReservationId;
         }
 
-        public static void CancelSeatReservation(Guid conferenceId, Guid reservationId)
-        {
-            var seatReservation = new CancelSeatReservation 
-            { 
-                ConferenceId = conferenceId, 
-                ReservationId = reservationId 
-            };
-            
-            var commandBus = BuildCommandBus();
-            commandBus.Send(seatReservation);
-        }
-
         public static ICommandBus GetCommandBus()
         {
             return BuildCommandBus();
@@ -110,17 +109,20 @@ namespace Conference.Specflow
                 Description = "Acceptance Tests CQRS summit 2012 conference (" + conferenceSlug + ")",
                 Name = conferenceSlug,
                 Slug = conferenceSlug,
+                Location = "AcceptanceTest",
+                Tagline = "AcceptanceTest",
+                TwitterSearch = "AcceptanceTest",
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(1),
                 OwnerName = "test",
-                OwnerEmail = "testEmail",
+                OwnerEmail = "testEmail@test.net",
                 IsPublished = true,
                 WasEverPublished = true
             };
 
             foreach (var row in seats.Rows)
             {
-                SeatInfo seat = new SeatInfo()
+                var seat = new SeatType()
                 {
                     Id = Guid.NewGuid(),
                     Description = row["seat type"],
@@ -137,9 +139,7 @@ namespace Conference.Specflow
         private static IEventBus BuildEventBus()
         {
 #if LOCAL
-            // TODO: this WON'T work to integrate across both websites!
-            // Populate upfront the Mgmt DB with SB instances before using this option
-            return new MemoryEventBus();
+            return new EventBus(GetMessageSender("SqlBus.Events"), new JsonTextSerializer());
 #else
             return new EventBus(GetTopicSender("events"), new MetadataProvider(), new JsonTextSerializer());
 #endif
@@ -148,18 +148,23 @@ namespace Conference.Specflow
         private static ICommandBus BuildCommandBus()
         {
 #if LOCAL
-            // TODO: this WON'T work to integrate across both websites!
-            // Populate upfront the Mgmt DB with SB instances before using this option
-            return new MemoryCommandBus();
+            return new CommandBus(GetMessageSender("SqlBus.Commands"), new JsonTextSerializer());
 #else
             return new CommandBus(GetTopicSender("commands"), new MetadataProvider(), new JsonTextSerializer());
 #endif
         }
 
+#if LOCAL
+        private static MessageSender GetMessageSender(string tableName)
+        {
+            return new MessageSender(Database.DefaultConnectionFactory, "SqlBus", tableName);
+        }
+#else
         private static TopicSender GetTopicSender(string topic)
         {
             var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             return new TopicSender(settings, "conference/" + topic);
         }
+#endif
     }
 }

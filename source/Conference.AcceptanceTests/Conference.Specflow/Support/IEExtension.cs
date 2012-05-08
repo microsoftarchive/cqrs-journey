@@ -12,12 +12,11 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using WatiN.Core;
+using WatiN.Core.Exceptions;
 
-namespace Conference.Specflow
+namespace Conference.Specflow.Support
 {
     public static class IEExtension
     {
@@ -27,13 +26,18 @@ namespace Conference.Specflow
 
             if (!element.Exists)
             {
-                element = browser.Button(Find.ById(controlId));
+                element = browser.Link(Find.ByText(t => t.Contains(controlId))) as Element;
                 if (!element.Exists)
                 {
-                    element = browser.Button(Find.ByValue(controlId));
+                    element = browser.Button(Find.ById(controlId));
                     if (!element.Exists)
                     {
-                        throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
+                        element = browser.Button(Find.ByValue(t => t.Contains(controlId)));
+                        if (!element.Exists)
+                        {
+                            throw new InvalidOperationException(string.Format("Could not find {0} link on the page",
+                                                                              controlId));
+                        }
                     }
                 }
             }
@@ -74,7 +78,27 @@ namespace Conference.Specflow
             return false;
         }
 
-        public static void SetInputvalue(this Browser browser, string inputId, string value, string attributeValue = null)
+        public static bool ContainsListItemsInTableRow(this Browser browser, string rowName, string maxItems)
+        {
+            return ContainsListItemsInTableRow(browser, rowName, maxItems, null);
+        }
+
+        public static bool ContainsListItemsInTableRow(this Browser browser, string rowName, string selected, string message)
+        {
+            //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
+            var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
+            if (tr != null && tr.Lists.Count > 0)
+            {
+                var list = tr.Lists.First();
+                var nextRow = tr.NextSibling as TableRow;
+                return list.OwnListItems[0].Text == selected &&
+                       (string.IsNullOrWhiteSpace(message) || nextRow.Text.Trim().Contains(message));
+            }
+            
+            return false;
+        }
+
+        public static void SetInput(this Browser browser, string inputId, string value, string attributeValue = null)
         {
             var input = browser.TextField(inputId);
             if (!input.Exists)
@@ -83,6 +107,23 @@ namespace Conference.Specflow
             if (input != null && input.Exists)
             {
                 input.SetAttributeValue("value", value);
+            }
+        }
+
+        public static void SetRowCells(this Browser browser, string firstCellValue, params string[] cellValues)
+        {
+            var firstCell = browser.TableCells.FirstOrDefault(
+                c => c.Text != null && 
+                     c.Text.Trim() == firstCellValue && 
+                     ((TableCell)c.NextSibling).TextFields.First().Value == null);
+
+            if (firstCell == null)
+                throw new ElementNotFoundException(firstCellValue, "", "", null);
+
+            foreach (var cellValue in cellValues)
+            {
+                firstCell = firstCell.NextSibling as TableCell;
+                firstCell.TextFields.First().Value = cellValue;
             }
         }
 
