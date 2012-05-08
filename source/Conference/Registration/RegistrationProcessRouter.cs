@@ -107,7 +107,7 @@ namespace Registration
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process to expire with id {0}.", command.ProcessId);
+                        Trace.TraceInformation("Failed to locate the registration process to expire with id {0}.", command.ProcessId);
                     }
                 }
             }
