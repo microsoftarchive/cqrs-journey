@@ -24,8 +24,10 @@ namespace Registration
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
-        IEventHandler<PaymentCompleted>,
         IEventHandler<SeatsReserved>,
+        IEventHandler<OrderTotalsCalculated>,
+        IEventHandler<PaymentCompleted>,
+        IEventHandler<OrderConfirmed>,
         ICommandHandler<ExpireRegistrationProcess>
     {
         private readonly object lockObject = new object();
@@ -92,22 +94,39 @@ namespace Registration
             }
         }
 
-        public void Handle(ExpireRegistrationProcess command)
+        public void Handle(OrderTotalsCalculated @event)
         {
             using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = context.Find(x => x.Id == command.ProcessId && x.Completed == false);
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
                     if (process != null)
                     {
-                        process.Handle(command);
+                        process.Handle(@event);
+
+                        context.Save(process);
+                    }
+                }
+            }
+        }
+
+        public void Handle(OrderConfirmed @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                lock (lockObject)
+                {
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                    if (process != null)
+                    {
+                        process.Handle(@event);
 
                         context.Save(process);
                     }
                     else
                     {
-                        Trace.TraceInformation("Failed to locate the registration process to expire with id {0}.", command.ProcessId);
+                        Trace.TraceInformation("Failed to locate the registration process to complete with id {0}.", @event.SourceId);
                     }
                 }
             }
@@ -129,6 +148,23 @@ namespace Registration
                     else
                     {
                         Trace.TraceError("Failed to locate the registration process handling the paid order with id {0}.", @event.PaymentSourceId);
+                    }
+                }
+            }
+        }
+
+        public void Handle(ExpireRegistrationProcess command)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                lock (lockObject)
+                {
+                    var process = context.Find(x => x.Id == command.ProcessId && x.Completed == false);
+                    if (process != null)
+                    {
+                        process.Handle(command);
+
+                        context.Save(process);
                     }
                 }
             }

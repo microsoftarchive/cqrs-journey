@@ -308,9 +308,9 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_order_payment_confirmed_then_order_state_is_confirmed()
+        public void when_order_confirmed_then_order_state_is_confirmed()
         {
-            sut.Handle(new OrderPaymentConfirmed
+            sut.Handle(new OrderConfirmed
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Version = 2,
@@ -322,9 +322,9 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_order_payment_confirmed_then_updates_order_version()
+        public void when_order_confirmed_then_updates_order_version()
         {
-            sut.Handle(new OrderPaymentConfirmed
+            sut.Handle(new OrderConfirmed
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Version = 2,
@@ -336,7 +336,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_order_payment_confirmed_for_older_version_then_updates_state_but_not_order_version()
+        public void when_order_confirmed_for_older_version_then_updates_state_but_not_order_version()
         {
             sut.Handle(new OrderTotalsCalculated
             {
@@ -344,7 +344,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 Version = 2,
             });
 
-            sut.Handle(new OrderPaymentConfirmed
+            sut.Handle(new OrderConfirmed
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Version = 1,

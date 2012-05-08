@@ -196,10 +196,13 @@ namespace Conference.Web.Public.Controllers
             {
                 case ThirdPartyProcessorPayment:
 
-                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
+                    return CompleteRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
 
                 case InvoicePayment:
                     break;
+
+                case null:
+                    return CompleteRegistrationWithoutPayment(command, orderId);
 
                 default:
                     break;
@@ -224,7 +227,7 @@ namespace Conference.Web.Public.Controllers
             return View(order);
         }
 
-        private ActionResult InitiateRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId, int orderVersion)
+        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId, int orderVersion)
         {
             var paymentCommand = CreatePaymentCommand(orderId);
 
@@ -264,6 +267,15 @@ namespace Conference.Web.Public.Controllers
                 };
 
             return paymentCommand;
+        }
+
+        private ActionResult CompleteRegistrationWithoutPayment(AssignRegistrantDetails command, Guid orderId)
+        {
+            var confirmationCommand = new ConfirmOrder { OrderId = orderId };
+
+            this.commandBus.Send(new ICommand[] { command, confirmationCommand });
+
+            return RedirectToAction("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
         }
 
         private OrderViewModel CreateViewModel()

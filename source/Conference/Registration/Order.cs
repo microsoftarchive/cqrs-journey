@@ -37,6 +37,7 @@ namespace Registration
             base.Handles<OrderReservationCompleted>(this.OnOrderReservationCompleted);
             base.Handles<OrderExpired>(this.OnOrderExpired);
             base.Handles<OrderPaymentConfirmed>(this.OnOrderPaymentConfirmed);
+            base.Handles<OrderConfirmed>(this.OnOrderConfirmed);
             base.Handles<OrderRegistrantAssigned>(this.OnOrderRegistrantAssigned);
             base.Handles<OrderTotalsCalculated>(this.OnOrderTotalsCalculated);
         }
@@ -83,7 +84,7 @@ namespace Registration
                 this.Update(new OrderReservationCompleted { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
 
-            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray() });
+            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray(), RequiresPayment = totals.Total > 0m });
         }
 
         public void Expire()
@@ -94,9 +95,9 @@ namespace Registration
             this.Update(new OrderExpired());
         }
 
-        public void ConfirmPayment()
+        public void Confirm()
         {
-            this.Update(new OrderPaymentConfirmed());
+            this.Update(new OrderConfirmed());
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
@@ -143,6 +144,11 @@ namespace Registration
         }
 
         private void OnOrderPaymentConfirmed(OrderPaymentConfirmed e)
+        {
+            this.isConfirmed = true;
+        }
+
+        private void OnOrderConfirmed(OrderConfirmed e)
         {
             this.isConfirmed = true;
         }

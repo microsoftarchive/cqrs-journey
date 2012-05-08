@@ -77,6 +77,7 @@ namespace Registration.Handlers
                 }
 
                 dto.Total = @event.Total;
+                dto.RequiresPayment = @event.RequiresPayment;
                 dto.OrderVersion = @event.Version;
 
                 context.SaveChanges();

@@ -30,6 +30,9 @@ namespace Registration
             NotStarted = 0,
             AwaitingReservationConfirmation = 1,
             ReservationConfirmationReceived = 2,
+            AwaitingPaymentConfirmation = 3,
+            AwaitingPaidOrderConfirmation = 4,
+            AwaitingFreeOrderConfirmation = 5
         }
 
         private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
@@ -89,7 +92,11 @@ namespace Registration
 
         public void Handle(OrderUpdated message)
         {
-            if (this.State == ProcessState.AwaitingReservationConfirmation || this.State == ProcessState.ReservationConfirmationReceived)
+            if (this.State == ProcessState.AwaitingReservationConfirmation
+                || this.State == ProcessState.ReservationConfirmationReceived
+                || this.State == ProcessState.AwaitingPaymentConfirmation
+                || this.State == ProcessState.AwaitingPaidOrderConfirmation
+                || this.State == ProcessState.AwaitingFreeOrderConfirmation)
             {
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
@@ -103,7 +110,7 @@ namespace Registration
             }
             else
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("The order cannot be updated at this stage.");
             }
         }
 
@@ -127,7 +134,6 @@ namespace Registration
                     });
                 }
 
-
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
@@ -137,33 +143,45 @@ namespace Registration
             }
             else
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Cannot handle seat reservation at this stage.");
             }
         }
 
-        public void Handle(ExpireRegistrationProcess message)
+        public void Handle(OrderTotalsCalculated @event)
         {
             if (this.State == ProcessState.ReservationConfirmationReceived)
             {
-                if (this.ExpirationCommandId == message.Id)
+                if (@event.RequiresPayment)
                 {
-                    this.Completed = true;
-
-                    this.AddCommand(new CancelSeatReservation
-                    {
-                        ConferenceId = this.ConferenceId,
-                        ReservationId = this.ReservationId,
-                    });
-                    this.AddCommand(new RejectOrder { OrderId = this.OrderId });
+                    this.State = ProcessState.AwaitingPaymentConfirmation;
+                }
+                else
+                {
+                    this.State = ProcessState.AwaitingFreeOrderConfirmation;
                 }
             }
-
-            // else ignore the message as it is no longer relevant (but not invalid)
+            else
+            {
+                throw new InvalidOperationException("Cannot handle totals update at this stage.");
+            }
         }
 
-        public void Handle(PaymentCompleted message)
+        public void Handle(PaymentCompleted @event)
         {
-            if (this.State == ProcessState.ReservationConfirmationReceived)
+            if (this.State == ProcessState.AwaitingPaymentConfirmation)
+            {
+                this.State = ProcessState.AwaitingPaidOrderConfirmation;
+                this.AddCommand(new ConfirmOrder { OrderId = this.OrderId });
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot handle payment confirmation at this stage.");
+            }
+        }
+
+        public void Handle(OrderConfirmed @event)
+        {
+            if (this.State == ProcessState.AwaitingPaidOrderConfirmation || this.State == ProcessState.AwaitingFreeOrderConfirmation)
             {
                 this.ExpirationCommandId = Guid.Empty;
                 this.Completed = true;
@@ -173,16 +191,30 @@ namespace Registration
                     ReservationId = this.ReservationId,
                     ConferenceId = this.ConferenceId
                 });
-
-                this.AddCommand(new ConfirmOrderPayment
-                {
-                    OrderId = message.PaymentSourceId
-                });
             }
             else
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Cannot handle order confirmation at this stage.");
             }
+        }
+
+        public void Handle(ExpireRegistrationProcess command)
+        {
+            if (this.ExpirationCommandId == command.Id)
+            {
+                this.Completed = true;
+
+                this.AddCommand(new CancelSeatReservation
+                {
+                    ConferenceId = this.ConferenceId,
+                    ReservationId = this.ReservationId,
+                });
+                this.AddCommand(new RejectOrder { OrderId = this.OrderId });
+
+                // TODO cancel payment if any
+            }
+
+            // else ignore the message as it is no longer relevant (but not invalid)
         }
 
         private void AddCommand<T>(T command)

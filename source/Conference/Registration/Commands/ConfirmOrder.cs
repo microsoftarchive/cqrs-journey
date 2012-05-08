@@ -11,33 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration
+namespace Registration.Commands
 {
     using System;
+    using Infrastructure.Messaging;
 
-    /// <summary>
-    /// Represents a seat reservation.
-    /// </summary>
-    public class Reservation
+    public class ConfirmOrder : ICommand
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Reservation"/> class.
-        /// </summary>
-        /// <param name="id">The reservation identifier.</param>
-        /// <param name="quantity">The number of reserved seats.</param>
-        public Reservation(Guid id, int quantity)
-            : this()
+        public ConfirmOrder()
         {
-            this.Id = id;
-            this.Quantity = quantity;
+            this.Id = Guid.NewGuid();
         }
 
-        public Guid Id { get; private set; }
-        public int Quantity { get; internal set; }
+        public Guid Id { get; set; }
 
-        // ORM requirement
-        protected Reservation()
-        {
-        }
+        public Guid OrderId { get; set; }
     }
 }

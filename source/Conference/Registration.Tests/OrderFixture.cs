@@ -244,11 +244,11 @@ namespace Registration.Tests.OrderFixture
         }
 
         [Fact]
-        public void when_confirming_payment_then_notifies()
+        public void when_confirming_order_then_notifies()
         {
-            this.sut.When(new ConfirmOrderPayment { OrderId = OrderId });
+            this.sut.When(new ConfirmOrder { OrderId = OrderId });
 
-            var @event = sut.ThenHasSingle<OrderPaymentConfirmed>();
+            var @event = sut.ThenHasSingle<OrderConfirmed>();
             Assert.Equal(OrderId, @event.SourceId);
         }
     }

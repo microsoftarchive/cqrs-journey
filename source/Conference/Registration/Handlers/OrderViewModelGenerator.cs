@@ -27,7 +27,7 @@ namespace Registration.Handlers
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>,
-        IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderConfirmed>,
         IEventHandler<OrderTotalsCalculated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
@@ -108,7 +108,7 @@ namespace Registration.Handlers
             this.UpdateReserved(@event.SourceId, @event.ReservationExpiration, DraftOrder.States.ReservationCompleted, @event.Version, @event.Seats);
         }
 
-        public void Handle(OrderPaymentConfirmed @event)
+        public void Handle(OrderConfirmed @event)
         {
             using (var context = this.contextFactory.Invoke())
             {

@@ -11,20 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Registration.Events
 {
-    using System;
-    using Infrastructure.Messaging;
+    using Infrastructure.EventSourcing;
 
-    public class ConfirmOrderPayment : ICommand
+    public class OrderConfirmed : VersionedEvent
     {
-        public ConfirmOrderPayment()
-        {
-            this.Id = Guid.NewGuid();
-        }
-
-        public Guid Id { get; set; }
-
-        public Guid OrderId { get; set; }
     }
 }

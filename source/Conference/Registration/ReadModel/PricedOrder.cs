@@ -36,6 +36,7 @@ namespace Registration.ReadModel
         public IList<PricedOrderLine> Lines { get; set; }
         public decimal Total { get; set; }
         public int OrderVersion { get; set; }
+        public bool RequiresPayment { get; set; }
     }
 
     public class PricedOrderLine

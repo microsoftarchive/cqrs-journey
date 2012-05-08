@@ -23,7 +23,7 @@ namespace Registration.Handlers
         ICommandHandler<MarkSeatsAsReserved>,
         ICommandHandler<RejectOrder>,
         ICommandHandler<AssignRegistrantDetails>,
-        ICommandHandler<ConfirmOrderPayment>
+        ICommandHandler<ConfirmOrder>
     {
         private readonly IEventSourcedRepository<Order> repository;
         private readonly IPricingService pricingService;
@@ -75,10 +75,10 @@ namespace Registration.Handlers
             repository.Save(order);
         }
 
-        public void Handle(ConfirmOrderPayment command)
+        public void Handle(ConfirmOrder command)
         {
             var order = repository.Get(command.OrderId);
-            order.ConfirmPayment();
+            order.Confirm();
             repository.Save(order);
         }
     }

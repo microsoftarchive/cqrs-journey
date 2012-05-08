@@ -19,7 +19,7 @@ namespace Registration.Handlers
     using Registration.Events;
 
     public class SeatAssignmentsHandler :
-        IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderConfirmed>,
         ICommandHandler<UnassignSeat>,
         ICommandHandler<AssignSeat>
     {
@@ -32,7 +32,7 @@ namespace Registration.Handlers
             this.assignmentsRepo = assignmentsRepo;
         }
 
-        public void Handle(OrderPaymentConfirmed @event)
+        public void Handle(OrderConfirmed @event)
         {
             var order = this.ordersRepo.Get(@event.SourceId);
             var assignments = order.CreateSeatAssignments();
