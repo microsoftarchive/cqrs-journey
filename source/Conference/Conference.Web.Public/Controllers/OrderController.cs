@@ -42,7 +42,7 @@ namespace Conference.Web.Public.Controllers
         [HttpGet]
         public ActionResult Display(Guid orderId)
         {
-            var order = orderDao.GetPricedOrder(orderId);
+            var order = orderDao.FindPricedOrder(orderId);
             if (order == null)
                 return RedirectToAction("Find", new { conferenceCode = this.ConferenceCode });
 

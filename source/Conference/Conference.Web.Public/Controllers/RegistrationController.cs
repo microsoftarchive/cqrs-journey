@@ -247,7 +247,7 @@ namespace Conference.Web.Public.Controllers
 
         private InitiateThirdPartyProcessorPayment CreatePaymentCommand(Guid orderId)
         {
-            var totalledOrder = this.orderDao.GetPricedOrder(orderId);
+            var totalledOrder = this.orderDao.FindPricedOrder(orderId);
             // TODO: should add the line items?
 
             var description = "Registration for " + this.ConferenceAlias.Name;
@@ -335,7 +335,7 @@ namespace Conference.Web.Public.Controllers
 
             while (DateTime.Now < deadline)
             {
-                var order = this.orderDao.GetPricedOrder(orderId);
+                var order = this.orderDao.FindPricedOrder(orderId);
                 if (order != null && order.OrderVersion > lastOrderVersion)
                 {
                     return order;

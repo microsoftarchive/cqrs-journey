@@ -60,7 +60,7 @@ namespace Registration.ReadModel.Implementation
             }
         }
 
-        public PricedOrder GetPricedOrder(Guid orderId)
+        public PricedOrder FindPricedOrder(Guid orderId)
         {
             using (var context = this.contextFactory.Invoke())
             {
