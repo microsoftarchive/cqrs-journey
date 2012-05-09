@@ -17,16 +17,21 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
+using WatiN.Core;
 using Xunit;
 using W = WatiN.Core;
 using Conference.Common.Utils;
+using Table = TechTalk.SpecFlow.Table;
 
 namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
     public class CommonSteps
     {
-        #region Given
+    	private Browser _browser;
+    	public CommonSteps() { _browser = ScenarioContext.Current.Get<W.Browser>(); }
+
+    	#region Given
 
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference")]
         public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(Table table)
@@ -42,12 +47,10 @@ namespace Conference.Specflow.Steps.Registration
         public void GivenTheSelectedOrderItems(Table table)
         {
             // Navigate to Registration page
-            ScenarioContext.Current.Get<W.Browser>().GoTo(Constants.RegistrationPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
-
-            var browser = ScenarioContext.Current.Get<W.Browser>();
-            foreach (var row in table.Rows)
+        	_browser.GoTo(Constants.RegistrationPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
+        	foreach (var row in table.Rows)
             {
-                browser.SelectListInTableRow(row["seat type"], row["quantity"]);
+                _browser.SelectListInTableRow(row["seat type"], row["quantity"]);
             }
         }
 

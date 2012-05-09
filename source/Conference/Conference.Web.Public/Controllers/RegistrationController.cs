@@ -177,7 +177,7 @@ namespace Conference.Web.Public.Controllers
                 return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
-            var order = this.orderDao.GetDraftOrder(orderId);
+            var order = orderDao.GetDraftOrder(orderId);
 
             // TODO check conference and order exist.
             // TODO validate that order belongs to the user.
@@ -192,20 +192,10 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
-            switch (paymentType)
-            {
-                case ThirdPartyProcessorPayment:
+        	if (paymentType == ThirdPartyProcessorPayment) 
+        		return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
 
-                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
-
-                case InvoicePayment:
-                    break;
-
-                default:
-                    break;
-            }
-
-            throw new InvalidOperationException();
+        	throw new InvalidOperationException();
         }
 
         [HttpGet]

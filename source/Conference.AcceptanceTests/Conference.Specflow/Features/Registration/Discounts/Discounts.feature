@@ -31,11 +31,9 @@ Background:
 	| 1TIMEPRECON      | 50%      | Single    | CQRS Workshop                    |            |
 	| CONFONLY         | $50      | Single    | General admission, CQRS Workshop |            |
 
-
 #Next release
-@Ignore
 Scenario: Full Promotional Code for all selected items
-	Given the selected available Order Items
+	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
@@ -47,7 +45,6 @@ Scenario: Full Promotional Code for all selected items
 
 
 #Next release
-@Ignore
 Scenario: Partial Promotional Code for all selected items
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -61,7 +58,6 @@ Scenario: Partial Promotional Code for all selected items
 
 
 #Next release
-@Ignore
 Scenario: Partial Promotional Code for none of the selected items
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -72,9 +68,7 @@ Scenario: Partial Promotional Code for none of the selected items
 	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $600
 
-
 #Next release
-@Ignore
 Scenario: Cumulative Promotional Codes
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -88,9 +82,7 @@ Scenario: Cumulative Promotional Codes
 	And the 'WS10' Promotional Code item should show a value of -$20
 	And the total amount should be of $1167
 
-
 #Next release
-@Ignore
 Scenario: Single use Promotional Code
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -105,9 +97,7 @@ Scenario: Single use Promotional Code
 	Then the '1TIMEPRECON' Promo code will not be applied and an error message will inform about the problem
 	And the total amount should be of $600
 
-
 #Next release
-@Ignore
 Scenario: Mutually exclusive Promotional Code
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -121,9 +111,7 @@ Scenario: Mutually exclusive Promotional Code
 	And the 'COPRESENTER' Promotional Code item should show a value of -$10
 	And the total amount should be of $1187
 
-
 #Next release
-@Ignore
 Scenario: Combine only Promotional Code
 	Given the selected available Order Items
 	| seat type                 | quantity |
@@ -137,9 +125,7 @@ Scenario: Combine only Promotional Code
 	And the 'WS10' Promotional Code item should show a value of -$10
 	And the total amount should be of $590
 
-
 #Next release
-@Ignore
 Scenario: Partial scope
 	Given the selected available Order Items
 	| seat type                 | quantity |
