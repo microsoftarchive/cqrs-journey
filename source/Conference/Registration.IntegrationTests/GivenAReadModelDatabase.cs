@@ -11,11 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using Registration.ReadModel.Implementation;
-
 namespace Registration.IntegrationTests
 {
+    using System;
+    using Registration.ReadModel.Implementation;
+
     public class given_a_read_model_database : IDisposable
     {
         protected string dbName;
