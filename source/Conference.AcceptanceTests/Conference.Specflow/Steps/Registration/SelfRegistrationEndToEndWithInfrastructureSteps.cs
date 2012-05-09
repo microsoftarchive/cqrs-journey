@@ -150,8 +150,14 @@ namespace Conference.Specflow.Steps.Registration
         {
             using (var orderController = RegistrationHelper.GetOrderController())
             {
-                var pricedOrder = RegistrationHelper.GetModel<PricedOrder>(orderController.Display(draftOrder.OrderId));
+                PricedOrder pricedOrder = null;
+                var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+                while((pricedOrder == null || !pricedOrder.AssignmentsId.HasValue) && DateTime.Now < timeout)
+                {
+                    pricedOrder = RegistrationHelper.GetModel<PricedOrder>(orderController.Display(draftOrder.OrderId));
+                }
 
+                Assert.NotNull(pricedOrder);
                 Assert.True(pricedOrder.AssignmentsId.HasValue);
 
                 var orderSeats =

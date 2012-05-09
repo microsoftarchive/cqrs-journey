@@ -12,6 +12,7 @@
 // ==============================================================================================================
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
@@ -59,33 +60,38 @@ namespace Conference.Specflow.Steps.Registration
     [Binding]
     public class SelfRegistrationReservationWithConcurrencyAndInfrastructureSteps
     {
-        private bool onlyOneReserved;
+        private int confirmed;
 
-        [When(@"two Registrants selects these Order Items")]
-        public void WhenTwoRegistrantsSelectsTheseOrderItems(Table table)
+        [When(@"(.*) Registrants selects these Order Items")]
+        public void WhenManyRegistrantsSelectsTheseOrderItems(int registrants, Table table)
         {
-            using (var firstRegistrant = new SelfRegistrationEndToEndWithInfrastructureSteps())
-            using (var secondRegistrant = new SelfRegistrationEndToEndWithInfrastructureSteps())
+            Action worker = () =>
             {
-                firstRegistrant.GivenTheSelectedOrderItems(table);
-                secondRegistrant.GivenTheSelectedOrderItems(table);
-                try
+                using (var registrant = new SelfRegistrationEndToEndWithInfrastructureSteps())
                 {
-                    Parallel.Invoke(firstRegistrant.GivenTheRegistrantProceedToMakeTheReservation,
-                                    secondRegistrant.GivenTheRegistrantProceedToMakeTheReservation);
+                    registrant.GivenTheSelectedOrderItems(table);
+                    registrant.GivenTheRegistrantProceedToMakeTheReservation();
                 }
-                catch (AggregateException ae)
-                {
-                    ae.Handle(e => e is FalseException);
-                    onlyOneReserved = true;
-                }
+            };
+
+            var tasks = Enumerable.Range(0, registrants).Select(i => Task.Factory.StartNew(worker)).ToArray();
+
+            try
+            {
+                Task.WaitAll(tasks);
             }
+            catch (AggregateException ae)
+            {
+                ae.Handle(e => e is FalseException);
+            }
+
+            confirmed = tasks.Count(t => t.IsCompleted && !t.IsFaulted);
         }
 
-        [Then(@"only one Registrant is confirmed for all the selected Order Items")]
-        public void ThenOnlyOneRegistrantIsConfirmedForAllTheSelectedOrderItems()
+        [Then(@"only (.*) Registrants get confirmed reservations for the selected Order Items")]
+        public void ThenOnlySomeRegistrantsGetConfirmedReservationsForTheSelectedOrderItems(int registrants)
         {
-            Assert.True(onlyOneReserved);
+            Assert.Equal(registrants, confirmed);
         }
     }
 }

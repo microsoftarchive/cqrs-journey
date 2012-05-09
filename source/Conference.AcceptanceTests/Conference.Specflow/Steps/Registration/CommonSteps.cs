@@ -61,6 +61,9 @@ namespace Conference.Specflow.Steps.Registration
             browser.SetInput("LastName", table.Rows[0]["last name"]);
             browser.SetInput("Email", table.Rows[0]["email address"]);
             browser.SetInput("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
+
+            // Store email in case is needed for later use (Find Order by Code + email access)
+            ScenarioContext.Current.Set(table.Rows[0]["email address"], "email");
         }
 
         [Given(@"these Seat Types becomes unavailable before the Registrant make the reservation")]

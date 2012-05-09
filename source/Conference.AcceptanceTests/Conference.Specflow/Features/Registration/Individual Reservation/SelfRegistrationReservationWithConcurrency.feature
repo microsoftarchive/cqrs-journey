@@ -20,26 +20,26 @@ Feature: Self-Registrant scenarios for making a Reservation for a Conference sit
 Background: 
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type     | rate | quota |
-	| CQRS Workshop | $500 | 1     |
+	| CQRS Workshop | $500 | 10    |
 
  Scenario: Only one Order Item is available and two Registrants try to reserve it, then only one get the reservation	
 	Given the selected Order Items
 	| seat type     | quantity |
-	| CQRS Workshop | 1        |
+	| CQRS Workshop | 6        |
 	And another Registrant selects these Order Items 
 	| seat type     | quantity |
-	| CQRS Workshop | 1        |	
+	| CQRS Workshop | 6        |
 	When the Registrant proceed to make the Reservation
 	And another Registrant proceed to make the Reservation with seats already reserved 
 	Then the Reservation is confirmed for all the selected Order Items
 	And a second Reservation is offered to select any of these available seats
 	| seat type     | selected | message                                    |
-	| CQRS Workshop | 0        | Could not reserve all the requested seats. |
+	| CQRS Workshop | 4        | Could not reserve all the requested seats. |
 
 
 @NoWatiN
-Scenario: Only one Order Item is available and two Registrants try to reserve it at the same time, then only one get the reservation	
-	When two Registrants selects these Order Items
+Scenario: Only one Order Item is available and many Registrants try to reserve it, then only one get the reservation	
+	When 20 Registrants selects these Order Items
 	| seat type     | quantity |
 	| CQRS Workshop | 1        |
-	Then only one Registrant is confirmed for all the selected Order Items
+	Then only 10 Registrants get confirmed reservations for the selected Order Items

@@ -28,10 +28,10 @@ namespace Conference.Specflow.Steps.Registration
             var browser = ScenarioContext.Current.Browser();
             string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
             Assert.False(string.IsNullOrWhiteSpace(accessCode));
+            string email;
+            Assert.True(ScenarioContext.Current.TryGetValue("email", out email));
 
             Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
-
-            var email = ScenarioContext.Current.Get<string>("email");
 
             // Navigate to Registration page
             browser.GoTo(Constants.FindOrderPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));

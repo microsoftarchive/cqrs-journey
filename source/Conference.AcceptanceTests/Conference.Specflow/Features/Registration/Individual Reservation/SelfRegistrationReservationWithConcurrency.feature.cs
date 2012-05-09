@@ -77,7 +77,7 @@ namespace Conference.Specflow.Features.Registration.IndividualReservation
             table1.AddRow(new string[] {
                         "CQRS Workshop",
                         "$500",
-                        "1"});
+                        "10"});
 #line 21
  testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
@@ -111,7 +111,7 @@ this.FeatureBackground();
                         "quantity"});
             table2.AddRow(new string[] {
                         "CQRS Workshop",
-                        "1"});
+                        "6"});
 #line 26
  testRunner.Given("the selected Order Items", ((string)(null)), table2);
 #line hidden
@@ -120,7 +120,7 @@ this.FeatureBackground();
                         "quantity"});
             table3.AddRow(new string[] {
                         "CQRS Workshop",
-                        "1"});
+                        "6"});
 #line 29
  testRunner.And("another Registrant selects these Order Items", ((string)(null)), table3);
 #line 32
@@ -136,7 +136,7 @@ this.FeatureBackground();
                         "message"});
             table4.AddRow(new string[] {
                         "CQRS Workshop",
-                        "0",
+                        "4",
                         "Could not reserve all the requested seats."});
 #line 35
  testRunner.And("a second Reservation is offered to select any of these available seats", ((string)(null)), table4);
@@ -147,12 +147,12 @@ this.FeatureBackground();
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self-Registrant scenarios for making a Reservation for a Conference site where tw" +
             "o Registrants make simultaneous reservations")]
-        [Xunit.TraitAttribute("Description", "Only one Order Item is available and two Registrants try to reserve it at the sam" +
-            "e time, then only one get the reservation")]
-        public virtual void OnlyOneOrderItemIsAvailableAndTwoRegistrantsTryToReserveItAtTheSameTimeThenOnlyOneGetTheReservation()
+        [Xunit.TraitAttribute("Description", "Only one Order Item is available and many Registrants try to reserve it, then onl" +
+            "y one get the reservation")]
+        public virtual void OnlyOneOrderItemIsAvailableAndManyRegistrantsTryToReserveItThenOnlyOneGetTheReservation()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Only one Order Item is available and two Registrants try to reserve it at the sam" +
-                    "e time, then only one get the reservation", new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Only one Order Item is available and many Registrants try to reserve it, then onl" +
+                    "y one get the reservation", new string[] {
                         "NoWatiN"});
 #line 41
 this.ScenarioSetup(scenarioInfo);
@@ -166,9 +166,9 @@ this.FeatureBackground();
                         "CQRS Workshop",
                         "1"});
 #line 42
- testRunner.When("two Registrants selects these Order Items", ((string)(null)), table5);
+ testRunner.When("20 Registrants selects these Order Items", ((string)(null)), table5);
 #line 45
- testRunner.Then("only one Registrant is confirmed for all the selected Order Items");
+ testRunner.Then("only 10 Registrants get confirmed reservations for the selected Order Items");
 #line hidden
             this.ScenarioCleanup();
         }
