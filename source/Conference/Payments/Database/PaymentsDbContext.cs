@@ -32,6 +32,6 @@ namespace Payments.Database
             modelBuilder.Entity<ThidPartyProcessorPaymentItem>().ToTable("ThidPartyProcessorPaymentItems", SchemaName);
         }
 
-        public virtual DbSet<ThirdPartyProcessorPayment> ThirdPartyProcessorPayments { get; private set; }
+        public DbSet<ThirdPartyProcessorPayment> ThirdPartyProcessorPayments { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace Registration.ReadModel
     public interface IOrderDao
     {
         // TODO: GetOrderDetails is being used by many views. Have tailored projections for different needs.
-        DraftOrder GetDraftOrder(Guid orderId);
+        DraftOrder FindDraftOrder(Guid orderId);
 
         Guid? LocateOrder(string email, string accessCode);
 

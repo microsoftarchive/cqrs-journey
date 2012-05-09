@@ -62,9 +62,7 @@
     <Compile Include="Commands\AddSeats.cs" />
     <Compile Include="Commands\RemoveSeats.cs" />
     <Compile Include="Commands\SetOrderPaymentDetails.cs" />
-    <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
-    <Compile Include="Database\SeatsAvailabilityRepository.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
     <Compile Include="Events\SeatsReservationCancelled.cs" />
     <Compile Include="Events\SeatsReservationCommitted.cs" />

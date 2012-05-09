@@ -50,8 +50,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceViewModelGeneratorFixture.cs" />
-    <Compile Include="OrmProcessRepositoryInitializerFixture.cs" />
+    <Compile Include="GivenAReadModelDatabase.cs" />
+    <Compile Include="MemoryBlobStorage.cs" />
+    <Compile Include="OrderViewModelGeneratorFixture.cs" />
+    <Compile Include="PricedOrderViewModelGeneratorFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegistrationProcessDbContextFixture.cs" />
+    <Compile Include="SeatAssignmentsViewModelGeneratorFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
@@ -66,6 +71,10 @@
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
+      <Name>Registration.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\Conference.Contracts\Conference.Contracts.csproj">
       <Project>{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA}</Project>
