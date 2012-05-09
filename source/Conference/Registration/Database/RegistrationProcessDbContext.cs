@@ -31,6 +31,6 @@ namespace Registration.Database
         }
 
         // Define the available entity sets for the database.
-        public virtual DbSet<RegistrationProcess> RegistrationProcesses { get; private set; }
+        public virtual DbSet<RegistrationProcess> RegistrationProcesses { get; set; }
     }
 }

@@ -16,6 +16,7 @@ namespace Registration.Handlers
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Diagnostics;
     using System.Linq;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
@@ -55,11 +56,18 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<DraftOrder>(@event.SourceId);
-                dto.RegistrantEmail = @event.Email;
+                if (dto != null)
+                {
+                    dto.RegistrantEmail = @event.Email;
 
-                dto.OrderVersion = @event.Version;
+                    dto.OrderVersion = @event.Version;
 
-                context.Save(dto);
+                    context.Save(dto);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Order read model for assigned registrant for order with id {0}.", @event.SourceId);
+                }
             }
         }
 
@@ -67,20 +75,26 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Set<DraftOrder>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
-
-                var linesSet = context.Set<DraftOrderItem>();
-                foreach (var line in dto.Lines.ToArray())
+                var dto = context.Set<DraftOrder>().Include(o => o.Lines).FirstOrDefault(o => o.OrderId == @event.SourceId);
+                if (dto != null)
                 {
-                    linesSet.Remove(line);
+                    var linesSet = context.Set<DraftOrderItem>();
+                    foreach (var line in dto.Lines.ToArray())
+                    {
+                        linesSet.Remove(line);
+                    }
+
+                    dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
+
+                    dto.State = DraftOrder.States.PendingReservation;
+                    dto.OrderVersion = @event.Version;
+
+                    context.Save(dto);
                 }
-
-                dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
-
-                dto.State = DraftOrder.States.PendingReservation;
-                dto.OrderVersion = @event.Version;
-
-                context.Save(dto);
+                else
+                {
+                    Trace.TraceError("Failed to locate Order read model for updated order with id {0}.", @event.SourceId);
+                }
             }
         }
 
@@ -99,13 +113,19 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<DraftOrder>(@event.SourceId);
-
-                dto.State = DraftOrder.States.Confirmed;
-                if (dto.OrderVersion < @event.Version)
+                if (dto != null)
                 {
-                    dto.OrderVersion = @event.Version;
+                    dto.State = DraftOrder.States.Confirmed;
+                    if (dto.OrderVersion < @event.Version)
+                    {
+                        dto.OrderVersion = @event.Version;
+                    }
+                    context.Save(dto);
                 }
-                context.Save(dto);
+                else
+                {
+                    Trace.TraceError("Failed to locate Order read model for confirmed payment for order with id {0}.", @event.SourceId);
+                }
             }
         }
 
@@ -114,11 +134,17 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<DraftOrder>(@event.SourceId);
-
-                if (dto.OrderVersion < @event.Version)
+                if (dto != null)
                 {
-                    dto.OrderVersion = @event.Version;
-                    context.Save(dto);
+                    if (dto.OrderVersion < @event.Version)
+                    {
+                        dto.OrderVersion = @event.Version;
+                        context.Save(dto);
+                    }
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Order read model for calculated totals for order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -128,18 +154,25 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Set<DraftOrder>().Include(x => x.Lines).First(x => x.OrderId == orderId);
-                foreach (var seat in seats)
+                if (dto != null)
                 {
-                    var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);
-                    item.ReservedSeats = seat.Quantity;
+                    foreach (var seat in seats)
+                    {
+                        var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);
+                        item.ReservedSeats = seat.Quantity;
+                    }
+
+                    dto.State = state;
+                    dto.ReservationExpirationDate = reservationExpiration;
+
+                    dto.OrderVersion = orderVersion;
+
+                    context.Save(dto);
                 }
-
-                dto.State = state;
-                dto.ReservationExpirationDate = reservationExpiration;
-
-                dto.OrderVersion = orderVersion;
-
-                context.Save(dto);
+                else
+                {
+                    Trace.TraceError("Failed to locate Order read model for updated reservation for order with id {0}.", orderId);
+                }
             }
         }
     }

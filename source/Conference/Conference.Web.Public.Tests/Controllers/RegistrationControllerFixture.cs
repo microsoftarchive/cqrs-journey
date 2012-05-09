@@ -106,7 +106,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             var orderId = Guid.NewGuid();
 
-            Mock.Get(this.orderDao).Setup(r => r.GetDraftOrder(orderId)).Returns(new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.PendingReservation));
+            Mock.Get(this.orderDao).Setup(r => r.FindDraftOrder(orderId)).Returns(new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.PendingReservation));
 
             var registration =
                 new RegisterToConference
@@ -148,7 +148,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var orderVersion = 10;
 
             Mock.Get(this.orderDao)
-                .Setup(r => r.GetDraftOrder(orderId))
+                .Setup(r => r.FindDraftOrder(orderId))
                 .Returns(
                     new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.PartiallyReserved, orderVersion)
                     {
@@ -176,7 +176,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var orderVersion = 10;
 
             Mock.Get(this.orderDao)
-                .Setup(r => r.GetDraftOrder(orderId))
+                .Setup(r => r.FindDraftOrder(orderId))
                 .Returns(
                     new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted, orderVersion)
                     {
@@ -200,7 +200,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var orderVersion = 10;
 
             Mock.Get(this.orderDao)
-                .Setup(r => r.GetDraftOrder(orderId))
+                .Setup(r => r.FindDraftOrder(orderId))
                 .Returns(
                     new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted, orderVersion)
                     {
@@ -235,7 +235,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var order = new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted);
             order.Lines.Add(new DraftOrderItem(seatId, 5) { ReservedSeats = 5 });
             Mock.Get<IOrderDao>(this.orderDao)
-                .Setup(d => d.GetDraftOrder(orderId))
+                .Setup(d => d.FindDraftOrder(orderId))
                 .Returns(order);
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.FindPricedOrder(orderId))

@@ -11,29 +11,33 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+using System;
+using Registration.ReadModel.Implementation;
+
+namespace Registration.IntegrationTests
 {
-    using System;
-    using Infrastructure.EventSourcing;
-
-    public sealed class FakeSeatsAvailabilityInitializer
+    public class given_a_read_model_database : IDisposable
     {
-        private readonly IEventSourcedRepository<SeatsAvailability> repository;
+        protected string dbName;
 
-        public FakeSeatsAvailabilityInitializer(IEventSourcedRepository<SeatsAvailability> repository)
+        public given_a_read_model_database()
         {
-            this.repository = repository;
+            dbName = this.GetType().Name + "-" + Guid.NewGuid().ToString();
+            using (var context = new ConferenceRegistrationDbContext(dbName))
+            {
+                if (context.Database.Exists())
+                    context.Database.Delete();
+
+                context.Database.Create();
+            }
         }
 
-        public void Initialize()
+        public void Dispose()
         {
-            // TODO: remove hardcoded seats availability.
-            if (repository.Find(Guid.Empty) == null)
+            using (var context = new ConferenceRegistrationDbContext(dbName))
             {
-                var availability = new SeatsAvailability(Guid.Empty);
-                availability.AddSeats(new Guid("38D8710D-AEF6-4158-950D-3F75CC4BEE0B"), 50);
-
-                repository.Save(availability);
+                if (context.Database.Exists())
+                    context.Database.Delete();
             }
         }
     }

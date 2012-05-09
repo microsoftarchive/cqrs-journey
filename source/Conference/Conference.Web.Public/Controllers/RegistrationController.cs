@@ -104,7 +104,7 @@ namespace Conference.Web.Public.Controllers
         private ActionResult ShowRegistrationEditor(Guid orderId, int orderVersion)
         {
             OrderViewModel viewModel = null;
-            var existingOrder = orderVersion != 0 ? this.orderDao.GetDraftOrder(orderId) : null;
+            var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(orderId) : null;
 
             if (existingOrder == null)
             {
@@ -177,7 +177,7 @@ namespace Conference.Web.Public.Controllers
                 return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
-            var order = this.orderDao.GetDraftOrder(orderId);
+            var order = this.orderDao.FindDraftOrder(orderId);
 
             // TODO check conference and order exist.
             // TODO validate that order belongs to the user.
@@ -219,7 +219,7 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult ThankYou(Guid orderId)
         {
-            var order = this.orderDao.GetDraftOrder(orderId);
+            var order = this.orderDao.FindDraftOrder(orderId);
 
             return View(order);
         }
@@ -316,7 +316,7 @@ namespace Conference.Web.Public.Controllers
 
             while (DateTime.Now < deadline)
             {
-                var order = this.orderDao.GetDraftOrder(orderId);
+                var order = this.orderDao.FindDraftOrder(orderId);
 
                 if (order != null && order.State != DraftOrder.States.PendingReservation && order.OrderVersion > lastOrderVersion)
                 {

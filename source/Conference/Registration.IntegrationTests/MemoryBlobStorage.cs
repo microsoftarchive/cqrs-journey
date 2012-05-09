@@ -11,26 +11,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Database
+namespace Registration.IntegrationTests
 {
-    using System.Data.Entity;
+    using System.Collections.Generic;
+    using Infrastructure.Blob;
 
-    public class RegistrationProcessDbContextInitializer : IDatabaseInitializer<RegistrationProcessDbContext>
+    public class MemoryBlobStorage : IBlobStorage
     {
-        private readonly IDatabaseInitializer<RegistrationProcessDbContext> innerInitializer;
+        private Dictionary<string, byte[]> blobs = new Dictionary<string, byte[]>();
 
-        public RegistrationProcessDbContextInitializer(IDatabaseInitializer<RegistrationProcessDbContext> innerInitializer)
+        public byte[] Find(string id)
         {
-            this.innerInitializer = innerInitializer;
+            byte[] blob = null;
+            this.blobs.TryGetValue(id, out blob);
+            return blob;
         }
 
-        public void InitializeDatabase(RegistrationProcessDbContext context)
+        public void Save(string id, string contentType, byte[] blob)
         {
-            this.innerInitializer.InitializeDatabase(context);
-
-            // Create views, seed reference data, etc.
-
-            context.SaveChanges();
+            this.blobs[id] = blob;
         }
     }
 }
