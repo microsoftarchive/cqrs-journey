@@ -14,29 +14,44 @@
 namespace Registration.IntegrationTests
 {
     using System;
-    using System.Data.Entity;
     using Registration.Database;
     using Xunit;
 
-    public class OrmProcessRepositoryInitializerFixture : IDisposable
+    public class RegistrationProcessDbContextFixture
     {
-        public void Dispose()
-        {
-            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
-            {
-                context.Database.Delete();
-            }
-        }
-
         [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        public void when_saving_process_then_can_retrieve_it()
         {
-            var initializer = new RegistrationProcessDbContextInitializer(new DropCreateDatabaseAlways<RegistrationProcessDbContext>());
-
-            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
+            var dbName = this.GetType().Name + "-" + Guid.NewGuid();
+            using (var context = new RegistrationProcessDbContext(dbName))
             {
-                initializer.InitializeDatabase(context);
+                context.Database.Create();
+            }
+
+            try
+            {
+                Guid id = Guid.Empty;
+                using (var context = new RegistrationProcessDbContext(dbName))
+                {
+                    var process = new RegistrationProcess();
+                    context.RegistrationProcesses.Add(process);
+                    context.SaveChanges();
+                    id = process.Id;
+                }
+                using (var context = new RegistrationProcessDbContext(dbName))
+                {
+                    var process = context.RegistrationProcesses.Find(id);
+                    Assert.NotNull(process);
+                }
+            }
+            finally
+            {
+                using (var context = new RegistrationProcessDbContext(dbName))
+                {
+                    context.Database.Delete();
+                }
             }
         }
+
     }
 }
