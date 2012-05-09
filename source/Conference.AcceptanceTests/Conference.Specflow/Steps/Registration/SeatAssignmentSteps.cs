@@ -11,10 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using TechTalk.SpecFlow;
 using Conference.Specflow.Support;
-using W = WatiN.Core;
-using Xunit;
+using TechTalk.SpecFlow;
 
 namespace Conference.Specflow.Steps.Registration
 {
@@ -24,7 +22,7 @@ namespace Conference.Specflow.Steps.Registration
         [When(@"the Registrant assign these seats")]
         public void WhenTheRegistrantAssignTheseSeats(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>();
+            var browser = ScenarioContext.Current.Browser();
             browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
 
             foreach (var row in table.Rows)
