@@ -75,7 +75,7 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.XML" />
-    <Reference Include="TechTalk.SpecFlow">
+    <Reference Include="TechTalk.SpecFlow, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0778194805d6db41, processorArchitecture=MSIL">
       <HintPath>..\packages\SpecFlow.1.8.1\lib\net35\TechTalk.SpecFlow.dll</HintPath>
     </Reference>
     <Reference Include="WatiN.Core">
@@ -147,10 +147,14 @@
       <DependentUpon>SelfRegistrationEndToEndWithInfrastructure.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\Registration\Discounts\Discounts.feature.cs">
-      <DependentUpon>Discounts.feature</DependentUpon>
-      <SubType>Code</SubType>
-      <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Discounts.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Registration\DiscountDomain\DiscountDomain.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DiscountDomain.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\Registration\Group Reservation\GroupRegistrationReservationWithFullAvailability.feature.cs">
       <AutoGen>True</AutoGen>
@@ -184,6 +188,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\Discounts\DiscountSteps.cs" />
     <Compile Include="Steps\Management\DiscountsConfigurationSteps.cs" />
     <Compile Include="Steps\Registration\SeatAssignmentSteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />
@@ -247,6 +252,10 @@
     <None Include="Features\Registration\Discounts\Discounts.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Discounts.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Registration\DiscountDomain\DiscountDomain.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>DiscountDomain.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Registration\Group Reservation\GroupRegistrationReservationWithFullAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
