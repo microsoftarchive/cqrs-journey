@@ -48,3 +48,11 @@ Scenario: End to end Registration implemented using controllers
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
+	And the Registrant assign these seats
+	| seat type                 | first name | last name | email address       |
+	| General admission         | William    | Weber     | William@Weber.com   |
+	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	And these seats are assigned
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| Additional cocktail party | 1        |

@@ -174,6 +174,36 @@ this.FeatureBackground();
 #line 47
  testRunner.Then("the Order should be created with the following Order Items", ((string)(null)), table6);
 #line hidden
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "first name",
+                        "last name",
+                        "email address"});
+            table7.AddRow(new string[] {
+                        "General admission",
+                        "William",
+                        "Weber",
+                        "William@Weber.com"});
+            table7.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "Jim",
+                        "Gregory",
+                        "Jim@Gregory.com"});
+#line 51
+ testRunner.And("the Registrant assign these seats", ((string)(null)), table7);
+#line hidden
+            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "quantity"});
+            table8.AddRow(new string[] {
+                        "General admission",
+                        "1"});
+            table8.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "1"});
+#line 55
+ testRunner.And("these seats are assigned", ((string)(null)), table8);
+#line hidden
             this.ScenarioCleanup();
         }
         
