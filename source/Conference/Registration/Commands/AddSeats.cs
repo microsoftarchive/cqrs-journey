@@ -39,7 +39,6 @@ namespace Registration.Commands
         /// <summary>
         /// Gets or sets the type of the seat.
         /// </summary>
-        /// </value>
         public Guid SeatType { get; set; }
 
         /// <summary>

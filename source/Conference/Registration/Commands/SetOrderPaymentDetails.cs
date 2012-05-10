@@ -18,7 +18,12 @@ namespace Registration.Commands
 
     public class SetOrderPaymentDetails : ICommand
     {
-        public Guid Id { get; private set; }
+        public SetOrderPaymentDetails()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; set; }
 
         public Guid OrderId { get; set; }
 
