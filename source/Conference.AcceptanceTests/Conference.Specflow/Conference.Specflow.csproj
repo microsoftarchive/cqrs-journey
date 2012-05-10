@@ -189,6 +189,8 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\Management\CommonSteps.cs" />
+    <Compile Include="Steps\Management\ConferenceConfigurationSteps.cs" />
     <Compile Include="Steps\Management\DiscountsConfigurationSteps.cs" />
     <Compile Include="Steps\Registration\SeatAssignmentSteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />

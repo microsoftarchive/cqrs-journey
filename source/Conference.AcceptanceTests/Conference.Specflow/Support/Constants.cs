@@ -21,7 +21,8 @@ namespace Conference.Specflow.Support
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
-
+        public static readonly string ConferenceManagementPage = ConfigurationManager.AppSettings["testConferenceUrl"];
+  
         public static class UI
         {
             public const string NextStepId = "Next";
