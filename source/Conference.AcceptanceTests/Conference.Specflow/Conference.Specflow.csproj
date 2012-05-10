@@ -162,6 +162,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GroupRegistrationReservationWithPartialAvailability.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithConcurrency.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SelfRegistrationReservationWithConcurrency.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature.cs">
       <DependentUpon>SelfRegistrationReservationWithFullAvailability.feature</DependentUpon>
       <SubType>Code</SubType>
@@ -189,6 +194,7 @@
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />
     <Compile Include="Steps\Registration\CommonSteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndWithInfrastructureSteps.cs" />
+    <Compile Include="Steps\Registration\SelfRegistrationReservationWithConcurrencySteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
     <Compile Include="Support\ConferenceHelper.cs" />
@@ -255,6 +261,10 @@
     <None Include="Features\Registration\Group Reservation\GroupRegistrationReservationWithPartialAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithConcurrency.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SelfRegistrationReservationWithConcurrency.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Registration\Individual Reservation\SelfRegistrationReservationWithFullAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

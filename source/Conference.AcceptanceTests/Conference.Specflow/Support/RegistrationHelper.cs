@@ -71,5 +71,20 @@ namespace Conference.Specflow.Support
             var paymentDao = new PaymentDao(() => new PaymentsReadDbContext(PaymentsReadDbContext.SchemaName));
             return new PaymentController(ConferenceHelper.GetCommandBus(), paymentDao);
         }
+
+        public static OrderController GetOrderController()
+        {
+            Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
+            var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
+            var conferenceDao = new ConferenceDao(ctxFactory);
+
+            return new OrderController(conferenceDao, orderDao, ConferenceHelper.GetCommandBus());
+        }
+
+        public static T GetModel<T>(ActionResult result) where T : class
+        {
+            var viewResult = result as ViewResultBase;
+            return viewResult != null ? viewResult.Model as T : default(T);
+        }
     }
 }
