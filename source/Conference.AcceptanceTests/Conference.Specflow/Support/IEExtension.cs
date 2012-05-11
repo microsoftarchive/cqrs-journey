@@ -26,7 +26,7 @@ namespace Conference.Specflow.Support
 
             if (!element.Exists)
             {
-                element = browser.Link(Find.ByText(t => t.Contains(controlId))) as Element;
+                element = browser.Link(Find.ByText(t => t.Contains(controlId)));
                 if (!element.Exists)
                 {
                     element = browser.Button(Find.ById(controlId));
@@ -35,8 +35,7 @@ namespace Conference.Specflow.Support
                         element = browser.Button(Find.ByValue(t => t.Contains(controlId)));
                         if (!element.Exists)
                         {
-                            throw new InvalidOperationException(string.Format("Could not find {0} link on the page",
-                                                                              controlId));
+                            throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
                         }
                     }
                 }

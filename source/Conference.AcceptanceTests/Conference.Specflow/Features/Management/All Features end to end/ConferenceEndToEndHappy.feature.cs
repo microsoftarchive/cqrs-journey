@@ -82,46 +82,19 @@ testRunner.Given("the Business Customer selected the Create Conference option");
             this.ScenarioTearDown();
         }
         
-        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "End to end successful Conference configuration scenarios for creating and editing" +
             " Conference settings")]
         [Xunit.TraitAttribute("Description", "A new Conference is created with the required information")]
         public virtual void ANewConferenceIsCreatedWithTheRequiredInformation()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("A new Conference is created with the required information", new string[] {
-                        "Ignore"});
-#line 24
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("A new Conference is created with the required information", ((string[])(null)));
+#line 23
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Owner",
-                        "Email"});
-            table1.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com"});
-#line 25
-testRunner.Given("this information entered into the Owner Information section", ((string)(null)), table1);
-#line hidden
-            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Name",
-                        "Description",
-                        "Slug",
-                        "Start",
-                        "End"});
-            table2.AddRow(new string[] {
-                        "CQRS2012",
-                        "CQRS summit 2012 conference",
-                        "cqrs2012",
-                        "05/02/2012",
-                        "05/12/2012"});
-#line 28
-testRunner.And("this inforamtion entered into the Conference Information section", ((string)(null)), table2);
-#line 31
-testRunner.When("the Business Customer proceed to create the Conference");
-#line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "Owner",
                         "Email",
                         "Name",
@@ -129,16 +102,29 @@ testRunner.When("the Business Customer proceed to create the Conference");
                         "Slug",
                         "Start",
                         "End"});
-            table3.AddRow(new string[] {
+            table1.AddRow(new string[] {
                         "Gregory Weber",
                         "gregoryweber@contoso.com",
-                        "CQRS2012",
-                        "CQRS summit 2012 conference",
-                        "cqrs2012",
+                        "CQRS2012P",
+                        "CQRS summit 2012 conference (Create)",
+                        "random",
                         "05/02/2012",
                         "05/12/2012"});
-#line 32
-testRunner.Then("following details will be shown for the created Conference", ((string)(null)), table3);
+#line 24
+testRunner.Given("this conference information", ((string)(null)), table1);
+#line 27
+testRunner.When("the Business Customer proceed to create the Conference");
+#line hidden
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Owner",
+                        "Email",
+                        "AccessCode"});
+            table2.AddRow(new string[] {
+                        "Gregory Weber",
+                        "gregoryweber@contoso.com",
+                        "random"});
+#line 28
+testRunner.Then("following details will be shown for the created Conference", ((string)(null)), table2);
 #line hidden
             this.ScenarioCleanup();
         }
@@ -151,12 +137,12 @@ testRunner.Then("following details will be shown for the created Conference", ((
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Seat Types are created and assigned to an existing Conference", new string[] {
                         "Ignore"});
-#line 38
+#line 34
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "Owner",
                         "Email",
                         "Name",
@@ -164,7 +150,7 @@ this.FeatureBackground();
                         "Slug",
                         "Start",
                         "End"});
-            table4.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "Gregory Weber",
                         "gregoryweber@contoso.com",
                         "CQRS2012S",
@@ -172,8 +158,23 @@ this.FeatureBackground();
                         "cqrs2012p",
                         "05/02/2012",
                         "05/12/2012"});
-#line 39
-testRunner.Given("an existing unpublished conference with this information", ((string)(null)), table4);
+#line 35
+testRunner.Given("an existing unpublished conference with this information", ((string)(null)), table3);
+#line hidden
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Name",
+                        "Description",
+                        "Quantity",
+                        "Price"});
+            table4.AddRow(new string[] {
+                        "GENADM",
+                        "General admission",
+                        "100",
+                        "199"});
+#line 38
+testRunner.And("the information for the new Seat Types", ((string)(null)), table4);
+#line 41
+testRunner.When("the Business Customer proceed to create the Seat Types");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
@@ -184,24 +185,9 @@ testRunner.Given("an existing unpublished conference with this information", ((s
                         "GENADM",
                         "General admission",
                         "100",
-                        "199"});
-#line 42
-testRunner.And("the information for the new Seat Types", ((string)(null)), table5);
-#line 45
-testRunner.When("the Business Customer proceed to create the Seat Types");
-#line hidden
-            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Name",
-                        "Description",
-                        "Quantity",
-                        "Price"});
-            table6.AddRow(new string[] {
-                        "GENADM",
-                        "General admission",
-                        "100",
                         "199,00"});
-#line 46
-testRunner.Then("the new Seat Types with this information are created", ((string)(null)), table6);
+#line 42
+testRunner.Then("the new Seat Types with this information are created", ((string)(null)), table5);
 #line hidden
             this.ScenarioCleanup();
         }
@@ -214,58 +200,58 @@ testRunner.Then("the new Seat Types with this information are created", ((string
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a new Promotional Code", new string[] {
                         "Ignore"});
-#line 52
+#line 48
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
-            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "Promotional Code",
                         "Discount",
                         "Quota",
                         "Scope",
                         "Cumulative"});
-            table7.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "SPEAKER123",
                         "100%",
                         "Unlimited",
                         "All",
                         ""});
-#line 53
-testRunner.Given("the Promotional Codes", ((string)(null)), table7);
+#line 49
+testRunner.Given("the Promotional Codes", ((string)(null)), table6);
 #line hidden
-            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
                         "quota"});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "General admission",
                         "500"});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "CQRS Workshop",
                         "100"});
-            table8.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "Additional cocktail party",
                         "600"});
-#line 56
-testRunner.And("the Seat Types configuration", ((string)(null)), table8);
-#line 61
+#line 52
+testRunner.And("the Seat Types configuration", ((string)(null)), table7);
+#line 57
 testRunner.And("the Business Customer proceed to create a Promotional Code");
 #line hidden
-            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                         "Discount",
                         "Quota",
                         "Scope",
                         "Cumulative"});
-            table9.AddRow(new string[] {
+            table8.AddRow(new string[] {
                         "10%",
                         "Unlimited",
                         "General admission",
                         "SPEAKER123"});
-#line 62
-testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table9);
-#line 65
+#line 58
+testRunner.And("the Business Customer enter the \'NEWCODE\' Promotional Code and these attributes", ((string)(null)), table8);
+#line 61
 testRunner.When("the Business Customer proceed to save the new information");
-#line 66
+#line 62
 testRunner.Then("the new Promotional Code is added to the list of existing codes");
 #line hidden
             this.ScenarioCleanup();

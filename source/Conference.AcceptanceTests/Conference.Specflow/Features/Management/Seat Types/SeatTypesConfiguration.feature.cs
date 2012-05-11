@@ -81,11 +81,13 @@ namespace Conference.Specflow.Features.Management.SeatTypes
                         "gregoryweber@contoso.com",
                         "CQRS2012S",
                         "CQRS summit 2012 conference (Seat Assignment)",
-                        "cqrs2012p",
+                        "random",
                         "05/02/2012",
                         "05/12/2012"});
 #line 20
 testRunner.Given("an existing unpublished conference with this information", ((string)(null)), table1);
+#line 23
+testRunner.And("the Business Customer selects the Seat Types opcion");
 #line hidden
         }
         
@@ -98,17 +100,18 @@ testRunner.Given("an existing unpublished conference with this information", ((s
             this.ScenarioTearDown();
         }
         
-        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Seat Types configuration scenarios for creating and editing Seat Types settings")]
         [Xunit.TraitAttribute("Description", "Seat Types are created and assigned to an existing Conference")]
         public virtual void SeatTypesAreCreatedAndAssignedToAnExistingConference()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Seat Types are created and assigned to an existing Conference", new string[] {
-                        "Ignore"});
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Seat Types are created and assigned to an existing Conference", ((string[])(null)));
 #line 25
 this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
+#line 26
+testRunner.Given("the Business Customer proceed to create new Seat Types");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
@@ -120,9 +123,9 @@ this.FeatureBackground();
                         "General admission",
                         "100",
                         "199"});
-#line 26
-testRunner.Given("the information for the new Seat Types", ((string)(null)), table2);
-#line 29
+#line 27
+testRunner.And("the information for the Seat Types", ((string)(null)), table2);
+#line 30
 testRunner.When("the Business Customer proceed to create the Seat Types");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -135,7 +138,7 @@ testRunner.When("the Business Customer proceed to create the Seat Types");
                         "General admission",
                         "100",
                         "199,00"});
-#line 30
+#line 31
 testRunner.Then("the new Seat Types with this information are created", ((string)(null)), table3);
 #line hidden
             this.ScenarioCleanup();
@@ -148,7 +151,7 @@ testRunner.Then("the new Seat Types with this information are created", ((string
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Seat Types are edited from existing Conference", new string[] {
                         "Ignore"});
-#line 35
+#line 36
 this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
@@ -163,23 +166,23 @@ this.FeatureBackground();
                         "General admission",
                         "100",
                         "199"});
-#line 36
+#line 37
 testRunner.Given("the existing Seat Types", ((string)(null)), table4);
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "Quantity"});
             table5.AddRow(new string[] {
                         "200"});
-#line 39
+#line 40
 testRunner.And("the updated information", ((string)(null)), table5);
-#line 42
+#line 43
 testRunner.When("the Business Customer proceed to save the changes");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "Quantity"});
             table6.AddRow(new string[] {
                         "200"});
-#line 43
+#line 44
 testRunner.Then("the updated Seat Type will show up", ((string)(null)), table6);
 #line hidden
             this.ScenarioCleanup();
@@ -192,7 +195,7 @@ testRunner.Then("the updated Seat Type will show up", ((string)(null)), table6);
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Seat Types are deleted from existing Conference", new string[] {
                         "Ignore"});
-#line 48
+#line 49
 this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
@@ -207,11 +210,11 @@ this.FeatureBackground();
                         "General admission",
                         "100",
                         "199"});
-#line 49
+#line 50
 testRunner.Given("the existing Seat Types", ((string)(null)), table7);
-#line 52
-testRunner.When("the Business Customer proceed to delete the selected Seat Type");
 #line 53
+testRunner.When("the Business Customer proceed to delete the selected Seat Type");
+#line 54
 testRunner.Then("the Seat Type is removed from the Conference");
 #line hidden
             this.ScenarioCleanup();
