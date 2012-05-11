@@ -11,39 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Commands
+namespace Infrastructure.Azure.Tests.Messaging
 {
     using System;
+    using System.Linq;
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Tests.Mocks;
     using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
+    using Moq;
+    using Xunit;
 
-    /// <summary>
-    /// Adds seats to an existing seat type.
-    /// </summary>
-    public class AddSeats : ICommand
+    public class CommandBusFixture
     {
-        public AddSeats()
+        [Fact]
+        public void when_sending_then_sets_command_id_as_messageid()
         {
-            this.Id = Guid.NewGuid();
+            var sender = new MessageSenderMock();
+            var sut = new CommandBus(sender, Mock.Of<IMetadataProvider>(), new JsonTextSerializer());
+
+            var command = new FooCommand { Id = Guid.NewGuid() };
+            sut.Send(command);
+
+            Assert.Equal(command.Id.ToString(), sender.Sent.Single().MessageId);
         }
 
-        /// <summary>
-        /// Gets the command identifier.
-        /// </summary>
-        public Guid Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the conference identifier.
-        /// </summary>
-        public Guid ConferenceId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the seat.
-        /// </summary>
-        public Guid SeatType { get; set; }
-
-        /// <summary>
-        /// Gets or sets the quantity of seats added.
-        /// </summary>
-        public int Quantity { get; set; }
+        class FooCommand : ICommand
+        {
+            public Guid Id { get; set; }
+        }
     }
 }

@@ -18,6 +18,11 @@ namespace Registration.Commands
 
     public class ConfirmOrderPayment : ICommand
     {
+        public ConfirmOrderPayment()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
         public Guid Id { get; set; }
 
         public Guid OrderId { get; set; }

@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests.EventSourcing.Mocks
+namespace Infrastructure.Azure.Tests.Mocks
 {
     using System;
     using System.Collections.Generic;

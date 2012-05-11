@@ -24,10 +24,11 @@ namespace Registration.Commands
     {
         public RegisterToConference()
         {
+            this.Id = Guid.NewGuid();
             this.Seats = new Collection<SeatQuantity>();
         }
 
-        public Guid Id { get; private set; }
+        public Guid Id { get; set; }
 
         public Guid OrderId { get; set; }
 
