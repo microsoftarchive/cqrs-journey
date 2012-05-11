@@ -15,10 +15,12 @@ namespace Infrastructure.Azure
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Utils;
     using Infrastructure.Serialization;
+    using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
@@ -127,34 +129,61 @@ namespace Infrastructure.Azure
                 payload = this.serializer.Deserialize(reader);
             }
 
+            // TODO: have a better trace correlation mechanism (that is used in both the sender and receiver).
+            string traceIdentifier = BuildTraceIdentifier(message);
             try
             {
-                Trace.WriteLine(new string('-', 100));
-                TracePayload(payload);
-                Trace.WriteLine("");
+                TracePayload(traceIdentifier, payload);
 
                 ProcessMessage(payload);
-
-                Trace.WriteLine(new string('-', 100));
             }
             catch (Exception e)
             {
                 if (args.Message.DeliveryCount > MaxProcessingRetries)
                 {
-                    Trace.TraceWarning("An error occurred while processing a new message and will be dead-lettered:\r\n{0}", e);
+                    Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
                     message.SafeDeadLetter(e.Message, e.ToString());
                 }
                 else
                 {
-                    Trace.TraceWarning("An error occurred while processing a new message and will be abandoned:\r\n{0}", e);
+                    Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be abandoned:\r\n{0}", e);
                     message.SafeAbandon();
                 }
 
                 return;
             }
 
-            Trace.TraceInformation("The message has been processed and will be completed.");
+            Trace.WriteLine("The message" + traceIdentifier + " has been processed and will be completed.");
             message.SafeComplete();
+        }
+
+        // TODO: remove once we have a better trace correlation mechanism (that is used in both the sender and receiver).
+        private static string BuildTraceIdentifier(BrokeredMessage message)
+        {
+            try
+            {
+                var messageId = message.MessageId;
+                if (!string.IsNullOrEmpty(messageId))
+                {
+                    return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0})", messageId);
+                }
+
+                object sourceId;
+                if (message.Properties.TryGetValue("SourceId", out sourceId))
+                {
+                    var sourceIdString = sourceId != null ? sourceId.ToString() : null;
+                    if (!string.IsNullOrEmpty(sourceIdString))
+                    {
+                        return string.Format(CultureInfo.InvariantCulture, " (with SourceId: {0})", sourceIdString);
+                    }
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                // if there is any kind of exception trying to build a trace identifier, ignore, as it is not important.
+            }
+
+            return string.Empty;
         }
 
         private void ThrowIfDisposed()
@@ -164,13 +193,13 @@ namespace Infrastructure.Azure
         }
 
         [Conditional("TRACE")]
-        private void TracePayload(object payload)
+        private void TracePayload(string traceIdentifier, object payload)
         {
             // TODO: can force the use of indented JSON for trace
             using (var writer = new StringWriter())
             {
                 this.Serializer.Serialize(writer, payload);
-                Trace.WriteLine(writer.ToString());
+                Trace.WriteLine("Processing message" + traceIdentifier + " with payload:\r\n" + writer.ToString());
             }
         }
     }
