@@ -17,7 +17,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
     using System.Linq;
     using System.Threading;
     using Infrastructure.Azure.EventSourcing;
-    using Infrastructure.Azure.Tests.EventSourcing.Mocks;
+    using Infrastructure.Azure.Tests.Mocks;
     using Moq;
     using Xunit;
 

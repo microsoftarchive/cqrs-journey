@@ -16,7 +16,6 @@ using System.Threading;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using Xunit;
-using W = WatiN.Core;
 
 namespace Conference.Specflow.Steps.Registration
 {
@@ -26,13 +25,13 @@ namespace Conference.Specflow.Steps.Registration
         [Then(@"the Order should be found with the following Order Items")]
         public void ThenTheOrderShouldBeFoundWithTheFollowingOrderItems(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>();
+            var browser = ScenarioContext.Current.Browser();
             string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
             Assert.False(string.IsNullOrWhiteSpace(accessCode));
+            string email;
+            Assert.True(ScenarioContext.Current.TryGetValue("email", out email));
 
             Thread.Sleep(Constants.WaitTimeout); // Wait for event processing
-
-            var email = ScenarioContext.Current.Get<string>("email");
 
             // Navigate to Registration page
             browser.GoTo(Constants.FindOrderPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));

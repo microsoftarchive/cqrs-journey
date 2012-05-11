@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System.Collections.Generic;
 using System.Linq;
 using TechTalk.SpecFlow;
 using WatiN.Core;
@@ -26,9 +27,7 @@ namespace Conference.Specflow.Support
             if (!FeatureContext.Current.FeatureInfo.Tags.Contains(Constants.NoWatiN) &&
                 !ScenarioContext.Current.ScenarioInfo.Tags.Contains(Constants.NoWatiN))
             {
-                // Set Visible property as true for showing up IE instance (typically used when debugging). 
-                Browser browser = new IE { Visible = true };
-                ScenarioContext.Current.Set(browser);
+                ScenarioContext.Current.Set(CreateBrowser());
             }
         }
 
@@ -37,9 +36,38 @@ namespace Conference.Specflow.Support
         {
             Browser browser;
             if (ScenarioContext.Current.TryGetValue(out browser))
-            {
                 browser.Close();
+
+            List<Browser> browsers;
+            if (ScenarioContext.Current.TryGetValue(out browsers))
+                browsers.ForEach(b => b.Close());
+        }
+
+        public static Browser Browser(this ScenarioContext context)
+        {
+            Browser browser;
+            context.TryGetValue(out browser);
+            return browser;
+        }
+
+        public static Browser NewBrowser(this ScenarioContext context)
+        {
+            List<Browser> browsers;
+            if (!context.TryGetValue(out browsers))
+            {
+                browsers = new List<Browser>();
+                context.Set(browsers);
             }
+            var browser = CreateBrowser();
+            browsers.Add(browser);
+
+            return browser;
+        }
+
+        private static Browser CreateBrowser()
+        {
+            // Set Visible property as true for showing up IE instance (typically used when debugging). 
+            return new IE { Visible = true };
         }
     }
 }

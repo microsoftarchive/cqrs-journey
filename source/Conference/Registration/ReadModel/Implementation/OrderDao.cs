@@ -33,14 +33,6 @@ namespace Registration.ReadModel.Implementation
             this.serializer = serializer;
         }
 
-        public DraftOrder GetDraftOrder(Guid orderId)
-        {
-            using (var context = this.contextFactory.Invoke())
-            {
-                return context.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
-            }
-        }
-
         public Guid? LocateOrder(string email, string accessCode)
         {
             using (var context = this.contextFactory.Invoke())
@@ -57,6 +49,14 @@ namespace Registration.ReadModel.Implementation
                 }
 
                 return null;
+            }
+        }
+
+        public DraftOrder FindDraftOrder(Guid orderId)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                return context.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
             }
         }
 

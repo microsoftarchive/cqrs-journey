@@ -18,7 +18,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
     using System.IO;
     using System.Linq;
     using Infrastructure.Azure.EventSourcing;
-    using Infrastructure.Azure.Tests.EventSourcing.Mocks;
+    using Infrastructure.Azure.Tests.Mocks;
     using Infrastructure.EventSourcing;
     using Infrastructure.Serialization;
     using Moq;

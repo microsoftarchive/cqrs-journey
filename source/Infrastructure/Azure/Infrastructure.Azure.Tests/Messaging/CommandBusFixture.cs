@@ -11,32 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests
+namespace Infrastructure.Azure.Tests.Messaging
 {
     using System;
-    using System.Data.Entity;
-    using Registration.Database;
+    using System.Linq;
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Tests.Mocks;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
+    using Moq;
     using Xunit;
 
-    public class OrmProcessRepositoryInitializerFixture : IDisposable
+    public class CommandBusFixture
     {
-        public void Dispose()
+        [Fact]
+        public void when_sending_then_sets_command_id_as_messageid()
         {
-            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
-            {
-                context.Database.Delete();
-            }
+            var sender = new MessageSenderMock();
+            var sut = new CommandBus(sender, Mock.Of<IMetadataProvider>(), new JsonTextSerializer());
+
+            var command = new FooCommand { Id = Guid.NewGuid() };
+            sut.Send(command);
+
+            Assert.Equal(command.Id.ToString(), sender.Sent.Single().MessageId);
         }
 
-        [Fact]
-        public void WhenInitializingDatabase_ThenPopulatesDefaultAvailability()
+        class FooCommand : ICommand
         {
-            var initializer = new RegistrationProcessDbContextInitializer(new DropCreateDatabaseAlways<RegistrationProcessDbContext>());
-
-            using (var context = new RegistrationProcessDbContext("TestOrmProcessRepository"))
-            {
-                initializer.InitializeDatabase(context);
-            }
+            public Guid Id { get; set; }
         }
     }
 }

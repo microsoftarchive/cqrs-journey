@@ -12,7 +12,6 @@
 // ==============================================================================================================
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -29,20 +28,26 @@ namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
     [Scope(Tag = "SelfRegistrationEndToEndWithInfrastructure")]
-    public class SelfRegistrationEndToEndWithInfrastructureSteps
+    public class SelfRegistrationEndToEndWithInfrastructureSteps : IDisposable
     {
+        private ConferenceInfo conferenceInfo;
+        private RegistrationController registrationController;
+        private RegisterToConference registration;
+        private RegistrationViewModel registrationViewModel;
+        private RouteValueDictionary routeValues;
+        private DraftOrder draftOrder;
+        private bool disposed;
+
         [Given(@"the selected Order Items")]
         public void GivenTheSelectedOrderItems(Table table)
         {
-            // Get the RegistrationController for this conference
-            var controller = RegistrationHelper.GetRegistrationController(ScenarioContext.Current.Get<ConferenceInfo>().Slug);
-            // Store for later use
-            ScenarioContext.Current.Set(controller);
+            conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
+            registrationController = RegistrationHelper.GetRegistrationController(conferenceInfo.Slug);
 
-            var conference = ScenarioContext.Current.Get<ConferenceInfo>();
-            var orderViewModel = ((ViewResult)controller.StartRegistration()).Model as OrderViewModel;
+            var orderViewModel = RegistrationHelper.GetModel<OrderViewModel>(registrationController.StartRegistration());
             Assert.NotNull(orderViewModel);
-            var registration = new RegisterToConference { ConferenceId = conference.Id, OrderId = controller.ViewBag.OrderId };
+
+            registration = new RegisterToConference { ConferenceId = conferenceInfo.Id, OrderId = registrationController.ViewBag.OrderId };
 
             foreach (var row in table.Rows)
             {
@@ -50,39 +55,35 @@ namespace Conference.Specflow.Steps.Registration
                 Assert.NotNull(orderItemViewModel);
                 registration.Seats.Add(new SeatQuantity(orderItemViewModel.SeatType.Id, Int32.Parse(row["quantity"])));
             }
-
-            ScenarioContext.Current.Set(registration);
         }
 
         [Given(@"the Registrant proceed to make the Reservation")]
         public void GivenTheRegistrantProceedToMakeTheReservation()
         {
-            var controller = ScenarioContext.Current.Get<RegistrationController>();
-            var registration = ScenarioContext.Current.Get<RegisterToConference>();
-            var redirect = controller.StartRegistration(registration, controller.ViewBag.OrderVersion) as RedirectToRouteResult;
+            var redirect = registrationController.StartRegistration(
+                registration, registrationController.ViewBag.OrderVersion) as RedirectToRouteResult;
             
             Assert.NotNull(redirect);
 
             // Perform external redirection
             var timeout =  DateTime.Now.Add(Constants.UI.WaitTimeout);
-            RegistrationViewModel model = null;
-            while(DateTime.Now < timeout && model == null)
+
+            while (DateTime.Now < timeout && registrationViewModel == null)
             {
-                model = ((ViewResult)controller.SpecifyRegistrantAndPaymentDetails(
-                    (Guid)redirect.RouteValues["orderId"], controller.ViewBag.OrderVersion)).Model as RegistrationViewModel;
+                registrationViewModel = RegistrationHelper.GetModel<RegistrationViewModel>(
+                    registrationController.SpecifyRegistrantAndPaymentDetails(
+                        (Guid)redirect.RouteValues["orderId"], registrationController.ViewBag.OrderVersion));
             }
 
-            Assert.NotNull(model);
-            ScenarioContext.Current.Set(model);
+            Assert.False(registrationViewModel == null, "Could not make the reservation and get the RegistrationViewModel");
         }
 
         [Given(@"these Order Items should be reserved")]
         public void GivenTheseOrderItemsShouldBeReserved(Table table)
         {
-            var model = ScenarioContext.Current.Get<RegistrationViewModel>();
             foreach (var row in table.Rows)
             {
-                var seat = model.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
+                var seat = registrationViewModel.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
                 Assert.NotNull(seat);
                 Assert.Equal(Int32.Parse(row["quantity"]), seat.Quantity);
             }
@@ -91,10 +92,9 @@ namespace Conference.Specflow.Steps.Registration
         [Given(@"these Order Items should not be reserved")]
         public void GivenTheseOrderItemsShouldNotBeReserved(Table table)
         {
-            var model = ScenarioContext.Current.Get<RegistrationViewModel>();
             foreach (var row in table.Rows)
             {
-                var seat = model.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
+                var seat = registrationViewModel.Order.Lines.FirstOrDefault(i => i.Description == row["seat type"]);
                 Assert.Null(seat);
             }
         }
@@ -102,70 +102,125 @@ namespace Conference.Specflow.Steps.Registration
         [Given(@"the Registrant enter these details")]  
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
-            var model = ScenarioContext.Current.Get<RegistrationViewModel>();
-            model.RegistrantDetails.FirstName = table.Rows[0]["first name"];
-            model.RegistrantDetails.LastName = table.Rows[0]["last name"];
-            model.RegistrantDetails.Email = table.Rows[0]["email address"];
+            registrationViewModel.RegistrantDetails.FirstName = table.Rows[0]["first name"];
+            registrationViewModel.RegistrantDetails.LastName = table.Rows[0]["last name"];
+            registrationViewModel.RegistrantDetails.Email = table.Rows[0]["email address"];
         }
 
         [Given(@"the Registrant proceed to Checkout:Payment")]
         public void GivenTheRegistrantProceedToCheckoutPayment()
         {
-            var model = ScenarioContext.Current.Get<RegistrationViewModel>();
-            var controller = ScenarioContext.Current.Get<RegistrationController>();
-
-            var result = controller.SpecifyRegistrantAndPaymentDetails(
-                model.RegistrantDetails, RegistrationController.ThirdPartyProcessorPayment, controller.ViewBag.OrderVersion) as RedirectToRouteResult;
+            var result = registrationController.SpecifyRegistrantAndPaymentDetails(
+                registrationViewModel.RegistrantDetails,
+                RegistrationController.ThirdPartyProcessorPayment, registrationController.ViewBag.OrderVersion) as RedirectToRouteResult;
 
             Assert.NotNull(result);
 
-            ScenarioContext.Current.Set(result.RouteValues);
+            routeValues = result.RouteValues;
         }
 
         [When(@"the Registrant proceed to confirm the payment")]
         public void WhenTheRegistrantProceedToConfirmThePayment()
         {
-            var conference = ScenarioContext.Current.Get<ConferenceInfo>();
-            var paymentController = RegistrationHelper.GetPaymentController();
-            var values = ScenarioContext.Current.Get<RouteValueDictionary>();
-            
-            paymentController.ThirdPartyProcessorPaymentAccepted(conference.Slug, (Guid)values["paymentId"], " ");
+            using (var paymentController = RegistrationHelper.GetPaymentController())
+            {
+                paymentController.ThirdPartyProcessorPaymentAccepted(
+                    conferenceInfo.Slug, (Guid) routeValues["paymentId"], " ");
+            }
         }
 
         [Then(@"the Order should be created with the following Order Items")]
         public void ThenTheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
         {
-            var conference = ScenarioContext.Current.Get<ConferenceInfo>();
-            var controller = ScenarioContext.Current.Get<RegistrationController>();
-            var model = ScenarioContext.Current.Get<RegistrationViewModel>();
-            
-            var order = ((ViewResult)controller.ThankYou(model.Order.OrderId)).Model as DraftOrder;
-            Assert.NotNull(order);
+            draftOrder = RegistrationHelper.GetModel<DraftOrder>(registrationController.ThankYou(registrationViewModel.Order.OrderId));
+            Assert.NotNull(draftOrder);
 
             foreach (var row in table.Rows)
             {
-                var orderItem = order.Lines.FirstOrDefault(
-                    l => l.SeatType == conference.Seats.First(s => s.Description == row["seat type"]).Id);
+                var orderItem = draftOrder.Lines.FirstOrDefault(
+                    l => l.SeatType == conferenceInfo.Seats.First(s => s.Description == row["seat type"]).Id);
 
                 Assert.NotNull(orderItem);
                 Assert.Equal(Int32.Parse(row["quantity"]), orderItem.ReservedSeats);
             }
         }
 
-        [AfterScenario]
-        public static void AfterScenario()
+        [Then(@"the Registrant assign these seats")]
+        public void ThenTheRegistrantAssignTheseSeats(Table table)
         {
-            RegistrationController regController;
-            if (ScenarioContext.Current.TryGetValue(out regController))
+            using (var orderController = RegistrationHelper.GetOrderController())
             {
-                regController.Dispose();
-            }
+                PricedOrder pricedOrder = null;
+                var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+                while((pricedOrder == null || !pricedOrder.AssignmentsId.HasValue) && DateTime.Now < timeout)
+                {
+                    pricedOrder = RegistrationHelper.GetModel<PricedOrder>(orderController.Display(draftOrder.OrderId));
+                }
 
-            PaymentController paymentController;
-            if (ScenarioContext.Current.TryGetValue(out paymentController))
-            {
-                paymentController.Dispose();
+                Assert.NotNull(pricedOrder);
+                Assert.True(pricedOrder.AssignmentsId.HasValue);
+
+                var orderSeats =
+                    RegistrationHelper.GetModel<OrderSeats>(orderController.AssignSeats(pricedOrder.AssignmentsId.Value));
+
+                foreach (var row in table.Rows)
+                {
+                    var seat = orderSeats.Seats.FirstOrDefault(s => s.SeatName == row["seat type"]);
+                    Assert.NotNull(seat);
+                    seat.Attendee.FirstName = row["first name"];
+                    seat.Attendee.LastName = row["last name"];
+                    seat.Attendee.Email = row["email address"];
+                }
+
+                orderController.AssignSeats(pricedOrder.AssignmentsId.Value, orderSeats.Seats.ToList());
             }
+        }
+
+        [Then(@"these seats are assigned")]
+        public void ThenTheseSeatsAreAssigned(Table table)
+        {
+            ThenTheOrderShouldBeCreatedWithTheFollowingOrderItems(table);
+        }
+
+        // SpecFlow should Dispose after scenario:
+        // https://github.com/techtalk/SpecFlow/issues/22
+        //[AfterScenario]
+        //public static void AfterScenario()
+        //{
+        //    SelfRegistrationEndToEndWithInfrastructureSteps instance;
+        //    if (ScenarioContext.Current.TryGetValue(out instance))
+        //    {
+        //        instance.Dispose();
+        //    }
+        //}
+
+        /// <summary>
+        /// Disposes the resources used by SelfRegistrationEndToEndWithInfrastructureSteps.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes the resources used by SelfRegistrationEndToEndWithInfrastructureSteps.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    this.registrationController.Dispose();
+                    this.disposed = true;
+                }
+            }
+        }
+
+        ~SelfRegistrationEndToEndWithInfrastructureSteps()
+        {
+            Dispose(false);
         }
     }
 }

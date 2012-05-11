@@ -13,8 +13,8 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using Xunit;
 using W = WatiN.Core;
+using Xunit;
 
 namespace Conference.Specflow.Steps.Registration
 {
@@ -25,10 +25,14 @@ namespace Conference.Specflow.Steps.Registration
         [Then(@"the Registrant is offered to select any of these available seats")]
         public void ThenTheRegistrantIsOfferedToSelectAnyOfTheseAvailableSeats(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>();
+            AvailableSeats(ScenarioContext.Current.Browser(), table);
+        }
+
+        internal static void AvailableSeats(W.Browser browser, Table table)
+        {
             foreach (var row in table.Rows)
             {
-                Assert.True(browser.ContainsListItemsInTableRow(row["seat type"], row["selected"], row["message"]), 
+                Assert.True(browser.ContainsListItemsInTableRow(row["seat type"], row["selected"], row["message"]),
                     string.Format("some of these text where not found in the current page: '{0}', '{1}', '{2}'", row["seat type"], row["selected"], row["message"]));
             }
         }

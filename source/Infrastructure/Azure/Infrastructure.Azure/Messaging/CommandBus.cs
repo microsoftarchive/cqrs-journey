@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -26,16 +27,16 @@ namespace Infrastructure.Azure.Messaging
     public class CommandBus : ICommandBus
     {
         private readonly IMessageSender sender;
-        private readonly IMetadataProvider metadata;
+        private readonly IMetadataProvider metadataProvider;
         private ITextSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandBus"/> class.
         /// </summary>
-        public CommandBus(IMessageSender sender, IMetadataProvider metadata, ITextSerializer serializer)
+        public CommandBus(IMessageSender sender, IMetadataProvider metadataProvider, ITextSerializer serializer)
         {
             this.sender = sender;
-            this.metadata = metadata;
+            this.metadataProvider = metadataProvider;
             this.serializer = serializer;
         }
 
@@ -63,10 +64,18 @@ namespace Infrastructure.Azure.Messaging
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);
-
-            foreach (var pair in this.metadata.GetMetadata(command.Body))
+            if (!default(Guid).Equals(command.Body.Id))
             {
-                message.Properties[pair.Key] = pair.Value;
+                message.MessageId = command.Body.Id.ToString();
+            }
+
+            var metadata = this.metadataProvider.GetMetadata(command.Body);
+            if (metadata != null)
+            {
+                foreach (var pair in metadata)
+                {
+                    message.Properties[pair.Key] = pair.Value;
+                }
             }
 
             if (command.Delay != TimeSpan.Zero)

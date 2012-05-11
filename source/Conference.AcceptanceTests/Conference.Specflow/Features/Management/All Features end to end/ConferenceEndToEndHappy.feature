@@ -20,18 +20,14 @@ Feature: End to end successful Conference configuration scenarios for creating a
 Background: 
 Given the Business Customer selected the Create Conference option
 
-@Ignore
 Scenario: A new Conference is created with the required information
-Given this information entered into the Owner Information section
-| Owner         | Email                    |
-| Gregory Weber | gregoryweber@contoso.com |
-And this inforamtion entered into the Conference Information section
-| Name     | Description                 | Slug     | Start      | End        |
-| CQRS2012 | CQRS summit 2012 conference | cqrs2012 | 05/02/2012 | 05/12/2012 |
+Given this conference information
+| Owner         | Email                    | Name      | Description                          | Slug   | Start      | End        |
+| Gregory Weber | gregoryweber@contoso.com | CQRS2012P | CQRS summit 2012 conference (Create) | random | 05/02/2012 | 05/12/2012 |
 When the Business Customer proceed to create the Conference
 Then following details will be shown for the created Conference
-| Owner         | Email                    | Name     | Description                 | Slug     | Start      | End        |
-| Gregory Weber | gregoryweber@contoso.com | CQRS2012 | CQRS summit 2012 conference | cqrs2012 | 05/02/2012 | 05/12/2012 |
+| Owner         | Email                    | AccessCode |
+| Gregory Weber | gregoryweber@contoso.com | random     |
 
 
 @Ignore

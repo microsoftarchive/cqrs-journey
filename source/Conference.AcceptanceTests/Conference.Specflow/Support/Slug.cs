@@ -11,27 +11,40 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Payments.Database
+using System.Text.RegularExpressions;
+using Conference.Common.Utils;
+
+namespace Conference.Specflow.Support
 {
-    using System.Data.Entity;
-
-    public class PaymentsDbContext : DbContext
+    public class Slug
     {
-        public const string SchemaName = "ConferencePayments";
+        private static readonly Regex validation = new Regex("[A-Z0-9]{6}", RegexOptions.Compiled);
 
-        public PaymentsDbContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        public Slug(string value)
         {
+            Value = value;
         }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
+        public string Value { get; set; }
 
-            modelBuilder.Entity<ThirdPartyProcessorPayment>().ToTable("ThirdPartyProcessorPayments", SchemaName);
-            modelBuilder.Entity<ThidPartyProcessorPaymentItem>().ToTable("ThidPartyProcessorPaymentItems", SchemaName);
+        public static Slug CreateNew()
+        {
+            return new Slug(HandleGenerator.Generate(10));
         }
 
-        public DbSet<ThirdPartyProcessorPayment> ThirdPartyProcessorPayments { get; set; }
+        public static Regex FindBy
+        {
+            get { return validation; }
+        }
+
+        public bool IsValid
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(Value) &&
+                        validation.IsMatch(Value);
+            }
+        }
     }
+    
 }

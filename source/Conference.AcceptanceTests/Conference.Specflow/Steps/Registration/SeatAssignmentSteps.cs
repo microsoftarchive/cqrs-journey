@@ -11,28 +11,25 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using TechTalk.SpecFlow;
 using Conference.Specflow.Support;
-using W = WatiN.Core;
-using Xunit;
+using TechTalk.SpecFlow;
 
 namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
-    public class SeatAssignmentSteps
+    public class SeatAssignmentSteps : StepDefinition
     {
         [When(@"the Registrant assign these seats")]
         public void WhenTheRegistrantAssignTheseSeats(Table table)
         {
-            var browser = ScenarioContext.Current.Get<W.Browser>();
-            browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
+            Browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
 
             foreach (var row in table.Rows)
             {
-                browser.SetRowCells(row["seat type"], row["first name"], row["last name"], row["email address"]);
+                Browser.SetRowCells(row["seat type"], row["first name"], row["last name"], row["email address"]);
             }
 
-            browser.Click(Constants.UI.NextStepId);
+            Browser.Click(Constants.UI.NextStepId);
         }
     }
 }

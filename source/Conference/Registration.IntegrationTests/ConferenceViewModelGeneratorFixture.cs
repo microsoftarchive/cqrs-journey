@@ -21,26 +21,18 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
     using Moq;
     using Registration.Commands;
     using Registration.Handlers;
+    using Registration.IntegrationTests;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class given_a_database : IDisposable
+    public class given_a_view_model_generator : given_a_read_model_database
     {
-        protected string dbName = Guid.NewGuid().ToString();
         protected ConferenceViewModelGenerator sut;
         protected List<ICommand> commands = new List<ICommand>();
 
-        public given_a_database()
+        public given_a_view_model_generator()
         {
-            using (var context = new ConferenceRegistrationDbContext(dbName))
-            {
-                if (context.Database.Exists())
-                    context.Database.Delete();
-
-                context.Database.Create();
-            }
-
             var bus = new Mock<ICommandBus>();
             bus.Setup(x => x.Send(It.IsAny<Envelope<ICommand>>()))
                 .Callback<Envelope<ICommand>>(x => this.commands.Add(x.Body));
@@ -49,18 +41,9 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 
             this.sut = new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName), bus.Object);
         }
-
-        public void Dispose()
-        {
-            using (var context = new ConferenceRegistrationDbContext(dbName))
-            {
-                if (context.Database.Exists())
-                    context.Database.Delete();
-            }
-        }
     }
 
-    public class given_no_conference : given_a_database
+    public class given_no_conference : given_a_view_model_generator
     {
         [Fact]
         public void when_conference_created_then_conference_dto_populated()
@@ -95,7 +78,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
         }
     }
 
-    public class given_existing_conference : given_a_database
+    public class given_existing_conference : given_a_view_model_generator
     {
         private Guid conferenceId = Guid.NewGuid();
 
@@ -146,6 +129,46 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                 Assert.Equal("newtest", dto.Code);
                 Assert.Equal(startDate, dto.StartDate);
                 Assert.Equal(0, dto.Seats.Count);
+            }
+        }
+
+        [Fact]
+        public void when_conference_published_then_conference_dto_updated()
+        {
+            var startDate = new DateTimeOffset(2012, 04, 20, 15, 0, 0, TimeSpan.FromHours(-8));
+            this.sut.Handle(new ConferencePublished
+            {
+                SourceId = conferenceId,
+            });
+
+            using (var context = new ConferenceRegistrationDbContext(dbName))
+            {
+                var dto = context.Find<Conference>(conferenceId);
+
+                Assert.NotNull(dto);
+                Assert.Equal(true, dto.IsPublished);
+            }
+        }
+
+        [Fact]
+        public void when_published_conference_unpublished_then_conference_dto_updated()
+        {
+            var startDate = new DateTimeOffset(2012, 04, 20, 15, 0, 0, TimeSpan.FromHours(-8));
+            this.sut.Handle(new ConferencePublished
+            {
+                SourceId = conferenceId,
+            });
+            this.sut.Handle(new ConferenceUnpublished
+            {
+                SourceId = conferenceId,
+            });
+
+            using (var context = new ConferenceRegistrationDbContext(dbName))
+            {
+                var dto = context.Find<Conference>(conferenceId);
+
+                Assert.NotNull(dto);
+                Assert.Equal(false, dto.IsPublished);
             }
         }
 

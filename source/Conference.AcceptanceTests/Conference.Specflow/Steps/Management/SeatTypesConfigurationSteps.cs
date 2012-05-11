@@ -13,31 +13,40 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using Xunit;
 
-namespace Conference.Specflow.Steps.Registration
+namespace Conference.Specflow.Steps.Management
 {
     [Binding]
-    public class SelfRegistrationEndToEndSadSteps : StepDefinition
+    public class SeatTypesConfigurationSteps : StepDefinition
     {
-        [When(@"the Registrant proceed to cancel the payment")]
-        public void WhenTheRegistrantProceedToCancelThePayment()
+        [Given(@"the Business Customer selects the Seat Types opcion")]
+        public void GivenTheBusinessCustomerSelectsTheSeatTypesOpcion()
         {
-            Browser.Click(Constants.UI.RejectPaymentInputValue);
+            Browser.Click(Constants.UI.ConferenceManagementSeatTypesId);
         }
 
-        [When(@"the Registrant proceed to make the Reservation with no selected seats")]
-        public void WhenTheRegistrantProceedToMakeTheReservationWithNoSelectedSeats()
+        [Given(@"the Business Customer proceed to create new Seat Types")]
+        public void GivenTheBusinessCustomerProceedToCreateNewSeatTypes()
         {
-            Browser.Click(Constants.UI.NextStepId);
+            Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
         }
 
-        [Then(@"the payment selection page will show up")]
-        public void ThenThePaymentSelectionPageWillShowUp()
+        [Given(@"the information for the Seat Types")]
+        public void GivenTheInformationForTheSeatTypes(Table table)
         {
-            Assert.True(
-                Browser.SafeContainsText(Constants.UI.ReservationSuccessfull),
-                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull));
+            ScenarioContext.Current.Pending();
+        }
+
+        [When(@"the Business Customer proceed to create the Seat Types")]
+        public void WhenTheBusinessCustomerProceedToCreateTheSeatTypes()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [Then(@"the new Seat Types with this information are created")]
+        public void ThenTheNewSeatTypesWithThisInformationAreCreated(Table table)
+        {
+            ScenarioContext.Current.Pending();
         }
     }
 }

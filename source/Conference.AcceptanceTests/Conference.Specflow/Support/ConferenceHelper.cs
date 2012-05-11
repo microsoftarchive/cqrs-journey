@@ -14,7 +14,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Conference.Common.Entity;
@@ -41,8 +40,9 @@ namespace Conference.Specflow.Support
             Database.SetInitializer<ConferenceContext>(null);
         }
 
-        public static ConferenceInfo PopulateConfereceData(Table table, string conferenceSlug)
+        public static ConferenceInfo PopulateConfereceData(Table table)
         {
+            string conferenceSlug = Slug.CreateNew().Value;
             var svc = new ConferenceService(BuildEventBus());
             var conference = svc.FindConference(conferenceSlug);
 
@@ -106,12 +106,12 @@ namespace Conference.Specflow.Support
         {
             var conference = new ConferenceInfo()
             {
-                Description = "Acceptance Tests CQRS summit 2012 conference (" + conferenceSlug + ")",
+                Description = Constants.UI.ConferenceDescription +  " (" + conferenceSlug + ")",
                 Name = conferenceSlug,
                 Slug = conferenceSlug,
-                Location = "AcceptanceTest",
-                Tagline = "AcceptanceTest",
-                TwitterSearch = "AcceptanceTest",
+                Location = Constants.UI.Location,
+                Tagline = Constants.UI.TagLine,
+                TwitterSearch = Constants.UI.TwitterSearch,
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(1),
                 OwnerName = "test",

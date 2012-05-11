@@ -21,6 +21,7 @@ namespace Registration.Commands
     {
         public MarkSeatsAsReserved()
         {
+            this.Id = Guid.NewGuid();
             this.Seats = new List<SeatQuantity>();
         }
 
