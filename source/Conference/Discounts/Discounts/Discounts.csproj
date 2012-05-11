@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\..\..\Conference.AcceptanceTests\packages\AutoMapper.2.1.267\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,9 +43,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ApplyDiscountCommand.cs" />
+    <Compile Include="Commands\DiscountCommand.cs" />
+    <Compile Include="Discount.cs" />
     <Compile Include="DiscountDomain.cs" />
+    <Compile Include="Events\ConfCreated.cs" />
+    <Compile Include="Events\DiscountAppliedEvent.cs" />
+    <Compile Include="Events\DiscountEvent.cs" />
+    <Compile Include="Events\GlobalDiscountAddedEvent.cs" />
+    <Compile Include="Exceptions\DiscountAlreadyAppliedException.cs" />
+    <Compile Include="Exceptions\EventIsNotHandledException.cs" />
+    <Compile Include="Infrastructure\IConsume.cs" />
+    <Compile Include="Infrastructure\IStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValueObjects\GlobalDiscount.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
+      <Project>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</Project>
+      <Name>Infrastructure.Sql</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -304,6 +304,10 @@
       <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
       <Name>Conference</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Discounts\Discounts\Discounts.csproj">
+      <Project>{7D23D5BF-5132-43C4-97A8-BD0614D82C0E}</Project>
+      <Name>Discounts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Conference\Payments\Payments.csproj">
       <Project>{DB59488E-0358-468D-B074-09A3BD4721BF}</Project>
       <Name>Payments</Name>
