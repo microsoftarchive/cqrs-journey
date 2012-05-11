@@ -23,37 +23,30 @@ using W = WatiN.Core;
 namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
-    public class SelfRegistrationReservationWithConcurrencySteps
+    public class SelfRegistrationReservationWithConcurrencySteps : StepDefinition
     {
-        private readonly W.Browser browser;
-
-        public SelfRegistrationReservationWithConcurrencySteps()
-        {
-            browser = ScenarioContext.Current.NewBrowser();
-        }
-
         [Given(@"another Registrant selects these Order Items")]
         public void GivenAnotherRegistrantSelectsTheseOrderItems(Table table)
         {
-            CommonSteps.SelectOrderItems(browser, ScenarioContext.Current.Get<ConferenceInfo>(), table);
+            CommonSteps.SelectOrderItems(Browser, ScenarioContext.Current.Get<ConferenceInfo>(), table);
         }
 
         [When(@"another Registrant proceed to make the Reservation")]
         public void WhenAnotherRegistrantProceedToMakeTheReservation()
         {
-            CommonSteps.MakeTheReservation(browser);
+            CommonSteps.MakeTheReservation(Browser);
         }
 
         [Then(@"a second Reservation is offered to select any of these available seats")]
         public void ThenASecondReservationIsOfferedToSelectAnyOfTheseAvailableSeats(Table table)
         {
-            SelfRegistrationReservationWithPartialAvailabilitySteps.AvailableSeats(browser, table);
+            SelfRegistrationReservationWithPartialAvailabilitySteps.AvailableSeats(Browser, table);
         }
 
         [When(@"another Registrant proceed to make the Reservation with seats already reserved")]
         public void WhenAnotherRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
-            CommonSteps.MakeTheReservationWithSeatsAlreadyReserved(browser);
+            CommonSteps.MakeTheReservationWithSeatsAlreadyReserved(Browser);
         }
     }
 

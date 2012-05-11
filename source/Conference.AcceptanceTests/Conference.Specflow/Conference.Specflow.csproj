@@ -189,9 +189,9 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Steps\Management\CommonSteps.cs" />
     <Compile Include="Steps\Management\ConferenceConfigurationSteps.cs" />
     <Compile Include="Steps\Management\DiscountsConfigurationSteps.cs" />
+    <Compile Include="Steps\Management\SeatTypesConfigurationSteps.cs" />
     <Compile Include="Steps\Registration\SeatAssignmentSteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationEndToEndSadSteps.cs" />
     <Compile Include="Steps\Registration\CommonSteps.cs" />
@@ -199,11 +199,13 @@
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithConcurrencySteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
+    <Compile Include="Steps\StepDefinition.cs" />
     <Compile Include="Support\ConferenceHelper.cs" />
     <Compile Include="Support\Constants.cs" />
     <Compile Include="Support\IEExtension.cs" />
     <Compile Include="Support\RegistrationHelper.cs" />
     <Compile Include="Support\ScenarioContextExtension.cs" />
+    <Compile Include="Support\Slug.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">

@@ -13,31 +13,23 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using Xunit;
+using WatiN.Core;
 
-namespace Conference.Specflow.Steps.Registration
+namespace Conference.Specflow.Steps
 {
     [Binding]
-    public class SelfRegistrationEndToEndSadSteps : StepDefinition
+    public class StepDefinition
     {
-        [When(@"the Registrant proceed to cancel the payment")]
-        public void WhenTheRegistrantProceedToCancelThePayment()
+        private readonly Browser browser;
+
+        public StepDefinition()
         {
-            Browser.Click(Constants.UI.RejectPaymentInputValue);
+            browser = ScenarioContext.Current.Browser();
         }
 
-        [When(@"the Registrant proceed to make the Reservation with no selected seats")]
-        public void WhenTheRegistrantProceedToMakeTheReservationWithNoSelectedSeats()
+        protected Browser Browser
         {
-            Browser.Click(Constants.UI.NextStepId);
-        }
-
-        [Then(@"the payment selection page will show up")]
-        public void ThenThePaymentSelectionPageWillShowUp()
-        {
-            Assert.True(
-                Browser.SafeContainsText(Constants.UI.ReservationSuccessfull),
-                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull));
+            get { return browser; }
         }
     }
 }

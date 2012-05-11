@@ -21,8 +21,11 @@ namespace Conference.Specflow.Support
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
-        public static readonly string ConferenceManagementPage = ConfigurationManager.AppSettings["testConferenceUrl"];
-  
+        public static readonly string ConferenceManagementCreatePage = ConfigurationManager.AppSettings["ConferenceMgmtUrl"] + "create";
+        public static readonly string ConferenceManagementAccessPage = ConfigurationManager.AppSettings["ConferenceMgmtUrl"] + "locate";
+        public const string EmailSessionKey= "email";
+        public const string AccessCodeSessionKey = "accessCode";
+
         public static class UI
         {
             public const string NextStepId = "Next";
@@ -37,16 +40,28 @@ namespace Conference.Specflow.Support
             public const string RejectPaymentInputValue = "rejected";
             public const string SeatAssignmentPage = "Assign Seats";
             public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); // Wait > 5 secs, longer than page retry 
+            public const string TagLine = "Acceptance Tests";
+            public const string Location = "Test";
+            public const string TwitterSearch = "TwitterSearch";
+            public const string ConferenceDescription = "Acceptance Tests CQRS summit 2012 conference";
+            public const string CreateConferenceId = "Create";
+            public const string PublishConferenceId = "Publish";
+            public const string UnpublishConferenceId = "Unpublish";
+            public const string EditConferenceId = "Edit";
+            public const string UpdateConferenceId = "Save";
+            public const string ConferenceManagementAccessId = "Access";
+            public const string ConferenceManagementSeatTypesId = "Seat Types";
+            public const string ConferenceManagementCreateNewSeatTypesId = "Create New";
         }
 
         public static string RegistrationPage(string conferenceSlug)
         {
-            return string.Format(ConfigurationManager.AppSettings["testConferenceUrl"], conferenceSlug, "register");
+            return string.Format(ConfigurationManager.AppSettings["ConferenceUrl"], conferenceSlug, "register");
         }
 
         public static string FindOrderPage(string conferenceSlug)
         {
-            return string.Format(ConfigurationManager.AppSettings["testConferenceUrl"], conferenceSlug, "order/find");
+            return string.Format(ConfigurationManager.AppSettings["ConferenceUrl"], conferenceSlug, "order/find");
         }
     }
 }

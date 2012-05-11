@@ -11,32 +11,42 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TechTalk.SpecFlow;
-using W = WatiN.Core;
 using Conference.Specflow.Support;
+using TechTalk.SpecFlow;
 
 namespace Conference.Specflow.Steps.Management
 {
     [Binding]
-    public class CommonSteps
+    public class SeatTypesConfigurationSteps : StepDefinition
     {
-        private readonly W.Browser browser;
-
-        public CommonSteps()
+        [Given(@"the Business Customer selects the Seat Types opcion")]
+        public void GivenTheBusinessCustomerSelectsTheSeatTypesOpcion()
         {
-            browser = ScenarioContext.Current.Browser();
+            Browser.Click(Constants.UI.ConferenceManagementSeatTypesId);
         }
 
-        [Given(@"the Business Customer selected the Create Conference option")]
-        public void GivenTheBusinessCustomerSelectedTheCreateConferenceOption()
+        [Given(@"the Business Customer proceed to create new Seat Types")]
+        public void GivenTheBusinessCustomerProceedToCreateNewSeatTypes()
         {
-            // Navigate to Registration page
-            browser.GoTo(Constants.RegistrationPage(conferenceInfo.Slug));
+            Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
         }
 
+        [Given(@"the information for the Seat Types")]
+        public void GivenTheInformationForTheSeatTypes(Table table)
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [When(@"the Business Customer proceed to create the Seat Types")]
+        public void WhenTheBusinessCustomerProceedToCreateTheSeatTypes()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [Then(@"the new Seat Types with this information are created")]
+        public void ThenTheNewSeatTypesWithThisInformationAreCreated(Table table)
+        {
+            ScenarioContext.Current.Pending();
+        }
     }
 }

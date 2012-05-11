@@ -67,7 +67,7 @@ namespace Conference.Specflow.Support
         private static Browser CreateBrowser()
         {
             // Set Visible property as true for showing up IE instance (typically used when debugging). 
-            return new IE { Visible = false };
+            return new IE { Visible = true };
         }
     }
 }
