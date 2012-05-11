@@ -42,7 +42,6 @@ namespace Conference
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderRegistrantAssigned>,
         IEventHandler<OrderTotalsCalculated>,
-        IEventHandler<OrderPaymentConfirmed>,
         IEventHandler<OrderConfirmed>,
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
@@ -79,14 +78,6 @@ namespace Conference
             if (!ProcessOrder(order => order.Id == @event.SourceId, order => order.TotalAmount = @event.Total))
             {
                 Trace.TraceError("Failed to locate the order with id {0} to apply calculated totals", @event.SourceId);
-            }
-        }
-
-        public void Handle(OrderPaymentConfirmed @event)
-        {
-            if (!ProcessOrder(order => order.Id == @event.SourceId, order => order.Status = Order.OrderStatus.Paid))
-            {
-                Trace.TraceError("Failed to locate the order with {0} to apply confirmed payment.", @event.SourceId);
             }
         }
 

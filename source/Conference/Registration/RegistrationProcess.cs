@@ -151,13 +151,13 @@ namespace Registration
         {
             if (this.State == ProcessState.ReservationConfirmationReceived)
             {
-                if (@event.RequiresPayment)
+                if (@event.IsFreeOfCharge)
                 {
-                    this.State = ProcessState.AwaitingPaymentConfirmation;
+                    this.State = ProcessState.AwaitingFreeOrderConfirmation;
                 }
                 else
                 {
-                    this.State = ProcessState.AwaitingFreeOrderConfirmation;
+                    this.State = ProcessState.AwaitingPaymentConfirmation;
                 }
             }
             else

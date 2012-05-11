@@ -301,7 +301,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
             this.totalsCalculated = new OrderTotalsCalculated
             {
                 SourceId = this.orderId,
-                RequiresPayment = true
+                IsFreeOfCharge = false
             };
             sut.Handle(totalsCalculated);
         }
@@ -325,7 +325,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
             this.totalsCalculated = new OrderTotalsCalculated
             {
                 SourceId = this.orderId,
-                RequiresPayment = false
+                IsFreeOfCharge = true
             };
             sut.Handle(totalsCalculated);
         }
@@ -380,7 +380,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_total
                 {
                     SourceId = this.orderId,
                     Total = 100,
-                    RequiresPayment = true
+                    IsFreeOfCharge = false
                 });
         }
     }
@@ -524,7 +524,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_total
                 {
                     SourceId = this.orderId,
                     Total = 100,
-                    RequiresPayment = false
+                    IsFreeOfCharge = true
                 });
         }
     }
@@ -669,7 +669,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_payme
                 {
                     SourceId = this.orderId,
                     Total = 100,
-                    RequiresPayment = true
+                    IsFreeOfCharge = false
                 });
 
             this.sut.Handle(

@@ -84,7 +84,7 @@ namespace Registration
                 this.Update(new OrderReservationCompleted { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
 
-            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray(), RequiresPayment = totals.Total > 0m });
+            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray(), IsFreeOfCharge = totals.Total == 0m });
         }
 
         public void Expire()

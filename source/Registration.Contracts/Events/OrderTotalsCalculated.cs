@@ -21,6 +21,6 @@ namespace Registration.Events
 
         public OrderLine[] Lines { get; set; }
 
-        public bool RequiresPayment { get; set; }
+        public bool IsFreeOfCharge { get; set; }
     }
 }
