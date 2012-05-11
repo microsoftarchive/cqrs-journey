@@ -75,22 +75,41 @@ namespace Conference.Specflow.Features.Registration.DiscountDomain
         
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Discounts")]
-        [Xunit.TraitAttribute("Description", "Get a percentage discount")]
-        public virtual void GetAPercentageDiscount()
+        [Xunit.TraitAttribute("Description", "Add discount code to conference")]
+        public virtual void AddDiscountCodeToConference()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get a percentage discount", new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Add discount code to conference", new string[] {
                         "discount"});
 #line 7
 this.ScenarioSetup(scenarioInfo);
 #line 8
  testRunner.Given("the event of creating a conference has occurred");
 #line 9
- testRunner.And("the event of adding a discount with scope all for 20 % has occurred");
+ testRunner.When("the command to create a discount is received");
 #line 10
+ testRunner.Then("the event of that discount being created is emmitted");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Discounts")]
+        [Xunit.TraitAttribute("Description", "Get a percentage discount")]
+        public virtual void GetAPercentageDiscount()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get a percentage discount", new string[] {
+                        "discount"});
+#line 13
+this.ScenarioSetup(scenarioInfo);
+#line 14
+ testRunner.Given("the event of creating a conference has occurred");
+#line 15
+ testRunner.And("the event of adding a discount with scope all for 20 % has occurred");
+#line 16
  testRunner.When("the command to apply this discount to a total of $1000 is received");
-#line 11
+#line 17
  testRunner.Then("the event $200 discount has been applied is emmitted");
-#line 12
+#line 18
     testRunner.And("the event corresponds to the discount requested");
 #line hidden
             this.ScenarioCleanup();
@@ -103,17 +122,17 @@ this.ScenarioSetup(scenarioInfo);
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Can\'t get a percentage discount twice", new string[] {
                         "discount"});
-#line 15
+#line 21
 this.ScenarioSetup(scenarioInfo);
-#line 16
+#line 22
  testRunner.Given("the event of creating a conference has occurred");
-#line 17
+#line 23
  testRunner.And("the event of adding a discount has occurred");
-#line 18
+#line 24
  testRunner.And("the event of redeeming this discount has occurred");
-#line 19
+#line 25
  testRunner.When("the command to apply this discount to any total is received");
-#line 20
+#line 26
  testRunner.Then("a Discounts.Exceptions.DiscountAlreadyAppliedException is raised");
 #line hidden
             this.ScenarioCleanup();
@@ -126,17 +145,17 @@ this.ScenarioSetup(scenarioInfo);
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get a different percentage discount", new string[] {
                         "discount"});
-#line 23
+#line 29
 this.ScenarioSetup(scenarioInfo);
-#line 24
+#line 30
  testRunner.Given("the event of creating a conference has occurred");
-#line 25
+#line 31
  testRunner.And("the event of adding a discount with scope all for 50 % has occurred");
-#line 26
+#line 32
  testRunner.When("the command to apply this discount to a total of $1000 is received");
-#line 27
+#line 33
  testRunner.Then("the event $500 discount has been applied is emmitted");
-#line 28
+#line 34
     testRunner.And("the event corresponds to the discount requested");
 #line hidden
             this.ScenarioCleanup();

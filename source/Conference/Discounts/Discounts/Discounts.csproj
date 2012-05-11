@@ -44,19 +44,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\ApplyDiscountCommand.cs" />
+    <Compile Include="Commands\AddDiscountCommand.cs" />
     <Compile Include="Commands\DiscountCommand.cs" />
     <Compile Include="Discount.cs" />
     <Compile Include="DiscountDomain.cs" />
     <Compile Include="Events\ConfCreated.cs" />
     <Compile Include="Events\DiscountAppliedEvent.cs" />
+    <Compile Include="Events\DiscountAddedEvent.cs" />
     <Compile Include="Events\DiscountEvent.cs" />
     <Compile Include="Events\GlobalDiscountAddedEvent.cs" />
+    <Compile Include="Exceptions\CommandNotHandledException.cs" />
     <Compile Include="Exceptions\DiscountAlreadyAppliedException.cs" />
     <Compile Include="Exceptions\EventIsNotHandledException.cs" />
     <Compile Include="Infrastructure\IConsume.cs" />
     <Compile Include="Infrastructure\IStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ValueObjects\GlobalDiscount.cs" />
+    <Compile Include="ValueObjects\PercentageDiscount.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">

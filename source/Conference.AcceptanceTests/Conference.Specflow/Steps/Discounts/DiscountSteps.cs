@@ -14,8 +14,9 @@ namespace Conference.Specflow.Steps.Discounts {
     internal class DiscountSteps {
         private const int ArbitraryPercantage = 0;
         private const int ArbitraryDiscountAmount = 200;
+        private const string ArbitraryCode = "ABC";
         private DiscountDomain _discountDomain;
-        private Guid _confId;
+        private Guid _confID;
         private Guid _discountID;
         private IEnumerable<Event> _generatedEvents;
         private Guid _currentOrder = Guid.Empty;
@@ -24,29 +25,37 @@ namespace Conference.Specflow.Steps.Discounts {
 
         [Given(@"the event of creating a conference has occurred")]
         public void GivenTheEventOfCreatingAConferenceWithTheCodeHasOccurred() {
-            _confId = Guid.NewGuid();
-            _discountDomain.Store(new ConfCreated {ConfID = _confId});
+            _confID = Guid.NewGuid();
+            _discountDomain.Store(new ConfCreated {ConfID = _confID});
         }
         [Given(@"the event of adding a discount with scope all for ([1-9]|(?:[1-9][0-9])|100) % has occurred")]
         public void GivenTheEventOfAddingADiscountWithScopeAllForAmountUnderCodeHasOccurred(int discount) {
             _discountID = Guid.NewGuid();
-            _discountDomain.Store(new GlobalDiscountAddedEvent {DiscountID = _discountID, ConfID = _confId, Percentage = discount});
+            _discountDomain.Store(new GlobalDiscountAddedEvent {DiscountID = _discountID, ConfID = _confID, Percentage = discount});
         }
         [Given(@"the event of adding a discount has occurred")]
         public void GivenTheEventOfAddingADiscountHasOccurred()
         {
             _discountID = Guid.NewGuid();
-            _discountDomain.Store(new GlobalDiscountAddedEvent {DiscountID = _discountID, ConfID = _confId, Percentage = ArbitraryPercantage});
+            _discountDomain.Store(new GlobalDiscountAddedEvent {DiscountID = _discountID, ConfID = _confID, Percentage = ArbitraryPercantage});
         }
         [Given(@"the event of redeeming this discount has occurred")]
         public void GivenTheEventOfRedeemingThisDiscountHasOccurred() {
-            _discountDomain.Store(new DiscountAppliedEvent {ConfID = _confId, DiscountID = _discountID, DiscountAmount = ArbitraryDiscountAmount, Order = CurrentOrder});
+            _discountDomain.Store(new DiscountAppliedEvent {ConfID = _confID, DiscountID = _discountID, DiscountAmount = ArbitraryDiscountAmount, Order = CurrentOrder});
+        }
+        [When(@"the command to create a discount is received")]
+        public void WhenTheCommandToCreateADiscountIsReceived()
+        {
+            try {
+                _generatedEvents = _discountDomain.Consume(new AddDiscountCommand {ConfID = _confID, Code = ArbitraryCode, Percentage = ArbitraryPercantage}).ToList();
+            }
+            catch(Exception e) { _lastThrownFromWhen = e; }
         }
 
         [When(@"the command to apply this discount to a total of \$(\d+(?:\.\d\d){0,1}) is received")]
         public void WhenTheCommandToApplyThisDiscountToATotalIsReceived(decimal total) {
             try {
-                _generatedEvents = _discountDomain.Consume(new ApplyDiscountCommand {ConfID = _confId, DiscountID = _discountID, Total = total, Order = CurrentOrder}).ToList();
+                _generatedEvents = _discountDomain.Consume(new ApplyDiscountCommand {ConfID = _confID, DiscountID = _discountID, Total = total, Order = CurrentOrder}).ToList();
             }
             catch (Exception e) { _lastThrownFromWhen = e; }
         }
@@ -55,11 +64,16 @@ namespace Conference.Specflow.Steps.Discounts {
         public void WhenTheCommandToApplyThisDiscountToAnyTotalIsReceived() {
             try {
                 _generatedEvents = _discountDomain.Consume(new ApplyDiscountCommand {
-                    ConfID = _confId, DiscountID = _discountID, Total = new Random(DateTime.Now.Millisecond).Next(10, 10000), Order = CurrentOrder }).ToList();
+                    ConfID = _confID, DiscountID = _discountID, Total = new Random(DateTime.Now.Millisecond).Next(10, 10000), Order = CurrentOrder }).ToList();
             }
             catch (Exception e) { _lastThrownFromWhen = e; }
         }
 
+        [Then(@"the event of that discount being created is emmitted")]
+        public void ThenTheEventOfThatDiscountBeingCreatedIsEmmitted()
+        {
+            Assert.Equal(_discountID, ((DiscountAddedEvent) _generatedEvents.ToList()[0]).DiscountID);
+        }
         [Then(@"the event \$(\d+(?:\d\d){0,1}) discount has been applied is emmitted")]
         public void ThenTheEventOfTotalChangedToDiscountedTotalIsEmmitted(decimal discountedTotal) {
             Assert.Equal(discountedTotal, ((DiscountAppliedEvent) _generatedEvents.ToList()[0]).DiscountAmount);

@@ -2,7 +2,13 @@
 	In order to save money
 	As a conference attendee
 	I want to be able to use discount codes
-	
+
+@discount
+Scenario: Add discount code to conference
+	Given the event of creating a conference has occurred
+	When the command to create a discount is received
+	Then the event of that discount being created is emmitted
+
 @discount
 Scenario: Get a percentage discount
 	Given the event of creating a conference has occurred
