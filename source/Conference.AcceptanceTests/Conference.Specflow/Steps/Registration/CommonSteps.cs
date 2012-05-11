@@ -13,28 +13,20 @@
 
 using System;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using WatiN.Core;
 using Xunit;
-using W = WatiN.Core;
-using Conference.Common.Utils;
 using Table = TechTalk.SpecFlow.Table;
+using W = WatiN.Core;
 
 namespace Conference.Specflow.Steps.Registration
 {
     [Binding]
-    public class CommonSteps
+    public class CommonSteps : StepDefinition
     {
-        private readonly W.Browser browser;
         private ConferenceInfo conferenceInfo;
-
-        public CommonSteps()
-        {
-            browser = ScenarioContext.Current.Browser();
-        }
 
         #region Given
 
@@ -42,7 +34,7 @@ namespace Conference.Specflow.Steps.Registration
         public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(Table table)
         {
             // Populate Conference data
-            conferenceInfo = ConferenceHelper.PopulateConfereceData(table, HandleGenerator.Generate(10));
+            conferenceInfo = ConferenceHelper.PopulateConfereceData(table);
 
             // Store for being used by external step classes
             ScenarioContext.Current.Set(conferenceInfo);
@@ -51,16 +43,16 @@ namespace Conference.Specflow.Steps.Registration
         [Given(@"the selected Order Items")]
         public void GivenTheSelectedOrderItems(Table table)
         {
-            SelectOrderItems(browser, conferenceInfo, table);
+            SelectOrderItems(Browser, conferenceInfo, table);
         }
 
         [Given(@"the Registrant enter these details")]
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
-            browser.SetInput("FirstName", table.Rows[0]["first name"]);
-            browser.SetInput("LastName", table.Rows[0]["last name"]);
-            browser.SetInput("Email", table.Rows[0]["email address"]);
-            browser.SetInput("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
+            Browser.SetInput("FirstName", table.Rows[0]["first name"]);
+            Browser.SetInput("LastName", table.Rows[0]["last name"]);
+            Browser.SetInput("Email", table.Rows[0]["email address"]);
+            Browser.SetInput("data-val-required", table.Rows[0]["email address"], "Please confirm the e-mail address.");
 
             // Store email in case is needed for later use (Find Order by Code + email access)
             ScenarioContext.Current.Set(table.Rows[0]["email address"], "email");
@@ -75,13 +67,13 @@ namespace Conference.Specflow.Steps.Registration
         [Given(@"the Registrant proceed to make the Reservation")]
         public void GivenTheRegistrantProceedToMakeTheReservation()
         {
-            MakeTheReservation(browser);
+            MakeTheReservation(Browser);
         }
 
         [Given(@"the Registrant proceed to make the Reservation with seats already reserved")]
         public void GivenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
-            MakeTheReservationWithSeatsAlreadyReserved(browser);
+            MakeTheReservationWithSeatsAlreadyReserved(Browser);
          }
 
         [Given(@"the Registrant proceed to Checkout:Payment")]
@@ -127,13 +119,13 @@ namespace Conference.Specflow.Steps.Registration
         [When(@"the Registrant proceed to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
-            MakeTheReservation(browser);
+            MakeTheReservation(Browser);
         }
 
         [When(@"the Registrant proceed to make the Reservation with seats already reserved")]
         public void WhenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
-            MakeTheReservationWithSeatsAlreadyReserved(browser);
+            MakeTheReservationWithSeatsAlreadyReserved(Browser);
         }
 
         [When(@"the Registrant proceed to Checkout:Payment")]
@@ -155,7 +147,7 @@ namespace Conference.Specflow.Steps.Registration
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
         public void ThenTheReservationIsConfirmedForAllTheSelectedOrderItems()
         {
-            ReservationConfirmed(browser);
+            ReservationConfirmed(Browser);
         }
 
         [Then(@"the countdown started")]
@@ -171,7 +163,7 @@ namespace Conference.Specflow.Steps.Registration
         [Then(@"the payment options should be offered for a total of \$(.*)")]
         public void ThenThePaymentOptionsShouldBeOfferedForATotalOf(int value)
         {
-            Assert.True(browser.SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
+            Assert.True(Browser.SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
                 string.Format("The following text was not found on the page: {0}", value));
         }
 
@@ -192,7 +184,7 @@ namespace Conference.Specflow.Steps.Registration
         {
             foreach (var row in table.Rows)
             {
-                Assert.False(browser.ContainsValueInTableRow(row["seat type"], ""),
+                Assert.False(Browser.ContainsValueInTableRow(row["seat type"], ""),
                     string.Format("The following text was not found on the page: {0}", row["seat type"]));
             }
         }
@@ -244,48 +236,48 @@ namespace Conference.Specflow.Steps.Registration
 
         private void TheRegistrationProcessWasSuccessful()
         {
-            browser.WaitUntilContainsText(Constants.UI.RegistrationSuccessfull, Constants.UI.WaitTimeout.Seconds);
+            Browser.WaitUntilContainsText(Constants.UI.RegistrationSuccessfull, Constants.UI.WaitTimeout.Seconds);
         }
 
         private void TheseOrderItemsShouldBeReserved(Table table)
         {
             foreach (var row in table.Rows)
             {
-                Assert.True(browser.ContainsValueInTableRow(row["seat type"], row["quantity"]),
+                Assert.True(Browser.ContainsValueInTableRow(row["seat type"], row["quantity"]),
                     string.Format("The following text was not found on the page: {0} or {1}", row["seat type"], row["quantity"]));
             }
         }
 
         private void TheRegistrantProceedToConfirmThePayment()
         {
-            browser.Click(Constants.UI.AcceptPaymentInputValue);
+            Browser.Click(Constants.UI.AcceptPaymentInputValue);
         }
 
         private void TheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
         {
             // Check id the access code was created
-            string accessCode = browser.FindText(new Regex("[A-Z0-9]{6}"));
-            Assert.False(string.IsNullOrWhiteSpace(accessCode), "Access Code with pattern '[A-Z0-9]{6}' not found");
+            string accessCode = Browser.FindText(Slug.FindBy);
+            Assert.False(string.IsNullOrWhiteSpace(accessCode), "Access Code not found");
 
             //TODO: Remove after fix
             // Wait for order events to be digested. 
             Thread.Sleep(Constants.WaitTimeout);
 
             // Navigate to the Seat Assignement page
-            browser.Click(Constants.UI.ProceedToSeatAssignementId);
+            Browser.Click(Constants.UI.ProceedToSeatAssignementId);
 
             TheseOrderItemsShouldBeReserved(table);
         }
 
         private void TheMessageWillShowUp(string message)
         {
-            Assert.True(browser.SafeContainsText(message),
+            Assert.True(Browser.SafeContainsText(message),
                 string.Format("The following text was not found on the page: {0}", message));
         }
 
         private void TheTotalShouldRead(int value)
         {
-            Assert.True(browser.SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
+            Assert.True(Browser.SafeContainsText(value.ToString(CultureInfo.InvariantCulture)),
                 string.Format("The following text was not found on the page: {0}", value));
         }
 
@@ -301,7 +293,7 @@ namespace Conference.Specflow.Steps.Registration
 
         public void TheRegistrantProceedToCheckoutPayment()
         {
-            browser.Click(Constants.UI.NextStepId);
+            Browser.Click(Constants.UI.NextStepId);
         }
 
         #endregion

@@ -11,33 +11,40 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using Conference.Specflow.Support;
-using TechTalk.SpecFlow;
-using Xunit;
+using System.Text.RegularExpressions;
+using Conference.Common.Utils;
 
-namespace Conference.Specflow.Steps.Registration
+namespace Conference.Specflow.Support
 {
-    [Binding]
-    public class SelfRegistrationEndToEndSadSteps : StepDefinition
+    public class Slug
     {
-        [When(@"the Registrant proceed to cancel the payment")]
-        public void WhenTheRegistrantProceedToCancelThePayment()
+        private static readonly Regex validation = new Regex("[A-Z0-9]{6}", RegexOptions.Compiled);
+
+        public Slug(string value)
         {
-            Browser.Click(Constants.UI.RejectPaymentInputValue);
+            Value = value;
         }
 
-        [When(@"the Registrant proceed to make the Reservation with no selected seats")]
-        public void WhenTheRegistrantProceedToMakeTheReservationWithNoSelectedSeats()
+        public string Value { get; set; }
+
+        public static Slug CreateNew()
         {
-            Browser.Click(Constants.UI.NextStepId);
+            return new Slug(HandleGenerator.Generate(10));
         }
 
-        [Then(@"the payment selection page will show up")]
-        public void ThenThePaymentSelectionPageWillShowUp()
+        public static Regex FindBy
         {
-            Assert.True(
-                Browser.SafeContainsText(Constants.UI.ReservationSuccessfull),
-                string.Format("The following text was not found on the page: {0}", Constants.UI.ReservationSuccessfull));
+            get { return validation; }
+        }
+
+        public bool IsValid
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(Value) &&
+                        validation.IsMatch(Value);
+            }
         }
     }
+    
 }
