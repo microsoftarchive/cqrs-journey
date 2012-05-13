@@ -61,6 +61,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conference.Common", "Confer
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Payments", "Payments", "{396F0132-0520-4D16-8EAA-3EC9962D89B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Test", "Common.Test\Common.Test.csproj", "{73BA1760-B70B-47D1-88E5-34ECB0180076}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -356,6 +358,21 @@ Global
 		{BAF088F8-3FCB-45EF-A228-6424C34C65CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BAF088F8-3FCB-45EF-A228-6424C34C65CA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{BAF088F8-3FCB-45EF-A228-6424C34C65CA}.Release|x86.ActiveCfg = Release|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.DebugLocal|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.DebugLocal|Mixed Platforms.Build.0 = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.DebugLocal|x86.ActiveCfg = Debug|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{73BA1760-B70B-47D1-88E5-34ECB0180076}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using Common.Test;
+
 namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
 {
     using System;

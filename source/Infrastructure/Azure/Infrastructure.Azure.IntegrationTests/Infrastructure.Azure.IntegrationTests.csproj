@@ -51,7 +51,6 @@
     <Compile Include="BaseMessagingIntegration.cs" />
     <Compile Include="EventProcessingIntegration.cs" />
     <Compile Include="MessageProcessorIntegration.cs" />
-    <Compile Include="MessagingSettingsExtensions.cs" />
     <Compile Include="CommandProcessingIntegration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendReceiveIntegration.cs" />
@@ -71,6 +70,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common.Test\Common.Test.csproj">
+      <Project>{73BA1760-B70B-47D1-88E5-34ECB0180076}</Project>
+      <Name>Common.Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Conference\Conference.Common\Conference.Common.csproj">
+      <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
+      <Name>Conference.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>

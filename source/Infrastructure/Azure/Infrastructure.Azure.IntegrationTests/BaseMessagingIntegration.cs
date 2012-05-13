@@ -11,10 +11,13 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using Common.Test;
+
 namespace Infrastructure.Azure.IntegrationTests
 {
     using System;
-    using Infrastructure.Azure.Messaging;
+    using Messaging;
+    using Common;
 
     /// <summary>
     /// Base class for messaging integration tests.
@@ -37,7 +40,7 @@ namespace Infrastructure.Azure.IntegrationTests
             this.Subscription = Guid.NewGuid().ToString();
 
             // Creates the topic too.
-            this.Settings.CreateSubscription(this.Topic, this.Subscription);
+            Settings.CreateSubscription(this.Topic, this.Subscription);
         }
 
         public virtual void Dispose()
