@@ -53,6 +53,7 @@ namespace Conference
         public string Location { get; set; }
 
         [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"^\w+$", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidSlug")]
         public string Slug { get; set; }
 
         public string Tagline { get; set; }

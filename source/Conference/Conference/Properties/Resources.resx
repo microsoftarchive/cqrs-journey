@@ -120,4 +120,7 @@
   <data name="InvalidEmail" xml:space="preserve">
     <value>The provided email address is not valid.</value>
   </data>
+  <data name="InvalidSlug" xml:space="preserve">
+    <value>The slug can only contain alphanumeric characters and underscores.</value>
+  </data>
 </root>
