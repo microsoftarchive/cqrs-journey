@@ -15,7 +15,7 @@ namespace Infrastructure.Sql.Blob
 {
     using System.Data.Entity;
     using System.IO;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
 
     /// <summary>

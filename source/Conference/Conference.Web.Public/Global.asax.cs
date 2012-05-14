@@ -17,7 +17,7 @@ namespace Conference.Web.Public
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common.Entity;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Blob;

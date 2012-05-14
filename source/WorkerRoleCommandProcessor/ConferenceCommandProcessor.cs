@@ -16,7 +16,7 @@ namespace WorkerRoleCommandProcessor
     using System;
     using System.Data.Entity;
     using System.Threading;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Database;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;

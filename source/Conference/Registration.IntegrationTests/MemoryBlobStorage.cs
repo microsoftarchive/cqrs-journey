@@ -14,7 +14,7 @@
 namespace Registration.IntegrationTests
 {
     using System.Collections.Generic;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
 
     public class MemoryBlobStorage : IBlobStorage
     {
