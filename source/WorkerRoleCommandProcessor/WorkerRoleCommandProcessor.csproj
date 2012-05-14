@@ -94,7 +94,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
     <Content Include="..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
