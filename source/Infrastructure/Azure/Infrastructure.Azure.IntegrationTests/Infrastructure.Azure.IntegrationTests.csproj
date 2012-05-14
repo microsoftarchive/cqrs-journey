@@ -80,6 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureEventLogFixture.cs" />
     <Compile Include="BaseMessagingIntegration.cs" />
     <Compile Include="EventProcessingIntegration.cs" />
     <Compile Include="EventSourcing\EventStoreFixture.cs" />

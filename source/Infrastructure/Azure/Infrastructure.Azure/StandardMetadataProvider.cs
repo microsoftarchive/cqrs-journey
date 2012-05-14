@@ -27,9 +27,9 @@ namespace Infrastructure.Azure
         /// used by processors to filter and selectively subscribe to
         /// messages.
         /// </summary>
-        public virtual IDictionary<string, object> GetMetadata(object payload)
+        public virtual IDictionary<string, string> GetMetadata(object payload)
         {
-            var metadata = new Dictionary<string, object>();
+            var metadata = new Dictionary<string, string>();
             var type = payload.GetType();
 
             // The standard metadata could be used as a sort of partitioning already, 

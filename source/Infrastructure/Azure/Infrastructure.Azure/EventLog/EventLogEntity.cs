@@ -1,0 +1,50 @@
+// ==============================================================================================================
+// Microsoft patterns & practices
+// CQRS Journey project
+// ==============================================================================================================
+// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// http://cqrsjourney.github.com/contributors/members
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+// with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software distributed under the License is 
+// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+// See the License for the specific language governing permissions and limitations under the License.
+// ==============================================================================================================
+
+namespace Infrastructure.Azure.EventLog
+{
+    using Microsoft.WindowsAzure.StorageClient;
+
+    public class EventLogEntity : TableServiceEntity
+    {
+        /// <summary>
+        /// The identifier of the object that generated the event.
+        /// </summary>
+        public string SourceId { get; set; }
+
+        /// <summary>
+        /// The simple assembly name of the message payload (i.e. event or command).
+        /// </summary>
+        public string AssemblyName { get; set; }
+
+        /// <summary>
+        /// The namespace of the message payload (i.e. event or command).
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// The full type name of the message payload (i.e. event or command).
+        /// </summary>
+        public string FullName { get; set; }
+
+        /// <summary>
+        /// The simple type name (without the namespace) of the message payload (i.e. event or command).
+        /// </summary>
+        public string TypeName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the payload of the log.
+        /// </summary>
+        public string Payload { get; set; }
+    }
+}

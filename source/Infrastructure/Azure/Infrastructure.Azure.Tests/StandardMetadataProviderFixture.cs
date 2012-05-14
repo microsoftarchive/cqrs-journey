@@ -13,6 +13,8 @@
 
 namespace Infrastructure.Azure.Tests.StandardMetadataProviderFixture
 {
+    using System;
+    using Infrastructure.Messaging;
     using Xunit;
 
     public class given_a_metadata_provider
@@ -63,6 +65,22 @@ namespace Infrastructure.Azure.Tests.StandardMetadataProviderFixture
 
             Assert.Contains(expected, metadata.Values);
             Assert.Contains(StandardMetadata.Namespace, metadata.Keys);
+        }
+
+        [Fact]
+        public void when_getting_metadata_for_event_then_returns_source_id()
+        {
+            var provider = new StandardMetadataProvider();
+            var id = Guid.NewGuid();
+
+            var metadata = provider.GetMetadata(new FakeEvent { SourceId = id });
+
+            Assert.Equal(id.ToString(), metadata[StandardMetadata.SourceId]);
+        }
+
+        private class FakeEvent : IEvent
+        {
+            public Guid SourceId { get; set; }
         }
     }
 }

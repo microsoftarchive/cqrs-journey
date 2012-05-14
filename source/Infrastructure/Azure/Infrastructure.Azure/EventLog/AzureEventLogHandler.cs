@@ -11,21 +11,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.Azure.EventLog
 {
-    using System.Collections.Generic;
+    using System;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
 
-    /// <summary>
-    /// Extracts metadata about a payload so that it's placed in the 
-    /// message envelope.
-    /// </summary>
-    public interface IMetadataProvider
+    public class AzureEventLogHandler : IEventHandler<IEvent>
     {
-        /// <summary>
-        /// Gets metadata associated with the payload, which can be 
-        /// used by processors to filter and selectively subscribe to 
-        /// messages.
-        /// </summary>
-        IDictionary<string, string> GetMetadata(object payload);
+        public void Handle(IEvent @event)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

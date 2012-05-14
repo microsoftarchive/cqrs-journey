@@ -11,21 +11,21 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.EventLog
 {
     using System.Collections.Generic;
+    using Infrastructure.Messaging;
 
-    /// <summary>
-    /// Extracts metadata about a payload so that it's placed in the 
-    /// message envelope.
-    /// </summary>
-    public interface IMetadataProvider
+    public static class EventLogExtensions
     {
-        /// <summary>
-        /// Gets metadata associated with the payload, which can be 
-        /// used by processors to filter and selectively subscribe to 
-        /// messages.
-        /// </summary>
-        IDictionary<string, string> GetMetadata(object payload);
+        public static IEnumerable<IEvent> Read(this IEventLog log)
+        {
+            return log.Read(new QueryCriteria());
+        }
+
+        // TODO: here we can start building up a fluent style API
+        // for constructing the query criteria, such as FromAssembly(...) and 
+        // so on. This makes the fluenty thing reusable for other event
+        // log implementations.
     }
 }

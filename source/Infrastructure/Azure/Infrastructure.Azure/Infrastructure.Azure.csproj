@@ -74,6 +74,9 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="ConcurrencyException.cs" />
+    <Compile Include="EventLog\AzureEventLog.cs" />
+    <Compile Include="EventLog\AzureEventLogHandler.cs" />
+    <Compile Include="EventLog\EventLogEntity.cs" />
     <Compile Include="EventSourcing\AzureEventSourcedRepository.cs" />
     <Compile Include="EventSourcing\IEventStoreBusPublisher.cs" />
     <Compile Include="EventSourcing\IPendingEventsQueue.cs" />
@@ -117,9 +120,7 @@
       <Name>Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="EventLog\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

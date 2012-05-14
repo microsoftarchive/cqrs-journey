@@ -11,21 +11,28 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.EventLog
 {
     using System.Collections.Generic;
 
     /// <summary>
-    /// Extracts metadata about a payload so that it's placed in the 
-    /// message envelope.
+    /// The query criteria for filtering events from the log when reading.
     /// </summary>
-    public interface IMetadataProvider
+    public class QueryCriteria
     {
-        /// <summary>
-        /// Gets metadata associated with the payload, which can be 
-        /// used by processors to filter and selectively subscribe to 
-        /// messages.
-        /// </summary>
-        IDictionary<string, string> GetMetadata(object payload);
+        public QueryCriteria()
+        {
+            this.SourceIds = new List<string>();
+            this.AssemblyNames = new List<string>();
+            this.Namespaces = new List<string>();
+            this.FullNames = new List<string>();
+            this.TypeNames = new List<string>();
+        }
+
+        public ICollection<string> SourceIds { get; private set; }
+        public ICollection<string> AssemblyNames { get; private set; }
+        public ICollection<string> Namespaces { get; private set; }
+        public ICollection<string> FullNames { get; private set; }
+        public ICollection<string> TypeNames { get; private set; }
     }
 }
