@@ -11,22 +11,32 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests
+namespace Infrastructure.Azure
 {
-    using Xunit;
-
-    public class given_a_metadata_provider
+    /// <summary>
+    /// Exposes the property names of standard metadata added to all 
+    /// messages going through the bus.
+    /// </summary>
+    public static class StandardMetadata
     {
-        [Fact]
-        public void when_getting_metadata_then_returns_type_name()
-        {
-            var provider = new MetadataProvider();
-            var typeName = typeof(given_a_metadata_provider).Name;
+        /// <summary>
+        /// The simple assembly name of the message payload (i.e. event or command).
+        /// </summary>
+        public const string AssemblyName = "AssemblyName";
 
-            var metadata = provider.GetMetadata(this);
+        /// <summary>
+        /// The namespace of the message payload (i.e. event or command).
+        /// </summary>
+        public const string Namespace = "Namespace";
 
-            Assert.Contains(typeName, metadata.Values);
-            Assert.Contains("EventType", metadata.Keys);
-        }
+        /// <summary>
+        /// The full type name of the message payload (i.e. event or command).
+        /// </summary>
+        public const string FullName = "FullName";
+
+        /// <summary>
+        /// The simple type name (without the namespace) of the message payload (i.e. event or command).
+        /// </summary>
+        public const string TypeName = "TypeName";
     }
 }

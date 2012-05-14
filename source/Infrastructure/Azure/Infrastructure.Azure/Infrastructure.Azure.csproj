@@ -88,7 +88,7 @@
     <Compile Include="Messaging\EventBus.cs" />
     <Compile Include="Messaging\Handling\CommandProcessor.cs" />
     <Compile Include="Messaging\Handling\EventProcessor.cs" />
-    <Compile Include="MetadataProvider.cs" />
+    <Compile Include="StandardMetadataProvider.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="Messaging\Handling\MessageProcessor.cs" />
     <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
@@ -98,6 +98,7 @@
     <Compile Include="Messaging\MessagingSettings.cs" />
     <Compile Include="Messaging\TopicSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StandardMetadata.cs" />
     <Compile Include="Utils\BrokeredMessageExtensions.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
   </ItemGroup>
