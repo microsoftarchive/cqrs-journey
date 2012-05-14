@@ -308,6 +308,20 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
         }
 
         [Fact]
+        public void when_order_confirmed_v1_then_order_state_is_confirmed()
+        {
+            sut.Handle(new OrderPaymentConfirmed
+            {
+                SourceId = orderPlacedEvent.SourceId,
+                Version = 2,
+            });
+
+            var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
+
+            Assert.Equal(DraftOrder.States.Confirmed, dto.State);
+        }
+
+        [Fact]
         public void when_order_confirmed_then_order_state_is_confirmed()
         {
             sut.Handle(new OrderConfirmed

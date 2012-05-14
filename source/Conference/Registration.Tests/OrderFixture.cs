@@ -251,5 +251,21 @@ namespace Registration.Tests.OrderFixture
             var @event = sut.ThenHasSingle<OrderConfirmed>();
             Assert.Equal(OrderId, @event.SourceId);
         }
+
+        [Fact]
+        public void when_rejecting_confirmed_order_then_throws()
+        {
+            this.sut.Given(new OrderConfirmed { SourceId = OrderId });
+
+            Assert.Throws<InvalidOperationException>(() => this.sut.When(new RejectOrder { OrderId = OrderId }));
+        }
+
+        [Fact]
+        public void when_rejecting_a_payment_confirmed_order_then_throws()
+        {
+            this.sut.Given(new OrderPaymentConfirmed { SourceId = OrderId });
+
+            Assert.Throws<InvalidOperationException>(() => this.sut.When(new RejectOrder { OrderId = OrderId }));
+        }
     }
 }

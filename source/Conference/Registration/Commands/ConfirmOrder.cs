@@ -16,6 +16,8 @@ namespace Registration.Commands
     using System;
     using Infrastructure.Messaging;
 
+    // Note: ConfirmOrderPayment was renamed to this from V1. Make sure there are no commands pending for processing when this is deployed,
+    // otherwise the ConfirmOrderPayment commands will not be processed.
     public class ConfirmOrder : ICommand
     {
         public ConfirmOrder()

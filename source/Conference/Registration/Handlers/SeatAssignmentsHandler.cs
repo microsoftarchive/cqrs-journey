@@ -13,6 +13,7 @@
 
 namespace Registration.Handlers
 {
+    using AutoMapper;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging.Handling;
     using Registration.Commands;
@@ -20,16 +21,30 @@ namespace Registration.Handlers
 
     public class SeatAssignmentsHandler :
         IEventHandler<OrderConfirmed>,
+        IEventHandler<OrderPaymentConfirmed>,
         ICommandHandler<UnassignSeat>,
         ICommandHandler<AssignSeat>
     {
         private readonly IEventSourcedRepository<Order> ordersRepo;
         private readonly IEventSourcedRepository<SeatAssignments> assignmentsRepo;
 
+        static SeatAssignmentsHandler()
+        {
+            // Mapping old version of the OrderPaymentConfirmed event to the new version.
+            // Currently it is being done explicitly by the consumer, but this one in particular could be done
+            // at the deserialization level, as it is just a rename, not a functionality change.
+            Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
+        }
+
         public SeatAssignmentsHandler(IEventSourcedRepository<Order> ordersRepo, IEventSourcedRepository<SeatAssignments> assignmentsRepo)
         {
             this.ordersRepo = ordersRepo;
             this.assignmentsRepo = assignmentsRepo;
+        }
+
+        public void Handle(OrderPaymentConfirmed @event)
+        {
+            this.Handle(Mapper.Map<OrderConfirmed>(@event));
         }
 
         public void Handle(OrderConfirmed @event)
