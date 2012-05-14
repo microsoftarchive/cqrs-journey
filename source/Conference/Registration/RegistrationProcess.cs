@@ -30,9 +30,7 @@ namespace Registration
             NotStarted = 0,
             AwaitingReservationConfirmation = 1,
             ReservationConfirmationReceived = 2,
-            AwaitingPaymentConfirmation = 3,
-            AwaitingPaidOrderConfirmation = 4,
-            AwaitingFreeOrderConfirmation = 5
+            PaymentConfirmationReceived = 3,
         }
 
         private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
@@ -93,10 +91,7 @@ namespace Registration
         public void Handle(OrderUpdated message)
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation
-                || this.State == ProcessState.ReservationConfirmationReceived
-                || this.State == ProcessState.AwaitingPaymentConfirmation
-                || this.State == ProcessState.AwaitingPaidOrderConfirmation
-                || this.State == ProcessState.AwaitingFreeOrderConfirmation)
+                || this.State == ProcessState.ReservationConfirmationReceived)
             {
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
@@ -147,30 +142,11 @@ namespace Registration
             }
         }
 
-        public void Handle(OrderTotalsCalculated @event)
+        public void Handle(PaymentCompleted @event)
         {
             if (this.State == ProcessState.ReservationConfirmationReceived)
             {
-                if (@event.IsFreeOfCharge)
-                {
-                    this.State = ProcessState.AwaitingFreeOrderConfirmation;
-                }
-                else
-                {
-                    this.State = ProcessState.AwaitingPaymentConfirmation;
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException("Cannot handle totals update at this stage.");
-            }
-        }
-
-        public void Handle(PaymentCompleted @event)
-        {
-            if (this.State == ProcessState.AwaitingPaymentConfirmation)
-            {
-                this.State = ProcessState.AwaitingPaidOrderConfirmation;
+                this.State = ProcessState.PaymentConfirmationReceived;
                 this.AddCommand(new ConfirmOrder { OrderId = this.OrderId });
             }
             else
@@ -181,7 +157,7 @@ namespace Registration
 
         public void Handle(OrderConfirmed @event)
         {
-            if (this.State == ProcessState.AwaitingPaidOrderConfirmation || this.State == ProcessState.AwaitingFreeOrderConfirmation)
+            if (this.State == ProcessState.ReservationConfirmationReceived || this.State == ProcessState.PaymentConfirmationReceived)
             {
                 this.ExpirationCommandId = Guid.Empty;
                 this.Completed = true;

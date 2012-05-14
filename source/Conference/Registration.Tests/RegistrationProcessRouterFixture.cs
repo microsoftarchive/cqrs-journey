@@ -75,28 +75,11 @@ namespace Registration.Tests
         }
 
         [Fact]
-        public void when_order_totals_received_then_routes_and_saves()
-        {
-            var process = new RegistrationProcess
-            {
-                State = RegistrationProcess.ProcessState.ReservationConfirmationReceived,
-                OrderId = Guid.NewGuid(),
-            };
-            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
-            var router = new RegistrationProcessRouter(() => context);
-
-            router.Handle(new OrderTotalsCalculated { SourceId = process.OrderId });
-
-            Assert.Equal(1, context.SavedProcesses.Count);
-            Assert.True(context.DisposeCalled);
-        }
-
-        [Fact]
         public void when_payment_received_then_routes_and_saves()
         {
             var process = new RegistrationProcess
             {
-                State = RegistrationProcess.ProcessState.AwaitingPaymentConfirmation,
+                State = RegistrationProcess.ProcessState.ReservationConfirmationReceived,
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10),
             };
@@ -114,7 +97,7 @@ namespace Registration.Tests
         {
             var process = new RegistrationProcess
             {
-                State = RegistrationProcess.ProcessState.AwaitingPaidOrderConfirmation,
+                State = RegistrationProcess.ProcessState.PaymentConfirmationReceived,
                 OrderId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10),
             };

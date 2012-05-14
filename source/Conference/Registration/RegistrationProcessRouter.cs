@@ -25,7 +25,6 @@ namespace Registration
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
         IEventHandler<SeatsReserved>,
-        IEventHandler<OrderTotalsCalculated>,
         IEventHandler<PaymentCompleted>,
         IEventHandler<OrderConfirmed>,
         ICommandHandler<ExpireRegistrationProcess>
@@ -89,23 +88,6 @@ namespace Registration
                     else
                     {
                         Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", @event.ReservationId);
-                    }
-                }
-            }
-        }
-
-        public void Handle(OrderTotalsCalculated @event)
-        {
-            using (var context = this.contextFactory.Invoke())
-            {
-                lock (lockObject)
-                {
-                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(@event);
-
-                        context.Save(process);
                     }
                 }
             }
