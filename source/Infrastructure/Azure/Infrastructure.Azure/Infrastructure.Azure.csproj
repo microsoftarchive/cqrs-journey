@@ -88,6 +88,9 @@
     <Compile Include="Messaging\EventBus.cs" />
     <Compile Include="Messaging\Handling\CommandProcessor.cs" />
     <Compile Include="Messaging\Handling\EventProcessor.cs" />
+    <Compile Include="Messaging\SessionSubscriptionReceiver.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="StandardMetadataProvider.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="Messaging\Handling\MessageProcessor.cs" />
