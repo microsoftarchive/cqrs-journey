@@ -20,6 +20,7 @@ namespace Infrastructure.Azure.Tests
     using Moq;
     using Moq.Protected;
     using Xunit;
+    using Infrastructure.Azure.Messaging.Handling;
 
     public class MessageProcessorFixture
     {

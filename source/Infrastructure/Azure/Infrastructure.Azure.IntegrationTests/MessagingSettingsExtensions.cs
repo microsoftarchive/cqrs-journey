@@ -31,6 +31,25 @@ namespace Infrastructure.Azure
             return messagingFactory.CreateMessageReceiver(SubscriptionClient.FormatDeadLetterPath(topic, subscription));
         }
 
+        public static SubscriptionClient CreateSubscriptionClient(this MessagingSettings settings, string topic, string subscription, ReceiveMode mode = ReceiveMode.PeekLock)
+        {
+            var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
+            var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+            var messagingFactory = MessagingFactory.Create(serviceUri, tokenProvider);
+
+            return messagingFactory.CreateSubscriptionClient(topic, subscription, mode);
+        }
+
+        public static TopicClient CreateTopicClient(this MessagingSettings settings, string topic)
+        {
+            var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
+            var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+            var messagingFactory = MessagingFactory.Create(serviceUri, tokenProvider);
+
+            return messagingFactory.CreateTopicClient(topic);
+        }
+
+
         public static void CreateTopic(this MessagingSettings settings, string topic)
         {
             new NamespaceManager(
@@ -47,6 +66,16 @@ namespace Infrastructure.Azure
                 ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath),
                 TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey))
                 .CreateSubscription(topic, subscription);
+        }
+
+        public static void CreateSubscription(this MessagingSettings settings, SubscriptionDescription description)
+        {
+            CreateTopic(settings, description.TopicPath);
+
+            new NamespaceManager(
+                ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath),
+                TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey))
+                .CreateSubscription(description);
         }
 
         public static void TryDeleteSubscription(this MessagingSettings settings, string topic, string subscription)

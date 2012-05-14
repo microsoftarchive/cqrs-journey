@@ -90,7 +90,7 @@
     <Compile Include="Messaging\Handling\EventProcessor.cs" />
     <Compile Include="MetadataProvider.cs" />
     <Compile Include="IMetadataProvider.cs" />
-    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="Messaging\Handling\MessageProcessor.cs" />
     <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
     <Compile Include="Messaging\IMessageReceiver.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
