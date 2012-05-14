@@ -53,9 +53,9 @@ namespace Registration.Tests.SeatAssignmentsFixture
         }
 
         [Fact]
-        public void when_payment_confirmed_then_seats_assignments_created()
+        public void when_order_confirmed_then_seats_assignments_created()
         {
-            sut.When(new OrderPaymentConfirmed { SourceId = orderId });
+            sut.When(new OrderConfirmed { SourceId = orderId });
 
             var @event = sut.ThenHasSingle<SeatAssignmentsCreated>();
             // We do not reuse the order id.

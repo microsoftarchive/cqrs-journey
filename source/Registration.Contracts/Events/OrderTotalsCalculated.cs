@@ -20,5 +20,7 @@ namespace Registration.Events
         public decimal Total { get; set; }
 
         public OrderLine[] Lines { get; set; }
+
+        public bool IsFreeOfCharge { get; set; }
     }
 }

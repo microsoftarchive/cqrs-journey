@@ -192,11 +192,17 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
+            var pricedOrder = this.orderDao.FindPricedOrder(orderId);
+            if (pricedOrder.IsFreeOfCharge)
+            {
+                return CompleteRegistrationWithoutPayment(command, orderId);
+            }
+
             switch (paymentType)
             {
                 case ThirdPartyProcessorPayment:
 
-                    return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
+                    return CompleteRegistrationWithThirdPartyProcessorPayment(command, pricedOrder, orderVersion);
 
                 case InvoicePayment:
                     break;
@@ -224,14 +230,14 @@ namespace Conference.Web.Public.Controllers
             return View(order);
         }
 
-        private ActionResult InitiateRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId, int orderVersion)
+        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, PricedOrder order, int orderVersion)
         {
-            var paymentCommand = CreatePaymentCommand(orderId);
+            var paymentCommand = CreatePaymentCommand(order);
 
             this.commandBus.Send(new ICommand[] { command, paymentCommand });
 
-            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
-            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId, orderVersion });
+            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, order.OrderId });
+            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId = order.OrderId, orderVersion });
 
             return RedirectToAction(
                 "ThirdPartyProcessorPayment",
@@ -245,25 +251,33 @@ namespace Conference.Web.Public.Controllers
                 });
         }
 
-        private InitiateThirdPartyProcessorPayment CreatePaymentCommand(Guid orderId)
+        private InitiateThirdPartyProcessorPayment CreatePaymentCommand(PricedOrder order)
         {
-            var totalledOrder = this.orderDao.FindPricedOrder(orderId);
             // TODO: should add the line items?
 
             var description = "Registration for " + this.ConferenceAlias.Name;
-            var totalAmount = totalledOrder.Total;
+            var totalAmount = order.Total;
 
             var paymentCommand =
                 new InitiateThirdPartyProcessorPayment
                 {
                     PaymentId = Guid.NewGuid(),
                     ConferenceId = this.ConferenceAlias.Id,
-                    PaymentSourceId = orderId,
+                    PaymentSourceId = order.OrderId,
                     Description = description,
                     TotalAmount = totalAmount
                 };
 
             return paymentCommand;
+        }
+
+        private ActionResult CompleteRegistrationWithoutPayment(AssignRegistrantDetails command, Guid orderId)
+        {
+            var confirmationCommand = new ConfirmOrder { OrderId = orderId };
+
+            this.commandBus.Send(new ICommand[] { command, confirmationCommand });
+
+            return RedirectToAction("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
         }
 
         private OrderViewModel CreateViewModel()
