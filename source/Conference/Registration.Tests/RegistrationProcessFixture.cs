@@ -133,7 +133,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         {
             var expirationCommandEnvelope = this.sut.Commands.Where(e => e.Body is ExpireRegistrationProcess).Single();
 
-            Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(10));
+            Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(32));
             Assert.Equal(((ExpireRegistrationProcess)expirationCommandEnvelope.Body).ProcessId, this.sut.Id);
         }
     }
