@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure
 {
     /// <summary>
     /// Exposes the property names of standard metadata added to all 
