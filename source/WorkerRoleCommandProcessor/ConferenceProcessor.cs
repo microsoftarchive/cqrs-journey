@@ -23,7 +23,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Infrastructure.Serialization;
-    using Infrastructure.Sql.Blob;
+    using Infrastructure.Sql.BlobStorage;
     using Infrastructure.Sql.Database;
     using Infrastructure.Sql.EventSourcing;
     using Infrastructure.Sql.Processes;

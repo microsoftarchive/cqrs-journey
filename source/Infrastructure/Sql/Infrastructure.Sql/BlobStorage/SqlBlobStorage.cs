@@ -11,10 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.Blob
+namespace Infrastructure.Sql.BlobStorage
 {
-    using System.Data.Entity;
-    using System.IO;
     using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
 

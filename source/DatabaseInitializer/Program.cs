@@ -17,7 +17,7 @@ namespace DatabaseInitializer
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     using Conference;
-    using Infrastructure.Sql.Blob;
+    using Infrastructure.Sql.BlobStorage;
     using Infrastructure.Sql.EventSourcing;
     using Payments.Database;
     using Payments.ReadModel.Implementation;

@@ -20,7 +20,7 @@ namespace Conference.Web.Public
     using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
-    using Infrastructure.Sql.Blob;
+    using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
     using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
