@@ -11,23 +11,16 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.EventLog
+namespace Infrastructure.EventLog
 {
+    using System.Collections.Generic;
     using Infrastructure.Messaging;
-    using Infrastructure.Messaging.Handling;
 
-    public class AzureEventLogHandler : IEventHandler<IEvent>
+    /// <summary>
+    /// Exposes the event log of all events that the system processed.
+    /// </summary>
+    public interface IEventLogReader
     {
-        private AzureEventLog eventLog;
-
-        public AzureEventLogHandler(AzureEventLog eventLog)
-        {
-            this.eventLog = eventLog;
-        }
-
-        public void Handle(IEvent @event)
-        {
-            this.eventLog.Save(@event);
-        }
+        IEnumerable<IEvent> Query(QueryCriteria criteria);
     }
 }

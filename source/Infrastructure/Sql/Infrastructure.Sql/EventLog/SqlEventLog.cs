@@ -21,7 +21,7 @@ namespace Infrastructure.Sql.EventLog
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 
-    public class SqlEventLog : IEventLog
+    public class SqlEventLog : IEventLogReader
     {
         private string nameOrConnectionString;
         private IMetadataProvider metadataProvider;

@@ -74,8 +74,10 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="ConcurrencyException.cs" />
-    <Compile Include="EventLog\AzureEventLog.cs" />
-    <Compile Include="EventLog\AzureEventLogHandler.cs" />
+    <Compile Include="EventLog\AzureEventLogWriter.cs" />
+    <Compile Include="EventLog\AzureEventLogListener.cs" />
+    <Compile Include="EventLog\AzureEventLogReader.cs" />
+    <Compile Include="EventLog\BrokeredMessageExtension.cs" />
     <Compile Include="EventLog\EventLogEntity.cs" />
     <Compile Include="EventLog\QueryCriteriaExtensions.cs" />
     <Compile Include="EventSourcing\AzureEventSourcedRepository.cs" />

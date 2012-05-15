@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandProcessorFixture.cs" />
-    <Compile Include="CommandProcessorFixture.cs" />
     <Compile Include="EventSourcing\EventStoreBusPublisherFixture.cs" />
     <Compile Include="EventSourcing\AzureEventSourcedRepositoryFixture.cs" />
     <Compile Include="Mocks.cs" />

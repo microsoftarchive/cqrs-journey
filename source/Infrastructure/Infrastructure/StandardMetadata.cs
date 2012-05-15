@@ -20,6 +20,11 @@ namespace Infrastructure
     public static class StandardMetadata
     {
         /// <summary>
+        /// Identifier of the object that originated the event, if any.
+        /// </summary>
+        public const string SourceId = "SourceId";
+
+        /// <summary>
         /// The simple assembly name of the message payload (i.e. event or command).
         /// </summary>
         public const string AssemblyName = "AssemblyName";

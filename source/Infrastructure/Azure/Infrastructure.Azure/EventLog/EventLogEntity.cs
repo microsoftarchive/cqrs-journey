@@ -18,6 +18,16 @@ namespace Infrastructure.Azure.EventLog
     public class EventLogEntity : TableServiceEntity
     {
         /// <summary>
+        /// Gets or sets the message correlation id.
+        /// </summary>
+        public string CorrelationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the message id.
+        /// </summary>
+        public string MessageId { get; set; }
+
+        /// <summary>
         /// The identifier of the object that generated the event.
         /// </summary>
         public string SourceId { get; set; }

@@ -15,6 +15,7 @@ namespace Infrastructure
 {
     using System.Collections.Generic;
     using System.IO;
+    using Infrastructure.Messaging;
 
     /// <summary>
     /// Extracts metadata about a payload so that it's placed in the 
@@ -39,6 +40,10 @@ namespace Infrastructure
             metadata[StandardMetadata.FullName] = type.FullName;
             metadata[StandardMetadata.Namespace] = type.Namespace;
             metadata[StandardMetadata.TypeName] = type.Name;
+
+            var e = payload as IEvent;
+            if (e != null)
+                metadata[StandardMetadata.SourceId] = e.SourceId.ToString();
 
             // NOTE: here we may add an "Area" or "Subsystem" or 
             // whatever via .NET custom attributes on the payload 

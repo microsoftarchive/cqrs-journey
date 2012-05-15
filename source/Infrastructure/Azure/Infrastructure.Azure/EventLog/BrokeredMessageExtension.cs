@@ -11,16 +11,29 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.EventLog
+namespace Infrastructure.Azure.EventLog
 {
-    using System.Collections.Generic;
-    using Infrastructure.Messaging;
+    using Microsoft.ServiceBus.Messaging;
 
-    /// <summary>
-    /// Exposes the event log of all events that the system processed.
-    /// </summary>
-    public interface IEventLog
+    public static class BrokeredMessageExtension
     {
-        IEnumerable<IEvent> Query(QueryCriteria criteria);
+        public static EventLogEntity ToEventLogEntity(this BrokeredMessage message)
+        {
+            return new EventLogEntity
+            {
+                PartitionKey = message.EnqueuedTimeUtc.ToString("yyyMM"),
+                RowKey = message.EnqueuedTimeUtc.Ticks.ToString("D20") + "_" + message.MessageId,
+                MessageId = message.MessageId,
+                CorrelationId = message.CorrelationId,
+                SourceId = message.Properties[StandardMetadata.SourceId] as string,
+                AssemblyName = message.Properties[StandardMetadata.AssemblyName] as string,
+                FullName = message.Properties[StandardMetadata.FullName] as string,
+                Namespace = message.Properties[StandardMetadata.Namespace] as string,
+                TypeName = message.Properties[StandardMetadata.TypeName] as string,
+
+                // TODO: get stream?
+                Payload = message.GetBody<string>(),
+            };
+        }
     }
 }

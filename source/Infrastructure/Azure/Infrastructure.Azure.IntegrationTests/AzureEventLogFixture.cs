@@ -30,13 +30,15 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
     {
         private readonly string tableName;
         private CloudStorageAccount account;
-        protected AzureEventLog sut;
+        protected AzureEventLogWriter writer;
+        protected AzureEventLogReader sut;
         protected string sourceId;
         protected string partitionKey;
-        private Mock<IMetadataProvider> metadata;
         private EventA eventA;
         private EventB eventB;
         private EventC eventC;
+        private IMetadataProvider metadata;
+        private ITextSerializer serializer;
 
         public given_an_empty_event_log()
         {
@@ -48,9 +50,10 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
             this.eventB = new EventB();
             this.eventC = new EventC();
 
-            var metadata = Mock.Of<IMetadataProvider>(x =>
+            this.metadata = Mock.Of<IMetadataProvider>(x =>
                 x.GetMetadata(eventA) == new Dictionary<string, string>
                 {
+                    { StandardMetadata.SourceId, eventA.SourceId.ToString() },
                     { StandardMetadata.AssemblyName, "A" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
                     { StandardMetadata.FullName, "Namespace.EventA" }, 
@@ -58,6 +61,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 } &&
                 x.GetMetadata(eventB) == new Dictionary<string, string>
                 {
+                    { StandardMetadata.SourceId, eventB.SourceId.ToString() },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
                     { StandardMetadata.FullName, "Namespace.EventB" }, 
@@ -65,21 +69,39 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 } &&
                 x.GetMetadata(eventC) == new Dictionary<string, string>
                 {
+                    { StandardMetadata.SourceId, eventC.SourceId.ToString() },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "AnotherNamespace" }, 
                     { StandardMetadata.FullName, "AnotherNamespace.EventC" }, 
                     { StandardMetadata.TypeName, "EventC" }, 
                 });
 
-            this.metadata = Mock.Get(metadata);
-            this.sut = new AzureEventLog(this.account, this.tableName, new JsonTextSerializer(), metadata);
+            this.serializer = new JsonTextSerializer();
+            this.writer = new AzureEventLogWriter(this.account, this.tableName);
+            this.sut = new AzureEventLogReader(this.account, this.tableName, new JsonTextSerializer());
 
-            this.sourceId = Guid.NewGuid().ToString();
-            this.partitionKey = Guid.NewGuid().ToString();
+            Save(eventA);
+            Save(eventB);
+            Save(eventC);
+        }
 
-            this.sut.Save(eventA);
-            this.sut.Save(eventB);
-            this.sut.Save(eventC);
+        private void Save(IEvent @event)
+        {
+            var message = new EventLogEntity
+            {
+                Payload = this.serializer.Serialize(@event),
+                PartitionKey = DateTime.UtcNow.ToString("yyyMM"),
+                RowKey = DateTime.UtcNow.Ticks.ToString("D20") + "_" + @event.GetHashCode(),
+                MessageId = Guid.NewGuid().ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+            };
+
+            foreach (var metadata in this.metadata.GetMetadata(@event))
+            {
+                message.GetType().GetProperty(metadata.Key).SetValue(message, metadata.Value, null);
+            }
+
+            this.writer.Save(message);
         }
 
         public void Dispose()

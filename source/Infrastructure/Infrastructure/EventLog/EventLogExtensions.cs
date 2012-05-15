@@ -25,7 +25,7 @@ namespace Infrastructure.EventLog
         /// <summary>
         /// Reads all events in the log.
         /// </summary>
-        public static IEnumerable<IEvent> ReadAll(this IEventLog log)
+        public static IEnumerable<IEvent> ReadAll(this IEventLogReader log)
         {
             return log.Query(new QueryCriteria());
         }
@@ -33,7 +33,7 @@ namespace Infrastructure.EventLog
         /// <summary>
         /// Queries the specified log using a fluent API.
         /// </summary>
-        public static IEventQuery Query(this IEventLog log)
+        public static IEventQuery Query(this IEventLogReader log)
         {
             return new EventQuery(log);
         }
@@ -75,10 +75,10 @@ namespace Infrastructure.EventLog
         /// </summary>
         private class EventQuery : IEventQuery, IEnumerable<IEvent>
         {
-            private IEventLog log;
+            private IEventLogReader log;
             private QueryCriteria criteria = new QueryCriteria();
 
-            public EventQuery(IEventLog log)
+            public EventQuery(IEventLogReader log)
             {
                 this.log = log;
             }

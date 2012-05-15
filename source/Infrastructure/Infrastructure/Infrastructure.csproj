@@ -50,7 +50,7 @@
     <Compile Include="Database\IDataContext.cs" />
     <Compile Include="EntityNotFoundException.cs" />
     <Compile Include="EventLog\EventLogExtensions.cs" />
-    <Compile Include="EventLog\IEventLog.cs" />
+    <Compile Include="EventLog\IEventLogReader.cs" />
     <Compile Include="EventLog\QueryCriteria.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
