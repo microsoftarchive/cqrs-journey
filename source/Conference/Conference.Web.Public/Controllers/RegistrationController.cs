@@ -296,7 +296,8 @@ namespace Conference.Web.Public.Controllers
                                 {
                                     SeatType = s,
                                     OrderItem = new DraftOrderItem(s.Id, 0),
-                                    MaxSeatSelection = 20
+                                    AvailableQuantityForOrder = s.AvailableQuantity,
+                                    MaxSelectionQuantity = Math.Min(s.AvailableQuantity, 20)
                                 }).ToList(),
                 };
 
@@ -314,11 +315,9 @@ namespace Conference.Web.Public.Controllers
             {
                 var seat = viewModel.Items.First(s => s.SeatType.Id == line.SeatType);
                 seat.OrderItem = line;
-                if (line.RequestedSeats > line.ReservedSeats)
-                {
-                    seat.PartiallyFulfilled = true;
-                    seat.MaxSeatSelection = line.ReservedSeats;
-                }
+                seat.AvailableQuantityForOrder = seat.AvailableQuantityForOrder + line.ReservedSeats;
+                seat.MaxSelectionQuantity = Math.Min(seat.AvailableQuantityForOrder, 20);
+                seat.PartiallyFulfilled = line.RequestedSeats > line.ReservedSeats;
             }
 
             return viewModel;

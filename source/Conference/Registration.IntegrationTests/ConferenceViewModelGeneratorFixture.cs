@@ -20,6 +20,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
     using Infrastructure.Messaging;
     using Moq;
     using Registration.Commands;
+    using Registration.Events;
     using Registration.Handlers;
     using Registration.IntegrationTests;
     using Registration.ReadModel;
@@ -197,6 +198,7 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
                 Assert.Equal("seat", dto.Name);
                 Assert.Equal("description", dto.Description);
                 Assert.Equal(200, dto.Price);
+                Assert.Equal(0, dto.AvailableQuantity);
             }
 
         }
@@ -329,6 +331,129 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
             Assert.Equal(conferenceId, e.ConferenceId);
             Assert.Equal(seatId, e.SeatType);
             Assert.Equal(50, e.Quantity);
+        }
+
+        [Fact]
+        public void when_available_seats_change_then_updates_remaining_quantity()
+        {
+            var seatId = Guid.NewGuid();
+
+            this.sut.Handle(new SeatCreated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "seat",
+                Description = "description",
+                Price = 200,
+            });
+
+            this.sut.Handle(new AvailableSeatsChanged
+            {
+                SourceId = conferenceId,
+                Seats = new[] { new SeatQuantity { SeatType = seatId, Quantity = 200 } }
+            });
+
+            using (var context = new ConferenceRegistrationDbContext(dbName))
+            {
+                var dto = context.Set<Conference>()
+                    .Where(x => x.Id == conferenceId)
+                    .SelectMany(x => x.Seats)
+                    .FirstOrDefault(x => x.Id == seatId);
+
+                Assert.NotNull(dto);
+                Assert.Equal("seat", dto.Name);
+                Assert.Equal("description", dto.Description);
+                Assert.Equal(200, dto.Price);
+                Assert.Equal(200, dto.AvailableQuantity);
+            }
+        }
+
+        [Fact]
+        public void when_seats_are_reserved_then_updates_remaining_quantity()
+        {
+            var seatId = Guid.NewGuid();
+
+            this.sut.Handle(new SeatCreated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "seat",
+                Description = "description",
+                Price = 200,
+            });
+
+            this.sut.Handle(new AvailableSeatsChanged
+            {
+                SourceId = conferenceId,
+                Seats = new[] { new SeatQuantity { SeatType = seatId, Quantity = 200 } }
+            });
+
+            this.sut.Handle(new SeatsReserved
+            {
+                SourceId = conferenceId,
+                AvailableSeatsChanged = new[] { new SeatQuantity { SeatType = seatId, Quantity = -50 } }
+            });
+
+            using (var context = new ConferenceRegistrationDbContext(dbName))
+            {
+                var dto = context.Set<Conference>()
+                    .Where(x => x.Id == conferenceId)
+                    .SelectMany(x => x.Seats)
+                    .FirstOrDefault(x => x.Id == seatId);
+
+                Assert.NotNull(dto);
+                Assert.Equal("seat", dto.Name);
+                Assert.Equal("description", dto.Description);
+                Assert.Equal(200, dto.Price);
+                Assert.Equal(150, dto.AvailableQuantity);
+            }
+        }
+
+        [Fact]
+        public void when_seats_are_released_then_updates_remaining_quantity()
+        {
+            var seatId = Guid.NewGuid();
+
+            this.sut.Handle(new SeatCreated
+            {
+                ConferenceId = conferenceId,
+                SourceId = seatId,
+                Name = "seat",
+                Description = "description",
+                Price = 200,
+            });
+
+            this.sut.Handle(new AvailableSeatsChanged
+            {
+                SourceId = conferenceId,
+                Seats = new[] { new SeatQuantity { SeatType = seatId, Quantity = 200 } }
+            });
+
+            this.sut.Handle(new SeatsReserved
+            {
+                SourceId = conferenceId,
+                AvailableSeatsChanged = new[] { new SeatQuantity { SeatType = seatId, Quantity = -50 } }
+            });
+
+            this.sut.Handle(new SeatsReservationCancelled
+            {
+                SourceId = conferenceId,
+                AvailableSeatsChanged = new[] { new SeatQuantity { SeatType = seatId, Quantity = 50 } }
+            });
+
+            using (var context = new ConferenceRegistrationDbContext(dbName))
+            {
+                var dto = context.Set<Conference>()
+                    .Where(x => x.Id == conferenceId)
+                    .SelectMany(x => x.Seats)
+                    .FirstOrDefault(x => x.Id == seatId);
+
+                Assert.NotNull(dto);
+                Assert.Equal("seat", dto.Name);
+                Assert.Equal("description", dto.Description);
+                Assert.Equal(200, dto.Price);
+                Assert.Equal(200, dto.AvailableQuantity);
+            }
         }
     }
 }

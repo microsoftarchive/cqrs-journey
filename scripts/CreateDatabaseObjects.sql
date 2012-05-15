@@ -267,6 +267,7 @@ CREATE TABLE [ConferenceRegistration].[ConferenceSeatTypesView](
 	[Description] [nvarchar](max) NULL,
 	[Price] [decimal](18, 2) NOT NULL,
 	[Quantity] [int] NOT NULL,
+	[AvailableQuantity] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

@@ -26,7 +26,7 @@
                              <tr>
                                  <th style="width: 75%">Registration type</th>
                                  <th scope="col" style="text-align: right">Price</th>
-                                 @*<th scope="col">Available</th>*@
+                                 <th scope="col">Available</th>
                                  <th scope="col">Quantity</th>
                              </tr>
                              @for (var i = 0; i < this.Model.Items.Count; i++)
@@ -38,8 +38,18 @@
                                      </td>
                                      <td style="text-align: right">$<span class="unitPrice">@Html.DisplayFor(model => model.Items[i].SeatType.Price)</span>
                                      </td>
-                                     <td>@Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, this.Model.Items[i].MaxSeatSelection + 1), this.Model.Items[i].OrderItem.ReservedSeats), new { @class = "itemQuantity" })
-                                         @Html.Hidden("Seats[" + i + "].SeatType", this.Model.Items[i].SeatType.Id)
+                                     <td style="text-align: right">@Html.DisplayFor(model => model.Items[i].AvailableQuantityForOrder)
+                                     </td>
+                                     <td>
+                                         @if ((this.Model.Items[i].MaxSelectionQuantity) > 0)
+                                         { 
+                                         @Html.DropDownList("Seats[" + i + "].Quantity", new SelectList(Enumerable.Range(0, this.Model.Items[i].MaxSelectionQuantity + 1), this.Model.Items[i].OrderItem.ReservedSeats), new { @class = "itemQuantity" })
+                                             @Html.Hidden("Seats[" + i + "].SeatType", this.Model.Items[i].SeatType.Id)
+                                         }
+                                         else
+                                         {
+                                             <text>Sold out</text>
+                                         }
                                      </td>
                                  </tr>
                                  if (this.Model.Items[i].PartiallyFulfilled)
@@ -59,7 +69,7 @@
 									    <input class="form-promo__txt"><input class="form-promo__but" value="Submit" type="Submit">
 								    </div>
                                  </td>*@
-                                 <td colspan="2" class="content__table-cell_right content__cell_total">Estimated Total:</td>
+                                 <td colspan="3" class="content__table-cell_right content__cell_total">Estimated Total:</td>
                                  <td class="content__cell_total content__table-cell_left">$<span id="total">0</span></td>
                              </tr>
                          </table>
@@ -123,7 +133,7 @@
             $(".lineItem").each(function (index, item) {
                 var unitPrice = $(item).find(".unitPrice").text();
                 var quantity = $(item).find(".itemQuantity input").val();
-                total += unitPrice * quantity;
+                total += unitPrice * (quantity ? quantity : 0);
             });
 
             // round to 2 decimals
