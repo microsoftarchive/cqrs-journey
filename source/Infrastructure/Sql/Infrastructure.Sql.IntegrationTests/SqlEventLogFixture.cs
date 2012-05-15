@@ -215,6 +215,20 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
             Assert.True(events.Any(x => x.SourceId == eventC.SourceId));
         }
 
+        [Fact]
+        public void then_can_use_fluent_criteria_builder()
+        {
+            var events = this.sut.Query()
+                .FromAssembly("A")
+                .FromAssembly("B")
+                .FromNamespace("Namespace")
+                .WithTypeName("EventB")
+                .WithFullName("Namespace.EventB")
+                .ToList();
+
+            Assert.Equal(1, events.Count);
+        }
+
         public class EventA : IEvent
         {
             public EventA()

@@ -13,19 +13,114 @@
 
 namespace Infrastructure.EventLog
 {
+    using System.Collections;
     using System.Collections.Generic;
     using Infrastructure.Messaging;
 
+    /// <summary>
+    /// Provides usability overloads and fluent querying API for the event log.
+    /// </summary>
     public static class EventLogExtensions
     {
+        /// <summary>
+        /// Reads all events in the log.
+        /// </summary>
         public static IEnumerable<IEvent> ReadAll(this IEventLog log)
         {
             return log.Query(new QueryCriteria());
         }
 
-        // TODO: here we can start building up a fluent style API
-        // for constructing the query criteria, such as FromAssembly(...) and 
-        // so on. This makes the fluenty thing reusable for other event
-        // log implementations.
+        /// <summary>
+        /// Queries the specified log using a fluent API.
+        /// </summary>
+        public static IEventQuery Query(this IEventLog log)
+        {
+            return new EventQuery(log);
+        }
+
+        /// <summary>
+        /// Provides a fluent API to filter events from the event log. 
+        /// </summary>
+        public partial interface IEventQuery : IEnumerable<IEvent>
+        {
+            /// <summary>
+            /// Executes the query built using the fluent API 
+            /// against the underlying store.
+            /// </summary>
+            IEnumerable<IEvent> Execute();
+
+            /// <summary>
+            /// Filters events with a matching type name metadata.
+            /// </summary>
+            IEventQuery WithTypeName(string typeName);
+
+            /// <summary>
+            /// Filters events with a matching full type name metadata.
+            /// </summary>
+            IEventQuery WithFullName(string fullName);
+
+            /// <summary>
+            /// Filters events with a matching assembly name metadata.
+            /// </summary>
+            IEventQuery FromAssembly(string assemblyName);
+
+            /// <summary>
+            /// Filters events with a matching namespace metadata.
+            /// </summary>
+            IEventQuery FromNamespace(string @namespace);
+        }
+
+        /// <summary>
+        /// Implements the criteria builder fluent API.
+        /// </summary>
+        private class EventQuery : IEventQuery, IEnumerable<IEvent>
+        {
+            private IEventLog log;
+            private QueryCriteria criteria = new QueryCriteria();
+
+            public EventQuery(IEventLog log)
+            {
+                this.log = log;
+            }
+
+            public IEnumerable<IEvent> Execute()
+            {
+                return log.Query(this.criteria);
+            }
+
+            public IEnumerator<IEvent> GetEnumerator()
+            {
+                return this.Execute().GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public IEventQuery WithTypeName(string typeName)
+            {
+                criteria.TypeNames.Add(typeName);
+                return this;
+            }
+
+            public IEventQuery WithFullName(string fullName)
+            {
+                criteria.FullNames.Add(fullName);
+                return this;
+            }
+
+            public IEventQuery FromAssembly(string assemblyName)
+            {
+                criteria.AssemblyNames.Add(assemblyName);
+                return this;
+            }
+
+            public IEventQuery FromNamespace(string @namespace)
+            {
+                criteria.Namespaces.Add(@namespace);
+                return this;
+            }
+        }
     }
 }
