@@ -20,7 +20,7 @@ namespace Infrastructure.EventLog
     {
         public static IEnumerable<IEvent> Read(this IEventLog log)
         {
-            return log.Read(new QueryCriteria());
+            return log.Query(new QueryCriteria());
         }
 
         // TODO: here we can start building up a fluent style API

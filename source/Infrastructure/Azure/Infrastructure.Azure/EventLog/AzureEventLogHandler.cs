@@ -13,15 +13,21 @@
 
 namespace Infrastructure.Azure.EventLog
 {
-    using System;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
 
     public class AzureEventLogHandler : IEventHandler<IEvent>
     {
+        private AzureEventLog eventLog;
+
+        public AzureEventLogHandler(AzureEventLog eventLog)
+        {
+            this.eventLog = eventLog;
+        }
+
         public void Handle(IEvent @event)
         {
-            throw new NotImplementedException();
+            this.eventLog.Save(@event);
         }
     }
 }

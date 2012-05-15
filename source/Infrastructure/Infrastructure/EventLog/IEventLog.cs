@@ -21,7 +21,6 @@ namespace Infrastructure.EventLog
     /// </summary>
     public interface IEventLog
     {
-        void Save(IEvent @event);
-        IEnumerable<IEvent> Read(QueryCriteria criteria);
+        IEnumerable<IEvent> Query(QueryCriteria criteria);
     }
 }

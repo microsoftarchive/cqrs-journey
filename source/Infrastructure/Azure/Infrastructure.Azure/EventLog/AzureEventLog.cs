@@ -89,7 +89,7 @@ namespace Infrastructure.Azure.EventLog
             });
         }
 
-        public IEnumerable<IEvent> Read(QueryCriteria criteria)
+        public IEnumerable<IEvent> Query(QueryCriteria criteria)
         {
             var context = this.tableClient.GetDataServiceContext();
             IQueryable<EventLogEntity> query = context.CreateQuery<EventLogEntity>(this.tableName);
