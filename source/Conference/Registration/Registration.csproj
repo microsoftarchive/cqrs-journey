@@ -52,7 +52,7 @@
     <Compile Include="Commands\AssignRegistrantDetails.cs" />
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
-    <Compile Include="Commands\ConfirmOrderPayment.cs" />
+    <Compile Include="Commands\ConfirmOrder.cs" />
     <Compile Include="Commands\UnassignSeat.cs" />
     <Compile Include="Commands\AssignSeat.cs" />
     <Compile Include="Commands\ExpireRegistrationProcess.cs" />
@@ -61,7 +61,6 @@
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\AddSeats.cs" />
     <Compile Include="Commands\RemoveSeats.cs" />
-    <Compile Include="Commands\SetOrderPaymentDetails.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
     <Compile Include="Events\SeatsReservationCancelled.cs" />
@@ -103,7 +102,6 @@
     <Compile Include="ReadModel\DraftOrder.cs" />
     <Compile Include="ReadModel\DraftOrderItem.cs" />
     <Compile Include="RegistrationProcess.cs" />
-    <Compile Include="Reservation.cs" />
     <Compile Include="SeatAssignments.cs" />
     <Compile Include="SeatsAvailability.cs" />
   </ItemGroup>

@@ -20,6 +20,8 @@
                 @using (Html.BeginForm())
                 {
                     @Html.Partial("_RegistrationDetailsEditor", Model.RegistrantDetails)
+                    if (!Model.Order.IsFreeOfCharge)
+                    { 
                     <div class="content-main__header">Billing information</div>
                     <div class="content">
                         <div class="form">
@@ -88,11 +90,15 @@
 						    <div class="g-clear"></div>
                         </div>
                     </div>
+                    }
                     <div class="nav content-main__nav">
                         <a class="nav__left" href="@Url.Action("StartRegistration", "Registration", new { orderId = this.Model.Order.OrderId })">Back</a>
                         <button id="Next" class="nav__right" type="submit">Proceed
+                    @if (!Model.Order.IsFreeOfCharge)
+                    { 
                             <span class="nav__right-small js-creditcard-proceed">Proceed to Third Party</span>
                             <span class="nav__right-small js-invoiceme-proceed" style="display: none;">Proceed to Pay by Invoice</span>
+                    }
                         </button>
 @*                        <a class="nav__right" href="#">
                             Proceed

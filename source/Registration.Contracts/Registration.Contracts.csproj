@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\OrderConfirmed.cs" />
     <Compile Include="Events\OrderExpired.cs" />
     <Compile Include="Events\OrderPartiallyReserved.cs" />
     <Compile Include="Events\OrderPaymentConfirmed.cs" />

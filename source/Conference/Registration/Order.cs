@@ -16,6 +16,7 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AutoMapper;
     using Conference.Common.Utils;
     using Infrastructure.EventSourcing;
     using Registration.Events;
@@ -28,6 +29,14 @@ namespace Registration
         private bool isConfirmed;
         private Guid conferenceId;
 
+        static Order()
+        {
+            // Mapping old version of the OrderPaymentConfirmed event to the new version.
+            // Currently it is being done explicitly by the consumer, but this one in particular could be done
+            // at the deserialization level, as it is just a rename, not a functionality change.
+            Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
+        }
+
         protected Order(Guid id)
             : base(id)
         {
@@ -36,7 +45,8 @@ namespace Registration
             base.Handles<OrderPartiallyReserved>(this.OnOrderPartiallyReserved);
             base.Handles<OrderReservationCompleted>(this.OnOrderReservationCompleted);
             base.Handles<OrderExpired>(this.OnOrderExpired);
-            base.Handles<OrderPaymentConfirmed>(this.OnOrderPaymentConfirmed);
+            base.Handles<OrderPaymentConfirmed>(e => this.OnOrderConfirmed(Mapper.Map<OrderConfirmed>(e)));
+            base.Handles<OrderConfirmed>(this.OnOrderConfirmed);
             base.Handles<OrderRegistrantAssigned>(this.OnOrderRegistrantAssigned);
             base.Handles<OrderTotalsCalculated>(this.OnOrderTotalsCalculated);
         }
@@ -83,7 +93,7 @@ namespace Registration
                 this.Update(new OrderReservationCompleted { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
 
-            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray() });
+            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray(), IsFreeOfCharge = totals.Total == 0m });
         }
 
         public void Expire()
@@ -94,9 +104,9 @@ namespace Registration
             this.Update(new OrderExpired());
         }
 
-        public void ConfirmPayment()
+        public void Confirm()
         {
-            this.Update(new OrderPaymentConfirmed());
+            this.Update(new OrderConfirmed());
         }
 
         public void AssignRegistrant(string firstName, string lastName, string email)
@@ -142,7 +152,7 @@ namespace Registration
         {
         }
 
-        private void OnOrderPaymentConfirmed(OrderPaymentConfirmed e)
+        private void OnOrderConfirmed(OrderConfirmed e)
         {
             this.isConfirmed = true;
         }

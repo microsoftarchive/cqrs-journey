@@ -66,6 +66,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         },
                     },
                     Total = 50,
+                    IsFreeOfCharge = true
                 });
 
                 this.dto = this.dao.FindPricedOrder(orderId);
@@ -91,6 +92,12 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             public void then_populates_description()
             {
                 Assert.Equal("General", dto.Lines[0].Description);
+            }
+
+            [Fact]
+            public void then_populates_is_free_of_charge()
+            {
+                Assert.Equal(true, dto.IsFreeOfCharge);
             }
 
             [Fact]

@@ -42,7 +42,7 @@ namespace Conference
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderRegistrantAssigned>,
         IEventHandler<OrderTotalsCalculated>,
-        IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderConfirmed>,
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
         IEventHandler<SeatAssignmentUpdated>,
@@ -81,7 +81,7 @@ namespace Conference
             }
         }
 
-        public void Handle(OrderPaymentConfirmed @event)
+        public void Handle(OrderConfirmed @event)
         {
             if (!ProcessOrder(order => order.Id == @event.SourceId, order => order.Status = Order.OrderStatus.Paid))
             {
