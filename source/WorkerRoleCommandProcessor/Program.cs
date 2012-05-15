@@ -23,7 +23,7 @@ namespace WorkerRoleCommandProcessor
         {
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
-            using (var processor = new ConferenceCommandProcessor())
+            using (var processor = new ConferenceProcessor())
             {
                 processor.Start();
 

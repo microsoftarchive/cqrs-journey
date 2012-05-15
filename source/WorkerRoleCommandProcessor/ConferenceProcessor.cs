@@ -50,12 +50,12 @@ namespace WorkerRoleCommandProcessor
     using Microsoft.WindowsAzure;
 #endif
 
-    public sealed class ConferenceCommandProcessor : IDisposable
+    public sealed class ConferenceProcessor : IDisposable
     {
         private IUnityContainer container;
         private CancellationTokenSource cancellationTokenSource;
 
-        public ConferenceCommandProcessor()
+        public ConferenceProcessor()
         {
             this.container = CreateContainer();
             RegisterHandlers(container);
