@@ -14,8 +14,8 @@
 namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.EventLog;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.EventLog;
@@ -23,6 +23,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
+    using Moq;
     using Xunit;
 
     public class given_an_empty_event_log : IDisposable
@@ -32,16 +33,53 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
         protected AzureEventLog sut;
         protected string sourceId;
         protected string partitionKey;
+        private Mock<IMetadataProvider> metadata;
+        private EventA eventA;
+        private EventB eventB;
+        private EventC eventC;
 
         public given_an_empty_event_log()
         {
             this.tableName = "AzureEventLogFixture" + new Random((int)DateTime.Now.Ticks).Next();
             var settings = InfrastructureSettings.ReadEventSourcing("Settings.xml");
             this.account = CloudStorageAccount.Parse(settings.ConnectionString);
-            this.sut = new AzureEventLog(this.account, this.tableName, new JsonTextSerializer(), new StandardMetadataProvider());
+
+            this.eventA = new EventA();
+            this.eventB = new EventB();
+            this.eventC = new EventC();
+
+            var metadata = Mock.Of<IMetadataProvider>(x =>
+                x.GetMetadata(eventA) == new Dictionary<string, string>
+                {
+                    { StandardMetadata.AssemblyName, "A" }, 
+                    { StandardMetadata.Namespace, "Namespace" }, 
+                    { StandardMetadata.FullName, "Namespace.EventA" }, 
+                    { StandardMetadata.TypeName, "EventA" }, 
+                } &&
+                x.GetMetadata(eventB) == new Dictionary<string, string>
+                {
+                    { StandardMetadata.AssemblyName, "B" }, 
+                    { StandardMetadata.Namespace, "Namespace" }, 
+                    { StandardMetadata.FullName, "Namespace.EventB" }, 
+                    { StandardMetadata.TypeName, "EventB" }, 
+                } &&
+                x.GetMetadata(eventC) == new Dictionary<string, string>
+                {
+                    { StandardMetadata.AssemblyName, "B" }, 
+                    { StandardMetadata.Namespace, "AnotherNamespace" }, 
+                    { StandardMetadata.FullName, "AnotherNamespace.EventC" }, 
+                    { StandardMetadata.TypeName, "EventC" }, 
+                });
+
+            this.metadata = Mock.Get(metadata);
+            this.sut = new AzureEventLog(this.account, this.tableName, new JsonTextSerializer(), metadata);
 
             this.sourceId = Guid.NewGuid().ToString();
             this.partitionKey = Guid.NewGuid().ToString();
+
+            this.sut.Save(eventA);
+            this.sut.Save(eventB);
+            this.sut.Save(eventC);
         }
 
         public void Dispose()
@@ -51,22 +89,161 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
         }
 
         [Fact]
-        public void when_saving_event_then_can_read_all()
+        public void then_can_read_all()
         {
-            var e = new FakeEvent { Value = "hello" };
+            var result = this.sut.ReadAll().ToList();
 
-            this.sut.Save(e);
+            Assert.Equal(3, result.Count);
+        }
 
-            var result = this.sut.Read().ToList();
+        [Fact]
+        public void then_can_filter_by_assembly()
+        {
+            var events = this.sut.Query(new QueryCriteria { AssemblyNames = { "A" } }).ToList();
 
-            Assert.Equal(1, result.Count);
-            Assert.True(result[0] is FakeEvent);
-            Assert.Equal("hello", ((FakeEvent)result[0]).Value);
+            Assert.Equal(1, events.Count);
+        }
+
+        [Fact]
+        public void then_can_filter_by_multiple_assemblies()
+        {
+            var events = this.sut.Query(new QueryCriteria { AssemblyNames = { "A", "B" } }).ToList();
+
+            Assert.Equal(3, events.Count);
+        }
+
+        [Fact]
+        public void then_can_filter_by_namespace()
+        {
+            var events = this.sut.Query(new QueryCriteria { Namespaces = { "Namespace" } }).ToList();
+
+            Assert.Equal(2, events.Count);
+            Assert.True(events.Any(x => x.SourceId == eventA.SourceId));
+            Assert.True(events.Any(x => x.SourceId == eventB.SourceId));
+        }
+
+        [Fact]
+        public void then_can_filter_by_namespaces()
+        {
+            var events = this.sut.Query(new QueryCriteria { Namespaces = { "Namespace", "AnotherNamespace" } }).ToList();
+
+            Assert.Equal(3, events.Count);
+        }
+
+        [Fact]
+        public void then_can_filter_by_namespace_and_assembly()
+        {
+            var events = this.sut.Query(new QueryCriteria { AssemblyNames = { "B" }, Namespaces = { "AnotherNamespace" } }).ToList();
+
+            Assert.Equal(1, events.Count);
+            Assert.True(events.Any(x => x.SourceId == eventC.SourceId));
+        }
+
+        [Fact]
+        public void then_can_filter_by_namespace_and_assembly2()
+        {
+            var events = this.sut.Query(new QueryCriteria { AssemblyNames = { "A" }, Namespaces = { "AnotherNamespace" } }).ToList();
+
+            Assert.Equal(0, events.Count);
+        }
+
+        [Fact]
+        public void then_can_filter_by_full_name()
+        {
+            var events = this.sut.Query(new QueryCriteria { FullNames = { "Namespace.EventA" } }).ToList();
+
+            Assert.Equal(1, events.Count);
+            Assert.Equal(eventA.SourceId, events[0].SourceId);
+        }
+
+        [Fact]
+        public void then_can_filter_by_full_names()
+        {
+            var events = this.sut.Query(new QueryCriteria { FullNames = { "Namespace.EventA", "AnotherNamespace.EventC" } }).ToList();
+
+            Assert.Equal(2, events.Count);
+            Assert.True(events.Any(x => x.SourceId == eventA.SourceId));
+            Assert.True(events.Any(x => x.SourceId == eventC.SourceId));
+        }
+
+        [Fact]
+        public void then_can_filter_by_type_name()
+        {
+            var events = this.sut.Query(new QueryCriteria { TypeNames = { "EventA" } }).ToList();
+
+            Assert.Equal(1, events.Count);
+            Assert.Equal(eventA.SourceId, events[0].SourceId);
+        }
+
+        [Fact]
+        public void then_can_filter_by_type_names()
+        {
+            var events = this.sut.Query(new QueryCriteria { TypeNames = { "EventA", "EventC" } }).ToList();
+
+            Assert.Equal(2, events.Count);
+            Assert.True(events.Any(x => x.SourceId == eventA.SourceId));
+            Assert.True(events.Any(x => x.SourceId == eventC.SourceId));
+        }
+
+        [Fact]
+        public void then_can_filter_by_type_names_and_assembly()
+        {
+            var events = this.sut.Query(new QueryCriteria { AssemblyNames = { "B" }, TypeNames = { "EventB", "EventC" } }).ToList();
+
+            Assert.Equal(2, events.Count);
+            Assert.True(events.Any(x => x.SourceId == eventB.SourceId));
+            Assert.True(events.Any(x => x.SourceId == eventC.SourceId));
+        }
+
+        [Fact]
+        public void then_can_filter_by_source_id()
+        {
+            var events = this.sut.Query(new QueryCriteria { SourceIds = { eventA.SourceId.ToString() } }).ToList();
+
+            Assert.Equal(1, events.Count);
+            Assert.Equal(eventA.SourceId, events[0].SourceId);
+        }
+
+        [Fact]
+        public void then_can_filter_by_source_ids()
+        {
+            var events = this.sut.Query(new QueryCriteria { SourceIds = { eventA.SourceId.ToString(), eventC.SourceId.ToString() } }).ToList();
+
+            Assert.Equal(2, events.Count);
+            Assert.True(events.Any(x => x.SourceId == eventA.SourceId));
+            Assert.True(events.Any(x => x.SourceId == eventC.SourceId));
         }
 
         public class FakeEvent : IEvent
         {
             public string Value { get; set; }
+            public Guid SourceId { get; set; }
+        }
+
+        public class EventA : IEvent
+        {
+            public EventA()
+            {
+                this.SourceId = Guid.NewGuid();
+            }
+            public Guid SourceId { get; set; }
+        }
+
+        public class EventB : IEvent
+        {
+            public EventB()
+            {
+                this.SourceId = Guid.NewGuid();
+            }
+            public Guid SourceId { get; set; }
+        }
+
+        public class EventC : IEvent
+        {
+            public EventC()
+            {
+                this.SourceId = Guid.NewGuid();
+            }
             public Guid SourceId { get; set; }
         }
     }

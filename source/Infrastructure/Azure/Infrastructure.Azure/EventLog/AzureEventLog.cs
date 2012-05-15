@@ -16,7 +16,6 @@ namespace Infrastructure.Azure.EventLog
     using System;
     using System.Collections.Generic;
     using System.Data.Services.Client;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using Infrastructure.EventLog;
@@ -65,7 +64,7 @@ namespace Infrastructure.Azure.EventLog
             var rowKey = DateTime.UtcNow.Ticks.ToString("D20");
             var rnd = new Random((int)DateTime.UtcNow.Ticks);
             var metadata = this.metadataProvider.GetMetadata(@event);
-            var entity = this.Serialize(@event);
+            var payload = this.serializer.Serialize(@event);
 
             this.retryPolicy.ExecuteAction(() =>
             {
@@ -82,7 +81,7 @@ namespace Infrastructure.Azure.EventLog
                         FullName = metadata[StandardMetadata.FullName],
                         Namespace = metadata[StandardMetadata.Namespace],
                         TypeName = metadata[StandardMetadata.TypeName],
-                        Payload = Serialize(@event),
+                        Payload = payload,
                     });
 
                 context.SaveChanges();
@@ -92,34 +91,15 @@ namespace Infrastructure.Azure.EventLog
         public IEnumerable<IEvent> Query(QueryCriteria criteria)
         {
             var context = this.tableClient.GetDataServiceContext();
-            IQueryable<EventLogEntity> query = context.CreateQuery<EventLogEntity>(this.tableName);
+            var query = (IQueryable<EventLogEntity>)context.CreateQuery<EventLogEntity>(this.tableName);
+            var where = criteria.ToExpression();
+            if (where != null)
+                query = query.Where(where);
 
-            // TODO: build criteria, will probably need Linq specs stuff from NetFx for this as 
-            // we need to OR the values within a criteria (i.e. assembly names) but probally 
-            // AND the ones from the other criteria (i.e. type name?).
-            //foreach (var item in criteria.AssemblyNames)
-            //{
-            //    query = query.Where(e => e.AssemblyName == item);
-            //}
-
-            return query.AsEnumerable().Select(e => this.Deserialize(e));
-        }
-
-        private string Serialize(IEvent @event)
-        {
-            using (var writer = new StringWriter())
-            {
-                this.serializer.Serialize(writer, @event);
-                return writer.ToString();
-            }
-        }
-
-        private IEvent Deserialize(EventLogEntity @event)
-        {
-            using (var reader = new StringReader(@event.Payload))
-            {
-                return (IEvent)this.serializer.Deserialize(reader);
-            }
+            return query
+                .AsTableServiceQuery()
+                .Execute()
+                .Select(e => this.serializer.Deserialize<IEvent>(e.Payload));
         }
 
         private class ConflictDetectionStrategy : ITransientErrorDetectionStrategy
