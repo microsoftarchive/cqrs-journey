@@ -11,21 +11,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.EventLog
+namespace Infrastructure.Sql.EventLog
 {
-    using System.Collections.Generic;
-    using Infrastructure.Messaging;
+    using System.Data.Entity;
 
-    public static class EventLogExtensions
+    internal class EventLogDbContext : DbContext
     {
-        public static IEnumerable<IEvent> ReadAll(this IEventLog log)
+        public EventLogDbContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
         {
-            return log.Query(new QueryCriteria());
         }
 
-        // TODO: here we can start building up a fluent style API
-        // for constructing the query criteria, such as FromAssembly(...) and 
-        // so on. This makes the fluenty thing reusable for other event
-        // log implementations.
+        public DbSet<EventLogEntity> Events { get; set; }
     }
 }
