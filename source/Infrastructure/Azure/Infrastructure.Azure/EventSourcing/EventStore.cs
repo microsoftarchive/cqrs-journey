@@ -43,7 +43,7 @@ namespace Infrastructure.Azure.EventSourcing
             Mapper.CreateMap<EventData, EventTableServiceEntity>();
         }
 
-        public EventStore(CloudStorageAccount account, string tableName, IMetadataProvider metadataProvider)
+        public EventStore(CloudStorageAccount account, string tableName)
         {
             if (account == null) throw new ArgumentNullException("account");
             if (tableName == null) throw new ArgumentNullException("tableName");

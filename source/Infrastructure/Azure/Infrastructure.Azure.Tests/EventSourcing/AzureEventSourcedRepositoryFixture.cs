@@ -61,12 +61,11 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
                             && x.First().Version == 1
                             && x.First().SourceId == id.ToString()
                             && x.First().SourceType == "TestEntity"
-                            && x.First().EventType == "TestEvent"
+                            && x.First().TypeName == "TestEvent"
                             && x.First().Payload.Contains("Bar")
                             && x.Last().Version == 2
                             && x.Last().SourceId == id.ToString()
                             && x.Last().SourceType == "TestEntity"
-                            && x.Last().EventType == "TestEvent"
                             && x.Last().Payload.Contains("Baz"))));
         }
 

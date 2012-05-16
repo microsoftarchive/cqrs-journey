@@ -155,7 +155,7 @@ namespace WorkerRoleCommandProcessor
 #else
             // repository
             var eventSourcingAccount = CloudStorageAccount.Parse(azureSettings.EventSourcing.ConnectionString);
-            var eventStore = new EventStore(eventSourcingAccount, azureSettings.EventSourcing.TableName, metadata);
+            var eventStore = new EventStore(eventSourcingAccount, azureSettings.EventSourcing.TableName);
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());

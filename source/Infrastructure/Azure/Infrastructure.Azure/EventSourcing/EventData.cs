@@ -11,7 +11,6 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System.ComponentModel;
 namespace Infrastructure.Azure.EventSourcing
 {
     public class EventData
@@ -19,19 +18,12 @@ namespace Infrastructure.Azure.EventSourcing
         public string SourceId { get; set; }
         public int Version { get; set; }
         public string SourceType { get; set; }
-        // Equals TypeName metadata, kept like this for backs compat.
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public string EventType { get; set; }
         public string Payload { get; set; }
 
         // Standard metadata.
         public string AssemblyName { get; set; }
         public string Namespace { get; set; }
         public string FullName { get; set; }
-        public string TypeName
-        {
-            get { return this.EventType; }
-            set { this.EventType = value; }
-        }
+        public string TypeName { get; set; }
     }
 }
