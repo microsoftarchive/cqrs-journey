@@ -18,7 +18,7 @@ namespace Conference.Specflow.Support
 {
     static class Constants
     {
-        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(7);
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
         public static readonly string ConferenceManagementCreatePage = ConfigurationManager.AppSettings["ConferenceMgmtUrl"] + "create";
@@ -39,7 +39,7 @@ namespace Conference.Specflow.Support
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
             public const string SeatAssignmentPage = "Assign Seats";
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); // Wait > 5 secs, longer than page retry 
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(1);
             public const string TagLine = "Acceptance Tests";
             public const string Location = "Test";
             public const string TwitterSearch = "TwitterSearch";

@@ -13,28 +13,40 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using WatiN.Core;
 
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    public class StepDefinition
+    public class SeatTypesConfigurationSteps : StepDefinition
     {
-        private readonly Browser browser;
-
-        public StepDefinition()
+        [Given(@"the Business Customer selects the Seat Types opcion")]
+        public void GivenTheBusinessCustomerSelectsTheSeatTypesOpcion()
         {
-            browser = ScenarioContext.Current.Browser();
+            Browser.Click(Constants.UI.ConferenceManagementSeatTypesId);
         }
 
-        public StepDefinition(Browser browser)
+        [Given(@"the Business Customer proceed to create new Seat Types")]
+        public void GivenTheBusinessCustomerProceedToCreateNewSeatTypes()
         {
-            this.browser = browser;
+            Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
         }
 
-        protected Browser Browser
+        [Given(@"the information for the Seat Types")]
+        public void GivenTheInformationForTheSeatTypes(Table table)
         {
-            get { return browser; }
+            ScenarioContext.Current.Pending();
+        }
+
+        [When(@"the Business Customer proceed to create the Seat Types")]
+        public void WhenTheBusinessCustomerProceedToCreateTheSeatTypes()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [Then(@"the new Seat Types with this information are created")]
+        public void ThenTheNewSeatTypesWithThisInformationAreCreated(Table table)
+        {
+            ScenarioContext.Current.Pending();
         }
     }
 }

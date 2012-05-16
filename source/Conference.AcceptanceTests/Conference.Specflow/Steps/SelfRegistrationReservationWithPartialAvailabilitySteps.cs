@@ -13,28 +13,28 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using WatiN.Core;
+using W = WatiN.Core;
+using Xunit;
 
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    public class StepDefinition
+    public class SelfRegistrationReservationWithPartialAvailabilitySteps
     {
-        private readonly Browser browser;
-
-        public StepDefinition()
+        [Given(@"the Registrant is offered to select any of these available seats")]
+        [Then(@"the Registrant is offered to select any of these available seats")]
+        public void ThenTheRegistrantIsOfferedToSelectAnyOfTheseAvailableSeats(Table table)
         {
-            browser = ScenarioContext.Current.Browser();
+            AvailableSeats(ScenarioContext.Current.Browser(), table);
         }
 
-        public StepDefinition(Browser browser)
+        internal static void AvailableSeats(W.Browser browser, Table table)
         {
-            this.browser = browser;
-        }
-
-        protected Browser Browser
-        {
-            get { return browser; }
+            foreach (var row in table.Rows)
+            {
+                Assert.True(browser.ContainsListItemsInTableRow(row["seat type"], row["selected"], row["message"]),
+                    string.Format("some of these text where not found in the current page: '{0}', '{1}', '{2}'", row["seat type"], row["selected"], row["message"]));
+            }
         }
     }
 }

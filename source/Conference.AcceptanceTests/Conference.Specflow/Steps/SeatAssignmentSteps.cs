@@ -11,30 +11,33 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using WatiN.Core;
+using Xunit;
 
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    public class StepDefinition
+    public class SeatAssignmentSteps : StepDefinition
     {
-        private readonly Browser browser;
-
-        public StepDefinition()
+        [When(@"the Registrant assign these seats")]
+        public void WhenTheRegistrantAssignTheseSeats(Table table)
         {
-            browser = ScenarioContext.Current.Browser();
-        }
+            try
+            {
+                Browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
+            }catch(Exception e)
+            {
+                Assert.Throws(e.GetType(), () => { });
+            }
 
-        public StepDefinition(Browser browser)
-        {
-            this.browser = browser;
-        }
+            foreach (var row in table.Rows)
+            {
+                Browser.SetRowCells(row["seat type"], row["first name"], row["last name"], row["email address"]);
+            }
 
-        protected Browser Browser
-        {
-            get { return browser; }
+            Browser.Click(Constants.UI.NextStepId);
         }
     }
 }
