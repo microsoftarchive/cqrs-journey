@@ -132,7 +132,7 @@ namespace WorkerRoleCommandProcessor
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
             var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, "conference/commands", "all"), serializer);
-            var eventProcessor = new EventProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, "conference/events", "all"), serializer);
+            var eventProcessor = new EventProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, "conference/events", "all"), serializer);
 #endif
 
             container.RegisterInstance<ICommandBus>(commandBus);
