@@ -25,17 +25,17 @@ namespace Infrastructure.Azure.Messaging
     public class EventBus : IEventBus
     {
         private readonly IMessageSender sender;
-        private readonly IMetadataProvider metadata;
+        private readonly IMetadataProvider metadataProvider;
         private readonly ITextSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventBus"/> class.
         /// </summary>
         /// <param name="serializer">The serializer to use for the message body.</param>
-        public EventBus(IMessageSender sender, IMetadataProvider metadata, ITextSerializer serializer)
+        public EventBus(IMessageSender sender, IMetadataProvider metadataProvider, ITextSerializer serializer)
         {
             this.sender = sender;
-            this.metadata = metadata;
+            this.metadataProvider = metadataProvider;
             this.serializer = serializer;
         }
 
@@ -68,7 +68,7 @@ namespace Infrastructure.Azure.Messaging
             var message = new BrokeredMessage(stream, true);
             message.SessionId = @event.SourceId.ToString();
 
-            var metadata = this.metadata.GetMetadata(@event);
+            var metadata = this.metadataProvider.GetMetadata(@event);
             if (metadata != null)
             {
                 foreach (var pair in metadata)
