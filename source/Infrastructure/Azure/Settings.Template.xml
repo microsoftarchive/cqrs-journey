@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!-- Copy this template file as Settings.xml and replace the 
     placeholders with your Azure access information -->
-<InfrastructureSettings>
+<InfrastructureSettings xmlns="urn:microsoft-patterns-and-practices-cqrsjourney">
     <ServiceBus>
         <ServiceUriScheme>sb</ServiceUriScheme>
         <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>

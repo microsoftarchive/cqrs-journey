@@ -1,13 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           targetNamespace="urn:microsoft-patterns-and-practices-cqrsjourney"
+           xmlns:cqrs="urn:microsoft-patterns-and-practices-cqrsjourney">
     <xs:element name="InfrastructureSettings">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="ServiceBus" minOccurs="1" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="ServiceNamespace" type="xs:string" minOccurs="1" maxOccurs="1" />
                             <xs:element name="ServiceUriScheme" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="ServiceNamespace" type="xs:string" minOccurs="1" maxOccurs="1" />
                             <xs:element name="ServicePath" minOccurs="1" maxOccurs="1" />
                             <xs:element name="TokenIssuer" type="xs:string" minOccurs="1" maxOccurs="1" />
                             <xs:element name="TokenAccessKey" type="xs:string" minOccurs="1" maxOccurs="1" />
@@ -18,7 +20,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
-                            <xs:element name="TableName" type="AzureTableName" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TableName" type="cqrs:AzureTableName" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -26,7 +28,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
-                            <xs:element name="TableName" type="AzureTableName" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TableName" type="cqrs:AzureTableName" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
