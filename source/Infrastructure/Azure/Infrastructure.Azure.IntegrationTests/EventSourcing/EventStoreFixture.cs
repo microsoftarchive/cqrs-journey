@@ -18,7 +18,6 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
     using System.Linq;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
-    using Infrastructure.Azure.Messaging;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
     using Xunit;
@@ -34,8 +33,8 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
 
         public given_empty_store()
         {
-            this.tableName = "EventStoreFixture" + new Random((int) DateTime.Now.Ticks).Next();
-            var settings = InfrastructureSettings.ReadEventSourcing("Settings.xml");
+            this.tableName = "EventStoreFixture" + new Random((int)DateTime.Now.Ticks).Next();
+            var settings = InfrastructureSettings.Read("Settings.xml").EventSourcing;
             this.account = CloudStorageAccount.Parse(settings.ConnectionString);
             this.sut = new EventStore(this.account, this.tableName);
 
@@ -43,9 +42,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             this.partitionKey = Guid.NewGuid().ToString();
             this.events = new[]
                              {
-                                 new EventData { Version = 1, SourceId = sourceId, SourceType = "Source", EventType = "Test1", Payload = "Payload1" },
-                                 new EventData { Version = 2, SourceId = sourceId, SourceType = "Source", EventType = "Test2", Payload = "Payload2" },
-                                 new EventData { Version = 3, SourceId = sourceId, SourceType = "Source", EventType = "Test3", Payload = "Payload3" },
+                                 new EventData { Version = 1, SourceId = sourceId, SourceType = "Source", TypeName = "Test1", Payload = "Payload1" },
+                                 new EventData { Version = 2, SourceId = sourceId, SourceType = "Source", TypeName = "Test2", Payload = "Payload2" },
+                                 new EventData { Version = 3, SourceId = sourceId, SourceType = "Source", TypeName = "Test3", Payload = "Payload3" },
                              };
         }
 
@@ -68,7 +67,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal(1, stored.Count);
             Assert.Equal(events[0].Version, stored[0].Version);
             Assert.Equal(events[0].SourceId, stored[0].SourceId);
-            Assert.Equal(events[0].EventType, stored[0].EventType);
+            Assert.Equal(events[0].TypeName, stored[0].TypeName);
             Assert.Equal(events[0].Payload, stored[0].Payload);
         }
 
@@ -127,7 +126,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         {
             sut.Save(this.partitionKey, new[] { events[0] });
 
-            var sameVersion = new EventData { Version = events[0].Version, EventType = "Test2", Payload = "Payload2" };
+            var sameVersion = new EventData { Version = events[0].Version, TypeName = "Test2", Payload = "Payload2" };
             Assert.Throws<ConcurrencyException>(() => sut.Save(this.partitionKey, new[] { sameVersion }));
 
             var stored = sut.Load(this.partitionKey, 0).ToList();
@@ -142,7 +141,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         {
             sut.Save(this.partitionKey, new[] { events[0] });
 
-            var sameVersion = new EventData { Version = events[0].Version, EventType = "Test2", Payload = "Payload2" };
+            var sameVersion = new EventData { Version = events[0].Version, TypeName = "Test2", Payload = "Payload2" };
             Assert.Throws<ConcurrencyException>(() => sut.Save(this.partitionKey, new[] { sameVersion, events[1] }));
 
             var stored = sut.Load(this.partitionKey, 0).ToList();
@@ -172,10 +171,10 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.True(pending.All(x => x.SourceType == "Source"));
             Assert.Equal("Unpublished_" + events[0].Version.ToString("D10"), pending[0].RowKey);
             Assert.Equal("Payload1", pending[0].Payload);
-            Assert.Equal("Test1", pending[0].EventType);
+            Assert.Equal("Test1", pending[0].TypeName);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[1].RowKey);
             Assert.Equal("Payload2", pending[1].Payload);
-            Assert.Equal("Test2", pending[1].EventType);
+            Assert.Equal("Test2", pending[1].TypeName);
         }
 
         [Fact]
@@ -189,7 +188,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal(1, pending.Count);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);
             Assert.Equal("Payload2", pending[0].Payload);
-            Assert.Equal("Test2", pending[0].EventType);
+            Assert.Equal("Test2", pending[0].TypeName);
             Assert.Equal("Source", pending[0].SourceType);
         }
 

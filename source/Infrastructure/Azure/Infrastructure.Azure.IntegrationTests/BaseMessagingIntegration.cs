@@ -23,18 +23,18 @@ namespace Infrastructure.Azure.IntegrationTests
     {
         public given_messaging_settings()
         {
-            this.Settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            this.Settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
         }
 
-        public MessagingSettings Settings { get; private set; }
+        public ServiceBusSettings Settings { get; private set; }
     }
 
     public class given_a_topic_and_subscription : given_messaging_settings, IDisposable
     {
         public given_a_topic_and_subscription()
         {
-            this.Topic = "Test-" + Guid.NewGuid().ToString();
-            this.Subscription = "Test-" + Guid.NewGuid().ToString();
+            this.Topic = "cqrsjourney-test-" + Guid.NewGuid().ToString();
+            this.Subscription = "test-" + Guid.NewGuid().ToString();
 
             // Creates the topic too.
             this.Settings.CreateSubscription(this.Topic, this.Subscription);

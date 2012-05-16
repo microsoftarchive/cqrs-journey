@@ -34,7 +34,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         {
             this.eventStore = new Mock<IEventStore>();
             this.publisher = new Mock<IEventStoreBusPublisher>();
-            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, publisher.Object, new JsonTextSerializer());
+            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, publisher.Object, new JsonTextSerializer(), new StandardMetadataProvider());
             this.id = Guid.NewGuid();
             var entity = new TestEntity
             {
@@ -54,19 +54,18 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         {
             eventStore.Verify(
                 s => s.Save(
-                    It.IsAny<string>(), 
+                    It.IsAny<string>(),
                     It.Is<IEnumerable<EventData>>(
-                        x => 
+                        x =>
                             x.Count() == 2
                             && x.First().Version == 1
                             && x.First().SourceId == id.ToString()
                             && x.First().SourceType == "TestEntity"
-                            && x.First().EventType == "TestEvent" 
+                            && x.First().TypeName == "TestEvent"
                             && x.First().Payload.Contains("Bar")
                             && x.Last().Version == 2
                             && x.Last().SourceId == id.ToString()
                             && x.Last().SourceType == "TestEntity"
-                            && x.Last().EventType == "TestEvent"
                             && x.Last().Payload.Contains("Baz"))));
         }
 
@@ -99,7 +98,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
             this.id = Guid.NewGuid();
             var eventStore = new Mock<IEventStore>();
             eventStore.Setup(x => x.Load(It.IsAny<string>(), It.IsAny<int>())).Returns(serialized);
-            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer());
+            var sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer(), new StandardMetadataProvider());
 
             var entity = sut.Find(id);
 
@@ -126,7 +125,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         public when_reading_inexistant_entity()
         {
             this.eventStore = new Mock<IEventStore>();
-            this.sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer());
+            this.sut = new AzureEventSourcedRepository<TestEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer(), new StandardMetadataProvider());
             this.id = Guid.NewGuid();
         }
 

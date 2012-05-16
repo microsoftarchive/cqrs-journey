@@ -11,22 +11,32 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests
+namespace System.Collections.Generic
 {
-    using Xunit;
-
-    public class given_a_metadata_provider
+    /// <summary>
+    /// Usability extensions for dictionaries.
+    /// </summary>
+    public static class DictionaryExtensions
     {
-        [Fact]
-        public void when_getting_metadata_then_returns_type_name()
+        /// <summary>
+        /// Gets an item from the dictionary, if it's found.
+        /// </summary>
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
-            var provider = new MetadataProvider();
-            var typeName = typeof(given_a_metadata_provider).Name;
+            return dictionary.TryGetValue(key, default(TValue));
+        }
 
-            var metadata = provider.GetMetadata(this);
+        /// <summary>
+        /// Gets an item from the dictionary, if it's found. Otherwise, 
+        /// returns the specified default value.
+        /// </summary>
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
+        {
+            var result = defaultValue;
+            if (!dictionary.TryGetValue(key, out result))
+                return defaultValue;
 
-            Assert.Contains(typeName, metadata.Values);
-            Assert.Contains("EventType", metadata.Keys);
+            return result;
         }
     }
 }

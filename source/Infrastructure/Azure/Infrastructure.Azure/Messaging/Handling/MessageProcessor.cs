@@ -11,9 +11,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.Azure.Messaging.Handling
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
@@ -168,14 +169,10 @@ namespace Infrastructure.Azure
                     return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0})", messageId);
                 }
 
-                object sourceId;
-                if (message.Properties.TryGetValue("SourceId", out sourceId))
+                var sourceId = message.Properties.TryGetValue(StandardMetadata.SourceId) as string;
+                if (!string.IsNullOrEmpty(sourceId))
                 {
-                    var sourceIdString = sourceId != null ? sourceId.ToString() : null;
-                    if (!string.IsNullOrEmpty(sourceIdString))
-                    {
-                        return string.Format(CultureInfo.InvariantCulture, " (with SourceId: {0})", sourceIdString);
-                    }
+                    return string.Format(CultureInfo.InvariantCulture, " (with SourceId: {0})", sourceId);
                 }
             }
             catch (ObjectDisposedException)

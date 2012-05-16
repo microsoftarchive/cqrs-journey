@@ -31,12 +31,14 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IEventStoreBusPublisher publisher;
         private readonly ITextSerializer serializer;
         private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
+        private readonly IMetadataProvider metadataProvider;
 
-        public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer)
+        public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer, IMetadataProvider metadataProvider)
         {
             this.eventStore = eventStore;
             this.publisher = publisher;
             this.serializer = serializer;
+            this.metadataProvider = metadataProvider;
 
             // TODO: could be replaced with a compiled lambda to make it more performant
             var constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
@@ -96,13 +98,18 @@ namespace Infrastructure.Azure.EventSourcing
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, e);
+                var metadata = this.metadataProvider.GetMetadata(e);
                 return new EventData
                            {
                                Version = e.Version,
                                SourceId = e.SourceId.ToString(),
                                Payload = writer.ToString(),
                                SourceType = sourceType,
-                               EventType = e.GetType().Name
+                               // Standard metadata
+                               AssemblyName = metadata.TryGetValue(StandardMetadata.AssemblyName),
+                               Namespace = metadata.TryGetValue(StandardMetadata.Namespace),
+                               TypeName = metadata.TryGetValue(StandardMetadata.TypeName),
+                               FullName = metadata.TryGetValue(StandardMetadata.FullName),
                            };
             }
         }

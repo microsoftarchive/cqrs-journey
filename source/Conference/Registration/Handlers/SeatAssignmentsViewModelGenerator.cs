@@ -20,7 +20,7 @@ namespace Registration.Handlers
     using System.Linq;
     using System.Text;
     using AutoMapper;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Registration.Events;

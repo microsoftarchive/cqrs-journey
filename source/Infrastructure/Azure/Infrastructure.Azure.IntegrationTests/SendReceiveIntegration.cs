@@ -26,13 +26,13 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
     /// </summary>
     public class given_a_sender_and_receiver : IDisposable
     {
-        private MessagingSettings settings;
+        private ServiceBusSettings settings;
         private string topic = "Test-" + Guid.NewGuid().ToString();
         private string subscription = "Test-" + Guid.NewGuid().ToString();
 
         public given_a_sender_and_receiver()
         {
-            this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            this.settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
         }
 
         public void Dispose()
@@ -153,7 +153,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
     public class TestableSubscriptionReceiver : SubscriptionReceiver
     {
-        public TestableSubscriptionReceiver(MessagingSettings settings, string topic, string subscription, RetryStrategy background, RetryStrategy blocking)
+        public TestableSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy background, RetryStrategy blocking)
             : base(settings, topic, subscription, background, blocking)
         {
             this.DoReceiveMessageDelegate = base.DoReceiveMessage;

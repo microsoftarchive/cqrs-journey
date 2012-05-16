@@ -24,14 +24,14 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 
     public class given_a_topic_sender : IDisposable
     {
-        private MessagingSettings settings;
+        private ServiceBusSettings settings;
         private string topic = "Test-" + Guid.NewGuid().ToString();
         private SubscriptionClient subscriptionClient;
         private TestableTopicSender sut;
 
         public given_a_topic_sender()
         {
-            this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            this.settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
             this.sut = new TestableTopicSender(this.settings, this.topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
 
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
@@ -133,7 +133,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 
     public class TestableTopicSender : TopicSender
     {
-        public TestableTopicSender(MessagingSettings settings, string topic, RetryStrategy retryStrategy)
+        public TestableTopicSender(ServiceBusSettings settings, string topic, RetryStrategy retryStrategy)
             : base(settings, topic, retryStrategy)
         {
             this.DoBeginSendMessageDelegate = base.DoBeginSendMessage;

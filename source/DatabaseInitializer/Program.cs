@@ -17,14 +17,14 @@ namespace DatabaseInitializer
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     using Conference;
-    using Infrastructure.Sql.Blob;
+    using Infrastructure.Sql.BlobStorage;
+    using Infrastructure.Sql.MessageLog;
     using Infrastructure.Sql.EventSourcing;
+    using Infrastructure.Sql.Messaging.Implementation;
     using Payments.Database;
     using Payments.ReadModel.Implementation;
     using Registration.Database;
     using Registration.ReadModel.Implementation;
-    using System.Data.SqlClient;
-    using Infrastructure.Sql.Messaging.Implementation;
 
     class Program
     {
@@ -46,6 +46,7 @@ namespace DatabaseInitializer
             }
 
             Database.SetInitializer<EventStoreDbContext>(null);
+            Database.SetInitializer<MessageLogDbContext>(null);
             Database.SetInitializer<BlobStorageDbContext>(null);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationProcessDbContext>(null);
@@ -55,6 +56,7 @@ namespace DatabaseInitializer
                 new DbContext[] 
                 { 
                     new EventStoreDbContext(connectionString),
+                    new MessageLogDbContext(connectionString),
                     new BlobStorageDbContext(connectionString),
                     new PaymentsDbContext(connectionString),
                     new RegistrationProcessDbContext(connectionString),

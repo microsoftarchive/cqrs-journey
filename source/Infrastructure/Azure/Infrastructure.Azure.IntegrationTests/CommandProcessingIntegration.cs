@@ -35,7 +35,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         public void when_receiving_command_then_calls_handler()
         {
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
@@ -62,7 +62,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         public void when_same_handler_handles_multiple_commands_then_gets_called_for_all()
         {
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var fooWaiter = new ManualResetEventSlim();
             var barWaiter = new ManualResetEventSlim();
@@ -94,7 +94,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
             var processor = new CommandProcessor(receiver, new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
@@ -125,7 +125,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         public void when_sending_multiple_commands_then_calls_all_handlers()
         {
             var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var fooEvent = new ManualResetEventSlim();
             var fooHandler = new FooCommandHandler(fooEvent);
@@ -158,7 +158,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         public void when_sending_command_with_delay_then_sets_message_enqueue_time()
         {
             var sender = new Mock<IMessageSender>();
-            var bus = new CommandBus(sender.Object, new MetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(sender.Object, new StandardMetadataProvider(), new JsonTextSerializer());
 
             BrokeredMessage message = null;
             sender.Setup(x => x.Send(It.IsAny<Func<BrokeredMessage>>()))
@@ -174,7 +174,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         public void when_sending_multiple_commands_with_delay_then_sets_message_enqueue_time()
         {
             var sender = new Mock<IMessageSender>();
-            var bus = new CommandBus(sender.Object, new MetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(sender.Object, new StandardMetadataProvider(), new JsonTextSerializer());
 
             BrokeredMessage message = null;
             sender.Setup(x => x.Send(It.IsAny<Func<BrokeredMessage>>()))

@@ -1,5 +1,7 @@
 CREATE SCHEMA [SqlBus] AUTHORIZATION [dbo]
 GO
+CREATE SCHEMA [MessageLog] AUTHORIZATION [dbo]
+GO
 CREATE SCHEMA [Events] AUTHORIZATION [dbo]
 GO
 CREATE SCHEMA [ConferenceRegistrationProcesses] AUTHORIZATION [dbo]
@@ -132,6 +134,25 @@ CREATE TABLE [BlobStorage].[Blobs](
 	[ContentType] [nvarchar](max) NULL,
 	[Blob] [varbinary](max) NULL,
 	[BlobString] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [MessageLog].[Messages](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Kind] [nvarchar](max) NULL,
+	[SourceId] [nvarchar](max) NULL,
+	[AssemblyName] [nvarchar](max) NULL,
+	[Namespace] [nvarchar](max) NULL,
+	[FullName] [nvarchar](max) NULL,
+	[TypeName] [nvarchar](max) NULL,
+	[Payload] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
