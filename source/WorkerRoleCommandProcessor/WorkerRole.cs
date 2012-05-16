@@ -33,7 +33,7 @@ namespace WorkerRoleCommandProcessor
 
             this.running = true;
 
-            using (var processor = new ConferenceCommandProcessor())
+            using (var processor = new ConferenceProcessor())
             {
                 processor.Start();
 

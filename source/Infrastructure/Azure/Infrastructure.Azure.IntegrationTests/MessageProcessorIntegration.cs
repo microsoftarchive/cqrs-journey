@@ -22,6 +22,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
     using Moq;
     using Moq.Protected;
     using Xunit;
+    using Infrastructure.Azure.Messaging.Handling;
 
     public class given_a_processor : given_a_topic_and_subscription
     {

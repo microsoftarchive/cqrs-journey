@@ -17,7 +17,7 @@ namespace Registration.ReadModel.Implementation
     using System.Data.Entity;
     using System.IO;
     using System.Linq;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
 
     public class OrderDao : IOrderDao

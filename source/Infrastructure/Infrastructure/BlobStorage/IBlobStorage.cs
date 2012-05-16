@@ -11,21 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure
+namespace Infrastructure.BlobStorage
 {
-    using System.Collections.Generic;
-
-    /// <summary>
-    /// Extracts metadata about a payload so that it's placed in the 
-    /// message envelope.
-    /// </summary>
-    public interface IMetadataProvider
+    public interface IBlobStorage
     {
-        /// <summary>
-        /// Gets metadata associated with the payload, which can be 
-        /// used by processors to filter and selectively subscribe to 
-        /// messages.
-        /// </summary>
-        IDictionary<string, object> GetMetadata(object payload);
+        byte[] Find(string id);
+        void Save(string id, string contentType, byte[] blob);
     }
 }

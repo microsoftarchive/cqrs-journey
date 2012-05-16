@@ -54,8 +54,8 @@
     <Compile Include="Mocks.cs" />
     <Compile Include="MessageProcessorFixture.cs" />
     <Compile Include="InfrastructureSettingsFixture.cs" />
+    <Compile Include="StandardMetadataProviderFixture.cs" />
     <Compile Include="Messaging\CommandBusFixture.cs" />
-    <Compile Include="MetadataProviderFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

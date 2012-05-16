@@ -15,7 +15,7 @@ namespace Registration.Tests.ReadModel
 {
     using System;
     using System.IO;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
     using Moq;
     using Registration.ReadModel;

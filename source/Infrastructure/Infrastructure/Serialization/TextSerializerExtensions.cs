@@ -11,30 +11,37 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.Blob
+namespace Infrastructure.Serialization
 {
-    public class BlobEntity
+    using System.IO;
+
+    /// <summary>
+    /// Usability overloads for <see cref="ITextSerializer"/>.
+    /// </summary>
+    public static class TextSerializerExtensions
     {
-        public BlobEntity(string id, string contentType, byte[] blob, string blobString)
+        /// <summary>
+        /// Serializes the given data object as a string.
+        /// </summary>
+        public static string Serialize<T>(this ITextSerializer serializer, T data)
         {
-            this.Id = id;
-            this.ContentType = contentType;
-            this.Blob = blob;
-            this.BlobString = blobString;
+            using (var writer = new StringWriter())
+            {
+                serializer.Serialize(writer, data);
+                return writer.ToString();
+            }
         }
 
-        protected BlobEntity()
+        /// <summary>
+        /// Deserializes the specified string into an object of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <exception cref="System.InvalidCastException">The deserialized object is not of type <typeparamref name="T"/>.</exception>
+        public static T Deserialize<T>(this ITextSerializer serializer, string serialized)
         {
+            using (var reader = new StringReader(serialized))
+            {
+                return (T)serializer.Deserialize(reader);
+            }
         }
-
-        public string Id { get; private set; }
-        public string ContentType { get; set; }
-        public byte[] Blob { get; set; }
-
-        /// <devdoc>
-        /// This property is only populated by the SQL implementation 
-        /// if the content type of the saved blob is "text/plain".
-        /// </devdoc>
-        public string BlobString { get; set; }
     }
 }

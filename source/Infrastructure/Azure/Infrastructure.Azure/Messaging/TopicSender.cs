@@ -30,7 +30,7 @@ namespace Infrastructure.Azure.Messaging
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly MessagingSettings settings;
+        private readonly ServiceBusSettings settings;
         private readonly string topic;
         private readonly RetryPolicy retryPolicy;
         private readonly TopicClient topicClient;
@@ -39,7 +39,7 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
         /// automatically creating the given topic if it does not exist.
         /// </summary>
-        public TopicSender(MessagingSettings settings, string topic)
+        public TopicSender(ServiceBusSettings settings, string topic)
             : this(settings, topic, GetRetryStrategy())
         {
         }
@@ -48,7 +48,7 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
         /// automatically creating the given topic if it does not exist.
         /// </summary>
-        protected TopicSender(MessagingSettings settings, string topic, RetryStrategy retryStrategy)
+        protected TopicSender(ServiceBusSettings settings, string topic, RetryStrategy retryStrategy)
         {
             this.settings = settings;
             this.topic = topic;

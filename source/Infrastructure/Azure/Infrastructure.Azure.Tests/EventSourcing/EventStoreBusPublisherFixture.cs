@@ -37,10 +37,13 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             this.testEvent = Mock.Of<IEventRecord>(x =>
                 x.PartitionKey == partitionKey
                 && x.RowKey == rowKey
-                && x.EventType == "TestEventType"
+                && x.TypeName == "TestEventType"
                 && x.SourceId == "TestId"
                 && x.SourceType == "TestSourceType"
-                && x.Payload == "serialized event");
+                && x.Payload == "serialized event"
+                && x.AssemblyName == "Assembly"
+                && x.Namespace == "Namespace"
+                && x.FullName == "Namespace.TestEventType");
             this.queue = new Mock<IPendingEventsQueue>();
             queue.Setup(x => x.GetPending(partitionKey)).Returns(new[] { testEvent });
             this.sender = new MessageSenderMock();
@@ -64,9 +67,12 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         [Fact]
         public void then_sent_event_contains_friendly_metadata()
         {
-            Assert.Equal(testEvent.SourceId, sender.Sent.Single().Properties["SourceId"]);
+            Assert.Equal(testEvent.SourceId, sender.Sent.Single().Properties[StandardMetadata.SourceId]);
             Assert.Equal(testEvent.SourceType, sender.Sent.Single().Properties["SourceType"]);
-            Assert.Equal(testEvent.EventType, sender.Sent.Single().Properties["EventType"]);
+            Assert.Equal(testEvent.TypeName, sender.Sent.Single().Properties[StandardMetadata.TypeName]);
+            Assert.Equal(testEvent.FullName, sender.Sent.Single().Properties[StandardMetadata.FullName]);
+            Assert.Equal(testEvent.Namespace, sender.Sent.Single().Properties[StandardMetadata.Namespace]);
+            Assert.Equal(testEvent.AssemblyName, sender.Sent.Single().Properties[StandardMetadata.AssemblyName]);
             Assert.Equal(version, sender.Sent.Single().Properties["Version"]);
         }
 
@@ -98,7 +104,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                                Mock.Of<IEventRecord>(
                                    x => x.PartitionKey == key
                                         && x.RowKey == rowKey
-                                        && x.EventType == "TestEventType"
+                                        && x.TypeName == "TestEventType"
                                         && x.SourceId == "TestId"
                                         && x.SourceType == "TestSourceType"
                                         && x.Payload == "serialized event")
@@ -132,9 +138,9 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             for (int i = 0; i < pendingKeys.Length; i++)
             {
                 var message = sender.Sent.ElementAt(i);
-                Assert.Equal("TestId", message.Properties["SourceId"]);
+                Assert.Equal("TestId", message.Properties[StandardMetadata.SourceId]);
                 Assert.Equal("TestSourceType", message.Properties["SourceType"]);
-                Assert.Equal("TestEventType", message.Properties["EventType"]);
+                Assert.Equal("TestEventType", message.Properties[StandardMetadata.TypeName]);
                 Assert.Equal(version, message.Properties["Version"]);
             }
         }

@@ -13,7 +13,6 @@
 
 namespace Infrastructure.Azure.Tests
 {
-    using Infrastructure.Azure.Messaging;
     using Xunit;
 
     public class given_a_messaging_settings_file
@@ -21,7 +20,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_reading_messaging_settings_from_file_then_succeeds()
         {
-            var settings = InfrastructureSettings.ReadMessaging("Settings.Template.xml");
+            var settings = InfrastructureSettings.Read("Settings.Template.xml").ServiceBus;
 
             Assert.NotNull(settings);
         }
@@ -29,7 +28,15 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_reading_eventsourcing_settings_from_file_then_succeeds()
         {
-            var settings = InfrastructureSettings.ReadEventSourcing("Settings.Template.xml");
+            var settings = InfrastructureSettings.Read("Settings.Template.xml").EventSourcing;
+
+            Assert.NotNull(settings);
+        }
+
+        [Fact]
+        public void when_reading_eventlog_settings_from_file_then_succeeds()
+        {
+            var settings = InfrastructureSettings.Read("Settings.Template.xml").MessageLog;
 
             Assert.NotNull(settings);
         }

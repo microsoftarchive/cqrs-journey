@@ -1,18 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <!-- Copy this template file as Settings.xml and replace the 
     placeholders with your Azure access information -->
-<InfrastructureSettings>
-  <Messaging>
-    <ServiceUriScheme>sb</ServiceUriScheme>
-    <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
-    <ServicePath></ServicePath>
-    <TokenIssuer>owner</TokenIssuer>
-    <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
-  </Messaging>
-  <EventSourcing>
-    <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
-    <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
-    <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
-    <TableName>ConferenceEventStore</TableName>
-  </EventSourcing>
+<InfrastructureSettings xmlns="urn:microsoft-patterns-and-practices-cqrsjourney">
+    <ServiceBus>
+        <ServiceUriScheme>sb</ServiceUriScheme>
+        <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
+        <ServicePath></ServicePath>
+        <TokenIssuer>owner</TokenIssuer>
+        <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
+    </ServiceBus>
+    <EventSourcing>
+        <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
+        <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+        <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
+        <TableName>ConferenceEventStore</TableName>
+    </EventSourcing>
+    <MessageLog>
+        <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+        <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
+        <TableName>ConferenceMessageLog</TableName>
+    </MessageLog>
 </InfrastructureSettings>

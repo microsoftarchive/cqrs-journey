@@ -45,15 +45,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Blob\IBlobStorage.cs" />
+    <Compile Include="BlobStorage\IBlobStorage.cs" />
     <Compile Include="Database\IAggregateRoot.cs" />
     <Compile Include="Database\IDataContext.cs" />
     <Compile Include="EntityNotFoundException.cs" />
+    <Compile Include="MessageLog\EventLogExtensions.cs" />
+    <Compile Include="MessageLog\IEventLogReader.cs" />
+    <Compile Include="MessageLog\QueryCriteria.cs" />
     <Compile Include="EventSourcing\EventSourced.cs" />
     <Compile Include="EventSourcing\IEventSourced.cs" />
     <Compile Include="EventSourcing\IEventSourcedRepository.cs" />
     <Compile Include="EventSourcing\IVersionedEvent.cs" />
     <Compile Include="EventSourcing\VersionedEvent.cs" />
+    <Compile Include="ExpressionCombiner.cs" />
+    <Compile Include="IMetadataProvider.cs" />
     <Compile Include="Messaging\CommandBusExtensions.cs" />
     <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\Handling\ICommandHandler.cs" />
@@ -72,6 +77,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\ITextSerializer.cs" />
     <Compile Include="Serialization\JsonTextSerializer.cs" />
+    <Compile Include="Serialization\TextSerializerExtensions.cs" />
+    <Compile Include="StandardMetadata.cs" />
+    <Compile Include="StandardMetadataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
@@ -79,6 +87,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
