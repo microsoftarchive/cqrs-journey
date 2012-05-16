@@ -16,6 +16,7 @@ namespace WorkerRoleCommandProcessor
     using System;
     using System.Data.Entity;
     using System.Threading;
+    using Infrastructure;
     using Infrastructure.BlobStorage;
     using Infrastructure.Database;
     using Infrastructure.EventSourcing;
@@ -108,13 +109,13 @@ namespace WorkerRoleCommandProcessor
             var eventProcessor = new EventProcessor(new MessageReceiver(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
             var messagingSettings = InfrastructureSettings.ReadMessaging("Settings.xml");
-            var commandBus = new CommandBus(new TopicSender(messagingSettings, "conference/commands"), new MetadataProvider(), serializer);
+            var commandBus = new CommandBus(new TopicSender(messagingSettings, "conference/commands"), new StandardMetadataProvider(), serializer);
             var topicSender = new TopicSender(messagingSettings, "conference/events");
             container.RegisterInstance<IMessageSender>(topicSender);
-            var eventBus = new EventBus(topicSender, new MetadataProvider(), serializer);
+            var eventBus = new EventBus(topicSender, new StandardMetadataProvider(), serializer);
 
             var commandProcessor = new CommandProcessor(new SubscriptionReceiver(messagingSettings, "conference/commands", "all"), serializer);
-            var eventProcessor = new EventProcessor(new SubscriptionReceiver(messagingSettings, "conference/events", "all"), serializer);
+            var eventProcessor = new EventProcessor(new SessionSubscriptionReceiver(messagingSettings, "conference/events", "all"), serializer);
 #endif
 
             container.RegisterInstance<ICommandBus>(commandBus);

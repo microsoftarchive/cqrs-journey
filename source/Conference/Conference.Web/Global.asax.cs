@@ -17,6 +17,7 @@ namespace Conference.Web.Admin
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common.Entity;
+    using Infrastructure;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 #if LOCAL
@@ -24,7 +25,6 @@ namespace Conference.Web.Admin
     using Infrastructure.Sql.Messaging.Implementation;
 #else
     using System.Web;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
 #endif
 
@@ -84,7 +84,7 @@ namespace Conference.Web.Admin
 #else
             var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
 
-            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
+            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new StandardMetadataProvider(), serializer);
 #endif
 
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)

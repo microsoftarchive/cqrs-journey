@@ -13,10 +13,12 @@
 
 namespace Conference.Web.Public
 {
+    using System.Web;
     using System.Data.Entity;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common.Entity;
+    using Infrastructure;
     using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -30,12 +32,10 @@ namespace Conference.Web.Public
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
 #else
-    using Infrastructure.Azure;
-    using System.Web;
     using Infrastructure.Azure.Messaging;
 #endif
 
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         private IUnityContainer container;
 
@@ -88,7 +88,7 @@ namespace Conference.Web.Public
                 new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
 #else
             var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
-            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
+            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new StandardMetadataProvider(), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
 #endif
