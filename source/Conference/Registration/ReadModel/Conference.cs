@@ -31,6 +31,7 @@ namespace Registration.ReadModel
             this.TwitterSearch = twitterSearch;
             this.StartDate = startDate;
             this.Seats = new ObservableCollection<SeatType>(seats);
+            this.SeatsAvailabilityVersion = -1;
         }
 
         protected Conference()
@@ -48,6 +49,7 @@ namespace Registration.ReadModel
         public string TwitterSearch { get; set; }
         public DateTimeOffset StartDate { get; set; }
         public ICollection<SeatType> Seats { get; set; }
+        public int SeatsAvailabilityVersion { get; set; }
 
         public bool IsPublished { get; set; }
     }

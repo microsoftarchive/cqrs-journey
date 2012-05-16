@@ -26,6 +26,7 @@ namespace Registration.ReadModel
             this.Description = description;
             this.Price = price;
             this.Quantity = quantity;
+            this.AvailableQuantity = 0;
         }
 
         protected SeatType()

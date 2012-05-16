@@ -182,6 +182,7 @@ CREATE TABLE [ConferenceRegistration].[ConferencesView](
 	[Tagline] [nvarchar](max) NULL,
 	[TwitterSearch] [nvarchar](max) NULL,
 	[StartDate] [datetimeoffset](7) NOT NULL,
+	[SeatsAvailabilityVersion] [int] NOT NULL,
 	[IsPublished] [bit] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (

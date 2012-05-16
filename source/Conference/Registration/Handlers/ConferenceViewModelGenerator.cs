@@ -227,20 +227,35 @@ namespace Registration.Handlers
                 var dto = repository.Set<Conference>().Include(x => x.Seats).FirstOrDefault(x => x.Id == @event.SourceId);
                 if (dto != null)
                 {
-                    foreach (var seat in seats)
+                    // This check assumes events might be received more than once, but not out of order
+                    if (@event.Version > dto.SeatsAvailabilityVersion)
                     {
-                        var seatDto = dto.Seats.FirstOrDefault(x => x.Id == seat.SeatType);
-                        if (seatDto != null)
+                        foreach (var seat in seats)
                         {
-                            seatDto.AvailableQuantity += seat.Quantity;
+                            var seatDto = dto.Seats.FirstOrDefault(x => x.Id == seat.SeatType);
+                            if (seatDto != null)
+                            {
+                                seatDto.AvailableQuantity += seat.Quantity;
+                            }
+                            else
+                            {
+                                // TODO should reject the entire update?
+                                Trace.TraceError("Failed to locate Seat Type read model being updated with id {0}.", seat.SeatType);
+                            }
                         }
-                        else
-                        {
-                            Trace.TraceError("Failed to locate Seat Type read model being updated with id {0}.", seat.SeatType);
-                        }
-                    }
 
-                    repository.Save(dto);
+                        dto.SeatsAvailabilityVersion = @event.Version;
+
+                        repository.Save(dto);
+                    }
+                    else
+                    {
+                        Trace.TraceWarning(
+                            "Ignoring availability update message with version {1} for conference id {0}, last known version {2}.",
+                            @event.SourceId,
+                            @event.Version,
+                            dto.SeatsAvailabilityVersion);
+                    }
                 }
                 else
                 {
