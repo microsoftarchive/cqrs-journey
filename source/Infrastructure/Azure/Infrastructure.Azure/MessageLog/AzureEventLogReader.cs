@@ -11,12 +11,12 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Infrastructure.EventLog;
+    using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
@@ -42,10 +42,15 @@ namespace Infrastructure.Azure.EventLog
             this.serializer = serializer;
         }
 
+        // NOTE: we don't have a need (yet?) to query commands, as 
+        // we don't use them to recreate read models, so we just 
+        // expose events.
         public IEnumerable<IEvent> Query(QueryCriteria criteria)
         {
             var context = this.tableClient.GetDataServiceContext();
-            var query = (IQueryable<EventLogEntity>)context.CreateQuery<EventLogEntity>(this.tableName);
+            var query = (IQueryable<MessageLogEntity>)context.CreateQuery<MessageLogEntity>(this.tableName)
+                .Where(x => x.Kind == StandardMetadata.EventKind);
+
             var where = criteria.ToExpression();
             if (where != null)
                 query = query.Where(where);

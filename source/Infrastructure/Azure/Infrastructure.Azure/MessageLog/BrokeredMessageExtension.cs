@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
     using System.Collections.Generic;
     using System.IO;
@@ -19,7 +19,7 @@ namespace Infrastructure.Azure.EventLog
 
     public static class BrokeredMessageExtension
     {
-        public static EventLogEntity ToEventLogEntity(this BrokeredMessage message)
+        public static MessageLogEntity ToEventLogEntity(this BrokeredMessage message)
         {
             var stream = message.GetBody<Stream>();
             var payload = "";
@@ -28,13 +28,14 @@ namespace Infrastructure.Azure.EventLog
                 payload = reader.ReadToEnd();
             }
 
-            return new EventLogEntity
+            return new MessageLogEntity
             {
                 PartitionKey = message.EnqueuedTimeUtc.ToString("yyyMM"),
                 RowKey = message.EnqueuedTimeUtc.Ticks.ToString("D20") + "_" + message.MessageId,
                 MessageId = message.MessageId,
                 CorrelationId = message.CorrelationId,
                 SourceId = message.Properties.TryGetValue(StandardMetadata.SourceId) as string,
+                Kind = message.Properties.TryGetValue(StandardMetadata.Kind) as string,
                 AssemblyName = message.Properties.TryGetValue(StandardMetadata.AssemblyName) as string,
                 FullName = message.Properties.TryGetValue(StandardMetadata.FullName) as string,
                 Namespace = message.Properties.TryGetValue(StandardMetadata.Namespace) as string,

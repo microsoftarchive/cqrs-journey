@@ -16,17 +16,17 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Infrastructure.EventLog;
+    using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
-    using Infrastructure.Sql.EventLog;
+    using Infrastructure.Sql.MessageLog;
     using Moq;
     using Xunit;
 
     public class given_a_sql_log_with_two_events : IDisposable
     {
         private string dbName = "SqlEventLogFixture_" + Guid.NewGuid().ToString();
-        private SqlEventLog sut;
+        private SqlMessageLog sut;
         private Mock<IMetadataProvider> metadata;
         private EventA eventA;
         private EventB eventB;
@@ -34,7 +34,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
 
         public given_a_sql_log_with_two_events()
         {
-            using (var context = new EventLogDbContext(dbName))
+            using (var context = new MessageLogDbContext(dbName))
             {
                 if (context.Database.Exists())
                 {
@@ -72,7 +72,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 });
 
             this.metadata = Mock.Get(metadata);
-            this.sut = new SqlEventLog(dbName, new JsonTextSerializer(), metadata);
+            this.sut = new SqlMessageLog(dbName, new JsonTextSerializer(), metadata);
             this.sut.Save(eventA);
             this.sut.Save(eventB);
             this.sut.Save(eventC);
@@ -80,7 +80,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
 
         public void Dispose()
         {
-            using (var context = new EventLogDbContext(dbName))
+            using (var context = new MessageLogDbContext(dbName))
             {
                 if (context.Database.Exists())
                 {

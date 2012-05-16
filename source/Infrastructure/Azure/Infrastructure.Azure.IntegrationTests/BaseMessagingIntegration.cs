@@ -23,10 +23,10 @@ namespace Infrastructure.Azure.IntegrationTests
     {
         public given_messaging_settings()
         {
-            this.Settings = InfrastructureSettings.Read("Settings.xml").Messaging;
+            this.Settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
         }
 
-        public MessagingSettings Settings { get; private set; }
+        public ServiceBusSettings Settings { get; private set; }
     }
 
     public class given_a_topic_and_subscription : given_messaging_settings, IDisposable

@@ -16,9 +16,9 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Infrastructure.Azure.EventLog;
+    using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.EventLog;
+    using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
@@ -30,7 +30,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
     {
         private readonly string tableName;
         private CloudStorageAccount account;
-        protected AzureEventLogWriter writer;
+        protected AzureMessageLogWriter writer;
         protected AzureEventLogReader sut;
         protected string sourceId;
         protected string partitionKey;
@@ -77,7 +77,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 });
 
             this.serializer = new JsonTextSerializer();
-            this.writer = new AzureEventLogWriter(this.account, this.tableName);
+            this.writer = new AzureMessageLogWriter(this.account, this.tableName);
             this.sut = new AzureEventLogReader(this.account, this.tableName, new JsonTextSerializer());
 
             Save(eventA);
@@ -87,7 +87,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
 
         private void Save(IEvent @event)
         {
-            var message = new EventLogEntity
+            var message = new MessageLogEntity
             {
                 Payload = this.serializer.Serialize(@event),
                 PartitionKey = DateTime.UtcNow.ToString("yyyMM"),

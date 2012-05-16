@@ -17,6 +17,7 @@ namespace Infrastructure.Sql.Messaging.Handling
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Messaging;
@@ -71,6 +72,13 @@ namespace Infrastructure.Sql.Messaging.Handling
             ICommandHandler handler = null;
 
             if (this.handlers.TryGetValue(commandType, out handler))
+            {
+                Trace.WriteLine("-- Handled by " + handler.GetType().FullName);
+                ((dynamic)handler).Handle((dynamic)payload);
+            }
+
+            // There can be a generic logging/tracing/auditing handlers
+            if (this.handlers.TryGetValue(typeof(ICommand), out handler))
             {
                 Trace.WriteLine("-- Handled by " + handler.GetType().FullName);
                 ((dynamic)handler).Handle((dynamic)payload);

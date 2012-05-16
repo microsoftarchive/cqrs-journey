@@ -11,28 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.EventLog
+namespace Infrastructure.Sql.MessageLog
 {
-    using System.Collections.Generic;
+    using System.Data.Entity;
 
-    /// <summary>
-    /// The query criteria for filtering events from the log when reading.
-    /// </summary>
-    public class QueryCriteria
+    public class MessageLogDbContext : DbContext
     {
-        public QueryCriteria()
+        public const string SchemaName = "MessageLog";
+
+        public MessageLogDbContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
         {
-            this.SourceIds = new List<string>();
-            this.AssemblyNames = new List<string>();
-            this.Namespaces = new List<string>();
-            this.FullNames = new List<string>();
-            this.TypeNames = new List<string>();
         }
 
-        public ICollection<string> SourceIds { get; private set; }
-        public ICollection<string> AssemblyNames { get; private set; }
-        public ICollection<string> Namespaces { get; private set; }
-        public ICollection<string> FullNames { get; private set; }
-        public ICollection<string> TypeNames { get; private set; }
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<MessageLogEntity>().ToTable("Messages", SchemaName);
+        }
     }
 }

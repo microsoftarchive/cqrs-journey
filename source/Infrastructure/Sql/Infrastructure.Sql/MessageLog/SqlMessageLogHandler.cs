@@ -11,16 +11,33 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.EventLog
+namespace Infrastructure.Sql.MessageLog
 {
-    using System.Collections.Generic;
     using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
 
     /// <summary>
-    /// Exposes the event log of all events that the system processed.
+    /// The SQL version of the event log runs directly in-proc 
+    /// and is implemented as an event and command handler instead of a 
+    /// raw message listener.
     /// </summary>
-    public interface IEventLogReader
+    public class SqlMessageLogHandler : IEventHandler<IEvent>, ICommandHandler<ICommand>
     {
-        IEnumerable<IEvent> Query(QueryCriteria criteria);
+        private SqlMessageLog log;
+
+        public SqlMessageLogHandler(SqlMessageLog log)
+        {
+            this.log = log;
+        }
+
+        public void Handle(IEvent @event)
+        {
+            this.log.Save(@event);
+        }
+
+        public void Handle(ICommand command)
+        {
+            this.log.Save(command);
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Serialization;
     using Infrastructure.Sql.BlobStorage;
     using Infrastructure.Sql.Database;
-    using Infrastructure.Sql.EventLog;
+    using Infrastructure.Sql.MessageLog;
     using Infrastructure.Sql.EventSourcing;
     using Infrastructure.Sql.Processes;
     using Microsoft.Practices.Unity;
@@ -51,7 +51,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Azure.Messaging.Handling;
     using Microsoft.WindowsAzure;
     using Infrastructure.Azure;
-    using Infrastructure.Azure.EventLog;
+    using Infrastructure.Azure.MessageLog;
 
 
 #endif
@@ -69,7 +69,7 @@ namespace WorkerRoleCommandProcessor
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationProcessDbContext>(null);
             Database.SetInitializer<EventStoreDbContext>(null);
-            Database.SetInitializer<EventLogDbContext>(null);
+            Database.SetInitializer<MessageLogDbContext>(null);
             Database.SetInitializer<BlobStorageDbContext>(null);
 
             Database.SetInitializer<PaymentsDbContext>(null);
@@ -84,7 +84,8 @@ namespace WorkerRoleCommandProcessor
 
 #if !LOCAL
             this.container.Resolve<IEventStoreBusPublisher>().Start(cancellationTokenSource.Token);
-            this.container.Resolve<AzureEventLogListener>().Start();
+            this.container.Resolve<AzureMessageLogListener>("events").Start();
+            this.container.Resolve<AzureMessageLogListener>("commands").Start();
 #endif
         }
 
@@ -95,7 +96,8 @@ namespace WorkerRoleCommandProcessor
             this.cancellationTokenSource.Cancel();
 
 #if !LOCAL
-            this.container.Resolve<AzureEventLogListener>().Stop();
+            this.container.Resolve<AzureMessageLogListener>("events").Stop();
+            this.container.Resolve<AzureMessageLogListener>("commands").Stop();
 #endif
         }
 
@@ -124,13 +126,13 @@ namespace WorkerRoleCommandProcessor
 #else
             var azureSettings = InfrastructureSettings.Read("Settings.xml");
 
-            var commandBus = new CommandBus(new TopicSender(azureSettings.Messaging, "conference/commands"), metadata, serializer);
-            var topicSender = new TopicSender(azureSettings.Messaging, "conference/events");
+            var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, "conference/commands"), metadata, serializer);
+            var topicSender = new TopicSender(azureSettings.ServiceBus, "conference/events");
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
-            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.Messaging, "conference/commands", "all"), serializer);
-            var eventProcessor = new EventProcessor(new SubscriptionReceiver(azureSettings.Messaging, "conference/events", "all"), serializer);
+            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, "conference/commands", "all"), serializer);
+            var eventProcessor = new EventProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, "conference/events", "all"), serializer);
 #endif
 
             container.RegisterInstance<ICommandBus>(commandBus);
@@ -147,8 +149,9 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
 
             // Event log database and handler.
-            container.RegisterType<SqlEventLog>(new InjectionConstructor("EventLog", serializer, metadata));
-            container.RegisterType<IEventHandler, SqlEventLogHandler>("SqlEventLogHandler");
+            container.RegisterType<SqlMessageLog>(new InjectionConstructor("EventLog", serializer, metadata));
+            container.RegisterType<IEventHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
+            container.RegisterType<ICommandHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
 #else
             // repository
             var eventSourcingAccount = CloudStorageAccount.Parse(azureSettings.EventSourcing.ConnectionString);
@@ -158,11 +161,14 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(AzureEventSourcedRepository<>), new ContainerControlledLifetimeManager());
 
-            // Event log
-            var eventLogAccount = CloudStorageAccount.Parse(azureSettings.EventLog.ConnectionString);
-            container.RegisterInstance<AzureEventLogListener>(new AzureEventLogListener(
-                new AzureEventLogWriter(eventLogAccount, azureSettings.EventLog.TableName),
-                new SubscriptionReceiver(azureSettings.Messaging, "conference/events", "log")));
+            // message log
+            var messageLogAccount = CloudStorageAccount.Parse(azureSettings.MessageLog.ConnectionString);
+            container.RegisterInstance<AzureMessageLogListener>("events", new AzureMessageLogListener(
+                new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
+                new SubscriptionReceiver(azureSettings.ServiceBus, "conference/events", "log")));
+            container.RegisterInstance<AzureMessageLogListener>("commands", new AzureMessageLogListener(
+                new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
+                new SubscriptionReceiver(azureSettings.ServiceBus, "conference/commands", "log")));
 #endif
 
             container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));

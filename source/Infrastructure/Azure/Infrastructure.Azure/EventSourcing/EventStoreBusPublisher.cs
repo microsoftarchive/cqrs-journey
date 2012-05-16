@@ -121,6 +121,7 @@ namespace Infrastructure.Azure.EventSourcing
                     {
                         { "Version", version },
                         { "SourceType", record.SourceType },
+                        { StandardMetadata.Kind, StandardMetadata.EventKind },
                         { StandardMetadata.AssemblyName, record.AssemblyName },
                         { StandardMetadata.FullName, record.FullName },
                         { StandardMetadata.Namespace, record.Namespace },

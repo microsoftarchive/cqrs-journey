@@ -11,15 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
     using System.Xml.Serialization;
 
     /// <summary>
     /// Simple settings class to configure the connection to Azure tables.
     /// </summary>
-    [XmlRoot("EventLog")]
-    public class EventLogSettings
+    [XmlRoot("MessageLog")]
+    public class MessageLogSettings
     {
         /// <summary>
         /// Gets or sets the service URI scheme.

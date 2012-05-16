@@ -11,18 +11,18 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
     using System;
     using System.Linq.Expressions;
-    using Infrastructure.EventLog;
+    using Infrastructure.MessageLog;
 
     internal static class QueryCriteriaExtensions
     {
-        public static Expression<Func<EventLogEntity, bool>> ToExpression(this QueryCriteria criteria)
+        public static Expression<Func<MessageLogEntity, bool>> ToExpression(this QueryCriteria criteria)
         {
             // The full Where clause being built.
-            Expression<Func<EventLogEntity, bool>> expression = null;
+            Expression<Func<MessageLogEntity, bool>> expression = null;
 
             foreach (var asm in criteria.AssemblyNames)
             {
@@ -34,7 +34,7 @@ namespace Infrastructure.Sql.EventLog
             }
 
             // The current criteria filter being processed (i.e. FullName).
-            Expression<Func<EventLogEntity, bool>> filter = null;
+            Expression<Func<MessageLogEntity, bool>> filter = null;
             foreach (var item in criteria.FullNames)
             {
                 var value = item;

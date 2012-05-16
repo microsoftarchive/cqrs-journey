@@ -11,12 +11,17 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
     using Microsoft.WindowsAzure.StorageClient;
 
-    public class EventLogEntity : TableServiceEntity
+    public class MessageLogEntity : TableServiceEntity
     {
+        /// <summary>
+        /// Gets or sets the kind of entry, Command or Event.
+        /// </summary>
+        public string Kind { get; set; }
+
         /// <summary>
         /// Gets or sets the message correlation id.
         /// </summary>

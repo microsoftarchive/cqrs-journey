@@ -26,7 +26,7 @@ namespace Conference.Web.Admin
 #else
     using System.Web;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure;
+    using Infrastructure.Azure;
 #endif
 
     public class MvcApplication : System.Web.HttpApplication
@@ -83,7 +83,7 @@ namespace Conference.Web.Admin
 #if LOCAL
             EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
-            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).Messaging;
+            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new StandardMetadataProvider(), serializer);
 #endif

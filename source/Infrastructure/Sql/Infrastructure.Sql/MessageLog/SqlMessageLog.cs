@@ -11,23 +11,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.EventLog
+namespace Infrastructure.Sql.MessageLog
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Infrastructure.EventLog;
+    using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 
-    public class SqlEventLog : IEventLogReader
+    public class SqlMessageLog : IEventLogReader
     {
         private string nameOrConnectionString;
         private IMetadataProvider metadataProvider;
         private ITextSerializer serializer;
 
-        public SqlEventLog(string nameOrConnectionString, ITextSerializer serializer, IMetadataProvider metadataProvider)
+        public SqlMessageLog(string nameOrConnectionString, ITextSerializer serializer, IMetadataProvider metadataProvider)
         {
             this.nameOrConnectionString = nameOrConnectionString;
             this.serializer = serializer;
@@ -36,19 +36,41 @@ namespace Infrastructure.Sql.EventLog
 
         public void Save(IEvent @event)
         {
-            using (var context = new EventLogDbContext(this.nameOrConnectionString))
+            using (var context = new MessageLogDbContext(this.nameOrConnectionString))
             {
                 var metadata = this.metadataProvider.GetMetadata(@event);
 
-                context.Set<EventLogEntity>().Add(new EventLogEntity
+                context.Set<MessageLogEntity>().Add(new MessageLogEntity
                 {
                     Id = Guid.NewGuid(),
                     SourceId = @event.SourceId.ToString(),
+                    Kind = metadata[StandardMetadata.Kind],
                     AssemblyName = metadata[StandardMetadata.AssemblyName],
                     FullName = metadata[StandardMetadata.FullName],
                     Namespace = metadata[StandardMetadata.Namespace],
                     TypeName = metadata[StandardMetadata.TypeName],
                     Payload = serializer.Serialize(@event),
+                });
+                context.SaveChanges();
+            }
+        }
+
+        public void Save(ICommand command)
+        {
+            using (var context = new MessageLogDbContext(this.nameOrConnectionString))
+            {
+                var metadata = this.metadataProvider.GetMetadata(command);
+
+                context.Set<MessageLogEntity>().Add(new MessageLogEntity
+                {
+                    Id = Guid.NewGuid(),
+                    SourceId = command.Id.ToString(),
+                    Kind = metadata[StandardMetadata.Kind],
+                    AssemblyName = metadata[StandardMetadata.AssemblyName],
+                    FullName = metadata[StandardMetadata.FullName],
+                    Namespace = metadata[StandardMetadata.Namespace],
+                    TypeName = metadata[StandardMetadata.TypeName],
+                    Payload = serializer.Serialize(command),
                 });
                 context.SaveChanges();
             }
@@ -85,7 +107,7 @@ namespace Infrastructure.Sql.EventLog
             private class DisposingEnumerator : IEnumerator<IEvent>
             {
                 private SqlQuery sqlQuery;
-                private EventLogDbContext context;
+                private MessageLogDbContext context;
                 private IEnumerator<IEvent> events;
 
                 public DisposingEnumerator(SqlQuery sqlQuery)
@@ -119,8 +141,10 @@ namespace Infrastructure.Sql.EventLog
                 {
                     if (context == null)
                     {
-                        context = new EventLogDbContext(sqlQuery.nameOrConnectionString);
-                        var queryable = context.Set<EventLogEntity>().AsQueryable();
+                        context = new MessageLogDbContext(sqlQuery.nameOrConnectionString);
+                        var queryable = context.Set<MessageLogEntity>().AsQueryable()
+                            .Where(x => x.Kind == StandardMetadata.EventKind);
+
                         var where = sqlQuery.criteria.ToExpression();
                         if (where != null)
                             queryable = queryable.Where(where);

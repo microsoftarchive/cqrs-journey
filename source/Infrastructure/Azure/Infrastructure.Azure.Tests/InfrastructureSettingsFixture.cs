@@ -20,7 +20,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_reading_messaging_settings_from_file_then_succeeds()
         {
-            var settings = InfrastructureSettings.Read("Settings.Template.xml").Messaging;
+            var settings = InfrastructureSettings.Read("Settings.Template.xml").ServiceBus;
 
             Assert.NotNull(settings);
         }
@@ -36,7 +36,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_reading_eventlog_settings_from_file_then_succeeds()
         {
-            var settings = InfrastructureSettings.Read("Settings.Template.xml").EventLog;
+            var settings = InfrastructureSettings.Read("Settings.Template.xml").MessageLog;
 
             Assert.NotNull(settings);
         }

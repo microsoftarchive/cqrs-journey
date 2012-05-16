@@ -22,7 +22,7 @@ namespace Infrastructure.Azure
     /// </summary>
     public static class BusSettingsExtensions
     {
-        public static MessageReceiver CreateMessageReceiver(this MessagingSettings settings, string topic, string subscription)
+        public static MessageReceiver CreateMessageReceiver(this ServiceBusSettings settings, string topic, string subscription)
         {
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -31,7 +31,7 @@ namespace Infrastructure.Azure
             return messagingFactory.CreateMessageReceiver(SubscriptionClient.FormatDeadLetterPath(topic, subscription));
         }
 
-        public static SubscriptionClient CreateSubscriptionClient(this MessagingSettings settings, string topic, string subscription, ReceiveMode mode = ReceiveMode.PeekLock)
+        public static SubscriptionClient CreateSubscriptionClient(this ServiceBusSettings settings, string topic, string subscription, ReceiveMode mode = ReceiveMode.PeekLock)
         {
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -40,7 +40,7 @@ namespace Infrastructure.Azure
             return messagingFactory.CreateSubscriptionClient(topic, subscription, mode);
         }
 
-        public static TopicClient CreateTopicClient(this MessagingSettings settings, string topic)
+        public static TopicClient CreateTopicClient(this ServiceBusSettings settings, string topic)
         {
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -50,7 +50,7 @@ namespace Infrastructure.Azure
         }
 
 
-        public static void CreateTopic(this MessagingSettings settings, string topic)
+        public static void CreateTopic(this ServiceBusSettings settings, string topic)
         {
             new NamespaceManager(
                 ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath),
@@ -58,7 +58,7 @@ namespace Infrastructure.Azure
                 .CreateTopic(topic);
         }
 
-        public static void CreateSubscription(this MessagingSettings settings, string topic, string subscription)
+        public static void CreateSubscription(this ServiceBusSettings settings, string topic, string subscription)
         {
             CreateTopic(settings, topic);
 
@@ -68,7 +68,7 @@ namespace Infrastructure.Azure
                 .CreateSubscription(topic, subscription);
         }
 
-        public static void CreateSubscription(this MessagingSettings settings, SubscriptionDescription description)
+        public static void CreateSubscription(this ServiceBusSettings settings, SubscriptionDescription description)
         {
             CreateTopic(settings, description.TopicPath);
 
@@ -78,7 +78,7 @@ namespace Infrastructure.Azure
                 .CreateSubscription(description);
         }
 
-        public static void TryDeleteSubscription(this MessagingSettings settings, string topic, string subscription)
+        public static void TryDeleteSubscription(this ServiceBusSettings settings, string topic, string subscription)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace Infrastructure.Azure
             catch { }
         }
 
-        public static void TryDeleteTopic(this MessagingSettings settings, string topic)
+        public static void TryDeleteTopic(this ServiceBusSettings settings, string topic)
         {
             try
             {

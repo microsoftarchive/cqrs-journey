@@ -11,18 +11,16 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.EventLog
+namespace Infrastructure.MessageLog
 {
-    using System;
+    using System.Collections.Generic;
+    using Infrastructure.Messaging;
 
-    public class EventLogEntity
+    /// <summary>
+    /// Exposes the message log for all events that the system processed.
+    /// </summary>
+    public interface IEventLogReader
     {
-        public Guid Id { get; set; }
-        public string SourceId { get; set; }
-        public string AssemblyName { get; set; }
-        public string Namespace { get; set; }
-        public string FullName { get; set; }
-        public string TypeName { get; set; }
-        public string Payload { get; set; }
+        IEnumerable<IEvent> Query(QueryCriteria criteria);
     }
 }

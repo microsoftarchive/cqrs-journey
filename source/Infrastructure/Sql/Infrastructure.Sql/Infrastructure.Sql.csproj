@@ -56,11 +56,11 @@
     <Compile Include="BlobStorage\BlobStorageDbContext.cs" />
     <Compile Include="BlobStorage\SqlBlobStorage.cs" />
     <Compile Include="Database\SqlDataContext.cs" />
-    <Compile Include="EventLog\SqlEventLogHandler.cs" />
-    <Compile Include="EventLog\EventLogDbContext.cs" />
-    <Compile Include="EventLog\EventLogEntity.cs" />
-    <Compile Include="EventLog\QueryCriteriaExtensions.cs" />
-    <Compile Include="EventLog\SqlEventLog.cs" />
+    <Compile Include="MessageLog\SqlMessageLogHandler.cs" />
+    <Compile Include="MessageLog\MessageLogDbContext.cs" />
+    <Compile Include="MessageLog\MessageLogEntity.cs" />
+    <Compile Include="MessageLog\QueryCriteriaExtensions.cs" />
+    <Compile Include="MessageLog\SqlMessageLog.cs" />
     <Compile Include="EventSourcing\EventStoreDbContext.cs" />
     <Compile Include="Messaging\Implementation\MessagingDbInitializer.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />

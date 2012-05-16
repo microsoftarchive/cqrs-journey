@@ -33,7 +33,7 @@ namespace Conference.Web.Public
     using Infrastructure.Sql.Messaging.Implementation;
 #else
     using Infrastructure.Azure.Messaging;
-    using Infrastructure;
+    using Infrastructure.Azure;
 #endif
 
     public class MvcApplication : HttpApplication
@@ -88,7 +88,7 @@ namespace Conference.Web.Public
             container.RegisterType<ICommandBus, CommandBus>(
                 new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
 #else
-            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).Messaging;
+            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new StandardMetadataProvider(), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);

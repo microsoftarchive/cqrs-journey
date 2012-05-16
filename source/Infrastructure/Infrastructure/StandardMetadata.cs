@@ -20,6 +20,21 @@ namespace Infrastructure
     public static class StandardMetadata
     {
         /// <summary>
+        /// An event message.
+        /// </summary>
+        public const string EventKind = "Event";
+
+        /// <summary>
+        /// A command message.
+        /// </summary>
+        public const string CommandKind = "Command";
+
+        /// <summary>
+        /// Kind of message, either <see cref="EventKind"/> or <see cref="CommandKind"/>.
+        /// </summary>
+        public const string Kind = "Kind";
+
+        /// <summary>
         /// Identifier of the object that originated the event, if any.
         /// </summary>
         public const string SourceId = "SourceId";

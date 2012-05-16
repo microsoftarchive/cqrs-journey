@@ -19,13 +19,13 @@ namespace Infrastructure.Azure.Messaging
     /// Simple settings class to configure the connection to Azure 
     /// messaging APIs.
     /// </summary>
-    [XmlRoot("Messaging")]
-    public class MessagingSettings
+    [XmlRoot("ServiceBus")]
+    public class ServiceBusSettings
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessagingSettings"/> class.
+        /// Initializes a new instance of the <see cref="ServiceBusSettings"/> class.
         /// </summary>
-        public MessagingSettings()
+        public ServiceBusSettings()
         {
             this.ServiceUriScheme = string.Empty;
             this.ServiceNamespace = string.Empty;

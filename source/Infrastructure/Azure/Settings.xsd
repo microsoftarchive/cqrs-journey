@@ -3,7 +3,7 @@
     <xs:element name="InfrastructureSettings">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Messaging">
+                <xs:element name="ServiceBus">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="ServiceUriScheme" type="xs:string" />
@@ -22,7 +22,7 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="EventLog">
+                <xs:element name="MessageLog">
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="ConnectionString" type="xs:string" />

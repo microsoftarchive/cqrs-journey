@@ -11,24 +11,45 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
-    using System.Data.Entity;
+    using System;
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Utils;
 
-    public class EventLogDbContext : DbContext
+    public class AzureMessageLogListener : IDisposable
     {
-        public const string SchemaName = "EventLog";
+        private AzureMessageLogWriter eventLog;
+        private IMessageReceiver receiver;
 
-        public EventLogDbContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        public AzureMessageLogListener(AzureMessageLogWriter eventLog, IMessageReceiver receiver)
         {
+            this.eventLog = eventLog;
+            this.receiver = receiver;
+            this.receiver.MessageReceived += SaveMessage;
         }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        public void SaveMessage(object sender, BrokeredMessageEventArgs args)
         {
-            base.OnModelCreating(modelBuilder);
+            this.eventLog.Save(args.Message.ToEventLogEntity());
+            args.Message.SafeComplete();
+        }
 
-            modelBuilder.Entity<EventLogEntity>().ToTable("Events", SchemaName);
+        public void Start()
+        {
+            this.receiver.Start();
+        }
+
+        public void Stop()
+        {
+            this.receiver.Stop();
+        }
+
+        public void Dispose()
+        {
+            var disposable = this.receiver as IDisposable;
+            if (disposable != null)
+                disposable.Dispose();
         }
     }
 }

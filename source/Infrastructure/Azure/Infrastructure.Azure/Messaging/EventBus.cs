@@ -68,9 +68,13 @@ namespace Infrastructure.Azure.Messaging
             var message = new BrokeredMessage(stream, true);
             message.SessionId = @event.SourceId.ToString();
 
-            foreach (var pair in this.metadata.GetMetadata(@event))
+            var metadata = this.metadata.GetMetadata(@event);
+            if (metadata != null)
             {
-                message.Properties[pair.Key] = pair.Value;
+                foreach (var pair in metadata)
+                {
+                    message.Properties[pair.Key] = pair.Value;
+                }
             }
 
             return message;

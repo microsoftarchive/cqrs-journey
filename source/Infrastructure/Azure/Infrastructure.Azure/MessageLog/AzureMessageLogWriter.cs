@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.EventLog
+namespace Infrastructure.Azure.MessageLog
 {
     using System;
     using System.Data.Services.Client;
@@ -21,14 +21,14 @@ namespace Infrastructure.Azure.EventLog
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
-    public class AzureEventLogWriter
+    public class AzureMessageLogWriter
     {
         private readonly CloudStorageAccount account;
         private readonly string tableName;
         private readonly CloudTableClient tableClient;
         private Microsoft.Practices.TransientFaultHandling.RetryPolicy retryPolicy;
 
-        public AzureEventLogWriter(CloudStorageAccount account, string tableName)
+        public AzureMessageLogWriter(CloudStorageAccount account, string tableName)
         {
             if (account == null) throw new ArgumentNullException("account");
             if (tableName == null) throw new ArgumentNullException("tableName");
@@ -45,7 +45,7 @@ namespace Infrastructure.Azure.EventLog
             this.retryPolicy.ExecuteAction(() => tableClient.CreateTableIfNotExist(tableName));
         }
 
-        public void Save(EventLogEntity entity)
+        public void Save(MessageLogEntity entity)
         {
             this.retryPolicy.ExecuteAction(() =>
             {

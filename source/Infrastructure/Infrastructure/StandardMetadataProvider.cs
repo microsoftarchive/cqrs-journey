@@ -43,7 +43,17 @@ namespace Infrastructure
 
             var e = payload as IEvent;
             if (e != null)
+            {
                 metadata[StandardMetadata.SourceId] = e.SourceId.ToString();
+                metadata[StandardMetadata.Kind] = StandardMetadata.EventKind;
+            }
+
+            var c = payload as ICommand;
+            if (c != null)
+            {
+                metadata[StandardMetadata.Kind] = StandardMetadata.CommandKind;
+                metadata[StandardMetadata.SourceId] = c.Id.ToString();
+            }
 
             // NOTE: here we may add an "Area" or "Subsystem" or 
             // whatever via .NET custom attributes on the payload 

@@ -30,7 +30,7 @@ namespace Infrastructure.Azure.Messaging
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly MessagingSettings settings;
+        private readonly ServiceBusSettings settings;
         private readonly string topic;
         private string subscription;
         private readonly object lockObject = new object();
@@ -51,7 +51,7 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        public SessionSubscriptionReceiver(MessagingSettings settings, string topic, string subscription)
+        public SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription)
             : this(
                 settings,
                 topic,
@@ -65,7 +65,7 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        protected SessionSubscriptionReceiver(MessagingSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy, RetryStrategy blockingRetryStrategy)
+        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy, RetryStrategy blockingRetryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
