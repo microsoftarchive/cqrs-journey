@@ -154,13 +154,12 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         private void ReceiveMessages(CancellationToken cancellationToken)
         {
-            MessageSession session = null;
-
             while (!cancellationToken.IsCancellationRequested)
             {
+                MessageSession session;
                 try
                 {
-                    session = this.receiveRetryPolicy.ExecuteAction<MessageSession>(() => this.client.AcceptMessageSession(TimeSpan.FromSeconds(10)));
+                    session = this.receiveRetryPolicy.ExecuteAction<MessageSession>(this.DoAcceptMessageSession);
                 }
                 catch (Exception e)
                 {
@@ -175,19 +174,16 @@ namespace Infrastructure.Azure.Messaging
                     continue;
                 }
 
-                BrokeredMessage message = null;
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    BrokeredMessage message = null;
                     try
                     {
                         try
                         {
-                            // NOTE: we don't long-poll more than a few seconds as 
-                            // we're already on a background thread and we want to 
-                            // allow other threads/processes/machines to potentially 
-                            // receive messages too.
-                            message = this.receiveRetryPolicy.ExecuteAction<BrokeredMessage>(() => session.Receive(TimeSpan.FromSeconds(10)));
+                            // Long polling is used when accepting session and not here. If there are no messages left in session we continue.
+                            message = this.receiveRetryPolicy.ExecuteAction(() => session.Receive(TimeSpan.Zero));
                         }
                         catch (Exception e)
                         {
@@ -213,10 +209,19 @@ namespace Infrastructure.Azure.Messaging
                     }
                 }
 
-                if (session != null)
-                {
-                    this.receiveRetryPolicy.ExecuteAction(() => session.Close());
-                }
+                this.receiveRetryPolicy.ExecuteAction(() => session.Close());
+            }
+        }
+
+        private MessageSession DoAcceptMessageSession()
+        {
+            try
+            {
+                return this.client.AcceptMessageSession(TimeSpan.FromSeconds(45));
+            }
+            catch (TimeoutException)
+            {
+                return null;
             }
         }
 

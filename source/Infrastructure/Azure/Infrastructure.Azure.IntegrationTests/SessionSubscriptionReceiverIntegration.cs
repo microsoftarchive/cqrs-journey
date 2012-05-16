@@ -14,6 +14,9 @@
 namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverIntegration
 {
     using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using Infrastructure.Azure.Messaging;
     using Microsoft.ServiceBus.Messaging;
@@ -49,18 +52,23 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         }
     }
 
-    public class given_a_receiver : given_messaging_settings
+    public class given_a_receiver : given_messaging_settings, IDisposable
     {
         private string Topic;
         private string Subscription;
 
         public given_a_receiver()
         {
-            this.Topic = "cqrsjourney-" + Guid.NewGuid().ToString();
-            this.Subscription = "cqrsjourney-" + Guid.NewGuid().ToString();
+            this.Topic = "cqrsjourney-test-" + Guid.NewGuid().ToString();
+            this.Subscription = "test-" + Guid.NewGuid().ToString();
 
             // Creates the topic too.
             this.Settings.CreateSubscription(new SubscriptionDescription(this.Topic, this.Subscription) { RequiresSession = true });
+        }
+
+        public void Dispose()
+        {
+            this.Settings.TryDeleteTopic(this.Topic);
         }
 
         [Fact]
@@ -81,6 +89,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             receiver.MessageReceived += (s, e) =>
             {
                 received = e.Message.GetBody<string>();
+                e.Message.Complete();
                 signal.Set();
             };
 
@@ -94,13 +103,94 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         }
 
         [Fact]
+        public void when_sending_message_with_session_then_session_receiver_gets_both_messages_fast()
+        {
+            var client = this.Settings.CreateSubscriptionClient(this.Topic, this.Subscription);
+            var sender = this.Settings.CreateTopicClient(this.Topic);
+            var signal = new AutoResetEvent(false);
+            var body1 = Guid.NewGuid().ToString();
+            var body2 = Guid.NewGuid().ToString();
+            var stopWatch = new Stopwatch();
+
+            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+
+            sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
+            sender.Send(new BrokeredMessage(body2) { SessionId = "bar" });
+
+            var received = new ConcurrentBag<string>();
+
+            receiver.MessageReceived += (s, e) =>
+            {
+                received.Add(e.Message.GetBody<string>());
+                e.Message.Complete();
+                signal.Set();
+            };
+
+            receiver.Start();
+
+            signal.WaitOne();
+            stopWatch.Start();
+            signal.WaitOne();
+            stopWatch.Stop();
+
+            receiver.Stop();
+
+            Assert.Contains(body1, received);
+            Assert.Contains(body2, received);
+            Assert.InRange(stopWatch.Elapsed, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+        }
+
+        [Fact]
+        public void when_sending_message_with_same_session_at_different_times_then_session_receiver_gets_all()
+        {
+            var client = this.Settings.CreateSubscriptionClient(this.Topic, this.Subscription);
+            var sender = this.Settings.CreateTopicClient(this.Topic);
+            var signal = new AutoResetEvent(false);
+            var body1 = Guid.NewGuid().ToString();
+            var body2 = Guid.NewGuid().ToString();
+            var body3 = Guid.NewGuid().ToString();
+
+            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var stopWatch = new Stopwatch();
+            var received = new ConcurrentBag<string>();
+
+            receiver.MessageReceived += (s, e) =>
+            {
+                received.Add(e.Message.GetBody<string>());
+                e.Message.Complete();
+                signal.Set();
+            };
+
+            receiver.Start();
+
+            sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
+            stopWatch.Start();
+            signal.WaitOne();
+
+            sender.Send(new BrokeredMessage(body2) { SessionId = "bar" });
+            signal.WaitOne();
+
+            sender.Send(new BrokeredMessage(body3) { SessionId = "foo" });
+            signal.WaitOne();
+            stopWatch.Stop();
+
+            receiver.Stop();
+
+            Assert.Contains(body1, received);
+            Assert.Contains(body2, received);
+            Assert.Contains(body3, received);
+            Assert.InRange(stopWatch.Elapsed, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+        }
+
+        [Fact]
         public void when_starting_twice_then_ignores_second_request()
         {
             var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
 
             receiver.Start();
-
             receiver.Start();
+
+            receiver.Stop();
         }
 
         [Fact]

@@ -66,6 +66,7 @@ namespace Infrastructure.Azure.Messaging
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);
+            message.SessionId = @event.SourceId.ToString();
 
             foreach (var pair in this.metadata.GetMetadata(@event))
             {

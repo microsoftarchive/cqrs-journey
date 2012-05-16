@@ -13,10 +13,12 @@
 
 namespace Conference.Web.Public
 {
+    using System.Web;
     using System.Data.Entity;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common.Entity;
+    using Infrastructure;
     using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -30,13 +32,11 @@ namespace Conference.Web.Public
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
 #else
-    using Infrastructure.Azure;
-    using System.Web;
     using Infrastructure.Azure.Messaging;
     using Infrastructure;
 #endif
 
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         private IUnityContainer container;
 

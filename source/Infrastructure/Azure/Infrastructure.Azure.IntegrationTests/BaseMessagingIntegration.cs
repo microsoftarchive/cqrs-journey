@@ -33,8 +33,8 @@ namespace Infrastructure.Azure.IntegrationTests
     {
         public given_a_topic_and_subscription()
         {
-            this.Topic = "cqrsjourney-" + Guid.NewGuid().ToString();
-            this.Subscription = "cqrsjourney-" + Guid.NewGuid().ToString();
+            this.Topic = "cqrsjourney-test-" + Guid.NewGuid().ToString();
+            this.Subscription = "test-" + Guid.NewGuid().ToString();
 
             // Creates the topic too.
             this.Settings.CreateSubscription(this.Topic, this.Subscription);

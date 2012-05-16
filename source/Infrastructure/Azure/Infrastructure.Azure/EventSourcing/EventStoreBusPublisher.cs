@@ -112,12 +112,11 @@ namespace Infrastructure.Azure.EventSourcing
         private static BrokeredMessage BuildMessage(IEventRecord record)
         {
             string version = record.RowKey.Substring(RowKeyPrefixIndex);
-            // TODO: should add SessionID to guarantee ordering.
-            // Receiver must be prepared to accept sessions.
             return new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(record.Payload)), true)
             {
                 MessageId = record.PartitionKey + "_" + version,
-                //SessionId = record.PartitionKey,
+                SessionId = record.SourceId,
+                // TODO: match with how StandardMetadataProvider adds this metadata.
                 Properties =
                     {
                         { "Version", version },

@@ -17,6 +17,7 @@ namespace Conference.Web.Admin
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common.Entity;
+    using Infrastructure;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 #if LOCAL
@@ -24,7 +25,6 @@ namespace Conference.Web.Admin
     using Infrastructure.Sql.Messaging.Implementation;
 #else
     using System.Web;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure;
 #endif
