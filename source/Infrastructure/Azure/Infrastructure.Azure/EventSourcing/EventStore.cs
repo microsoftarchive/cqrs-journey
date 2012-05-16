@@ -20,10 +20,11 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Linq;
     using System.Net;
     using System.Threading;
+    using AutoMapper;
+    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.AzureStorage;
+    using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
-    using Microsoft.Practices.TransientFaultHandling;
-    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.AzureStorage;
 
     public class EventStore : IEventStore, IPendingEventsQueue
     {
@@ -36,8 +37,13 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy pendingEventsQueueRetryPolicy;
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy eventStoreRetryPolicy;
 
+        static EventStore()
+        {
+            Mapper.CreateMap<EventTableServiceEntity, EventData>();
+            Mapper.CreateMap<EventData, EventTableServiceEntity>();
+        }
 
-        public EventStore(CloudStorageAccount account, string tableName)
+        public EventStore(CloudStorageAccount account, string tableName, IMetadataProvider metadataProvider)
         {
             if (account == null) throw new ArgumentNullException("account");
             if (tableName == null) throw new ArgumentNullException("tableName");
@@ -47,9 +53,9 @@ namespace Infrastructure.Azure.EventSourcing
             this.tableName = tableName;
             this.tableClient = account.CreateCloudTableClient();
             this.tableClient.RetryPolicy = RetryPolicies.NoRetry();
-            
+
             // TODO: This could be injected.
-            var backgroundRetryStrategy = new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15),TimeSpan.FromSeconds(1));
+            var backgroundRetryStrategy = new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1));
             var blockingRetryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
             this.pendingEventsQueueRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.eventStoreRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(blockingRetryStrategy);
@@ -63,14 +69,7 @@ namespace Infrastructure.Azure.EventSourcing
             var query = this.GetEntitiesQuery(partitionKey, minRowKey, RowKeyVersionUpperLimit);
             // TODO: continuation tokens, etc
             var all = this.eventStoreRetryPolicy.ExecuteAction(() => query.Execute());
-            return all.Select(x => new EventData
-                                       {
-                                           Version = int.Parse(x.RowKey),
-                                           SourceId = x.SourceId,
-                                           SourceType = x.SourceType,
-                                           EventType = x.EventType,
-                                           Payload = x.Payload
-                                       });
+            return all.Select(x => Mapper.Map(x, new EventData { Version = int.Parse(x.RowKey) }));
         }
 
         public void Save(string partitionKey, IEnumerable<EventData> events)
@@ -81,29 +80,20 @@ namespace Infrastructure.Azure.EventSourcing
                 var formattedVersion = eventData.Version.ToString("D10");
                 context.AddObject(
                     this.tableName,
-                    new EventTableServiceEntity
+                    Mapper.Map(eventData, new EventTableServiceEntity
                         {
                             PartitionKey = partitionKey,
                             RowKey = formattedVersion,
-                            SourceId = eventData.SourceId,
-                            SourceType = eventData.SourceType,
-                            EventType = eventData.EventType,
-                            Payload = eventData.Payload
-                        });
+                        }));
 
                 // Add a duplicate of this event to the Unpublished "queue"
                 context.AddObject(
                     this.tableName,
-                    new EventTableServiceEntity
-                    {
-                        PartitionKey = partitionKey,
-                        RowKey = UnpublishedRowKeyPrefix + formattedVersion,
-                        SourceId = eventData.SourceId,
-                        SourceType = eventData.SourceType,
-                        EventType = eventData.EventType,
-                        Payload = eventData.Payload
-                    });
-
+                    Mapper.Map(eventData, new EventTableServiceEntity
+                        {
+                            PartitionKey = partitionKey,
+                            RowKey = UnpublishedRowKeyPrefix + formattedVersion,
+                        }));
             }
 
             // TODO: additional error handling?
@@ -171,37 +161,37 @@ namespace Infrastructure.Azure.EventSourcing
                 ac => query.BeginExecuteSegmented(ac, null),
                 ar => query.EndExecuteSegmented(ar),
                 rs =>
+                {
+                    foreach (var key in rs.Results.Select(x => x.PartitionKey).Distinct())
                     {
-                        foreach (var key in rs.Results.Select(x => x.PartitionKey).Distinct())
-                        {
-                            result.Add(key);
-                        }
+                        result.Add(key);
+                    }
 
-                        while (rs.HasMoreResults)
+                    while (rs.HasMoreResults)
+                    {
+                        try
                         {
-                            try
+                            rs = this.pendingEventsQueueRetryPolicy.ExecuteAction(() => rs.GetNext());
+                            foreach (var key in rs.Results.Select(x => x.PartitionKey).Distinct())
                             {
-                                rs = this.pendingEventsQueueRetryPolicy.ExecuteAction(() => rs.GetNext());
-                                foreach (var key in rs.Results.Select(x => x.PartitionKey).Distinct())
-                                {
-                                    result.Add(key);
-                                }
-                            }
-                            catch
-                            {
-                                // Cancel is to force an exception being thrown in the consuming enumeration thread
-                                // TODO: is there a better way to get the correct exception message instead of an OperationCancelledException in the consuming thread?
-                                tokenSource.Cancel();
-                                throw;
+                                result.Add(key);
                             }
                         }
-                        result.CompleteAdding();
-                    },
+                        catch
+                        {
+                            // Cancel is to force an exception being thrown in the consuming enumeration thread
+                            // TODO: is there a better way to get the correct exception message instead of an OperationCancelledException in the consuming thread?
+                            tokenSource.Cancel();
+                            throw;
+                        }
+                    }
+                    result.CompleteAdding();
+                },
                 ex =>
-                    {
-                        tokenSource.Cancel();
-                        throw ex;
-                    });
+                {
+                    tokenSource.Cancel();
+                    throw ex;
+                });
 
             return result.GetConsumingEnumerable(tokenSource.Token);
         }

@@ -1,8 +1,8 @@
-// ==============================================================================================================
+﻿// ==============================================================================================================
 // Microsoft patterns & practices
 // CQRS Journey project
 // ==============================================================================================================
-// �2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
 // http://cqrsjourney.github.com/contributors/members
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
 // with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -11,27 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using System.ComponentModel;
 namespace Infrastructure.Azure.EventSourcing
 {
-    public class EventData
-    {
-        public string SourceId { get; set; }
-        public int Version { get; set; }
-        public string SourceType { get; set; }
-        // Equals TypeName metadata, kept like this for backs compat.
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public string EventType { get; set; }
-        public string Payload { get; set; }
+    using System.Xml.Serialization;
 
-        // Standard metadata.
-        public string AssemblyName { get; set; }
-        public string Namespace { get; set; }
-        public string FullName { get; set; }
-        public string TypeName
-        {
-            get { return this.EventType; }
-            set { this.EventType = value; }
-        }
+    /// <summary>
+    /// Simple settings class to configure the connection to Azure tables.
+    /// </summary>
+    [XmlRoot("EventSourcing")]
+    public class EventSourcingSettings
+    {
+        /// <summary>
+        /// Gets or sets the service URI scheme.
+        /// </summary>
+        public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// </summary>
+        public string TableName { get; set; }
     }
 }

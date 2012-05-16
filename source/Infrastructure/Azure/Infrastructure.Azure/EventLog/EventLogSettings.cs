@@ -11,24 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.EventLog
+namespace Infrastructure.Azure.EventLog
 {
-    using System.Data.Entity;
+    using System.Xml.Serialization;
 
-    public class EventLogDbContext : DbContext
+    /// <summary>
+    /// Simple settings class to configure the connection to Azure tables.
+    /// </summary>
+    [XmlRoot("EventLog")]
+    public class EventLogSettings
     {
-        public const string SchemaName = "EventLog";
+        /// <summary>
+        /// Gets or sets the service URI scheme.
+        /// </summary>
+        public string ConnectionString { get; set; }
 
-        public EventLogDbContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
-        {
-        }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<EventLogEntity>().ToTable("Events", SchemaName);
-        }
+        /// <summary>
+        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// </summary>
+        public string TableName { get; set; }
     }
 }

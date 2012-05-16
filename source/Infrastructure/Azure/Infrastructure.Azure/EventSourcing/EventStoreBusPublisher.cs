@@ -42,34 +42,34 @@ namespace Infrastructure.Azure.EventSourcing
         {
             Task.Factory.StartNew(
                 () =>
+                {
+                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        while (!cancellationToken.IsCancellationRequested)
+                        try
                         {
-                            try
-                            {
-                                this.ProcessNewPartition(cancellationToken);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                return;
-                            }
+                            this.ProcessNewPartition(cancellationToken);
                         }
-                    },
+                        catch (OperationCanceledException)
+                        {
+                            return;
+                        }
+                    }
+                },
                 TaskCreationOptions.LongRunning);
 
             // Query through all partitions to check for pending events, as there could be
             // stored events that were never published before the system was rebooted.
             Task.Factory.StartNew(
                 () =>
+                {
+                    foreach (var partitionKey in this.queue.GetPartitionsWithPendingEvents())
                     {
-                        foreach (var partitionKey in this.queue.GetPartitionsWithPendingEvents())
-                        {
-                            if (cancellationToken.IsCancellationRequested)
-                                return;
+                        if (cancellationToken.IsCancellationRequested)
+                            return;
 
-                            this.enqueuedKeys.Add(partitionKey);
-                        }
-                    });
+                        this.enqueuedKeys.Add(partitionKey);
+                    }
+                });
         }
 
         public void SendAsync(string partitionKey)
@@ -121,9 +121,12 @@ namespace Infrastructure.Azure.EventSourcing
                 Properties =
                     {
                         { "Version", version },
-                        { "SourceId", record.SourceId },
                         { "SourceType", record.SourceType },
-                        { "EventType", record.EventType }
+                        { StandardMetadata.AssemblyName, record.AssemblyName },
+                        { StandardMetadata.FullName, record.FullName },
+                        { StandardMetadata.Namespace, record.Namespace },
+                        { StandardMetadata.SourceId, record.SourceId },
+                        { StandardMetadata.TypeName, record.TypeName },
                     }
             };
         }

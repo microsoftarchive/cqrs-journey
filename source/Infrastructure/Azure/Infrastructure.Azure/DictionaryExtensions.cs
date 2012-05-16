@@ -11,24 +11,32 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Messaging
+namespace System.Collections.Generic
 {
-    using System.Xml.Serialization;
-
     /// <summary>
-    /// Simple settings class to configure the connection to Azure tables.
+    /// Usability extensions for dictionaries.
     /// </summary>
-    [XmlRoot("EventSourcing")]
-    public class EventSourcingSettings
+    public static class DictionaryExtensions
     {
         /// <summary>
-        /// Gets or sets the service URI scheme.
+        /// Gets an item from the dictionary, if it's found.
         /// </summary>
-        public string ConnectionString { get; set; }
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        {
+            return dictionary.TryGetValue(key, default(TValue));
+        }
 
         /// <summary>
-        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// Gets an item from the dictionary, if it's found. Otherwise, 
+        /// returns the specified default value.
         /// </summary>
-        public string TableName { get; set; }
+        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
+        {
+            var result = defaultValue;
+            if (!dictionary.TryGetValue(key, out result))
+                return defaultValue;
+
+            return result;
+        }
     }
 }

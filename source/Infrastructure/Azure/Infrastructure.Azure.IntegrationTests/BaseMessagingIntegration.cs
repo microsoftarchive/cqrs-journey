@@ -23,7 +23,7 @@ namespace Infrastructure.Azure.IntegrationTests
     {
         public given_messaging_settings()
         {
-            this.Settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            this.Settings = InfrastructureSettings.Read("Settings.xml").Messaging;
         }
 
         public MessagingSettings Settings { get; private set; }

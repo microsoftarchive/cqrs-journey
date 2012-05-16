@@ -16,9 +16,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
     using System;
     using System.Diagnostics;
     using System.Linq;
+    using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
-    using Infrastructure.Azure.Messaging;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
     using Xunit;
@@ -34,10 +34,10 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
 
         public given_empty_store()
         {
-            this.tableName = "EventStoreFixture" + new Random((int) DateTime.Now.Ticks).Next();
-            var settings = InfrastructureSettings.ReadEventSourcing("Settings.xml");
+            this.tableName = "EventStoreFixture" + new Random((int)DateTime.Now.Ticks).Next();
+            var settings = InfrastructureSettings.Read("Settings.xml").EventSourcing;
             this.account = CloudStorageAccount.Parse(settings.ConnectionString);
-            this.sut = new EventStore(this.account, this.tableName);
+            this.sut = new EventStore(this.account, this.tableName, new StandardMetadataProvider());
 
             this.sourceId = Guid.NewGuid().ToString();
             this.partitionKey = Guid.NewGuid().ToString();
@@ -172,10 +172,10 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.True(pending.All(x => x.SourceType == "Source"));
             Assert.Equal("Unpublished_" + events[0].Version.ToString("D10"), pending[0].RowKey);
             Assert.Equal("Payload1", pending[0].Payload);
-            Assert.Equal("Test1", pending[0].EventType);
+            Assert.Equal("Test1", pending[0].TypeName);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[1].RowKey);
             Assert.Equal("Payload2", pending[1].Payload);
-            Assert.Equal("Test2", pending[1].EventType);
+            Assert.Equal("Test2", pending[1].TypeName);
         }
 
         [Fact]
@@ -189,7 +189,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal(1, pending.Count);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);
             Assert.Equal("Payload2", pending[0].Payload);
-            Assert.Equal("Test2", pending[0].EventType);
+            Assert.Equal("Test2", pending[0].TypeName);
             Assert.Equal("Source", pending[0].SourceType);
         }
 

@@ -31,7 +31,7 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 
         public given_a_topic_sender()
         {
-            this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            this.settings = InfrastructureSettings.Read("Settings.xml").Messaging;
             this.sut = new TestableTopicSender(this.settings, this.topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
 
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);

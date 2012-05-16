@@ -13,9 +13,10 @@
 
 namespace Infrastructure.Azure.EventLog
 {
+    using System;
     using Infrastructure.Azure.Messaging;
 
-    public class AzureEventLogListener
+    public class AzureEventLogListener : IDisposable
     {
         private AzureEventLogWriter eventLog;
         private IMessageReceiver receiver;
@@ -24,13 +25,29 @@ namespace Infrastructure.Azure.EventLog
         {
             this.eventLog = eventLog;
             this.receiver = receiver;
-
             this.receiver.MessageReceived += SaveMessage;
         }
 
         public void SaveMessage(object sender, BrokeredMessageEventArgs args)
         {
             this.eventLog.Save(args.Message.ToEventLogEntity());
+        }
+
+        public void Start()
+        {
+            this.receiver.Start();
+        }
+
+        public void Stop()
+        {
+            this.receiver.Stop();
+        }
+
+        public void Dispose()
+        {
+            var disposable = this.receiver as IDisposable;
+            if (disposable != null)
+                disposable.Dispose();
         }
     }
 }

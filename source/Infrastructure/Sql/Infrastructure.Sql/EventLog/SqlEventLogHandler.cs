@@ -13,22 +13,26 @@
 
 namespace Infrastructure.Sql.EventLog
 {
-    using System.Data.Entity;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
 
-    public class EventLogDbContext : DbContext
+    /// <summary>
+    /// The SQL version of the event log runs directly in-proc 
+    /// and is implemented as an event handler instead of a 
+    /// raw message listener.
+    /// </summary>
+    public class SqlEventLogHandler : IEventHandler<IEvent>
     {
-        public const string SchemaName = "EventLog";
+        private SqlEventLog eventLog;
 
-        public EventLogDbContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        public SqlEventLogHandler(SqlEventLog eventLog)
         {
+            this.eventLog = eventLog;
         }
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        public void Handle(IEvent @event)
         {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<EventLogEntity>().ToTable("Events", SchemaName);
+            this.eventLog.Save(@event);
         }
     }
 }

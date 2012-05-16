@@ -120,7 +120,7 @@ namespace Infrastructure.Sql.EventLog
                     if (context == null)
                     {
                         context = new EventLogDbContext(sqlQuery.nameOrConnectionString);
-                        var queryable = (IQueryable<EventLogEntity>)context.Events;
+                        var queryable = context.Set<EventLogEntity>().AsQueryable();
                         var where = sqlQuery.criteria.ToExpression();
                         if (where != null)
                             queryable = queryable.Where(where);

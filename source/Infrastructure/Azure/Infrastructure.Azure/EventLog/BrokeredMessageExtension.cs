@@ -13,26 +13,33 @@
 
 namespace Infrastructure.Azure.EventLog
 {
+    using System.Collections.Generic;
+    using System.IO;
     using Microsoft.ServiceBus.Messaging;
 
     public static class BrokeredMessageExtension
     {
         public static EventLogEntity ToEventLogEntity(this BrokeredMessage message)
         {
+            var stream = message.GetBody<Stream>();
+            var payload = "";
+            using (var reader = new StreamReader(stream))
+            {
+                payload = reader.ReadToEnd();
+            }
+
             return new EventLogEntity
             {
                 PartitionKey = message.EnqueuedTimeUtc.ToString("yyyMM"),
                 RowKey = message.EnqueuedTimeUtc.Ticks.ToString("D20") + "_" + message.MessageId,
                 MessageId = message.MessageId,
                 CorrelationId = message.CorrelationId,
-                SourceId = message.Properties[StandardMetadata.SourceId] as string,
-                AssemblyName = message.Properties[StandardMetadata.AssemblyName] as string,
-                FullName = message.Properties[StandardMetadata.FullName] as string,
-                Namespace = message.Properties[StandardMetadata.Namespace] as string,
-                TypeName = message.Properties[StandardMetadata.TypeName] as string,
-
-                // TODO: get stream?
-                Payload = message.GetBody<string>(),
+                SourceId = message.Properties.TryGetValue(StandardMetadata.SourceId) as string,
+                AssemblyName = message.Properties.TryGetValue(StandardMetadata.AssemblyName) as string,
+                FullName = message.Properties.TryGetValue(StandardMetadata.FullName) as string,
+                Namespace = message.Properties.TryGetValue(StandardMetadata.Namespace) as string,
+                TypeName = message.Properties.TryGetValue(StandardMetadata.TypeName) as string,
+                Payload = payload,
             };
         }
     }

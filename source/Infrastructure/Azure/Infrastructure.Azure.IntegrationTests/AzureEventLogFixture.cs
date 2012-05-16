@@ -43,7 +43,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
         public given_an_empty_event_log()
         {
             this.tableName = "AzureEventLogFixture" + new Random((int)DateTime.Now.Ticks).Next();
-            var settings = InfrastructureSettings.ReadEventSourcing("Settings.xml");
+            var settings = InfrastructureSettings.Read("Settings.xml").EventSourcing;
             this.account = CloudStorageAccount.Parse(settings.ConnectionString);
 
             this.eventA = new EventA();

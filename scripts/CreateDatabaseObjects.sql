@@ -2,6 +2,8 @@ CREATE SCHEMA [SqlBus] AUTHORIZATION [dbo]
 GO
 CREATE SCHEMA [Events] AUTHORIZATION [dbo]
 GO
+CREATE SCHEMA [EventLog] AUTHORIZATION [dbo]
+GO
 CREATE SCHEMA [ConferenceRegistrationProcesses] AUTHORIZATION [dbo]
 GO
 CREATE SCHEMA [ConferenceRegistration] AUTHORIZATION [dbo]
@@ -166,6 +168,24 @@ PRIMARY KEY CLUSTERED
 	[AggregateId] ASC,
 	[AggregateType] ASC,
 	[Version] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [EventLog].[Events](
+	[Id] [uniqueidentifier] NOT NULL,
+	[SourceId] [nvarchar](max) NULL,
+	[AssemblyName] [nvarchar](max) NULL,
+	[Namespace] [nvarchar](max) NULL,
+	[FullName] [nvarchar](max) NULL,
+	[TypeName] [nvarchar](max) NULL,
+	[Payload] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO

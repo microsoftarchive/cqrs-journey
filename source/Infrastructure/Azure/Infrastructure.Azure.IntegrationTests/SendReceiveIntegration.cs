@@ -32,7 +32,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
         public given_a_sender_and_receiver()
         {
-            this.settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            this.settings = InfrastructureSettings.Read("Settings.xml").Messaging;
         }
 
         public void Dispose()

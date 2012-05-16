@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="InfrastructureSettings">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Messaging">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ServiceUriScheme" type="xs:string" />
+                            <xs:element name="ServiceNamespace" type="xs:string" />
+                            <xs:element name="ServicePath" />
+                            <xs:element name="TokenIssuer" type="xs:string" />
+                            <xs:element name="TokenAccessKey" type="xs:string" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="EventSourcing">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ConnectionString" type="xs:string" />
+                            <xs:element name="TableName" type="xs:string" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="EventLog">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ConnectionString" type="xs:string" />
+                            <xs:element name="TableName" type="xs:string" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
