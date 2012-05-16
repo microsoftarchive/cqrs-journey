@@ -19,7 +19,7 @@ namespace Infrastructure.Azure.MessageLog
 
     public static class BrokeredMessageExtension
     {
-        public static MessageLogEntity ToEventLogEntity(this BrokeredMessage message)
+        public static MessageLogEntity ToMessageLogEntity(this BrokeredMessage message)
         {
             var stream = message.GetBody<Stream>();
             var payload = "";

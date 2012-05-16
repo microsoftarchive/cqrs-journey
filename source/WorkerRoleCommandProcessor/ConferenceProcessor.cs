@@ -149,7 +149,7 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
 
             // Event log database and handler.
-            container.RegisterType<SqlMessageLog>(new InjectionConstructor("EventLog", serializer, metadata));
+            container.RegisterType<SqlMessageLog>(new InjectionConstructor("MessageLog", serializer, metadata));
             container.RegisterType<IEventHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
             container.RegisterType<ICommandHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
 #else

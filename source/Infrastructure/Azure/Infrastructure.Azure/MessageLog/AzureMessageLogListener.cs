@@ -31,7 +31,7 @@ namespace Infrastructure.Azure.MessageLog
 
         public void SaveMessage(object sender, BrokeredMessageEventArgs args)
         {
-            this.eventLog.Save(args.Message.ToEventLogEntity());
+            this.eventLog.Save(args.Message.ToMessageLogEntity());
             args.Message.SafeComplete();
         }
 
