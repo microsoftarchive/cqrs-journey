@@ -3,30 +3,30 @@
     <xs:element name="InfrastructureSettings">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="ServiceBus">
+                <xs:element name="ServiceBus" minOccurs="1" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="ServiceUriScheme" type="xs:string" />
-                            <xs:element name="ServiceNamespace" type="xs:string" />
-                            <xs:element name="ServicePath" />
-                            <xs:element name="TokenIssuer" type="xs:string" />
-                            <xs:element name="TokenAccessKey" type="xs:string" />
+                            <xs:element name="ServiceUriScheme" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="ServiceNamespace" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="ServicePath" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TokenIssuer" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TokenAccessKey" type="xs:string" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="EventSourcing">
+                <xs:element name="EventSourcing" minOccurs="1" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="ConnectionString" type="xs:string" />
-                            <xs:element name="TableName" type="xs:string" />
+                            <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TableName" type="xs:string" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="MessageLog">
+                <xs:element name="MessageLog" minOccurs="1" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="ConnectionString" type="xs:string" />
-                            <xs:element name="TableName" type="xs:string" />
+                            <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TableName" type="xs:string" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
