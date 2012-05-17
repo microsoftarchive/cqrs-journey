@@ -26,6 +26,7 @@ namespace Registration.ReadModel
             this.Description = description;
             this.Price = price;
             this.Quantity = quantity;
+            this.AvailableQuantity = 0;
         }
 
         protected SeatType()
@@ -40,5 +41,6 @@ namespace Registration.ReadModel
         public string Description { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
+        public int AvailableQuantity { get; set; }
     }
 }
