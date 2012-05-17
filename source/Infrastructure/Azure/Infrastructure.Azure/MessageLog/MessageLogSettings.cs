@@ -18,7 +18,7 @@ namespace Infrastructure.Azure.MessageLog
     /// <summary>
     /// Simple settings class to configure the connection to Azure tables.
     /// </summary>
-    [XmlRoot("MessageLog")]
+    [XmlRoot("MessageLog", Namespace = InfrastructureSettings.SerializationNamespace)]
     public class MessageLogSettings
     {
         /// <summary>
