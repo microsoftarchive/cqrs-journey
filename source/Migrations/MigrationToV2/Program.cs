@@ -13,8 +13,6 @@
 
 namespace MigrationToV2
 {
-    using System.Collections.Generic;
-    using System.Data.Entity;
     using System.Diagnostics;
     using System.Reflection;
     using Conference;
@@ -22,14 +20,10 @@ namespace MigrationToV2
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.MessageLog;
-    using Infrastructure.MessageLog;
-    using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
     using Registration.Events;
-    using Registration.Handlers;
-    using Registration.ReadModel.Implementation;
 
     class Program
     {

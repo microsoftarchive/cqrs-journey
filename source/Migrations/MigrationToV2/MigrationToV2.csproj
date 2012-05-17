@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceRegistrationMigrationDbContext.cs" />
+    <Compile Include="MigrationDbContext.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="NullCommandBus.cs" />
     <Compile Include="NullEventBus.cs" />
@@ -91,7 +92,9 @@
     <None Include="..\..\CQRS-journey.licenseheader">
       <Link>CQRS-journey.licenseheader</Link>
     </None>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +127,7 @@
     <Content Include="..\..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

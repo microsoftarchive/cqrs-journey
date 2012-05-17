@@ -14,20 +14,12 @@
 namespace MigrationToV2
 {
     using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
-    using System.Globalization;
     using Registration.ReadModel;
 
-    /// <summary>
-    /// TODO: Update summary.
-    /// </summary>
-    public class ConferenceRegistrationMigrationDbContext : DbContext
+    public class ConferenceRegistrationMigrationDbContext : MigrationDbContext
     {
         public const string SchemaName = "ConferenceRegistration";
         private const string MigrationSchemaName = "MigrationV1";
-        private const string CreateMigrationSchemaCommand = @"IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = N'{0}') EXECUTE sp_executesql N'CREATE SCHEMA [{0}] AUTHORIZATION [dbo]';";
-        private const string TransferCommand = @"ALTER SCHEMA {2} TRANSFER {1}.{0}";
-        private const string DropTableCommand = @"DROP TABLE {1}.{0}";
 
         public ConferenceRegistrationMigrationDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
@@ -43,33 +35,23 @@ namespace MigrationToV2
             modelBuilder.Entity<SeatType>().ToTable("ConferenceSeatTypesView", SchemaName);
         }
 
-        public void UpdateTables()
+        public override void UpdateTables()
         {
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, CreateMigrationSchemaCommand, MigrationSchemaName));
+            this.CreateSchema(MigrationSchemaName);
 
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferencesView", SchemaName, MigrationSchemaName));
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferenceSeatTypesView", SchemaName, MigrationSchemaName));
+            this.TransferObject("ConferencesView", SchemaName, MigrationSchemaName);
+            this.TransferObject("ConferenceSeatTypesView", SchemaName, MigrationSchemaName);
 
-            var adapter = (IObjectContextAdapter)this;
-            var script = adapter.ObjectContext.CreateDatabaseScript();
-            this.Database.ExecuteSqlCommand(script);
+            this.CreateTables();
         }
 
-        public void RollbackTablesMigration()
+        public override void RollbackTablesMigration()
         {
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, DropTableCommand, "ConferenceSeatTypesView", SchemaName));
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, DropTableCommand, "ConferencesView", SchemaName));
+            this.DropTable("ConferenceSeatTypesView", SchemaName);
+            this.DropTable("ConferencesView", SchemaName);
 
-            
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferencesView", MigrationSchemaName, SchemaName));
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferenceSeatTypesView", MigrationSchemaName, SchemaName));
+            this.TransferObject("ConferencesView", MigrationSchemaName, SchemaName);
+            this.TransferObject("ConferenceSeatTypesView", MigrationSchemaName, SchemaName);
         }
     }
 }
