@@ -14,9 +14,11 @@
 namespace Registration.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
+    using Conference;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
     using Registration.ReadModel;
@@ -25,20 +27,20 @@ namespace Registration.Handlers
     public class PricedOrderViewModelGenerator :
         IEventHandler<OrderTotalsCalculated>,
         IEventHandler<OrderExpired>,
-        IEventHandler<SeatAssignmentsCreated>
+        IEventHandler<SeatAssignmentsCreated>,
+        IEventHandler<SeatCreated>,
+        IEventHandler<SeatUpdated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
-        private IConferenceDao conferenceDao;
 
-        public PricedOrderViewModelGenerator(IConferenceDao conferenceDao, Func<ConferenceRegistrationDbContext> contextFactory)
+        public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
-            this.conferenceDao = conferenceDao;
             this.contextFactory = contextFactory;
         }
 
         public void Handle(OrderTotalsCalculated @event)
         {
-            var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).ToArray();
+            var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).Distinct().ToArray();
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(x => x.OrderId == @event.SourceId);
@@ -56,7 +58,17 @@ namespace Registration.Handlers
                     }
                 }
 
-                var seatTypeDescriptions = this.conferenceDao.GetSeatTypeNames(seatTypeIds);
+                List<PricedOrderLineSeatTypeDescription> seatTypeDescriptions;
+                if (seatTypeIds.Length != 0)
+                {
+                    seatTypeDescriptions = context.Query<PricedOrderLineSeatTypeDescription>()
+                        .Where(x => seatTypeIds.Contains(x.SeatTypeId))
+                        .ToList();
+                }
+                else
+                {
+                    seatTypeDescriptions = new List<PricedOrderLineSeatTypeDescription>();
+                }
 
                 foreach (var orderLine in @event.Lines)
                 {
@@ -68,7 +80,8 @@ namespace Registration.Handlers
                     var seatOrderLine = orderLine as SeatOrderLine;
                     if (seatOrderLine != null)
                     {
-                        line.Description = seatTypeDescriptions.Where(x => x.Id == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
+                        // should we update the view model to avoid loosing the SeatTypeId?
+                        line.Description = seatTypeDescriptions.Where(x => x.SeatTypeId == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
                         line.UnitPrice = seatOrderLine.UnitPrice;
                         line.Quantity = seatOrderLine.Quantity;
                     }
@@ -119,6 +132,38 @@ namespace Registration.Handlers
                 {
                     Trace.TraceError("Failed to locate Priced order corresponding to the seat assignments created, order  with id {0}.", @event.OrderId);
                 }
+            }
+        }
+
+        public void Handle(SeatCreated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrderLineSeatTypeDescription>(@event.SourceId);
+                if (dto == null)
+                {
+                    dto = new PricedOrderLineSeatTypeDescription { SeatTypeId = @event.SourceId };
+                    context.Set<PricedOrderLineSeatTypeDescription>().Add(dto);
+                }
+
+                dto.Name = @event.Name;
+                context.SaveChanges();
+            }
+        }
+
+        public void Handle(SeatUpdated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrderLineSeatTypeDescription>(@event.SourceId);
+                if (dto == null)
+                {
+                    dto = new PricedOrderLineSeatTypeDescription { SeatTypeId = @event.SourceId };
+                    context.Set<PricedOrderLineSeatTypeDescription>().Add(dto);
+                }
+
+                dto.Name = @event.Name;
+                context.SaveChanges();
             }
         }
     }
