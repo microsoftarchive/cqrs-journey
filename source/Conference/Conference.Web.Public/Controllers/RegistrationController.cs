@@ -296,8 +296,8 @@ namespace Conference.Web.Public.Controllers
                                 {
                                     SeatType = s,
                                     OrderItem = new DraftOrderItem(s.Id, 0),
-                                    AvailableQuantityForOrder = s.AvailableQuantity,
-                                    MaxSelectionQuantity = Math.Min(s.AvailableQuantity, 20)
+                                    AvailableQuantityForOrder = Math.Max(s.AvailableQuantity, 0),
+                                    MaxSelectionQuantity = Math.Max(Math.Min(s.AvailableQuantity, 20), 0)
                                 }).ToList(),
                 };
 
