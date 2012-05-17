@@ -59,10 +59,10 @@ namespace MigrationToV2
 
         public void RollbackTablesMigration()
         {
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferencesView", MigrationSchemaName, SchemaName));
-            this.Database.ExecuteSqlCommand(
-                string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferenceSeatTypesView", MigrationSchemaName, SchemaName));
+            //this.Database.ExecuteSqlCommand(
+            //    string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferencesView", MigrationSchemaName, SchemaName));
+            //this.Database.ExecuteSqlCommand(
+            //    string.Format(CultureInfo.InvariantCulture, TransferCommand, "ConferenceSeatTypesView", MigrationSchemaName, SchemaName));
         }
     }
 }

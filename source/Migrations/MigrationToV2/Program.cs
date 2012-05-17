@@ -87,7 +87,7 @@ namespace MigrationToV2
             {
                 using (var context = new ConferenceRegistrationMigrationDbContext(conferenceRegistrationConnectionString))
                 {
-                    context.UpdateTables();
+                    context.RollbackTablesMigration();
                 }
 
                 throw;

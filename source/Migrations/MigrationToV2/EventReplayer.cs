@@ -13,36 +13,67 @@
 
 namespace MigrationToV2
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Linq.Expressions;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
 
     public class EventReplayer
     {
-        private IEnumerable<IEventHandler> handlers;
+        private Dictionary<Type, List<Tuple<Type, Action<IEvent>>>> handlersByEventType;
 
         public EventReplayer(IEnumerable<IEventHandler> handlers)
         {
-            this.handlers = handlers;
+            this.handlersByEventType =
+                handlers
+                    .SelectMany(
+                        h =>
+                            h.GetType().GetInterfaces()
+                                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+                                .Select(i => new { Handler = h, Interface = i, EventType = i.GetGenericArguments()[0] }))
+                    .GroupBy(e => e.EventType)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => new Tuple<Type, Action<IEvent>>(e.Handler.GetType(), BuildHandlerInvocation(e.Handler, e.Interface, e.EventType))).ToList());
+        }
+
+        private Action<IEvent> BuildHandlerInvocation(IEventHandler handler, Type handlerType, Type eventType)
+        {
+            var parameter = Expression.Parameter(typeof(IEvent));
+            var invocationExpression =
+                Expression.Lambda(
+                    Expression.Block(
+                        Expression.Call(
+                            Expression.Convert(Expression.Constant(handler), handlerType),
+                            handlerType.GetMethod("Handle"),
+                            Expression.Convert(parameter, eventType))),
+                    parameter);
+
+            return (Action<IEvent>)invocationExpression.Compile();
         }
 
         public void ReplayEvents(IEnumerable<IEvent> events)
         {
+            List<Tuple<Type, Action<IEvent>>> handlers;
             foreach (var @event in events)
             {
                 Trace.WriteLine(BuildEventDescription(@event));
-
-                var handlerType = typeof(IEventHandler<>).MakeGenericType(@event.GetType());
-
-                foreach (dynamic handler in this.handlers
-                    .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+                if (this.handlersByEventType.TryGetValue(@event.GetType(), out handlers))
                 {
-                    Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName);
-                    handler.Handle((dynamic)@event);
+                    foreach (var handler in handlers)
+                    {
+                        Trace.WriteLine("-- Handled by " + handler.Item1.FullName);
+                        handler.Item2(@event);
+                    }
+                }
+                else
+                {
+                    Trace.WriteLine("-- Not handled");
                 }
             }
         }
