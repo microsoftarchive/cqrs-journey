@@ -42,6 +42,8 @@ namespace MigrationToV2
             this.TransferObject("ConferencesView", SchemaName, MigrationSchemaName);
             this.TransferObject("ConferenceSeatTypesView", SchemaName, MigrationSchemaName);
 
+            this.Database.ExecuteSqlCommand("IF COL_LENGTH('" + SchemaName + ".PricedOrders', 'IsFreeOfCharge') IS NULL ALTER TABLE [" + SchemaName + "].[PricedOrders] ADD [IsFreeOfCharge] [bit] NOT NULL DEFAULT 0");
+
             this.CreateTables();
         }
 
@@ -52,6 +54,9 @@ namespace MigrationToV2
 
             this.TransferObject("ConferencesView", MigrationSchemaName, SchemaName);
             this.TransferObject("ConferenceSeatTypesView", MigrationSchemaName, SchemaName);
+
+            // TODO cannot drop without dropping the default constraint
+            //this.Database.ExecuteSqlCommand(@"ALTER TABLE [" + SchemaName + "].[PricedOrders] DROP COLUMN [IsFreeOfCharge]");
         }
     }
 }
