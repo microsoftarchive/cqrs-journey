@@ -21,7 +21,6 @@ namespace Infrastructure.Messaging.Handling
     using System.Linq.Expressions;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
-    using Infrastructure.Messaging.Handling;
 
     public class MessageDispatcher
     {
@@ -31,15 +30,19 @@ namespace Infrastructure.Messaging.Handling
         {
             this.handlersByMessageType =
                 handlers
-                    .SelectMany(
-                        h =>
-                            h.GetType().GetInterfaces()
-                                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>))
-                                .Select(i => new { Handler = h, Interface = i, EventType = i.GetGenericArguments()[0] }))
+                    .SelectMany(h => this.BuildHandlerInvocations(h).Select(i => new { HandlerType = h.GetType(), EventType = i.Item1, Invocation = i.Item2 }))
                     .GroupBy(e => e.EventType)
                     .ToDictionary(
                         g => g.Key,
-                        g => g.Select(e => new Tuple<Type, Action<IEvent>>(e.Handler.GetType(), BuildHandlerInvocation(e.Handler, e.Interface, e.EventType))).ToList());
+                        g => g.Select(e => new Tuple<Type, Action<IEvent>>(e.HandlerType, e.Invocation)).ToList());
+        }
+
+        private IEnumerable<Tuple<Type, Action<IEvent>>> BuildHandlerInvocations(IEventHandler handler)
+        {
+            return handler.GetType().GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+                    .Select(i => new { HandlerInterface = i, EventType = i.GetGenericArguments()[0] })
+                    .Select(e => new Tuple<Type, Action<IEvent>>(e.EventType, this.BuildHandlerInvocation(handler, e.HandlerInterface, e.EventType)));
         }
 
         private Action<IEvent> BuildHandlerInvocation(IEventHandler handler, Type handlerType, Type messageType)
