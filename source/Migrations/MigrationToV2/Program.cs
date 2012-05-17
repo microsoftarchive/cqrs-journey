@@ -13,7 +13,8 @@
 
 namespace MigrationToV2
 {
-    using System;
+    using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Diagnostics;
     using System.Reflection;
     using Conference;
@@ -21,10 +22,14 @@ namespace MigrationToV2
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.MessageLog;
+    using Infrastructure.MessageLog;
+    using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
     using Registration.Events;
+    using Registration.Handlers;
+    using Registration.ReadModel.Implementation;
 
     class Program
     {
@@ -35,6 +40,7 @@ namespace MigrationToV2
         {
             var migrator = new Migrator();
             var confMgmtConnectionString = "DbContext.ConferenceManagement";
+            var conferenceRegistrationConnectionString = "DbContext.ConferenceRegistration";
             // var events = migrator.GenerateMissedConferenceManagementIntegrationEvents(confMgmtConnectionString);
 
             var storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
@@ -52,7 +58,39 @@ namespace MigrationToV2
             {
                 var tableClient = storageAccount.CreateCloudTableClient();
                 Debugger.Break();
-                tableClient.DeleteTableIfExist(tableName);
+                //tableClient.DeleteTableIfExist(tableName);
+            }
+
+            var commandBus = new NullCommandBus();
+            var eventBus = new NullEventBus();
+
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+
+            var handlers = new List<IEventHandler>();
+            handlers.Add(new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(conferenceRegistrationConnectionString), commandBus));
+
+            var logReader = new AzureEventLogReader(storageAccount, tableName, new JsonTextSerializer());
+
+            using (var context = new ConferenceRegistrationMigrationDbContext(conferenceRegistrationConnectionString))
+            {
+                context.UpdateTables();
+            }
+
+            try
+            {
+                var replayer = new EventReplayer(handlers);
+                var events = logReader.Query(new QueryCriteria { });
+
+                replayer.ReplayEvents(events);
+            }
+            catch
+            {
+                using (var context = new ConferenceRegistrationMigrationDbContext(conferenceRegistrationConnectionString))
+                {
+                    context.UpdateTables();
+                }
+
+                throw;
             }
         }
     }
