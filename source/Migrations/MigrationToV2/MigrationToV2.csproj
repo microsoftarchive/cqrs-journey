@@ -84,6 +84,7 @@
     <Compile Include="MigrationDbContext.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="NullCommandBus.cs" />
+    <Compile Include="PricedOrderViewModelUpdater.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -120,6 +121,10 @@
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075e-95a9-4043-8499-9a77936a9534}</Project>
+      <Name>Registration.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
