@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace MigrationToV2
+namespace Infrastructure.Messaging.Handling
 {
     using System;
     using System.Collections.Generic;
@@ -23,13 +23,13 @@ namespace MigrationToV2
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
 
-    public class EventReplayer
+    public class MessageDispatcher
     {
-        private Dictionary<Type, List<Tuple<Type, Action<IEvent>>>> handlersByEventType;
+        private Dictionary<Type, List<Tuple<Type, Action<IEvent>>>> handlersByMessageType;
 
-        public EventReplayer(IEnumerable<IEventHandler> handlers)
+        public MessageDispatcher(IEnumerable<IEventHandler> handlers)
         {
-            this.handlersByEventType =
+            this.handlersByMessageType =
                 handlers
                     .SelectMany(
                         h =>
@@ -42,7 +42,7 @@ namespace MigrationToV2
                         g => g.Select(e => new Tuple<Type, Action<IEvent>>(e.Handler.GetType(), BuildHandlerInvocation(e.Handler, e.Interface, e.EventType))).ToList());
         }
 
-        private Action<IEvent> BuildHandlerInvocation(IEventHandler handler, Type handlerType, Type eventType)
+        private Action<IEvent> BuildHandlerInvocation(IEventHandler handler, Type handlerType, Type messageType)
         {
             var parameter = Expression.Parameter(typeof(IEvent));
             var invocationExpression =
@@ -51,36 +51,42 @@ namespace MigrationToV2
                         Expression.Call(
                             Expression.Convert(Expression.Constant(handler), handlerType),
                             handlerType.GetMethod("Handle"),
-                            Expression.Convert(parameter, eventType))),
+                            Expression.Convert(parameter, messageType))),
                     parameter);
 
             return (Action<IEvent>)invocationExpression.Compile();
         }
 
-        public void ReplayEvents(IEnumerable<IEvent> events)
+        public void DispatchMessages(IEnumerable<IEvent> messages)
         {
-            List<Tuple<Type, Action<IEvent>>> handlers;
-            foreach (var @event in events)
+            foreach (var @event in messages)
             {
-                Trace.WriteLine(BuildEventDescription(@event));
-                if (this.handlersByEventType.TryGetValue(@event.GetType(), out handlers))
-                {
-                    foreach (var handler in handlers)
-                    {
-                        Trace.WriteLine("-- Handled by " + handler.Item1.FullName);
-                        handler.Item2(@event);
-                    }
-                }
-                else
-                {
-                    Trace.WriteLine("-- Not handled");
-                }
+                DispatchMessage(@event);
             }
         }
 
-        private string BuildEventDescription(IEvent @event)
+        public void DispatchMessage(IEvent message)
         {
-            var versionedEvent = @event as IVersionedEvent;
+            Trace.WriteLine(BuildMessageDescription(message));
+
+            List<Tuple<Type, Action<IEvent>>> handlers;
+            if (this.handlersByMessageType.TryGetValue(message.GetType(), out handlers))
+            {
+                foreach (var handler in handlers)
+                {
+                    Trace.WriteLine("-- Handled by " + handler.Item1.FullName);
+                    handler.Item2(message);
+                }
+            }
+            else
+            {
+                Trace.WriteLine("-- Not handled");
+            }
+        }
+
+        private string BuildMessageDescription(IEvent message)
+        {
+            var versionedEvent = message as IVersionedEvent;
 
             if (versionedEvent != null)
             {
@@ -96,8 +102,8 @@ namespace MigrationToV2
                 return string.Format(
                     CultureInfo.CurrentCulture,
                     "Processing event of type {0} for source id {1}.",
-                    @event.GetType().Name,
-                    @event.SourceId);
+                    message.GetType().Name,
+                    message.SourceId);
             }
         }
     }

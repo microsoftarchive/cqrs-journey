@@ -81,7 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceRegistrationMigrationDbContext.cs" />
-    <Compile Include="EventReplayer.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="NullCommandBus.cs" />
     <Compile Include="NullEventBus.cs" />

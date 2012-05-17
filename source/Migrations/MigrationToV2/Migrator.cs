@@ -16,6 +16,7 @@ namespace MigrationToV2
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Linq;
     using System.Threading;
     using Conference;
@@ -23,12 +24,15 @@ namespace MigrationToV2
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.EventSourcing;
+    using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
-    using System.Data.Entity;
+    using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.AzureStorage;
     using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.WindowsAzure.StorageClient;
+    using Registration.Handlers;
+    using Registration.ReadModel.Implementation;
 
     public class Migrator
     {
@@ -210,6 +214,40 @@ namespace MigrationToV2
                 });
 
             return result.GetConsumingEnumerable(tokenSource.Token);
+        }
+
+        internal void RegenerateViewModels(AzureEventLogReader logReader, string dbConnectionString)
+        {
+            var commandBus = new NullCommandBus();
+            var eventBus = new NullEventBus();
+
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+
+            var handlers = new List<IEventHandler>();
+            handlers.Add(new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(dbConnectionString), commandBus));
+
+
+            using (var context = new ConferenceRegistrationMigrationDbContext(dbConnectionString))
+            {
+                context.UpdateTables();
+            }
+
+            try
+            {
+                var dispatcher = new MessageDispatcher(handlers);
+                var events = logReader.Query(new QueryCriteria { });
+
+                dispatcher.DispatchMessages(events);
+            }
+            catch
+            {
+                using (var context = new ConferenceRegistrationMigrationDbContext(dbConnectionString))
+                {
+                    context.RollbackTablesMigration();
+                }
+
+                throw;
+            }
         }
     }
 }

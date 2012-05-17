@@ -40,7 +40,6 @@ namespace MigrationToV2
         {
             var migrator = new Migrator();
             var confMgmtConnectionString = "DbContext.ConferenceManagement";
-            var conferenceRegistrationConnectionString = "DbContext.ConferenceRegistration";
             // var events = migrator.GenerateMissedConferenceManagementIntegrationEvents(confMgmtConnectionString);
 
             var storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
@@ -61,37 +60,8 @@ namespace MigrationToV2
                 //tableClient.DeleteTableIfExist(tableName);
             }
 
-            var commandBus = new NullCommandBus();
-            var eventBus = new NullEventBus();
-
-            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
-
-            var handlers = new List<IEventHandler>();
-            handlers.Add(new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(conferenceRegistrationConnectionString), commandBus));
-
             var logReader = new AzureEventLogReader(storageAccount, tableName, new JsonTextSerializer());
-
-            using (var context = new ConferenceRegistrationMigrationDbContext(conferenceRegistrationConnectionString))
-            {
-                context.UpdateTables();
-            }
-
-            try
-            {
-                var replayer = new EventReplayer(handlers);
-                var events = logReader.Query(new QueryCriteria { });
-
-                replayer.ReplayEvents(events);
-            }
-            catch
-            {
-                using (var context = new ConferenceRegistrationMigrationDbContext(conferenceRegistrationConnectionString))
-                {
-                    context.RollbackTablesMigration();
-                }
-
-                throw;
-            }
+            migrator.RegenerateViewModels(logReader, confMgmtConnectionString);
         }
     }
 }
