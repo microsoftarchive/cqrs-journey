@@ -13,6 +13,7 @@
 
 namespace MigrationToV2
 {
+    using System;
     using Conference;
     using Infrastructure.Messaging.Handling;
     using Registration.Handlers;
@@ -26,10 +27,9 @@ namespace MigrationToV2
     {
         private readonly PricedOrderViewModelGenerator innerGenerator;
 
-        public PricedOrderViewModelUpdater(string nameOrConnectionString)
+        public PricedOrderViewModelUpdater(Func<ConferenceRegistrationDbContext> contextFactory)
         {
-            this.innerGenerator =
-                new PricedOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(nameOrConnectionString));
+            this.innerGenerator = new PricedOrderViewModelGenerator(contextFactory);
         }
 
         public void Handle(SeatCreated @event)

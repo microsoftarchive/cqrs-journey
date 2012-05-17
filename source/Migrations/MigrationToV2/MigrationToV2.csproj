@@ -122,6 +122,10 @@
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075e-95a9-4043-8499-9a77936a9534}</Project>
+      <Name>Registration.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\Infrastructure\Azure\Settings.xml">

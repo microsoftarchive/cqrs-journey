@@ -50,3 +50,4 @@ using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("Registration.Tests")]
 [assembly: InternalsVisibleTo("Conference.Web.Public.Tests")]
+[assembly: InternalsVisibleTo("MigrationToV2")]
