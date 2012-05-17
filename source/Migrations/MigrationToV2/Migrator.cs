@@ -219,7 +219,6 @@ namespace MigrationToV2
         internal void RegenerateViewModels(AzureEventLogReader logReader, string dbConnectionString)
         {
             var commandBus = new NullCommandBus();
-            var eventBus = new NullEventBus();
 
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
 

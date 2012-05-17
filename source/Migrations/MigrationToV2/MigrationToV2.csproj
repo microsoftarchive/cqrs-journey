@@ -84,7 +84,6 @@
     <Compile Include="MigrationDbContext.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="NullCommandBus.cs" />
-    <Compile Include="NullEventBus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

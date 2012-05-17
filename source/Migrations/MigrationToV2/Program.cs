@@ -33,29 +33,20 @@ namespace MigrationToV2
         static void Main(string[] args)
         {
             var migrator = new Migrator();
-            var confMgmtConnectionString = "DbContext.ConferenceManagement";
-            // var events = migrator.GenerateMissedConferenceManagementIntegrationEvents(confMgmtConnectionString);
+            var dbConnectionString = "DbContext.ConferenceManagement";
 
-            var storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
-            var tableName = "TestMigrationLog" + HandleGenerator.Generate(15);
-            var logWriter = new AzureMessageLogWriter(storageAccount, tableName);
             var settings = InfrastructureSettings.Read("Settings.xml");
             var eventSourcingSettings = settings.EventSourcing;
             var eventSourcingAccount = CloudStorageAccount.Parse(eventSourcingSettings.ConnectionString);
-            try
-            {
-                migrator.GeneratePastEventLogMessagesForConferenceManagement(logWriter, confMgmtConnectionString, new StandardMetadataProvider(), new JsonTextSerializer());
-                migrator.GeneratePastEventLogMessagesForEventSourced(logWriter, eventSourcingAccount.CreateCloudTableClient(), eventSourcingSettings.TableName, new StandardMetadataProvider(), new JsonTextSerializer());
-            }
-            finally
-            {
-                var tableClient = storageAccount.CreateCloudTableClient();
-                Debugger.Break();
-                //tableClient.DeleteTableIfExist(tableName);
-            }
+            var messageLogSettings = settings.MessageLog;
+            var messageLogAccount = CloudStorageAccount.Parse(messageLogSettings.ConnectionString);
 
-            var logReader = new AzureEventLogReader(storageAccount, tableName, new JsonTextSerializer());
-            migrator.RegenerateViewModels(logReader, confMgmtConnectionString);
+            var logWriter = new AzureMessageLogWriter(messageLogAccount, messageLogSettings.TableName);
+            migrator.GeneratePastEventLogMessagesForConferenceManagement(logWriter, dbConnectionString, new StandardMetadataProvider(), new JsonTextSerializer());
+            migrator.GeneratePastEventLogMessagesForEventSourced(logWriter, eventSourcingAccount.CreateCloudTableClient(), eventSourcingSettings.TableName, new StandardMetadataProvider(), new JsonTextSerializer());
+
+            var logReader = new AzureEventLogReader(messageLogAccount, messageLogSettings.TableName, new JsonTextSerializer());
+            migrator.RegenerateViewModels(logReader, dbConnectionString);
         }
     }
 }
