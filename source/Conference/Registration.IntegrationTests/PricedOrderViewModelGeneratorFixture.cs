@@ -14,9 +14,8 @@
 namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
 {
     using System;
-    using System.Collections.Generic;
+    using Conference;
     using Infrastructure.Serialization;
-    using Moq;
     using Registration.Events;
     using Registration.Handlers;
     using Registration.ReadModel;
@@ -25,26 +24,31 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
 
     public class given_a_read_model_generator : given_a_read_model_database
     {
-        private static readonly List<SeatTypeName> seatTypes = new List<SeatTypeName>
-        {
-            new SeatTypeName { Id = Guid.NewGuid(), Name= "General" }, 
-            new SeatTypeName { Id = Guid.NewGuid(), Name= "Precon" }, 
-        };
-
         protected PricedOrderViewModelGenerator sut;
         private IOrderDao dao;
 
         public given_a_read_model_generator()
         {
-            var conferenceDao = new Mock<IConferenceDao>();
-            conferenceDao.Setup(x => x.GetSeatTypeNames(It.IsAny<IEnumerable<Guid>>()))
-                .Returns(seatTypes);
-
-            this.sut = new PricedOrderViewModelGenerator(conferenceDao.Object, () => new ConferenceRegistrationDbContext(dbName));
+            this.sut = new PricedOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
             this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), new MemoryBlobStorage(), new JsonTextSerializer());
         }
 
-        public class given_a_calculated_order : given_a_read_model_generator
+        public class given_some_initial_seats : given_a_read_model_generator
+        {
+            protected SeatCreated[] seatCreatedEvents;
+            public given_some_initial_seats()
+            {
+                this.seatCreatedEvents = new[]
+                                     {
+                                         new SeatCreated { SourceId = Guid.NewGuid(), Name = "General" },
+                                         new SeatCreated { SourceId = Guid.NewGuid(), Name = "Precon" }
+                                     };
+                this.sut.Handle(this.seatCreatedEvents[0]);
+                this.sut.Handle(this.seatCreatedEvents[1]);
+            }
+        }
+
+        public class given_a_calculated_order : given_some_initial_seats
         {
             private static readonly Guid orderId = Guid.NewGuid();
 
@@ -60,7 +64,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         new SeatOrderLine 
                         { 
                             LineTotal = 50, 
-                            SeatType = seatTypes[0].Id, 
+                            SeatType = this.seatCreatedEvents[0].SourceId, 
                             Quantity = 10, 
                             UnitPrice = 5 
                         },
@@ -111,7 +115,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         new SeatOrderLine 
                         { 
                             LineTotal = 20, 
-                            SeatType = seatTypes[1].Id, 
+                            SeatType = this.seatCreatedEvents[1].SourceId, 
                             Quantity = 2, 
                             UnitPrice = 10 
                         },
@@ -150,7 +154,95 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                 Assert.Equal(assignmentsId, dto.AssignmentsId);
             }
         }
+
+        public class given_changes_to_seats : given_some_initial_seats
+        {
+            protected SeatUpdated[] seatUpdatedEvents;
+            public given_changes_to_seats()
+            {
+                this.seatUpdatedEvents = new[]
+                                     {
+                                         new SeatUpdated { SourceId = seatCreatedEvents[0].SourceId, Name = "General_Updated" },
+                                         new SeatUpdated { SourceId = seatCreatedEvents[1].SourceId, Name = "Precon_Updated" },
+                                     };
+                this.sut.Handle(this.seatUpdatedEvents[0]);
+            }
+        }
+
+        public class given_a_new_calculated_order : given_changes_to_seats
+        {
+            private static readonly Guid orderId = Guid.NewGuid();
+
+            private PricedOrder dto;
+
+            public given_a_new_calculated_order()
+            {
+                this.sut.Handle(new OrderTotalsCalculated
+                {
+                    SourceId = orderId,
+                    Lines = new[]
+                    {
+                        new SeatOrderLine 
+                        { 
+                            LineTotal = 50, 
+                            SeatType = this.seatCreatedEvents[0].SourceId, 
+                            Quantity = 10, 
+                            UnitPrice = 5 
+                        },
+                        new SeatOrderLine 
+                        { 
+                            LineTotal = 10, 
+                            SeatType = this.seatCreatedEvents[1].SourceId, 
+                            Quantity = 1, 
+                            UnitPrice = 10 
+                        },
+                    },
+                    Total = 60,
+                    IsFreeOfCharge = true
+                });
+
+                this.dto = this.dao.FindPricedOrder(orderId);
+            }
+
+            [Fact]
+            public void then_populates_with_updated_description()
+            {
+                Assert.Equal("General_Updated", dto.Lines[0].Description);
+                Assert.Equal("Precon", dto.Lines[1].Description);
+            }
+
+            [Fact]
+            public void when_recalculated__after_new_update_then_replaces_line()
+            {
+                this.sut.Handle(seatUpdatedEvents[1]);
+                this.sut.Handle(new OrderTotalsCalculated
+                {
+                    SourceId = orderId,
+                    Lines = new[]
+                    {
+                        new SeatOrderLine 
+                        { 
+                            LineTotal = 10, 
+                            SeatType = this.seatCreatedEvents[0].SourceId, 
+                            Quantity = 2, 
+                            UnitPrice = 5 
+                        },
+                        new SeatOrderLine 
+                        { 
+                            LineTotal = 20, 
+                            SeatType = this.seatCreatedEvents[1].SourceId, 
+                            Quantity = 2, 
+                            UnitPrice = 10 
+                        },
+                    },
+                    Total = 30,
+                });
+
+                var dto = this.dao.FindPricedOrder(orderId);
+
+                Assert.Equal("General_Updated", dto.Lines[0].Description);
+                Assert.Equal("Precon_Updated", dto.Lines[1].Description);
+            }
+        }
     }
-
-
 }

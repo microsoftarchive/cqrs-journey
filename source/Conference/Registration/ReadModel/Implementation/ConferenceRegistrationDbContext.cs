@@ -40,6 +40,7 @@ namespace Registration.ReadModel.Implementation
             modelBuilder.Entity<PricedOrder>().ToTable("PricedOrders", SchemaName);
             modelBuilder.Entity<PricedOrder>().HasMany(c => c.Lines).WithRequired().HasForeignKey(x => x.OrderId);
             modelBuilder.Entity<PricedOrderLine>().ToTable("PricedOrderLines", SchemaName);
+            modelBuilder.Entity<PricedOrderLineSeatTypeDescription>().ToTable("PricedOrderLineSeatTypeDescriptions", SchemaName);
 
             modelBuilder.Entity<Conference>().ToTable("ConferencesView", SchemaName);
             modelBuilder.Entity<Conference>().HasMany(c => c.Seats).WithRequired();
