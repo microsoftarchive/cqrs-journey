@@ -33,6 +33,7 @@ namespace MigrationToV2
             modelBuilder.Entity<Conference>().ToTable("ConferencesView", SchemaName);
             modelBuilder.Entity<Conference>().HasMany(c => c.Seats).WithRequired();
             modelBuilder.Entity<SeatType>().ToTable("ConferenceSeatTypesView", SchemaName);
+            modelBuilder.Entity<PricedOrderLineSeatTypeDescription>().ToTable("PricedOrderLineSeatTypeDescriptions", SchemaName);
         }
 
         public override void UpdateTables()
@@ -51,6 +52,7 @@ namespace MigrationToV2
         {
             this.DropTable("ConferenceSeatTypesView", SchemaName);
             this.DropTable("ConferencesView", SchemaName);
+            this.DropTable("PricedOrderLineSeatTypeDescriptions", SchemaName);
 
             this.TransferObject("ConferencesView", MigrationSchemaName, SchemaName);
             this.TransferObject("ConferenceSeatTypesView", MigrationSchemaName, SchemaName);

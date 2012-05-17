@@ -224,7 +224,7 @@ namespace MigrationToV2
 
             var handlers = new List<IEventHandler>();
             handlers.Add(new ConferenceViewModelGenerator(() => new ConferenceRegistrationDbContext(dbConnectionString), commandBus));
-
+            handlers.Add(new PricedOrderViewModelUpdater(() => new ConferenceRegistrationDbContext(dbConnectionString)));
 
             using (var context = new ConferenceRegistrationMigrationDbContext(dbConnectionString))
             {
