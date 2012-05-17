@@ -90,6 +90,19 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+CREATE TABLE [ConferenceRegistration].[PricedOrderLineSeatTypeDescriptions](
+	[SeatTypeId] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[SeatTypeId] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE TABLE [ConferenceManagement].[Conferences](
 	[Id] [uniqueidentifier] NOT NULL,
 	[AccessCode] [nvarchar](6) NULL,
@@ -262,8 +275,8 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [ConferenceManagement].[SeatTypes](
 	[Id] [uniqueidentifier] NOT NULL,
-	[Name] [nvarchar](max) NOT NULL,
-	[Description] [nvarchar](max) NOT NULL,
+	[Name] [nvarchar](70) NOT NULL,
+	[Description] [nvarchar](250) NOT NULL,
 	[Quantity] [int] NOT NULL,
 	[Price] [decimal](18, 2) NOT NULL,
 	[ConferenceInfo_Id] [uniqueidentifier] NOT NULL,

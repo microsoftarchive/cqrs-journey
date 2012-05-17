@@ -81,6 +81,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ReadModel\ConferenceAlias.cs" />
+    <Compile Include="ReadModel\PricedOrderLineSeatTypeDescription.cs" />
     <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
