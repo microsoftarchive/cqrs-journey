@@ -25,6 +25,8 @@ namespace Registration
 
     public class RegistrationProcess : IProcess
     {
+        private static readonly TimeSpan BufferTimeBeforeReleasingSeatsAfterExpiration = TimeSpan.FromMinutes(14);
+
         public enum ProcessState
         {
             NotStarted = 0,
@@ -118,14 +120,12 @@ namespace Registration
 
                 if (this.ExpirationCommandId == Guid.Empty)
                 {
-                    var bufferTime = TimeSpan.FromMinutes(5);
-
                     var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
                     this.ExpirationCommandId = expirationCommand.Id;
 
                     this.AddCommand(new Envelope<ICommand>(expirationCommand)
                     {
-                        Delay = expirationTime.Subtract(DateTime.UtcNow).Add(bufferTime),
+                        Delay = expirationTime.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
                     });
                 }
 
