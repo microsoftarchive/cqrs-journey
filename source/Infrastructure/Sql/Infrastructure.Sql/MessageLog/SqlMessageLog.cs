@@ -44,11 +44,11 @@ namespace Infrastructure.Sql.MessageLog
                 {
                     Id = Guid.NewGuid(),
                     SourceId = @event.SourceId.ToString(),
-                    Kind = metadata[StandardMetadata.Kind],
-                    AssemblyName = metadata[StandardMetadata.AssemblyName],
-                    FullName = metadata[StandardMetadata.FullName],
-                    Namespace = metadata[StandardMetadata.Namespace],
-                    TypeName = metadata[StandardMetadata.TypeName],
+                    Kind = metadata.TryGetValue(StandardMetadata.Kind),
+                    AssemblyName = metadata.TryGetValue(StandardMetadata.AssemblyName),
+                    FullName = metadata.TryGetValue(StandardMetadata.FullName),
+                    Namespace = metadata.TryGetValue(StandardMetadata.Namespace),
+                    TypeName = metadata.TryGetValue(StandardMetadata.TypeName),
                     Payload = serializer.Serialize(@event),
                 });
                 context.SaveChanges();

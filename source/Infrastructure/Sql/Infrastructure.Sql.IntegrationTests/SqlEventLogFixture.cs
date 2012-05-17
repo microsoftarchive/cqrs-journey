@@ -23,7 +23,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
     using Moq;
     using Xunit;
 
-    public class given_a_sql_log_with_two_events : IDisposable
+    public class given_a_sql_log_with_three_events : IDisposable
     {
         private string dbName = "SqlEventLogFixture_" + Guid.NewGuid().ToString();
         private SqlMessageLog sut;
@@ -32,7 +32,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
         private EventB eventB;
         private EventC eventC;
 
-        public given_a_sql_log_with_two_events()
+        public given_a_sql_log_with_three_events()
         {
             using (var context = new MessageLogDbContext(dbName))
             {
@@ -51,6 +51,8 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
             var metadata = Mock.Of<IMetadataProvider>(x =>
                 x.GetMetadata(eventA) == new Dictionary<string, string>
                 {
+                    { StandardMetadata.SourceId, eventA.SourceId.ToString() },
+                    { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "A" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
                     { StandardMetadata.FullName, "Namespace.EventA" }, 
@@ -58,6 +60,8 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 } &&
                 x.GetMetadata(eventB) == new Dictionary<string, string>
                 {
+                    { StandardMetadata.SourceId, eventB.SourceId.ToString() },
+                    { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
                     { StandardMetadata.FullName, "Namespace.EventB" }, 
@@ -65,6 +69,8 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 } &&
                 x.GetMetadata(eventC) == new Dictionary<string, string>
                 {
+                    { StandardMetadata.SourceId, eventC.SourceId.ToString() },
+                    { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "AnotherNamespace" }, 
                     { StandardMetadata.FullName, "AnotherNamespace.EventC" }, 
