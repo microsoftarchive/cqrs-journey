@@ -38,12 +38,21 @@ namespace MigrationToV2
             var settings = InfrastructureSettings.Read("Settings.xml");
             var eventSourcingSettings = settings.EventSourcing;
             var eventSourcingAccount = CloudStorageAccount.Parse(eventSourcingSettings.ConnectionString);
+            var originalEventStoreName = "ConferenceEventStore"; // should use the real one. No longer in the updated Settings.xml
+            var newEventStoreName = eventSourcingSettings.TableName;
             var messageLogSettings = settings.MessageLog;
             var messageLogAccount = CloudStorageAccount.Parse(messageLogSettings.ConnectionString);
 
             var logWriter = new AzureMessageLogWriter(messageLogAccount, messageLogSettings.TableName);
             migrator.GeneratePastEventLogMessagesForConferenceManagement(logWriter, dbConnectionString, new StandardMetadataProvider(), new JsonTextSerializer());
-            migrator.GeneratePastEventLogMessagesForEventSourced(logWriter, eventSourcingAccount.CreateCloudTableClient(), eventSourcingSettings.TableName, new StandardMetadataProvider(), new JsonTextSerializer());
+            migrator.MigrateEventSourcedAndGeneratePastEventLogs(
+                logWriter, 
+                eventSourcingAccount.CreateCloudTableClient(), 
+                originalEventStoreName,
+                eventSourcingAccount.CreateCloudTableClient(), 
+                newEventStoreName, 
+                new StandardMetadataProvider(), 
+                new JsonTextSerializer());
 
             var logReader = new AzureEventLogReader(messageLogAccount, messageLogSettings.TableName, new JsonTextSerializer());
             migrator.RegenerateViewModels(logReader, dbConnectionString);
