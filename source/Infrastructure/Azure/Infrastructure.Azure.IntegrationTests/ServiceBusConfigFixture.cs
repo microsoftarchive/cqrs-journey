@@ -14,12 +14,19 @@
 namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
 {
     using System;
+    using System.IO;
     using System.Linq;
+    using System.Text;
+    using System.Threading;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
+    using Moq;
     using Xunit;
 
     public class given_service_bus_config : IDisposable
@@ -47,7 +54,6 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             this.sut = new ServiceBusConfig(this.settings);
 
             Cleanup();
-
         }
 
         public void Dispose()
@@ -97,5 +103,36 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             Assert.False(subscriptions.Any(tuple => tuple.Description == null));
             Assert.False(subscriptions.Any(tuple => tuple.Subscription.Subscription.RequiresSession != tuple.Description.RequiresSession));
         }
+
+        [Fact]
+        public void when_creating_processor_then_receives_from_specified_subscription()
+        {
+            this.sut.Initialize();
+
+            var waiter = new ManualResetEventSlim();
+            var handler = new Mock<IEventHandler<AnEvent>>();
+            var serializer = new JsonTextSerializer();
+            var ev = new AnEvent();
+            handler.Setup(x => x.Handle(It.IsAny<AnEvent>()))
+                .Callback(() => waiter.Set());
+
+            var processor = this.sut.CreateEventProcessorFor<AnEvent>("conference/events", "all", serializer);
+
+            processor.Start();
+
+            // TODO: why doesn't this work???
+            var sender = new TopicSender(this.settings, "conference/events");
+            sender.Send(() => new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(serializer.Serialize(ev)))) { SessionId = "test" });
+
+            waiter.Wait(60000);
+
+            handler.Verify(x => x.Handle(It.Is<AnEvent>(e => e.SourceId == ev.SourceId)));
+        }
+
+        public class AnEvent : IEvent
+        {
+            public Guid SourceId { get; set; }
+        }
+
     }
 }

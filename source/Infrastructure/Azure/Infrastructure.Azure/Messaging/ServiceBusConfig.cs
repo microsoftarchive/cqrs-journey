@@ -14,6 +14,9 @@
 namespace Infrastructure.Azure.Messaging
 {
     using System;
+    using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus;
@@ -44,6 +47,15 @@ namespace Infrastructure.Azure.Messaging
                     retryPolicy.ExecuteAction(() => CreateSubscriptionIfNotExists(namespaceManager, topic, subscription));
                 }
             }
+        }
+
+        // Can't really infer the topic from the subscription, since subscriptions of the same 
+        // name can exist across different topics (i.e. "all" currently)
+        public EventProcessor CreateEventProcessorFor<TEvent>(string topic, string subscription, ITextSerializer serializer)
+            where TEvent : IEvent
+        {
+            // TODO: validate against config.
+            return new EventProcessor(new SessionSubscriptionReceiver(this.settings, topic, subscription), serializer);
         }
 
         private void CreateTopicIfNotExists(NamespaceManager namespaceManager, TopicSettings topic)
