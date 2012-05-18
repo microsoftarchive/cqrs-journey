@@ -34,11 +34,9 @@ namespace Infrastructure.Azure.Messaging
         private readonly string topic;
         private string subscription;
         private readonly object lockObject = new object();
-        private readonly RetryPolicy initializationRetryPolicy;
         private readonly RetryPolicy receiveRetryPolicy;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
-        private readonly NamespaceManager namespaceManager;
 
         /// <summary>
         /// Event raised whenever a message is received. Consumer of 
@@ -56,8 +54,7 @@ namespace Infrastructure.Azure.Messaging
                 settings,
                 topic,
                 subscription,
-                new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)),
-                new Incremental(3, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)))
+                new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
 
@@ -65,7 +62,7 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy, RetryStrategy blockingRetryStrategy)
+        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
@@ -77,19 +74,12 @@ namespace Infrastructure.Azure.Messaging
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
 
-            this.namespaceManager = new NamespaceManager(this.serviceUri, this.tokenProvider);
-
-            this.initializationRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(blockingRetryStrategy);
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying +=
                 (s, e) =>
                 {
                     Trace.TraceError("An error occurred in attempt number {1} to receive a message: {0}", e.LastException.Message, e.CurrentRetryCount);
                 };
-
-
-            this.initializationRetryPolicy.ExecuteAction(CreateTopicIfNotExists);
-            this.initializationRetryPolicy.ExecuteAction(CreateSubscriptionIfNotExists);
         }
 
         /// <summary>
@@ -223,30 +213,6 @@ namespace Infrastructure.Azure.Messaging
             {
                 return null;
             }
-        }
-
-        private void CreateTopicIfNotExists()
-        {
-            var topicDescription =
-                new TopicDescription(this.topic)
-                {
-                    RequiresDuplicateDetection = true,
-                    DuplicateDetectionHistoryTimeWindow = TimeSpan.FromHours(1)
-                };
-            try
-            {
-                this.namespaceManager.CreateTopic(topicDescription);
-            }
-            catch (MessagingEntityAlreadyExistsException) { }
-        }
-
-        private void CreateSubscriptionIfNotExists()
-        {
-            try
-            {
-                this.namespaceManager.CreateSubscription(new SubscriptionDescription(this.topic, this.subscription) { RequiresSession = true });
-            }
-            catch (MessagingEntityAlreadyExistsException) { }
         }
     }
 }

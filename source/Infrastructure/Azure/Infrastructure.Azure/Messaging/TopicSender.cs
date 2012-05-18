@@ -40,7 +40,7 @@ namespace Infrastructure.Azure.Messaging
         /// automatically creating the given topic if it does not exist.
         /// </summary>
         public TopicSender(ServiceBusSettings settings, string topic)
-            : this(settings, topic, GetRetryStrategy())
+            : this(settings, topic, new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
 
@@ -55,19 +55,6 @@ namespace Infrastructure.Azure.Messaging
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
-
-            try
-            {
-                new NamespaceManager(this.serviceUri, this.tokenProvider)
-                    .CreateTopic(
-                        new TopicDescription(topic)
-                        {
-                            RequiresDuplicateDetection = true,
-                            DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30)
-                        });
-            }
-            catch (MessagingEntityAlreadyExistsException)
-            { }
 
             // TODO: This could be injected.
             this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
@@ -165,11 +152,6 @@ namespace Infrastructure.Azure.Messaging
             {
                 using (ar.AsyncState as IDisposable) { }
             }
-        }
-
-        private static RetryStrategy GetRetryStrategy()
-        {
-            return new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1));
         }
     }
 }

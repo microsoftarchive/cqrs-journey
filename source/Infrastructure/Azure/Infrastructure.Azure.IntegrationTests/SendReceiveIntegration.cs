@@ -24,30 +24,15 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
     /// <summary>
     /// Tests the send/receive behavior.
     /// </summary>
-    public class given_a_sender_and_receiver : IDisposable
+    public class given_a_sender_and_receiver : given_a_topic_and_subscription
     {
-        private ServiceBusSettings settings;
-        private string topic = "Test-" + Guid.NewGuid().ToString();
-        private string subscription = "Test-" + Guid.NewGuid().ToString();
-
-        public given_a_sender_and_receiver()
-        {
-            this.settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
-        }
-
-        public void Dispose()
-        {
-            this.settings.TryDeleteSubscription(this.topic, this.subscription);
-            this.settings.TryDeleteTopic(this.topic);
-        }
-
         [Fact]
         public void when_sending_message_then_can_receive_it()
         {
-            var sender = new TopicSender(this.settings, this.topic);
+            var sender = new TopicSender(this.Settings, this.Topic);
             Data data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
             Data received = null;
-            using (var receiver = new SubscriptionReceiver(this.settings, this.topic, this.subscription))
+            using (var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription))
             {
                 var signal = new ManualResetEventSlim();
 
@@ -72,10 +57,10 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
         [Fact]
         public void when_gets_transient_error_on_receive_then_retries()
         {
-            var sender = new TopicSender(this.settings, this.topic);
+            var sender = new TopicSender(this.Settings, this.Topic);
             Data data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
             Data received = null;
-            using (var receiver = new TestableSubscriptionReceiver(this.settings, this.topic, this.subscription, new Incremental(3, TimeSpan.Zero, TimeSpan.Zero), new Incremental(0, TimeSpan.Zero, TimeSpan.Zero)))
+            using (var receiver = new TestableSubscriptionReceiver(this.Settings, this.Topic, this.Subscription, new Incremental(3, TimeSpan.Zero, TimeSpan.Zero)))
             {
                 var attempt = 0;
                 var currentDelegate = receiver.DoReceiveMessageDelegate;
@@ -110,10 +95,10 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
         public void when_gets_transient_error_several_times_on_receive_then_retries_until_failure()
         {
             var attempt = 0;
-            var sender = new TopicSender(this.settings, this.topic);
+            var sender = new TopicSender(this.Settings, this.Topic);
             Data data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
             Data received = null;
-            using (var receiver = new TestableSubscriptionReceiver(this.settings, this.topic, this.subscription, new Incremental(3, TimeSpan.Zero, TimeSpan.Zero), new Incremental(0, TimeSpan.Zero, TimeSpan.Zero)))
+            using (var receiver = new TestableSubscriptionReceiver(this.Settings, this.Topic, this.Subscription, new Incremental(3, TimeSpan.Zero, TimeSpan.Zero)))
             {
                 var signal = new ManualResetEventSlim();
 
@@ -153,8 +138,8 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
 
     public class TestableSubscriptionReceiver : SubscriptionReceiver
     {
-        public TestableSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy background, RetryStrategy blocking)
-            : base(settings, topic, subscription, background, blocking)
+        public TestableSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy background)
+            : base(settings, topic, subscription, background)
         {
             this.DoReceiveMessageDelegate = base.DoReceiveMessage;
         }
