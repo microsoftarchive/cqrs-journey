@@ -19,8 +19,10 @@ namespace MigrationToV2
     using System.Data.Entity;
     using System.Linq;
     using System.Threading;
+    using AutoMapper;
     using Conference;
     using Infrastructure;
+    using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.EventSourcing;
@@ -36,6 +38,12 @@ namespace MigrationToV2
 
     public class Migrator
     {
+        public Migrator()
+        {
+            Mapper.CreateMap<EventTableServiceEntity, EventTableServiceEntity>();
+            Mapper.CreateMap<EventTableServiceEntity, MessageLogEntity>();
+        }
+
         private readonly RetryPolicy<StorageTransientErrorDetectionStrategy> retryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(10, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
 
         public void GeneratePastEventLogMessagesForConferenceManagement(AzureMessageLogWriter writer, string conferenceManagementConnectionString, IMetadataProvider metadataProvider, ITextSerializer serializer)
@@ -74,38 +82,50 @@ namespace MigrationToV2
             }
         }
 
-        public void GeneratePastEventLogMessagesForEventSourced(AzureMessageLogWriter writer, CloudTableClient eventSourcingTableClient, string eventSourcingTableName, IMetadataProvider metadataProvider, ITextSerializer serializer)
+        public void MigrateEventSourcedAndGeneratePastEventLogs(AzureMessageLogWriter writer, CloudTableClient originalEventStoreClient, string originalEventStoreName, CloudTableClient newEventStoreClient, string newEventStoreName, IMetadataProvider metadataProvider, ITextSerializer serializer)
         {
-            foreach (var esEntry in this.GetAllEventSourcingEntries(eventSourcingTableClient, eventSourcingTableName))
+            foreach (var esEntry in this.GetAllEventSourcingEntries(originalEventStoreClient, originalEventStoreName))
             {
                 // get the metadata, as it was not stored in the event store.
-                // TODO: should we update the event store with this metadata?
+
+                // Copies the original values from the stored entry
+                var migratedEntry = Mapper.Map<EventTableServiceEntity>(esEntry);
+
+                // get the metadata, as it was not stored in the event store
                 var metadata = metadataProvider.GetMetadata(serializer.Deserialize<IVersionedEvent>(esEntry.Payload));
-                var messageId = esEntry.PartitionKey + "_" + esEntry.RowKey; //This is the message ID used in the past (deterministic).
-                var entry = new MessageLogEntity
+                migratedEntry.AssemblyName = metadata[StandardMetadata.AssemblyName];
+                migratedEntry.FullName = metadata[StandardMetadata.FullName];
+                migratedEntry.Namespace = metadata[StandardMetadata.Namespace];
+                migratedEntry.TypeName = metadata[StandardMetadata.TypeName];
+                migratedEntry.CreationDate = esEntry.Timestamp.ToEpochMilliseconds();
+
+                var newEventStoreContext = newEventStoreClient.GetDataServiceContext();
+                newEventStoreContext.AddObject(newEventStoreName, migratedEntry);
+                newEventStoreContext.SaveChanges();
+
+                const string RowKeyVersionLowerLimit = "0000000000";
+                const string RowKeyVersionUpperLimit = "9999999999";
+
+                if (migratedEntry.RowKey.CompareTo(RowKeyVersionLowerLimit) >= 0 &&
+                    migratedEntry.RowKey.CompareTo(RowKeyVersionUpperLimit) <= 0)
                 {
-                    PartitionKey = esEntry.Timestamp.ToString("yyyMM"),
-                    RowKey = esEntry.Timestamp.Ticks.ToString("D20") + "_" + messageId,
-                    // Timestamp cannot be set, and according to docs, should not be used for business logic.
-                    // TODO: should we add and extra column storing event creation date? 
-                    // we should do the same for EventTableServiceEntity and migrate schema (we probably need a migration of those anyway, to add new metadata)
-                    // Timestamp = esEntry.Timestamp, 
-                    MessageId = null,
-                    CorrelationId = null,
-                    SourceId = esEntry.SourceId,
-                    AssemblyName = metadata[StandardMetadata.AssemblyName],
-                    FullName = metadata[StandardMetadata.FullName],
-                    Namespace = metadata[StandardMetadata.Namespace],
-                    TypeName = metadata[StandardMetadata.TypeName],
-                    Kind = StandardMetadata.EventKind,
-                    Payload = esEntry.Payload,
-                };
-                writer.Save(entry);
+                    var messageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
+                    var logEntry = Mapper.Map<MessageLogEntity>(migratedEntry);
+                    logEntry.PartitionKey = migratedEntry.CreationDate.ToDateTime().ToString("yyyMM");
+                    logEntry.RowKey = migratedEntry.CreationDate.ToDateTime().Ticks.ToString("D20") + "_" + messageId;
+                    logEntry.MessageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
+                    logEntry.CorrelationId = null;
+                    logEntry.Kind = StandardMetadata.EventKind;
+                    //logEntry.SourceType = migratedEntry.SourceType;
+
+                    writer.Save(logEntry);
+                }
             }
+
         }
 
         // Very similar to ConferenceService.cs
-        internal IEnumerable<IEvent> GenerateMissedConferenceManagementIntegrationEvents(string nameOrConnectionString)
+        private IEnumerable<IEvent> GenerateMissedConferenceManagementIntegrationEvents(string nameOrConnectionString)
         {
             // Note: instead of returning a list, could yield results if data set is very big. Seems unnecessary.
             var events = new List<IEvent>();
@@ -160,18 +180,11 @@ namespace MigrationToV2
         }
 
         // Very similar to EventStore.cs
-        internal IEnumerable<EventTableServiceEntity> GetAllEventSourcingEntries(CloudTableClient tableClient, string tableName)
+        private IEnumerable<EventTableServiceEntity> GetAllEventSourcingEntries(CloudTableClient tableClient, string tableName)
         {
-            const string RowKeyVersionLowerLimit = "0000000000";
-            const string RowKeyVersionUpperLimit = "9999999999";
-
             var context = tableClient.GetDataServiceContext();
             var query = context
                 .CreateQuery<EventTableServiceEntity>(tableName)
-                .Where(
-                    x =>
-                    x.RowKey.CompareTo(RowKeyVersionLowerLimit) >= 0 &&
-                    x.RowKey.CompareTo(RowKeyVersionUpperLimit) <= 0)
                 .AsTableServiceQuery();
 
             var result = new BlockingCollection<EventTableServiceEntity>();
@@ -216,7 +229,7 @@ namespace MigrationToV2
             return result.GetConsumingEnumerable(tokenSource.Token);
         }
 
-        internal void RegenerateViewModels(AzureEventLogReader logReader, string dbConnectionString)
+        public void RegenerateViewModels(AzureEventLogReader logReader, string dbConnectionString)
         {
             var commandBus = new NullCommandBus();
 
