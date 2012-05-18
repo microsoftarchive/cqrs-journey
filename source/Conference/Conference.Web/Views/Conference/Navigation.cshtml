@@ -1,9 +1,10 @@
-﻿<div class="navigation">
-    <!-- TODO: make a reusable control? -->
-    @Html.ActionLink("Home", "Index", "Home") | 
-    <strong>@Html.ActionLink("Conference Details", "Index", new { slug = ViewBag.Slug })</strong> | 
-    @Html.ActionLink("Seat Types", "Seats", new { slug = ViewBag.Slug }) | 
-    <a href="#">Venue Details</a> |
-    @Html.ActionLink("Registrations", "Orders", new { slug = ViewBag.Slug }) |
-    <a href="#">Sessions</a>
+﻿<div class="page__menu menu">
+    <ul class="menu__list">
+        <li class="menu__item"><a class="menu__back" href="@Url.Action("Index", "Home")"></a></li>
+        <li class="menu__item menu__item_active"><a href="@Url.Action("Index", new { slug = ViewBag.Slug })">Conference details</a></li>
+        <li class="menu__item"><a href="@Url.Action("Seats", new { slug = ViewBag.Slug })">Seat types</a></li>
+        @*<li class="menu__item"><a href="#">Venue Details</a></li>*@
+        <li class="menu__item"><a href="@Url.Action("Orders", new { slug = ViewBag.Slug })">Registrations</a></li>
+        <li class="menu__item">@*<a href="#">Sessions</a>*@</li>
+    </ul>
 </div>

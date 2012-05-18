@@ -1,0 +1,243 @@
+.tile {
+    width: 240px;
+    height: 140px;
+    background: #2f7d00;
+    position: relative;
+    cursor: pointer;
+    float: left;
+    margin: 0 10px 10px 0;
+    text-decoration: none;
+	overflow: hidden;
+}
+.tile:hover {
+	margin: -5px 5px 5px -5px;
+	padding: 5px 5px 5px 5px;
+	color: #fff;
+	}
+.tile__imgs {
+	position: relative;
+	margin: -5px 0 0 -5px;
+	}
+.tile__img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	/*margin: -5px 0 0 -5px;*/
+	}
+.tile:hover .tile__img img {
+	/*margin: 0;*/
+	}
+.tile__imgs {
+	display: block;
+	}
+.tile__header {
+    position: absolute;
+    bottom: 0;
+    padding-bottom: 3px;
+    left: 0;
+    font-size: 18px;
+    line-height: 1;
+    height: 18px;
+    display: block;
+	background: url(tile__header.png) repeat;
+	width: 100%;
+	padding: 5px 0 8px 10px;
+	z-index: 50;
+}
+.tile:hover .tile__header {
+	padding: 10px 0 13px 15px;
+	}
+.tile__img-container {
+    margin-top: 20px;
+    min-height: 68px;
+    text-align: center;
+    line-height: 68px;
+    vertical-align: middle;
+    display: block;
+}
+
+
+.tile__img-container img {
+    vertical-align: middle;
+}
+
+.tile_narrow {
+    width: 140px;
+}
+.tile_small {
+    width: 128px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+}
+.tile_small:hover {
+	margin: -5px -5px 0 0;
+	padding: 5px 5px 5px 5px;
+	}
+.tile_small .tile__header {
+    font-size: 13px;
+    line-height: 14px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    position: static;
+    overflow: hidden;
+    height: auto;
+    padding: 5px 0 0 0;
+	width: auto;
+}
+.tile_small:hover .tile__header {
+	padding: 5px 0 0 0;
+	}
+.tile_small img {
+    float: left;
+    margin: 11px 21px 11px 11px;
+}
+
+
+.tile_twitter {
+    background: #0099cc;
+    padding-left: 11px;
+    padding-top: 5px;
+    padding-right: 20px;
+    width: 209px;
+    height: 135px;
+}
+.tile_twitter:hover {
+	margin: -5px 5px 5px -5px;
+	padding: 10px 25px 5px 16px;
+	}
+.tile_twitter .tile__header {
+    position: static;
+    overflow: hidden;
+    background:no-repeat left 5px url(tile_twitter.png);
+    height: 30px;
+    padding: 0 0 0 32px;
+    font-size: 24px;
+    line-height: 1;
+    font-family: "Segoe UI light", Arial, sans-serif;
+	width: auto;
+}
+.tile_twitter:hover .tile__header {
+	padding: 0 0 0 32px;
+	}
+.tile__tweet,
+.tile__twit {
+    font-size: 13px;
+    position: absolute;
+    bottom: 9px;
+    overflow: hidden;
+    right: 20px;
+    left: 11px;
+    top: 50px;
+    line-height: 16px;
+    }
+.tile_twitter:hover .tile__tweet {
+	top: 55px;
+	bottom: 14px;
+	left: 16px;
+	right: 25px;
+	}
+    .tile__nick {
+        overflow: hidden;
+        padding-right: 65px;
+        font-size: 13px;
+        font-weight: bold;
+        line-height: 1;
+        padding-bottom: 3px;
+        display: block;
+        }
+        .tile__time {
+            float: right;
+            width: 65px;
+            overflow: hidden;
+            font-size: 11px;
+            line-height: 1;
+            height: 13px;
+            text-align: right;
+            margin-right: -65px;
+        }
+.tile_twitter .tile-slide{
+	width: 209px;
+	height:105px;
+	position: relative;
+	display: block;
+	}
+.tile-slide .tile__tweet {
+	width: 209px;
+	height: 81px;
+	
+	font-size: 13px;
+    position: absolute;
+    bottom: auto;
+    overflow: hidden;
+    right: 20px;
+    left: 11px;
+    top: 50px;
+    line-height: 16px;
+	padding: 10px 0 0;
+	}
+
+
+.tile_event {}
+.tile__topic {
+    font-weight: bold;
+    line-height: 18px;
+    padding-left: 10px;
+    padding-top: 16px;
+    display: block;
+}
+.tile__span {
+    font-size: 11px;
+    line-height: 1;
+    padding-left: 10px;
+    padding-top: 10px;
+    display: block;
+}
+.tile__nav {
+    display: inline-block;
+    margin-left: 14px;
+}
+.tile__nav-item {
+    margin-right: 5px;
+    display: inline-block;
+    text-decoration: none;
+    border: 1px solid transparent;
+    font: 0/0 Arial;
+}
+.tile__nav-item_active,
+.tile__nav-item:hover {
+    border-color: #fff;
+}
+.tile__nav-item i {
+    font: 0/0 Arial;
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: #fff;
+    margin: 1px;
+}
+
+
+.tile_register {
+    background: #ff6600;
+}
+.tile_register .tile__header {
+    margin: 0;
+    padding: 16px 46px 5px 7px;
+    position: static;
+    font-size: 36px;
+    line-height: 1;
+    height: 36px;
+    font-family: "Segoe UI light", Arial, sans-serif;
+    display: inline-block;
+    background: 100% 21px url(tile_register.png) no-repeat;
+	width: auto;
+}
+.tile_register:hover .tile__header {
+	padding: 16px 46px 5px 7px;
+	}
+.tile__note {
+    line-height: 20px;
+    padding-left: 10px;
+    padding-top: 13px;
+    display: block;
+}
