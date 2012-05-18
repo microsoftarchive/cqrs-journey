@@ -38,7 +38,7 @@ namespace MigrationToV2
             var settings = InfrastructureSettings.Read("Settings.xml");
             var eventSourcingSettings = settings.EventSourcing;
             var eventSourcingAccount = CloudStorageAccount.Parse(eventSourcingSettings.ConnectionString);
-            var originalEventStoreName = "ConferenceEventStore";
+            var originalEventStoreName = "ConferenceEventStore"; // should use the real one. No longer in the updated Settings.xml
             var newEventStoreName = eventSourcingSettings.TableName;
             var messageLogSettings = settings.MessageLog;
             var messageLogAccount = CloudStorageAccount.Parse(messageLogSettings.ConnectionString);
@@ -48,7 +48,7 @@ namespace MigrationToV2
             migrator.MigrateEventSourcedAndGeneratePastEventLogs(
                 logWriter, 
                 eventSourcingAccount.CreateCloudTableClient(), 
-                originalEventStoreName, 
+                originalEventStoreName,
                 eventSourcingAccount.CreateCloudTableClient(), 
                 newEventStoreName, 
                 new StandardMetadataProvider(), 

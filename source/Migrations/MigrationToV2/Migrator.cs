@@ -84,10 +84,9 @@ namespace MigrationToV2
 
         public void MigrateEventSourcedAndGeneratePastEventLogs(AzureMessageLogWriter writer, CloudTableClient originalEventStoreClient, string originalEventStoreName, CloudTableClient newEventStoreClient, string newEventStoreName, IMetadataProvider metadataProvider, ITextSerializer serializer)
         {
+            retryPolicy.ExecuteAction(() => newEventStoreClient.CreateTableIfNotExist(newEventStoreName));
             foreach (var esEntry in this.GetAllEventSourcingEntries(originalEventStoreClient, originalEventStoreName))
             {
-                // get the metadata, as it was not stored in the event store.
-
                 // Copies the original values from the stored entry
                 var migratedEntry = Mapper.Map<EventTableServiceEntity>(esEntry);
 
@@ -101,7 +100,7 @@ namespace MigrationToV2
 
                 var newEventStoreContext = newEventStoreClient.GetDataServiceContext();
                 newEventStoreContext.AddObject(newEventStoreName, migratedEntry);
-                newEventStoreContext.SaveChanges();
+                retryPolicy.ExecuteAction(() => newEventStoreContext.SaveChanges());
 
                 const string RowKeyVersionLowerLimit = "0000000000";
                 const string RowKeyVersionUpperLimit = "9999999999";
