@@ -83,6 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConferenceProcessor.cs" />
+    <!-- Conditionally include the partial class that implements the two aspects of the processor. -->
+    <Compile Include="ConferenceProcessor.Azure.cs" Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
+      <DependentUpon>ConferenceProcessor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConferenceProcessor.Local.cs" Condition=" '$(Configuration)|$(Platform)' == 'DebugLocal|AnyCPU' ">
+      <DependentUpon>ConferenceProcessor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WorkerRole.cs" />

@@ -100,6 +100,7 @@
     <Compile Include="Messaging\EventBus.cs" />
     <Compile Include="Messaging\Handling\CommandProcessor.cs" />
     <Compile Include="Messaging\Handling\EventProcessor.cs" />
+    <Compile Include="Messaging\ServiceBusConfig.cs" />
     <Compile Include="Messaging\SessionSubscriptionReceiver.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -131,7 +132,13 @@
       <Name>Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\Settings.Template.xml">
+      <Link>Settings.Template.xml</Link>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

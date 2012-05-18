@@ -13,39 +13,8 @@
 
 namespace Infrastructure.Azure.IntegrationTests.SubscriptionReceiverIntegration
 {
-    using System;
     using Infrastructure.Azure.Messaging;
     using Xunit;
-
-    public class given_existing_topic : given_messaging_settings, IDisposable
-    {
-        private string topic = "Test-" + Guid.NewGuid().ToString();
-
-        public given_existing_topic()
-        {
-            this.Settings.CreateTopic(topic);
-        }
-
-        public void Dispose()
-        {
-            this.Settings.TryDeleteTopic(topic);
-        }
-
-        [Fact]
-        public void when_receiver_created_then_ignores_error_on_recreating_topic()
-        {
-            new SubscriptionReceiver(this.Settings, this.topic, Guid.NewGuid().ToString());
-        }
-    }
-
-    public class given_existing_subscription : given_a_topic_and_subscription, IDisposable
-    {
-        [Fact]
-        public void when_receiver_created_then_ignores_error_on_recreating_subscription()
-        {
-            new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
-        }
-    }
 
     public class given_a_receiver : given_a_topic_and_subscription
     {

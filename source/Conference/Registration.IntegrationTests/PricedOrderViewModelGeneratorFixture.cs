@@ -14,6 +14,7 @@
 namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
 {
     using System;
+    using System.Linq;
     using Conference;
     using Infrastructure.Serialization;
     using Registration.Events;
@@ -240,8 +241,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
 
                 var dto = this.dao.FindPricedOrder(orderId);
 
-                Assert.Equal("General_Updated", dto.Lines[0].Description);
-                Assert.Equal("Precon_Updated", dto.Lines[1].Description);
+                Assert.True(dto.Lines.Any(x => x.Description == "General_Updated"));
+                Assert.True(dto.Lines.Any(x => x.Description == "Precon_Updated"));
             }
         }
     }

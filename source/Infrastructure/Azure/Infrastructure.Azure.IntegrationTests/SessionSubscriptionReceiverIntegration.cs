@@ -15,42 +15,11 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
     using Infrastructure.Azure.Messaging;
     using Microsoft.ServiceBus.Messaging;
     using Xunit;
-
-    public class given_existing_topic : given_messaging_settings, IDisposable
-    {
-        private string topic = "cqrsjourney-" + Guid.NewGuid().ToString();
-
-        public given_existing_topic()
-        {
-            this.Settings.CreateTopic(topic);
-        }
-
-        public void Dispose()
-        {
-            this.Settings.TryDeleteTopic(topic);
-        }
-
-        [Fact]
-        public void when_receiver_created_then_ignores_error_on_recreating_topic()
-        {
-            new SessionSubscriptionReceiver(this.Settings, this.topic, Guid.NewGuid().ToString());
-        }
-    }
-
-    public class given_existing_subscription : given_a_topic_and_subscription, IDisposable
-    {
-        [Fact]
-        public void when_receiver_created_then_ignores_error_on_recreating_subscription()
-        {
-            new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
-        }
-    }
 
     public class given_a_receiver : given_messaging_settings, IDisposable
     {
