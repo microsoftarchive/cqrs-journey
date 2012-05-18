@@ -19,7 +19,8 @@ namespace Infrastructure
     using System.Linq.Expressions;
 
     /// <summary>
-    /// Combines expressions. See http://blogs.msdn.com/b/meek/archive/2008/05/02/linq-to-entities-combining-predicates.aspx.
+    /// Combines expressions. Based on the original post by Colin Meek:
+    /// http://blogs.msdn.com/b/meek/archive/2008/05/02/linq-to-entities-combining-predicates.aspx
     /// </summary>
     public static class ExpressionCombiner
     {
