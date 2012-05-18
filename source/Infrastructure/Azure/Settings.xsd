@@ -22,6 +22,7 @@
                                                     <xs:element minOccurs="0" maxOccurs="unbounded" name="Subscription">
                                                         <xs:complexType>
                                                             <xs:attribute name="Name" type="cqrs:AzureSubscriptionName" use="required" />
+                                                            <xs:attribute name="RequiresSession" type="xs:boolean" use="required"/>
                                                         </xs:complexType>
                                                     </xs:element>
                                                 </xs:sequence>
@@ -57,7 +58,7 @@
     <xs:simpleType name="AzureTableName">
         <xs:restriction base="xs:string">
             <!-- There is no way to annotate or render a more user-friendly error when pattern matching fails -->
-            <xs:pattern value="[A-Za-z][A-Za-z0-9]{2,62}" />
+            <xs:pattern value="^[A-Za-z][A-Za-z0-9]{2,62}$" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="AzureTopicPath">

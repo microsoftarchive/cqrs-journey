@@ -9,12 +9,13 @@
         <TokenIssuer>owner</TokenIssuer>
         <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
         <Topics>
-            <Topic Path="A_TOPIC_PATH" DuplicateDetectionHistoryTimeWindow="23:00:00">
-                <Subscription Name="A_SUBCRIPTION_NAME" />
-                <Subscription Name="ANOTHER_SUBCRIPTION_NAME" />
+            <Topic Path="conference/commands">
+                <Subscription Name="all" RequiresSession="false"/>
+                <Subscription Name="log" RequiresSession="false"/>
             </Topic>
-            <Topic Path="ANOTHER_TOPIC_PATH"><!-- Uses default DuplicateDetectionHistoryTimeWindow -->
-                <Subscription Name="YET_ANOTHER_SUBCRIPTION_NAME" />
+            <Topic Path="conference/events">
+                <Subscription Name="all" RequiresSession="true"/>
+                <Subscription Name="log" RequiresSession="false"/>
             </Topic>
         </Topics>
     </ServiceBus>

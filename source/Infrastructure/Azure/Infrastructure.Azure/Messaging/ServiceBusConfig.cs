@@ -64,9 +64,15 @@ namespace Infrastructure.Azure.Messaging
 
         private void CreateSubscriptionIfNotExists(NamespaceManager namespaceManager, TopicSettings topic, SubscriptionSettings subscription)
         {
+            var subscriptionDescription =
+                new SubscriptionDescription(topic.Path, subscription.Name)
+                {
+                    RequiresSession = subscription.RequiresSession
+                };
+
             try
             {
-                namespaceManager.CreateSubscription(topic.Path, subscription.Name);
+                namespaceManager.CreateSubscription(subscriptionDescription);
             }
             catch (MessagingEntityAlreadyExistsException) { }
         }

@@ -105,5 +105,8 @@ namespace Infrastructure.Azure.Messaging
     {
         [XmlAttribute]
         public string Name { get; set; }
+
+        [XmlAttribute]
+        public bool RequiresSession { get; set; }
     }
 }

@@ -32,6 +32,11 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
         public given_service_bus_config()
         {
             this.settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
+            foreach (var topic in this.settings.Topics)
+            {
+                topic.Path = topic.Path + Guid.NewGuid().ToString();
+            }
+
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(this.settings.TokenIssuer, this.settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(this.settings.ServiceUriScheme, this.settings.ServiceNamespace, this.settings.ServicePath);
             this.namespaceManager = new NamespaceManager(serviceUri, tokenProvider);
@@ -90,6 +95,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
                     });
 
             Assert.False(subscriptions.Any(tuple => tuple.Description == null));
+            Assert.False(subscriptions.Any(tuple => tuple.Subscription.Subscription.RequiresSession != tuple.Description.RequiresSession));
         }
     }
 }
