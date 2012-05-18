@@ -89,6 +89,7 @@
     <Compile Include="CommandProcessingIntegration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendReceiveIntegration.cs" />
+    <Compile Include="ServiceBusConfigFixture.cs" />
     <Compile Include="SessionSubscriptionReceiverIntegration.cs">
       <SubType>Code</SubType>
     </Compile>

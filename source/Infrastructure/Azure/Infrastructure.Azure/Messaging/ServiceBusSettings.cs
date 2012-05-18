@@ -13,13 +13,17 @@
 
 namespace Infrastructure.Azure.Messaging
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Xml;
     using System.Xml.Serialization;
 
     /// <summary>
     /// Simple settings class to configure the connection to Azure 
     /// messaging APIs.
     /// </summary>
-    [XmlRoot("ServiceBus", Namespace = InfrastructureSettings.SerializationNamespace)]
+    [XmlRoot("ServiceBus", Namespace = InfrastructureSettings.XmlNamespace)]
     public class ServiceBusSettings
     {
         /// <summary>
@@ -33,6 +37,8 @@ namespace Infrastructure.Azure.Messaging
 
             this.TokenIssuer = string.Empty;
             this.TokenAccessKey = string.Empty;
+
+            this.Topics = new List<TopicSettings>();
         }
 
         /// <summary>
@@ -47,7 +53,6 @@ namespace Infrastructure.Azure.Messaging
         /// Gets or sets the service path.
         /// </summary>
         public string ServicePath { get; set; }
-
         /// <summary>
         /// Gets or sets the token issuer.
         /// </summary>
@@ -56,5 +61,49 @@ namespace Infrastructure.Azure.Messaging
         /// Gets or sets the token access key.
         /// </summary>
         public string TokenAccessKey { get; set; }
+
+        [XmlArray(ElementName = "Topics", Namespace = InfrastructureSettings.XmlNamespace)]
+        [XmlArrayItem(ElementName = "Topic", Namespace = InfrastructureSettings.XmlNamespace)]
+        public List<TopicSettings> Topics { get; set; }
+    }
+
+    [XmlRoot("Topic", Namespace = InfrastructureSettings.XmlNamespace)]
+    public class TopicSettings
+    {
+        public TopicSettings()
+        {
+            this.Subscriptions = new List<SubscriptionSettings>();
+        }
+
+        [XmlAttribute]
+        public string Path { get; set; }
+
+        [XmlIgnore]
+        public TimeSpan DuplicateDetectionHistoryTimeWindow { get; set; }
+
+        [XmlElement("Subscription", Namespace = InfrastructureSettings.XmlNamespace)]
+        public List<SubscriptionSettings> Subscriptions { get; set; }
+
+        /// <summary>
+        /// Don't access this property directly. Use the properly typed 
+        /// <see cref="DuplicateDetectionHistoryTimeWindow"/> instead.
+        /// </summary>
+        /// <remarks>
+        /// XmlSerializer still doesn't know how to convert TimeSpan... 
+        /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [XmlAttribute("DuplicateDetectionHistoryTimeWindow")]
+        public string XmlDuplicateDetectionHistoryTimeWindow
+        {
+            get { return this.DuplicateDetectionHistoryTimeWindow.ToString("hh:mm:ss"); }
+            set { this.DuplicateDetectionHistoryTimeWindow = TimeSpan.Parse(value); }
+        }
+    }
+
+    [XmlRoot("Subscription", Namespace = InfrastructureSettings.XmlNamespace)]
+    public class SubscriptionSettings
+    {
+        [XmlAttribute]
+        public string Name { get; set; }
     }
 }

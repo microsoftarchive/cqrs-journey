@@ -23,10 +23,10 @@ namespace Infrastructure.Azure
     /// <summary>
     /// Simple settings class to configure the connection to Azure.
     /// </summary>
-    [XmlRoot("InfrastructureSettings", Namespace = SerializationNamespace)]
+    [XmlRoot("InfrastructureSettings", Namespace = XmlNamespace)]
     public class InfrastructureSettings
     {
-        public const string SerializationNamespace = @"urn:microsoft-patterns-and-practices-cqrsjourney";
+        public const string XmlNamespace = @"urn:microsoft-patterns-and-practices-cqrsjourney";
 
         private static readonly XmlSerializer serializer = new XmlSerializer(typeof(InfrastructureSettings));
         private static readonly XmlReaderSettings readerSettings;

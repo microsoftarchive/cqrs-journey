@@ -8,6 +8,15 @@
         <ServicePath></ServicePath>
         <TokenIssuer>owner</TokenIssuer>
         <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
+        <Topics>
+            <Topic Path="A_TOPIC_PATH" DuplicateDetectionHistoryTimeWindow="23:00:00">
+                <Subscription Name="A_SUBCRIPTION_NAME" />
+                <Subscription Name="ANOTHER_SUBCRIPTION_NAME" />
+            </Topic>
+            <Topic Path="ANOTHER_TOPIC_PATH"><!-- Uses default DuplicateDetectionHistoryTimeWindow -->
+                <Subscription Name="YET_ANOTHER_SUBCRIPTION_NAME" />
+            </Topic>
+        </Topics>
     </ServiceBus>
     <EventSourcing>
         <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
