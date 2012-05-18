@@ -17,7 +17,6 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
     using System.Collections.Generic;
     using System.Linq;
     using Infrastructure.Azure.MessageLog;
-    using Infrastructure.Azure.Messaging;
     using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -54,6 +53,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 x.GetMetadata(eventA) == new Dictionary<string, string>
                 {
                     { StandardMetadata.SourceId, eventA.SourceId.ToString() },
+                    { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "A" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
                     { StandardMetadata.FullName, "Namespace.EventA" }, 
@@ -62,6 +62,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 x.GetMetadata(eventB) == new Dictionary<string, string>
                 {
                     { StandardMetadata.SourceId, eventB.SourceId.ToString() },
+                    { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
                     { StandardMetadata.FullName, "Namespace.EventB" }, 
@@ -70,6 +71,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 x.GetMetadata(eventC) == new Dictionary<string, string>
                 {
                     { StandardMetadata.SourceId, eventC.SourceId.ToString() },
+                    { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "AnotherNamespace" }, 
                     { StandardMetadata.FullName, "AnotherNamespace.EventC" }, 
