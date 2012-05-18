@@ -140,7 +140,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             handler.Setup(x => x.Handle(It.IsAny<AnEvent>()))
                 .Callback(() => waiter.Set());
 
-            var processor = this.sut.CreateEventProcessor("all", handler.Object, serializer);
+            var processor = this.sut.CreateEventProcessor("log", handler.Object, serializer);
 
             processor.Start();
 

@@ -17,17 +17,22 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
     using System.IO;
     using System.Threading;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
     using Moq;
     using Moq.Protected;
     using Xunit;
-    using Infrastructure.Azure.Messaging.Handling;
 
     public class given_a_processor : given_a_topic_and_subscription
     {
+        static given_a_processor()
+        {
+            System.Diagnostics.Trace.Listeners.Clear();
+        }
+
         [Fact]
-        public void when_message_receivedthen_calls_process_message()
+        public void when_message_received_then_calls_process_message()
         {
             var waiter = new ManualResetEventSlim();
             var sender = new TopicSender(this.Settings, this.Topic);
