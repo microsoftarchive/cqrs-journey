@@ -13,9 +13,15 @@
                 <Subscription Name="all" RequiresSession="false"/>
                 <Subscription Name="log" RequiresSession="false"/>
             </Topic>
-            <Topic Path="conference/events">
-                <Subscription Name="all" RequiresSession="true"/>
+            <Topic Path="conference/events" IsEventBus="true">
                 <Subscription Name="log" RequiresSession="false"/>
+                <Subscription Name="Registration.RegistrationProcessRouter" RequiresSession="true"/>
+                <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true"/>
+                <Subscription Name="Registration.PricedOrderViewModelGenerator" RequiresSession="true"/>
+                <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true"/>
+                <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true"/>
+                <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true"/>
+                <Subscription Name="Conference.OrderEventHandler" RequiresSession="true"/>
             </Topic>
         </Topics>
     </ServiceBus>

@@ -111,9 +111,13 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
         [Fact]
         public void when_creating_processor_but_no_event_bus_topic_then_throws()
         {
+            foreach (var topic in this.settings.Topics)
+            {
+                topic.IsEventBus = false;
+            }
             this.sut.Initialize();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => this.sut.CreateEventProcessor("a", "all", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
+            Assert.Throws<ArgumentOutOfRangeException>(() => this.sut.CreateEventProcessor("all", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
         }
 
         [Fact]
@@ -121,7 +125,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
         {
             this.sut.Initialize();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => this.sut.CreateEventProcessor("conference/events", "a", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
+            Assert.Throws<ArgumentOutOfRangeException>(() => this.sut.CreateEventProcessor("a", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
         }
 
         [Fact]
@@ -136,7 +140,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             handler.Setup(x => x.Handle(It.IsAny<AnEvent>()))
                 .Callback(() => waiter.Set());
 
-            var processor = this.sut.CreateEventProcessor("conference/events", "all", handler.Object, serializer);
+            var processor = this.sut.CreateEventProcessor("all", handler.Object, serializer);
 
             processor.Start();
 

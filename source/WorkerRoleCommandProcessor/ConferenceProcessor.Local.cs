@@ -25,6 +25,8 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Sql.Messaging.Handling;
     using Infrastructure.Sql.Messaging.Implementation;
     using Microsoft.Practices.Unity;
+    using Registration;
+    using Registration.Handlers;
 
     /// <summary>
     /// Local-side of the processor, which is included for compilation conditionally 
@@ -38,12 +40,6 @@ namespace WorkerRoleCommandProcessor
     partial class ConferenceProcessor
     {
         partial void OnCreateContainer(UnityContainer container)
-        {
-            RegisterInfrastructure(container);
-            RegisterRepository(container);
-        }
-
-        private void RegisterInfrastructure(UnityContainer container)
         {
             var serializer = container.Resolve<ITextSerializer>();
             var metadata = container.Resolve<IMetadataProvider>();
@@ -61,10 +57,24 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);
             container.RegisterInstance<IProcessor>("EventProcessor", eventProcessor);
 
+            RegisterRepository(container);
+            RegisterEventHandlers(container, eventProcessor);
+
             // Event log database and handler.
             container.RegisterType<SqlMessageLog>(new InjectionConstructor("MessageLog", serializer, metadata));
             container.RegisterType<IEventHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
             container.RegisterType<ICommandHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
+        }
+
+        private void RegisterEventHandlers(UnityContainer container, EventProcessor eventProcessor)
+        {
+            eventProcessor.Register(container.Resolve<RegistrationProcessRouter>());
+            eventProcessor.Register(container.Resolve<OrderViewModelGenerator>());
+            eventProcessor.Register(container.Resolve<PricedOrderViewModelGenerator>());
+            eventProcessor.Register(container.Resolve<ConferenceViewModelGenerator>());
+            eventProcessor.Register(container.Resolve<SeatAssignmentsViewModelGenerator>());
+            eventProcessor.Register(container.Resolve<SeatAssignmentsHandler>());
+            eventProcessor.Register(container.Resolve<global::Conference.OrderEventHandler>());
         }
 
         private void RegisterRepository(UnityContainer container)

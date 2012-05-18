@@ -71,9 +71,9 @@ namespace Infrastructure.Azure.Messaging
                     "Subscription '{0}' for topic '{1}' has not been registered in the service bus configuration.",
                     subscription, topicSettings.Path));
 
-            IMessageReceiver receiver = subscriptionSettings.RequiresSession ?
-                new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription) :
-                new SubscriptionReceiver(this.settings, topicSettings.Path, subscription);
+            var receiver = subscriptionSettings.RequiresSession ?
+                (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription) :
+                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription);
 
             var processor = new EventProcessor(receiver, serializer);
             processor.Register(handler);

@@ -29,9 +29,9 @@ namespace WorkerRoleCommandProcessor
 				/// </summary>
 				public const string All = "all";
 				/// <summary>
-				/// Log
+				/// log
 				/// </summary>
-				public const string Log = "Log";
+				public const string Log = "log";
 			}
 		}
 
@@ -45,9 +45,9 @@ namespace WorkerRoleCommandProcessor
 			public static class Subscriptions
 			{
 				/// <summary>
-				/// Log
+				/// log
 				/// </summary>
-				public const string Log = "Log";
+				public const string Log = "log";
 				/// <summary>
 				/// Registration.RegistrationProcessRouter
 				/// </summary>

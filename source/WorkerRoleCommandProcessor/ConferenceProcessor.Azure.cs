@@ -26,6 +26,8 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Serialization;
     using Microsoft.Practices.Unity;
     using Microsoft.WindowsAzure;
+    using Registration;
+    using Registration.Handlers;
 
     /// <summary>
     /// Azure-side of the processor, which is included for compilation conditionally 
@@ -41,24 +43,18 @@ namespace WorkerRoleCommandProcessor
         private InfrastructureSettings azureSettings;
         private ServiceBusConfig busConfig;
 
-        partial void OnInitialized()
+        partial void OnCreating()
         {
+            this.azureSettings = InfrastructureSettings.Read("Settings.xml");
+            this.busConfig = new ServiceBusConfig(this.azureSettings.ServiceBus);
+
             busConfig.Initialize();
         }
 
         partial void OnCreateContainer(UnityContainer container)
         {
-            RegisterInfrastructure(container);
-            RegisterRepository(container);
-        }
-
-        private void RegisterInfrastructure(UnityContainer container)
-        {
             var metadata = container.Resolve<IMetadataProvider>();
             var serializer = container.Resolve<ITextSerializer>();
-
-            this.azureSettings = InfrastructureSettings.Read("Settings.xml");
-            this.busConfig = new ServiceBusConfig(this.azureSettings.ServiceBus);
 
             var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
             var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
@@ -72,6 +68,9 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
             container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
 
+            RegisterRepository(container);
+            RegisterEventProcessors(container);
+
             // message log
             var messageLogAccount = CloudStorageAccount.Parse(azureSettings.MessageLog.ConnectionString);
 
@@ -82,6 +81,44 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IProcessor>("CommandLogger", new AzureMessageLogListener(
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
                 new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Log)));
+        }
+
+        private void RegisterEventProcessors(UnityContainer container)
+        {
+            container.RegisterInstance<IProcessor>("RegistrationProcessRouter", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.RegistrationProcessRouter,
+                container.Resolve<RegistrationProcessRouter>(),
+                container.Resolve<ITextSerializer>()));
+
+            container.RegisterInstance<IProcessor>("OrderViewModelGenerator", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.OrderViewModelGenerator,
+                container.Resolve<OrderViewModelGenerator>(),
+                container.Resolve<ITextSerializer>()));
+
+            container.RegisterInstance<IProcessor>("PricedOrderViewModelGenerator", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.PricedOrderViewModelGenerator,
+                container.Resolve<PricedOrderViewModelGenerator>(),
+                container.Resolve<ITextSerializer>()));
+
+            container.RegisterInstance<IProcessor>("ConferenceViewModelGenerator", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.ConferenceViewModelGenerator,
+                container.Resolve<ConferenceViewModelGenerator>(),
+                container.Resolve<ITextSerializer>()));
+
+            container.RegisterInstance<IProcessor>("SeatAssignmentsViewModelGenerator", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator,
+                container.Resolve<SeatAssignmentsViewModelGenerator>(),
+                container.Resolve<ITextSerializer>()));
+
+            container.RegisterInstance<IProcessor>("SeatAssignmentsHandler", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.SeatAssignmentsHandler,
+                container.Resolve<SeatAssignmentsHandler>(),
+                container.Resolve<ITextSerializer>()));
+
+            container.RegisterInstance<IProcessor>("OrderEventHandler", this.busConfig.CreateEventProcessor(
+                Topics.Events.Subscriptions.OrderEventHandler,
+                container.Resolve<global::Conference.OrderEventHandler>(),
+                container.Resolve<ITextSerializer>()));
         }
 
         private void RegisterRepository(UnityContainer container)
