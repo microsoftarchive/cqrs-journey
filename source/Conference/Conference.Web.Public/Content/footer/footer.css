@@ -13,6 +13,11 @@ See the License for the specific language governing permissions and limitations 
 ==============================================================================================================
 */
 
+.footer {
+	min-height: 100px;
+    width: 1130px;
+	margin: 0 auto 0;
+	}
 footer {
 	font-size: 11px;
 	min-height: 100px;
