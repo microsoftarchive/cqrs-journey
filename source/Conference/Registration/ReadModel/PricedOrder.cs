@@ -41,9 +41,14 @@ namespace Registration.ReadModel
 
     public class PricedOrderLine
     {
-        public int Position { get; set; }
-        public Guid OrderId { get; set; }
+        public PricedOrderLine()
+        {
+            this.LineId = Guid.NewGuid();
+        }
 
+        [Key]
+        public Guid LineId { get; set; }
+        public Guid OrderId { get; set; }
         public string Description { get; set; }
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; }

@@ -35,15 +35,15 @@ namespace Registration.ReadModel.Implementation
 
             // Make the name of the views match exactly the name of the corresponding property.
             modelBuilder.Entity<DraftOrder>().ToTable("OrdersView", SchemaName);
-            modelBuilder.Entity<DraftOrder>().HasMany(x => x.Lines).WithRequired();
+            modelBuilder.Entity<DraftOrder>().HasMany(c => c.Lines).WithRequired();
             modelBuilder.Entity<DraftOrderItem>().ToTable("OrderItemsView", SchemaName);
             modelBuilder.Entity<PricedOrder>().ToTable("PricedOrders", SchemaName);
-            modelBuilder.Entity<PricedOrder>().HasMany(x => x.Lines).WithRequired().HasForeignKey(x => x.OrderId);
-            modelBuilder.Entity<PricedOrderLine>().HasKey(x => new { x.Position, x.OrderId }).ToTable("PricedOrderLines", SchemaName);
+            modelBuilder.Entity<PricedOrder>().HasMany(c => c.Lines).WithRequired().HasForeignKey(x => x.OrderId);
+            modelBuilder.Entity<PricedOrderLine>().ToTable("PricedOrderLines", SchemaName);
             modelBuilder.Entity<PricedOrderLineSeatTypeDescription>().ToTable("PricedOrderLineSeatTypeDescriptions", SchemaName);
 
             modelBuilder.Entity<Conference>().ToTable("ConferencesView", SchemaName);
-            modelBuilder.Entity<Conference>().HasMany(x => x.Seats).WithRequired();
+            modelBuilder.Entity<Conference>().HasMany(c => c.Seats).WithRequired();
             modelBuilder.Entity<SeatType>().ToTable("ConferenceSeatTypesView", SchemaName);
         }
 

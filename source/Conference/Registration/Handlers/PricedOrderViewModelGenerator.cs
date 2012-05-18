@@ -74,8 +74,7 @@ namespace Registration.Handlers
                 {
                     var line = new PricedOrderLine
                     {
-                        Position = dto.Lines.Count,
-                        LineTotal = orderLine.LineTotal,
+                        LineTotal = orderLine.LineTotal
                     };
 
                     var seatOrderLine = orderLine as SeatOrderLine;
