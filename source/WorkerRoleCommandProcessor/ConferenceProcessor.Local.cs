@@ -37,18 +37,6 @@ namespace WorkerRoleCommandProcessor
     /// </devdoc>
     partial class ConferenceProcessor
     {
-        partial void OnStart()
-        {
-            this.container.Resolve<CommandProcessor>().Start();
-            this.container.Resolve<EventProcessor>().Start();
-        }
-
-        partial void OnStop()
-        {
-            this.container.Resolve<CommandProcessor>().Stop();
-            this.container.Resolve<EventProcessor>().Stop();
-        }
-
         partial void OnCreateContainer(UnityContainer container)
         {
             RegisterInfrastructure(container);
@@ -69,9 +57,9 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<ICommandBus>(commandBus);
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
-            container.RegisterInstance(commandProcessor);
+            container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
             container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);
-            container.RegisterInstance(eventProcessor);
+            container.RegisterInstance<IProcessor>("EventProcessor", eventProcessor);
 
             // Event log database and handler.
             container.RegisterType<SqlMessageLog>(new InjectionConstructor("MessageLog", serializer, metadata));

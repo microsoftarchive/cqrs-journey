@@ -14,9 +14,7 @@
 namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
 {
     using System;
-    using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Threading;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
@@ -105,6 +103,28 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
         }
 
         [Fact]
+        public void when_creating_processor_with_uninitialized_config_then_throws()
+        {
+            Assert.Throws<InvalidOperationException>(() => this.sut.CreateEventProcessor("all", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
+        }
+
+        [Fact]
+        public void when_creating_processor_but_no_event_bus_topic_then_throws()
+        {
+            this.sut.Initialize();
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => this.sut.CreateEventProcessor("a", "all", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
+        }
+
+        [Fact]
+        public void when_creating_processor_for_unconfigured_subscription_then_throws()
+        {
+            this.sut.Initialize();
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => this.sut.CreateEventProcessor("conference/events", "a", Mock.Of<IEventHandler>(), Mock.Of<ITextSerializer>()));
+        }
+
+        [Fact]
         public void when_creating_processor_then_receives_from_specified_subscription()
         {
             this.sut.Initialize();
@@ -116,21 +136,25 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             handler.Setup(x => x.Handle(It.IsAny<AnEvent>()))
                 .Callback(() => waiter.Set());
 
-            var processor = this.sut.CreateEventProcessorFor<AnEvent>("conference/events", "all", serializer);
+            var processor = this.sut.CreateEventProcessor("conference/events", "all", handler.Object, serializer);
 
             processor.Start();
 
-            // TODO: why doesn't this work???
             var sender = new TopicSender(this.settings, "conference/events");
-            sender.Send(() => new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(serializer.Serialize(ev)))) { SessionId = "test" });
+            var bus = new EventBus(sender, new StandardMetadataProvider(), serializer);
+            bus.Publish(ev);
 
-            waiter.Wait(60000);
+            waiter.Wait(5000);
 
             handler.Verify(x => x.Handle(It.Is<AnEvent>(e => e.SourceId == ev.SourceId)));
         }
 
         public class AnEvent : IEvent
         {
+            public AnEvent()
+            {
+                this.SourceId = Guid.NewGuid();
+            }
             public Guid SourceId { get; set; }
         }
 

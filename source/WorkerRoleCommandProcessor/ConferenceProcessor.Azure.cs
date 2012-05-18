@@ -13,6 +13,7 @@
 
 namespace WorkerRoleCommandProcessor
 {
+    using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
@@ -40,23 +41,9 @@ namespace WorkerRoleCommandProcessor
         private InfrastructureSettings azureSettings;
         private ServiceBusConfig busConfig;
 
-        partial void OnStart()
+        partial void OnInitialized()
         {
             busConfig.Initialize();
-
-            this.container.Resolve<IEventStoreBusPublisher>().Start(cancellationTokenSource.Token);
-            this.container.Resolve<AzureMessageLogListener>("events").Start();
-            this.container.Resolve<AzureMessageLogListener>("commands").Start();
-            this.container.Resolve<CommandProcessor>().Start();
-            this.container.Resolve<EventProcessor>().Start();
-        }
-
-        partial void OnStop()
-        {
-            this.container.Resolve<CommandProcessor>().Stop();
-            this.container.Resolve<EventProcessor>().Stop();
-            this.container.Resolve<AzureMessageLogListener>("events").Stop();
-            this.container.Resolve<AzureMessageLogListener>("commands").Stop();
         }
 
         partial void OnCreateContainer(UnityContainer container)
@@ -73,31 +60,28 @@ namespace WorkerRoleCommandProcessor
             this.azureSettings = InfrastructureSettings.Read("Settings.xml");
             this.busConfig = new ServiceBusConfig(this.azureSettings.ServiceBus);
 
-            var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, "conference/commands"), metadata, serializer);
-            var topicSender = new TopicSender(azureSettings.ServiceBus, "conference/events");
+            var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
+            var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
-            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, "conference/commands", "all"), serializer);
-            var eventProcessor = new EventProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, "conference/events", "all"), serializer);
+            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
-            container.RegisterInstance(commandProcessor);
-            container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);
-            container.RegisterInstance(eventProcessor);
+            container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
 
             // message log
             var messageLogAccount = CloudStorageAccount.Parse(azureSettings.MessageLog.ConnectionString);
 
-            container.RegisterInstance<AzureMessageLogListener>("events", new AzureMessageLogListener(
+            container.RegisterInstance<IProcessor>("EventLogger", new AzureMessageLogListener(
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
-                new SubscriptionReceiver(azureSettings.ServiceBus, "conference/events", "log")));
+                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Events.Path, Topics.Events.Subscriptions.Log)));
 
-            container.RegisterInstance<AzureMessageLogListener>("commands", new AzureMessageLogListener(
+            container.RegisterInstance<IProcessor>("CommandLogger", new AzureMessageLogListener(
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
-                new SubscriptionReceiver(azureSettings.ServiceBus, "conference/commands", "log")));
+                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Log)));
         }
 
         private void RegisterRepository(UnityContainer container)
@@ -110,6 +94,34 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(AzureEventSourcedRepository<>), new ContainerControlledLifetimeManager());
+
+            // to satisfy the IProcessor requirements.
+            container.RegisterInstance<IProcessor>("EventStoreBusPublisher", new PublisherProcessorAdapter(
+                container.Resolve<IEventStoreBusPublisher>(), this.cancellationTokenSource.Token));
+        }
+
+        // to satisfy the IProcessor requirements.
+        // TODO: we should unify and probaly use token-based Start only processors.
+        private class PublisherProcessorAdapter : IProcessor
+        {
+            private IEventStoreBusPublisher publisher;
+            private CancellationToken token;
+
+            public PublisherProcessorAdapter(IEventStoreBusPublisher publisher, CancellationToken token)
+            {
+                this.publisher = publisher;
+                this.token = token;
+            }
+
+            public void Start()
+            {
+                this.publisher.Start(this.token);
+            }
+
+            public void Stop()
+            {
+                // Do nothing. The cancelled token will stop the process anyway.
+            }
         }
     }
 }

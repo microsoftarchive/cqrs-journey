@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.Messaging.Handling
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -25,6 +24,8 @@ namespace Infrastructure.Azure.Messaging.Handling
     /// Processes incoming events from the bus and routes them to the appropriate 
     /// handlers.
     /// </summary>
+    // TODO: now that we have just one handler per subscription, it doesn't make 
+    // much sense to have this processor doing multi dispatch.
     public class EventProcessor : MessageProcessor, IEventHandlerRegistry
     {
         // A simpler list just works. We don't care about two handlers for the same event 

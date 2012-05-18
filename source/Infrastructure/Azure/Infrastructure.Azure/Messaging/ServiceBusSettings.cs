@@ -76,6 +76,9 @@ namespace Infrastructure.Azure.Messaging
         }
 
         [XmlAttribute]
+        public bool IsEventBus { get; set; }
+
+        [XmlAttribute]
         public string Path { get; set; }
 
         [XmlIgnore]

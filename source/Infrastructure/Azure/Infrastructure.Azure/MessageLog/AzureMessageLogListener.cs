@@ -17,7 +17,7 @@ namespace Infrastructure.Azure.MessageLog
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Utils;
 
-    public class AzureMessageLogListener : IDisposable
+    public class AzureMessageLogListener : IProcessor, IDisposable
     {
         private AzureMessageLogWriter eventLog;
         private IMessageReceiver receiver;

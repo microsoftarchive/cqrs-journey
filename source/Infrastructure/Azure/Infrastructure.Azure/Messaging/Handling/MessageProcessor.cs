@@ -27,7 +27,7 @@ namespace Infrastructure.Azure.Messaging.Handling
     /// Provides basic common processing code for components that handle 
     /// incoming messages from a receiver.
     /// </summary>
-    public abstract class MessageProcessor : IDisposable
+    public abstract class MessageProcessor : IProcessor, IDisposable
     {
         private const int MaxProcessingRetries = 5;
         private bool disposed;
