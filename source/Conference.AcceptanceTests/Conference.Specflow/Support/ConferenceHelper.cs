@@ -17,6 +17,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using Conference.Common.Entity;
+using Infrastructure;
 using Registration;
 using Registration.Commands;
 using TechTalk.SpecFlow;
@@ -44,23 +45,38 @@ namespace Conference.Specflow.Support
         {
             string conferenceSlug = Slug.CreateNew().Value;
             var svc = new ConferenceService(BuildEventBus());
-            var conference = svc.FindConference(conferenceSlug);
-
-            if (null != conference)
-            {
-                if(conference.Seats.Count == 0)
-                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
-                return conference;
-            }
-
-            conference = BuildConferenceInfo(table, conferenceSlug);
+            var conference = BuildConferenceInfo(table, conferenceSlug);
             svc.CreateConference(conference);
             svc.Publish(conference.Id);
 
-            // Wait for the events to be processed
-            Thread.Sleep(Constants.WaitTimeout);
+            Registration.ReadModel.Conference published = null;
+            while(published == null || 
+                !published.IsPublished || 
+                published.Seats.Count != table.Rows.Count)
+            {
+                published = RegistrationHelper.FindConference(conference.Id);
+                Thread.Sleep(100);
+            }
 
             return conference;
+        }
+
+        public static ConferenceInfo FindConference(string conferenceSlug)
+        {
+            var svc = new ConferenceService(BuildEventBus());
+            var conference = svc.FindConference(conferenceSlug);
+            if (null != conference)
+            {
+                if (conference.Seats.Count == 0)
+                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
+            }
+            return conference;
+        }
+
+        public static Order FindOrder(Guid conferenceId, Guid orderId)
+        {
+            var svc = new ConferenceService(BuildEventBus());
+            return svc.FindOrders(conferenceId).FirstOrDefault(o => o.Id == orderId);
         }
 
         public static Guid ReserveSeats(ConferenceInfo conference, Table table)
@@ -136,7 +152,7 @@ namespace Conference.Specflow.Support
 #if LOCAL
             return new EventBus(GetMessageSender("SqlBus.Events"), new JsonTextSerializer());
 #else
-            return new EventBus(GetTopicSender("events"), new MetadataProvider(), new JsonTextSerializer());
+            return new EventBus(GetTopicSender("events"), new StandardMetadataProvider(), new JsonTextSerializer());
 #endif
         }
 
@@ -145,7 +161,7 @@ namespace Conference.Specflow.Support
 #if LOCAL
             return new CommandBus(GetMessageSender("SqlBus.Commands"), new JsonTextSerializer());
 #else
-            return new CommandBus(GetTopicSender("commands"), new MetadataProvider(), new JsonTextSerializer());
+            return new CommandBus(GetTopicSender("commands"), new StandardMetadataProvider(), new JsonTextSerializer());
 #endif
         }
 
@@ -157,8 +173,8 @@ namespace Conference.Specflow.Support
 #else
         internal static TopicSender GetTopicSender(string topic)
         {
-            var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
-            return new TopicSender(settings, "conference/" + topic);
+            var settings = InfrastructureSettings.Read("Settings.xml");
+            return new TopicSender(settings.ServiceBus, "conference/" + topic);
         }
 #endif
     }

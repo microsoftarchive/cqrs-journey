@@ -108,93 +108,93 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\Conference\ConferenceConfiguration.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Management\ConferenceConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceConfiguration.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\All Features end to end\ConferenceEndToEndHappy.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Management\ConferenceEndToEndHappy.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceEndToEndHappy.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\All Features end to end\ConferenceEndToEndSad.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Management\ConferenceEndToEndSad.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceEndToEndSad.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\Seat Types\SeatTypesConfiguration.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Management\SeatTypesConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SeatTypesConfiguration.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\Discounts\DiscountsConfiguration.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Management\DiscountsConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>DiscountsConfiguration.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\All Features end to end\GroupRegistrationEndToEndHappy.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\GroupRegistrationEndToEndHappy.feature.cs">
       <DependentUpon>GroupRegistrationEndToEndHappy.feature</DependentUpon>
       <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\All Features end to end\GroupRegistrationEndToEndSad.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\GroupRegistrationEndToEndSad.feature.cs">
       <DependentUpon>GroupRegistrationEndToEndSad.feature</DependentUpon>
       <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\All Features end to end\SelfRegistrationEndToEndHappy.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationEndToEndHappy.feature.cs">
       <DependentUpon>SelfRegistrationEndToEndHappy.feature</DependentUpon>
       <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\All Features end to end\SelfRegistrationEndToEndSad.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationEndToEndSad.feature.cs">
       <DependentUpon>SelfRegistrationEndToEndSad.feature</DependentUpon>
       <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Discounts\Discounts.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\Discounts.feature.cs">
       <DependentUpon>Discounts.feature</DependentUpon>
       <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Reservation\GroupRegistrationReservationWithFullAvailability.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\GroupRegistrationReservationWithFullAvailability.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>GroupRegistrationReservationWithFullAvailability.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Reservation\GroupRegistrationReservationWithPartialAvailability.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\GroupRegistrationReservationWithPartialAvailability.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>GroupRegistrationReservationWithPartialAvailability.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Reservation\SelfRegistrationReservationWithConcurrency.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithConcurrency.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SelfRegistrationReservationWithConcurrency.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Reservation\SelfRegistrationReservationWithFullAvailability.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithFullAvailability.feature.cs">
       <DependentUpon>SelfRegistrationReservationWithFullAvailability.feature</DependentUpon>
       <SubType>Code</SubType>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Reservation\SelfRegistrationReservationWithPartialAvailability.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithPartialAvailability.feature.cs">
       <DependentUpon>SelfRegistrationReservationWithPartialAvailability.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Seat Assignments\FullAssignments.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\FullAssignments.feature.cs">
       <DependentUpon>FullAssignments.feature</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="Features\UserInterface\Views\Registration\Seat Assignments\PartialAssignments.feature.cs">
+    <Compile Include="Features\UserInterface\Views\Registration\PartialAssignments.feature.cs">
       <DependentUpon>PartialAssignments.feature</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -235,39 +235,39 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationReservationWithConcurrency.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Management\Conference\ConferenceConfiguration.feature">
+    <None Include="Features\UserInterface\Views\Management\ConferenceConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceConfiguration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Management\All Features end to end\ConferenceEndToEndHappy.feature">
+    <None Include="Features\UserInterface\Views\Management\ConferenceEndToEndHappy.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceEndToEndHappy.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Management\All Features end to end\ConferenceEndToEndSad.feature">
+    <None Include="Features\UserInterface\Views\Management\ConferenceEndToEndSad.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceEndToEndSad.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Management\Seat Types\SeatTypesConfiguration.feature">
+    <None Include="Features\UserInterface\Views\Management\SeatTypesConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SeatTypesConfiguration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Management\Discounts\DiscountsConfiguration.feature">
+    <None Include="Features\UserInterface\Views\Management\DiscountsConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>DiscountsConfiguration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\All Features end to end\GroupRegistrationEndToEndHappy.feature">
+    <None Include="Features\UserInterface\Views\Registration\GroupRegistrationEndToEndHappy.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationEndToEndHappy.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\All Features end to end\GroupRegistrationEndToEndSad.feature">
+    <None Include="Features\UserInterface\Views\Registration\GroupRegistrationEndToEndSad.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationEndToEndSad.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\All Features end to end\SelfRegistrationEndToEndHappy.feature">
+    <None Include="Features\UserInterface\Views\Registration\SelfRegistrationEndToEndHappy.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationEndToEndHappy.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\All Features end to end\SelfRegistrationEndToEndSad.feature">
+    <None Include="Features\UserInterface\Views\Registration\SelfRegistrationEndToEndSad.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationEndToEndSad.feature.cs</LastGenOutput>
     </None>
@@ -275,35 +275,35 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationEndToEndWithControllers.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Discounts\Discounts.feature">
+    <None Include="Features\UserInterface\Views\Registration\Discounts.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Discounts.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Reservation\GroupRegistrationReservationWithFullAvailability.feature">
+    <None Include="Features\UserInterface\Views\Registration\GroupRegistrationReservationWithFullAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationReservationWithFullAvailability.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Reservation\GroupRegistrationReservationWithPartialAvailability.feature">
+    <None Include="Features\UserInterface\Views\Registration\GroupRegistrationReservationWithPartialAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Reservation\SelfRegistrationReservationWithConcurrency.feature">
+    <None Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithConcurrency.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationReservationWithConcurrency.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Reservation\SelfRegistrationReservationWithFullAvailability.feature">
+    <None Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithFullAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationReservationWithFullAvailability.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Reservation\SelfRegistrationReservationWithPartialAvailability.feature">
+    <None Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithPartialAvailability.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Seat Assignments\FullAssignments.feature">
+    <None Include="Features\UserInterface\Views\Registration\FullAssignments.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>FullAssignments.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\UserInterface\Views\Registration\Seat Assignments\PartialAssignments.feature">
+    <None Include="Features\UserInterface\Views\Registration\PartialAssignments.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>PartialAssignments.feature.cs</LastGenOutput>
     </None>

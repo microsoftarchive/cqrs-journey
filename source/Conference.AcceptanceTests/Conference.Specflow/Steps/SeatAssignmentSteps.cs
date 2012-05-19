@@ -27,7 +27,8 @@ namespace Conference.Specflow.Steps
             try
             {
                 Browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
-            }catch(Exception e)
+            }
+            catch(Exception e)
             {
                 Assert.Throws(e.GetType(), () => { });
             }

@@ -12,10 +12,14 @@
 // ==============================================================================================================
 
 
+using System;
 using System.Threading;
 using Conference.Specflow.Support;
 using Infrastructure.Messaging;
+using Registration;
 using Registration.Commands;
+using System.Linq;
+using Registration.Events;
 using Registration.ReadModel;
 using TechTalk.SpecFlow;
 using Xunit;
@@ -23,37 +27,96 @@ using Xunit;
 namespace Conference.Specflow.Steps
 {
     [Binding]
+    [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
     public class SelfRegistrationEndToEndWithDomainSteps
     {
         private readonly ICommandBus commandBus;
+        private Guid orderId;
 
         public SelfRegistrationEndToEndWithDomainSteps()
         {
             commandBus = ConferenceHelper.BuildCommandBus();
         }
 
-        [When(@"the RegisterToConference command is sent")]
-        public void WhenTheRegisterToConferenceCommandIsSent()
+        [When(@"the Registrant proceed to make the Reservation")]
+        public void WhenTheRegistrantProceedToMakeTheReservation()
         {
             var command = ScenarioContext.Current.Get<RegisterToConference>();
             var conferenceAlias = ScenarioContext.Current.Get<ConferenceAlias>();
 
             command.ConferenceId = conferenceAlias.Id;
+            orderId = command.OrderId;
             this.commandBus.Send(command);
-            
+
             // Wait for event processing
             Thread.Sleep(Constants.WaitTimeout);
         }
 
-        [Then(@"the OrderUpdated event should be processed and the Order should be persisted")]
-        public void ThenTheOrderUpdatedEventShouldBeProcessedAndTheOrderShouldBePersisted()
+        [Then(@"the command to register the selected Order Items is received")]
+        public void ThenTheCommandToRegisterTheSelectedOrderItemsIsReceived()
         {
-            var command = ScenarioContext.Current.Get<RegisterToConference>();
             var orderRepo = EventSourceHelper.GetRepository<Registration.Order>();
-            Registration.Order order = orderRepo.Find(command.OrderId);
+            Registration.Order order = orderRepo.Find(orderId);
 
             Assert.NotNull(order);
-            Assert.Equal(command.OrderId, order.Id);
+            Assert.Equal(orderId, order.Id);
+        }
+
+        [Then(@"the event for Order placed is emitted")]
+        public void ThenTheEventForOrderPlacedIsEmitted()
+        {
+            //OrderPlaced
+            var draftOrder = RegistrationHelper.FindInContext<DraftOrder>(orderId);
+
+            Assert.NotNull(draftOrder);
+        }
+
+        [Then(@"the command for reserving the selected Seats is received")]
+        public void ThenTheCommandForReservingTheSelectedSeatsIsReceived()
+        {
+            var repository = EventSourceHelper.GetRepository<SeatsAvailability>();
+            var command = ScenarioContext.Current.Get<RegisterToConference>();
+
+            var availability = repository.Find(command.ConferenceId);
+            
+            Assert.NotNull(availability);
+        }
+
+        [Then(@"the event for reserving the selected Seats is emitted")]
+        public void ThenTheEventForReservingTheSelectedSeatsIsEmitted()
+        {
+            //SeatsReserved
+            // This event will send the MarkSeatsAsReserved cmd
+        }
+
+        [Then(@"the command for marking the selected Seats as reserved is received")]
+        public void ThenTheCommandForMarkingTheSelectedSeatsAsReservedIsReceived()
+        {
+            //MarkSeatsAsReserved
+            var repository = EventSourceHelper.GetRepository<Registration.Order>();
+            var order = repository.Find(orderId);
+
+            Assert.NotNull(order);
+        }
+
+        [Then(@"the event for completing the Order reservation is emitted")]
+        public void ThenTheEventForCompletingTheOrderReservationIsEmitted()
+        {
+            //OrderReservationCompleted
+            var draftOrder = RegistrationHelper.FindInContext<DraftOrder>(orderId);
+            
+            Assert.Equal(DraftOrder.States.ReservationCompleted, draftOrder.State);
+        }
+
+        [Then(@"the event for calculating the total of \$(.*) is emitted")]
+        public void ThenTheEventForCalculatingTheTotalIsEmitted(decimal total)
+        {
+            //OrderTotalsCalculated
+            var conference = ScenarioContext.Current.Get<ConferenceInfo>();
+            Order order = ConferenceHelper.FindOrder(conference.Id, orderId);
+
+            Assert.NotNull(order);
+            Assert.Equal(total, order.TotalAmount);
         }
     }
 }
