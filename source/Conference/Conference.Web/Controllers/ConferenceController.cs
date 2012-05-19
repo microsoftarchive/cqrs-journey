@@ -82,11 +82,11 @@ namespace Conference.Web.Admin.Controllers
             var conference = this.Service.FindConference(email, accessCode);
             if (conference == null)
             {
-                ViewBag.NotFound = true;
+                ModelState.AddModelError(string.Empty, "Could not locate a conference with the provided email and access code.");
                 // Preserve input so the user doesn't have to type email again.
                 ViewBag.Email = email;
 
-                return Locate();
+                return View();
             }
 
             // TODO: not very secure ;).

@@ -2,7 +2,16 @@
     ViewBag.Title = "Index";
 }
 
-Welcome to the Contoso Conference Management Portal
-<p>
-@Html.ActionLink("Access Conference", "Locate", "Conference") | @Html.ActionLink("Create Conference", "Create", "Conference")
-</p>
+<h2 class="page__head page__wrapper">
+    Contoso Conference Management Portal
+</h2>
+<div class="page__content">
+    <div class="page__wrapper">
+        <div class="nav content-main__nav">
+            <a class="nav__right" style="float: left" href="@Url.Action("Locate", "Conference")">Log in</a>
+            <div class="g-clear"></div>
+            <br />
+            <a class="nav__right" style="float: left" href="@Url.Action("Create", "Conference")">Create Conference</a>
+        </div>
+    </div>
+</div>
