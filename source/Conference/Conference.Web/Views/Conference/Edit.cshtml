@@ -1,126 +1,191 @@
 ﻿@model Conference.ConferenceInfo
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Edir Conference";
 }
 
-@section Head {
-    <script>
-        $(function () {
-            // TODO: Is there a way to add these classes to the editors 
-            // without having to write custom editor templates?
-            $('#StartDate').addClass('datepicker');
-            $('#EndDate').addClass('datepicker');
-
-            $(".datepicker").datepicker();
-        });
-    </script>
-}
-
-<p style="text-align: right">
-    @Html.DisplayFor(model => model.OwnerName)
-</p>
-
-@{ Html.RenderPartial("Navigation"); }
-
-<h2>Edit</h2>
-
-@using (Html.BeginForm())
+@section Navigation
 {
-    @Html.ValidationSummary(true)
-    @Html.HiddenFor(model => model.Id)
-
-    <fieldset>
-        <legend>Owner Information</legend>
-        <div class="display-label">
-            @Html.DisplayNameFor(model => model.OwnerName)
-        </div>
-        <div class="display-label">
-            @Html.DisplayFor(model => model.OwnerName)
-            @Html.HiddenFor(model => model.OwnerName)
-        </div>        
-
-        <div class="display-label">
-            @Html.DisplayNameFor(model => model.OwnerEmail)
-        </div>
-        <div class="display-label">
-            @Html.DisplayFor(model => model.OwnerEmail)
-            @Html.HiddenFor(model => model.OwnerEmail)
-        </div>
-    </fieldset>
-    
-    <fieldset>
-    <legend>Conference Information</legend>
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Name)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Name)
-            @Html.ValidationMessageFor(model => model.Name)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Description)
-        </div>
-        <div class="editor-field">
-            @Html.TextAreaFor(model => model.Description)
-            @Html.ValidationMessageFor(model => model.Description)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Tagline)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Tagline)
-            @Html.ValidationMessageFor(model => model.Tagline)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Location)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.Location)
-            @Html.ValidationMessageFor(model => model.Location)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.Slug)
-        </div>
-        <div class="editor-field">
-            @Html.DisplayFor(model => model.Slug)
-            @Html.HiddenFor(model => model.Slug)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.TwitterSearch)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.TwitterSearch)
-            @Html.ValidationMessageFor(model => model.TwitterSearch)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.StartDate)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.StartDate)
-            @Html.ValidationMessageFor(model => model.StartDate)
-        </div>
-
-        <div class="editor-label">
-            @Html.LabelFor(model => model.EndDate)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.EndDate)
-            @Html.ValidationMessageFor(model => model.EndDate)
-        </div>
-
-        <p>
-            <input type="submit" value="Save" />
-        </p>
-    </fieldset>
+    <div class="quick__login">@Model.OwnerName</div>
 }
 
-<div>
-    @Html.ActionLink("Cancel", "Index", new { slug = @Model.Slug }, null)
+@section PageNavigation {
+    @Html.Partial("Navigation")
+}
+
+<h1 class="page__head page__wrapper">
+    Edit conference
+</h1>
+<div class="page__content">
+    <div class="page__wrapper content-main_create-conf">
+        @using (Html.BeginForm())
+        {
+            @Html.ValidationSummary(false)
+            <div class="content-main__wrapper">
+                <div class="content-main__main">
+                    <div class="content-main__header">Owner information</div>
+                    <fieldset class="content">
+                        <div class="form__fieldset">
+                            <label>Name:</label>
+                            <div class="form__field">
+                                <pre>@Model.OwnerName</pre>
+                            </div>
+                        </div>    
+                        <div class="form__fieldset">
+                            <label>Email address:</label>
+                            <div class="form__field">
+                                <pre>@Model.OwnerEmail</pre>
+                            </div>
+                        </div>
+                        <div class="form__fieldset">
+                            <label>Access Code:</label>
+                            <div class="form__field">
+                                <pre>@Model.AccessCode</pre>
+                            </div>
+                        </div>   
+                        <div class="g-clear"></div>
+                    </fieldset>
+                    
+                    <div class="content-main__header">Conference information</div>
+                    <fieldset class="content">
+                        <div class="form">
+                            <div class="form__fieldset">
+                                @Html.LabelFor(model => model.Name, "Title:*")
+                                <div class="form__field">
+                                    @Html.TextBoxFor(model => model.Name)
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                @Html.LabelFor(model => model.Tagline, "Tagline:")
+                                <div class="form__field">
+                                    @Html.TextBoxFor(model => model.Tagline)
+                                </div>
+                            </div>
+                            @*<div class="form__fieldset">
+                                <label class="form__label">Event logo:</label>
+                                <div class="form__but-box form__but-box_file">
+                                    <button class="form__but">Upload</button>
+                                </div>
+                                <div class="form__field form__field_file">
+                                    <div class="form__field_file-input">
+                                        <input type="file" size="28" class="inputFile" onchange='document.getElementById("fileName").value=this.value' />
+                                    </div>
+                                    <input id="fileName" />
+                                </div>
+                                <div class="form__file-logo">
+                                    <img src="tmp/pic_3.jpg" /><span class="form__file-logo__valign"></span>
+                                    <span class="form__file-logo__txt">Your logo</span>
+                                </div>
+                            </div>*@
+                            <div class="form__fieldset">
+                                <label>Slug/conference code:</label>
+                                <div class="form__field">
+                                    <pre>@Model.Slug</pre>
+                                </div>
+                            </div>  
+                            <div class="form__fieldset">
+                                @Html.LabelFor(model => model.Location, "Location:*")
+                                <div class="form__field">
+                                    @Html.TextBoxFor(model => model.Location)
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                @Html.LabelFor(model => model.TwitterSearch, "Twitter search:")
+                                <div class="form__field">
+                                    @Html.TextBoxFor(model => model.TwitterSearch)
+                                </div>
+                            </div>
+                            <div class="form__fieldset form__fieldset_textarea">
+                                @Html.LabelFor(model => model.Description, "Description:*")
+                                <div class="form__field">
+                                    @Html.TextAreaFor(model => model.Description)
+                                </div>
+                            </div>
+                            <div class="g-clear"></div>
+                        </div>
+                        @*<div class="form form__col3">
+                            <div class="form__fieldset">
+                                <label class="form__label">Front-page date format:</label>
+                                <select>
+                                    <option>Apr 20, 15:00</option>
+                                    <option>Apr 20, 2012</option>
+                                    <option>Apr 20-23, 2012</option>
+                                    <option>Apr 20, 3:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="form__fieldset">
+                                <label class="form__label">Start date-time:</label>
+                                <select>
+                                    <option>9:00 AM</option>
+                                    <option>10:00 AM</option>
+                                    <option>11:00 AM</option>
+                                </select>
+                            </div>
+                            <div class="form__fieldset">
+                                <label class="form__label">End date-time:</label>
+                                <select>
+                                    <option>10:00 AM</option>
+                                    <option>11:00 AM</option>
+                                    <option>12:00 AM</option>
+                                </select>
+                            </div>
+                            <div class="g-clear"></div>
+                        </div>*@
+                        <div class="form form__col3">
+@*                            <div class="form__fieldset">
+                                <label class="form__label">Time zone:</label>
+                                <select>
+                                    <option>UTC-8</option>
+                                    <option>UTC-9</option>
+                                    <option>UTC-7</option>
+                                </select>
+                            </div>*@
+                            <div class="form__fieldset">
+                                @*<div class="datepicker"></div>*@
+                                @Html.HiddenFor(model => model.StartDate, new { @class="datepicker" })
+                                @Html.ValidationMessageFor(model => model.StartDate)
+                            </div>
+                            <div class="form__fieldset">
+                                @Html.HiddenFor(model => model.EndDate, new { @class="datepicker" })
+                                @Html.ValidationMessageFor(model => model.EndDate)
+                            </div>
+						
+                            <div id="datepicker"></div>
+                            <div class="g-clear"></div>
+                        </div>
+                    </fieldset>
+                    <div class="nav content-main__nav">
+                        <a class="nav__left" href="@Url.Action("Index")">Cancel</a>
+                        <button class="nav__right">
+                            Save conference
+                        </button>
+                    </div>
+                </div>
+            </div>@*
+            <div class="content-main__aside">
+                <div class="content-main__header"></div>
+                
+            </div>
+            *@<div class="g-clear"></div>
+        }
+    </div>
 </div>
+
+@section Scripts
+{
+<script type="text/javascript">
+    $(function () {
+        $('.datepicker').each(function() {
+            var $this = $(this);
+            var picker = document.createElement('div');
+            $this.after(picker);
+            $(picker).datepicker({
+                onSelect: function(dateText) {
+                    $this.val(dateText);
+                },
+                defaultDate: $this.val() //TODO: formatting?
+            });//.datepicker("setDate", '05/20/2012');
+        });
+    });
+</script>   
+}

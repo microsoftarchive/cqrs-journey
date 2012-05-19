@@ -52,6 +52,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=2.1.267.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\AutoMapper.2.1.267\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
@@ -183,8 +187,6 @@
     <Content Include="Content\form\ui\css\custom-theme\images\ui-icons_cd0a0a_256x240.png" />
     <Content Include="Content\form\ui\css\custom-theme\jquery-ui-1.8.19.custom.css" />
     <Content Include="Content\form\ui\index.html" />
-    <Content Include="Content\form\ui\js\jquery-1.7.2.min.js" />
-    <Content Include="Content\form\ui\js\jquery-ui-1.8.19.custom.min.js" />
     <Content Include="Content\likes\likes.css" />
     <Content Include="Content\likes\likes_sprite.png" />
     <Content Include="Content\menu\menu.css" />

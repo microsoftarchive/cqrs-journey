@@ -16,9 +16,15 @@ namespace Conference.Web.Admin.Controllers
     using System;
     using System.Data;
     using System.Web.Mvc;
+    using AutoMapper;
 
     public class ConferenceController : Controller
     {
+        static ConferenceController()
+        {
+            Mapper.CreateMap<EditableConferenceInfo, ConferenceInfo>();
+        }
+
         private ConferenceService service;
 
         private ConferenceService Service
@@ -102,7 +108,7 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(ConferenceInfo conference)
+        public ActionResult Create([Bind(Exclude = "Id,AccessCode,Seats,WasEverPublished")] ConferenceInfo conference)
         {
             if (ModelState.IsValid)
             {
@@ -133,19 +139,21 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(ConferenceInfo conference)
+        public ActionResult Edit(EditableConferenceInfo conference)
         {
             if (this.Conference == null)
             {
                 return HttpNotFound();
             }
+
             if (ModelState.IsValid)
             {
-                this.Service.UpdateConference(conference);
-                return RedirectToAction("Index", new { slug = conference.Slug, accessCode = conference.AccessCode });
+                var edited = Mapper.Map(conference, this.Conference);
+                this.Service.UpdateConference(edited);
+                return RedirectToAction("Index", new { slug = edited.Slug, accessCode = edited.AccessCode });
             }
 
-            return View(conference);
+            return View(this.Conference);
         }
 
         [HttpPost]
