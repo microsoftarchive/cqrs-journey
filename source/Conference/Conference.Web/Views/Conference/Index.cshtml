@@ -1,111 +1,110 @@
 ﻿@model Conference.ConferenceInfo
 
 @{
-    ViewBag.Title = "Conference Details";
+    ViewBag.Title = "My Conference";
 }
 
-<p style="text-align: right">
-    @ViewBag.OwnerName
-</p>
-
-@{ Html.RenderPartial("Navigation"); }
-
-<h2>Details</h2>
-
-<fieldset>
-    <legend>Owner Information</legend>
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.OwnerName):
-    </div>
-    <div class="display-label">
-        @Html.DisplayFor(model => model.OwnerName)
-    </div>        
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.OwnerEmail):
-    </div>
-    <div class="display-label">
-        @Html.DisplayFor(model => model.OwnerEmail)
-    </div>
-
-    <div class="display-label">
-        @Html.DisplayNameFor(model => model.AccessCode):
-    </div>
-    <div class="display-label">
-        @Html.DisplayFor(model => model.AccessCode)
-    </div>
-</fieldset>
-
-<fieldset>
-    <legend>Conference Information</legend>
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Name):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Name)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Description):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Description)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Tagline):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Tagline)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Location):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Location)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.Slug):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.Slug)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.TwitterSearch):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.TwitterSearch)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.StartDate):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.StartDate)
-    </div>
-
-    <div class="display-label">
-         @Html.DisplayNameFor(model => model.EndDate):
-    </div>
-    <div class="display-field">
-        @Html.DisplayFor(model => model.EndDate)
-    </div>
-
-@{ var action = Model.IsPublished ? "Unpublish" : "Publish"; }
-@using (Html.BeginForm(action, "Conference")) {
-    <div>
-        @Html.HiddenFor(model => model.Id)
-        @Html.DisplayNameFor(model => model.IsPublished) @Html.DisplayFor(model => model.IsPublished)
-        <a href="javascript:$('form').submit();">@action</a>
-    </div>
+@section Navigation
+{
+    <div class="quick__login">@Model.OwnerName</div>
 }
-    <div class="display-label">
-    </div>
-</fieldset>
 
-<div>
-        @Html.ActionLink("Edit", "Edit", new { slug = @Model.Slug }, null)
+@section PageNavigation {
+    @Html.Partial("Navigation")
+}
+
+<h1 class="page__head page__wrapper">
+    Conference details
+</h1>
+<div class="page__content">
+    <div class="page__wrapper content-main_create-conf">
+            <div class="content-main__wrapper">
+                <div class="content-main__main">
+                    <div class="content-main__header">Owner information</div>
+                    <fieldset class="content">
+                        <div class="form__fieldset">
+                            <label>Name:</label>
+                            <div class="form__field">
+                                <pre>@Model.OwnerName</pre>
+                            </div>
+                        </div>    
+                        <div class="form__fieldset">
+                            <label>Email address:</label>
+                            <div class="form__field">
+                                <pre>@Model.OwnerEmail</pre>
+                            </div>
+                        </div>
+                        <div class="form__fieldset">
+                            <label>Access Code:</label>
+                            <div class="form__field">
+                                <pre>@Model.AccessCode</pre>
+                            </div>
+                        </div>   
+                        <div class="g-clear"></div>
+                    </fieldset>
+                    
+                    <div class="content-main__header">Conference information</div>
+                    <fieldset class="content">
+                        <div class="form">
+                            <div class="form__fieldset">
+                                <label>Title:</label>
+                                <div class="form__field">
+                                    <pre>@Model.Name</pre>
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                <label>Tagline:</label>
+                                <div class="form__field">
+                                    <pre>@Model.Tagline</pre>
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                <label>Slug/conference code:</label>
+                                <div class="form__field">
+                                    <pre>@Model.Slug</pre>
+                                </div>
+                            </div>  
+                            <div class="form__fieldset">
+                                <label>Location:</label>
+                                <div class="form__field">
+                                    <pre>@Model.Location</pre>
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                <label>Twitter search:</label>
+                                <div class="form__field">
+                                    <pre>@Model.TwitterSearch</pre>
+                                </div>
+                            </div>
+                            <div class="form__fieldset form__fieldset_textarea">
+                                <label>Description:</label>
+                                <div class="form__field">
+                                    <pre style="height: auto">@Model.Description</pre>
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                <label>Start date:</label>
+                                <div class="form__field">
+                                    <pre>@Model.StartDate.ToString("yyyy/MM/dd")</pre>
+                                </div>
+                            </div>
+                            <div class="form__fieldset">
+                                <label>End date:</label>
+                                <div class="form__field">
+                                    <pre>@Model.EndDate.ToString("yyyy/MM/dd")</pre>
+                                </div>
+                            </div>
+                            <div class="g-clear"></div>
+                        </div>
+                    </fieldset>
+                    <div class="nav content-main__nav">
+                        <a class="nav__left" href="@Url.Action("Edit", new { slug = @Model.Slug })">Edit</a>
+                        @{ var action = Model.IsPublished ? "Unpublish" : "Publish"; }
+                        @using (Html.BeginForm(action, "Conference", new { Model.Id })) {
+                            <button type="submit" class="nav__right">@action</button>
+                        }
+                    </div>
+                </div>
+            </div><div class="g-clear"></div>
+    </div>
 </div>

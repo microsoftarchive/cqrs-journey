@@ -4,10 +4,6 @@
     ViewBag.Title = "Create Conference";
 }
 
-@section PageNavigation {
-    @Html.Partial("Navigation")
-}
-
 <h1 class="page__head page__wrapper">
     Create conference
 </h1>
@@ -16,8 +12,6 @@
         @using (Html.BeginForm())
         {
             @Html.ValidationSummary(false)
-
-
             <div class="content-main__wrapper">
                 <div class="content-main__main">
                     <div class="content-main__header">Owner information</div>
@@ -122,8 +116,9 @@
                             </div>
                             <div class="g-clear"></div>
                         </div>*@
-                        <div class="form form__col3">
-@*                            <div class="form__fieldset">
+                        <div class="form">
+@*                        <div class="form form__col3">
+                            <div class="form__fieldset">
                                 <label class="form__label">Time zone:</label>
                                 <select>
                                     <option>UTC-8</option>
@@ -132,16 +127,13 @@
                                 </select>
                             </div>*@
                             <div class="form__fieldset">
-                                @*<div class="datepicker"></div>*@
-                                @Html.HiddenFor(model => model.StartDate, new { @class="datepicker" })
-                                @Html.ValidationMessageFor(model => model.StartDate)
+                                @Html.LabelFor(model => model.StartDate, "Start date:*")
+                                @Html.Hidden("StartDate", Model != null ? Model.StartDate.ToString("yyyy/MM/dd") : null, new { @class="inline-datepicker" })
                             </div>
                             <div class="form__fieldset">
-                                @Html.HiddenFor(model => model.EndDate, new { @class="datepicker" })
-                                @Html.ValidationMessageFor(model => model.EndDate)
+                                @Html.LabelFor(model => model.EndDate, "End date:*")
+                                @Html.Hidden("EndDate",  Model != null ? Model.EndDate.ToString("yyyy/MM/dd") : null, new { @class="inline-datepicker" })
                             </div>
-						
-                            <div id="datepicker"></div>
                             <div class="g-clear"></div>
                         </div>
                     </fieldset>
@@ -160,22 +152,3 @@
         }
     </div>
 </div>
-
-@section Scripts
-{
-<script type="text/javascript">
-    $(function () {
-        $('.datepicker').each(function() {
-            var $this = $(this);
-            var picker = document.createElement('div');
-            $this.after(picker);
-            $(picker).datepicker({
-                onSelect: function(dateText) {
-                    $this.val(dateText);
-                },
-                defaultDate: $this.val() //TODO: formatting?
-            });//.datepicker("setDate", '05/20/2012');
-        });
-    });
-</script>   
-}

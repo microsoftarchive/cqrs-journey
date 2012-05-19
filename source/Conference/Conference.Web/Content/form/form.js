@@ -120,3 +120,18 @@ $(function() {
 	});
 	
 });
+
+$(function () {
+    $('.inline-datepicker').each(function () {
+        var $this = $(this);
+        var picker = document.createElement('div');
+        $this.after(picker);
+        $(picker).datepicker({
+            onSelect: function (dateText) {
+                $this.val(dateText);
+            },
+            dateFormat: 'yy/mm/dd',
+            defaultDate: $this.val()
+        });
+    });
+});
