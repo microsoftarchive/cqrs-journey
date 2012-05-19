@@ -11,26 +11,43 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
+using Infrastructure.EventSourcing;
+using Infrastructure.Serialization;
+#if LOCAL
+using System.Data.Entity;
+using Infrastructure.Sql.EventSourcing;
+#else
 using Infrastructure;
 using Infrastructure.Azure;
 using Infrastructure.Azure.EventSourcing;
-using Infrastructure.EventSourcing;
-using Infrastructure.Serialization;
 using Microsoft.WindowsAzure;
+#endif
 
 namespace Conference.Specflow.Support
 {
     public static class EventSourceHelper
     {
+#if LOCAL
+        static EventSourceHelper()
+        {
+            Database.SetInitializer<EventStoreDbContext>(null);
+        }
+#endif
         public static IEventSourcedRepository<T> GetRepository<T>() where T : class, IEventSourced
         {
+            var serializer = new JsonTextSerializer();
+#if LOCAL
+            Func<EventStoreDbContext> ctxFactory = () => new EventStoreDbContext("EventStore");
+            return new SqlEventSourcedRepository<T>(ConferenceHelper.BuildEventBus(), serializer, ctxFactory);
+#else
             var settings = InfrastructureSettings.Read("Settings.xml");
             var eventSourcingAccount = CloudStorageAccount.Parse(settings.EventSourcing.ConnectionString);
             var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.TableName);
             var publisher = new EventStoreBusPublisher(ConferenceHelper.GetTopicSender("events"), eventStore);
             var metadata = new StandardMetadataProvider();
-
-            return new AzureEventSourcedRepository<T>(eventStore, publisher, new JsonTextSerializer(), metadata);
+            return new AzureEventSourcedRepository<T>(eventStore, publisher, serializer, metadata);
+#endif
         }
     }
 }

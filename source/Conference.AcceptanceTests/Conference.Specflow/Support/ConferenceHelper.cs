@@ -36,7 +36,7 @@ namespace Conference.Specflow.Support
     static class ConferenceHelper
     {
         static ConferenceHelper()
-        {
+        { 
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
             Database.SetInitializer<ConferenceContext>(null);
         }
@@ -149,19 +149,21 @@ namespace Conference.Specflow.Support
 
         internal static IEventBus BuildEventBus()
         {
+            var serializer = new JsonTextSerializer();
 #if LOCAL
-            return new EventBus(GetMessageSender("SqlBus.Events"), new JsonTextSerializer());
+            return new EventBus(GetMessageSender("SqlBus.Events"), serializer);
 #else
-            return new EventBus(GetTopicSender("events"), new StandardMetadataProvider(), new JsonTextSerializer());
+            return new EventBus(GetTopicSender("events"), new StandardMetadataProvider(), serializer);
 #endif
         }
 
         internal static ICommandBus BuildCommandBus()
         {
+            var serializer = new JsonTextSerializer();
 #if LOCAL
-            return new CommandBus(GetMessageSender("SqlBus.Commands"), new JsonTextSerializer());
+            return new CommandBus(GetMessageSender("SqlBus.Commands"), serializer);
 #else
-            return new CommandBus(GetTopicSender("commands"), new StandardMetadataProvider(), new JsonTextSerializer());
+            return new CommandBus(GetTopicSender("commands"), new StandardMetadataProvider(), serializer);
 #endif
         }
 

@@ -18,8 +18,11 @@ namespace Conference.Specflow.Support
 {
     static class Constants
     {
+#if LOCAL
+        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+#else   // Wait more for slower Azure connections
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10);
-
+#endif
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
         public static readonly string ConferenceManagementCreatePage = ConfigurationManager.AppSettings["ConferenceMgmtUrl"] + "create";
@@ -29,7 +32,8 @@ namespace Conference.Specflow.Support
 
         public static class UI
         {
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(1); 
+            // Max time for wait on a screen to show up
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30); 
             
             public const string NextStepId = "Next";
             public const string FindId = "find";
