@@ -51,7 +51,7 @@ a:hover {color: #66ccff;}
 .g-clear {overflow: hidden;clear: both;font-size: 0; height: 0;}
 
 input {
-    text-align: center;
+    text-align: left;
 }
 input[type=tel],
 input[type=text],
