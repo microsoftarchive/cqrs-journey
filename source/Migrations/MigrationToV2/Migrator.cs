@@ -17,6 +17,7 @@ namespace MigrationToV2
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using AutoMapper;
@@ -96,7 +97,7 @@ namespace MigrationToV2
                 migratedEntry.FullName = metadata[StandardMetadata.FullName];
                 migratedEntry.Namespace = metadata[StandardMetadata.Namespace];
                 migratedEntry.TypeName = metadata[StandardMetadata.TypeName];
-                migratedEntry.CreationDate = esEntry.Timestamp.ToEpochMilliseconds();
+                migratedEntry.CreationDate = esEntry.Timestamp.ToString("o");
 
                 var newEventStoreContext = newEventStoreClient.GetDataServiceContext();
                 newEventStoreContext.AddObject(newEventStoreName, migratedEntry);
@@ -110,8 +111,8 @@ namespace MigrationToV2
                 {
                     var messageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
                     var logEntry = Mapper.Map<MessageLogEntity>(migratedEntry);
-                    logEntry.PartitionKey = migratedEntry.CreationDate.ToDateTime().ToString("yyyMM");
-                    logEntry.RowKey = migratedEntry.CreationDate.ToDateTime().Ticks.ToString("D20") + "_" + messageId;
+                    logEntry.PartitionKey = esEntry.Timestamp.ToString("yyyMM");
+                    logEntry.RowKey = esEntry.Timestamp.Ticks.ToString("D20") + "_" + messageId;
                     logEntry.MessageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
                     logEntry.CorrelationId = null;
                     logEntry.Kind = StandardMetadata.EventKind;
