@@ -124,12 +124,8 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<PricedOrder>(@event.OrderId);
-                if (WasNotAlreadyHandled(dto, @event.Version))
-                {
-                    dto.AssignmentsId = @event.SourceId;
-                    dto.OrderVersion = @event.Version;
-                    context.SaveChanges();
-                }
+                dto.AssignmentsId = @event.SourceId;
+                context.SaveChanges();
             }
         }
 
