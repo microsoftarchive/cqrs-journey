@@ -265,11 +265,12 @@ namespace Conference.Web.Admin.Controllers
             return PartialView(seat);
         }
 
-        [HttpPost]
-        public void DeleteSeat(Guid id)
-        {
-            this.Service.DeleteSeat(id);
-        }
+        // TODO: Cannot delete until the event is being published
+        //[HttpPost]
+        //public void DeleteSeat(Guid id)
+        //{
+        //    this.Service.DeleteSeat(id);
+        //}
 
         #endregion
 
