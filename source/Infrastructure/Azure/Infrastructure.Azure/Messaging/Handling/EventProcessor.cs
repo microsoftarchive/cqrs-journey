@@ -42,14 +42,14 @@ namespace Infrastructure.Azure.Messaging.Handling
             this.handlers.Add(eventHandler);
         }
 
-        protected override void ProcessMessage(object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload)
         {
             var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
 
             foreach (dynamic handler in this.handlers
                 .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {
-                Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName);
+                Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName + traceIdentifier);
                 handler.Handle((dynamic)payload);
             }
         }
