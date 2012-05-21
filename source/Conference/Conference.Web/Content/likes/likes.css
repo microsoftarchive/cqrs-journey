@@ -1,0 +1,21 @@
+.likes {}
+.likes__link {
+    margin-left: 10px;
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    background: url(likes_sprite.png);
+}
+*:first-child+html .likes__link {
+    display: inline;
+    zoom:1;
+}
+.likes__link_facebook {
+    background-position: 0 0;
+}
+.likes__link_mail {
+    background-position: -21px 0;
+}
+.likes__link_twitter {
+    background-position: -42px 0;
+}

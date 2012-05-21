@@ -1,69 +1,80 @@
 ﻿@model IEnumerable<Conference.Order>
 @{
     ViewBag.Title = "Orders & Attendees";
+    ViewBag.PageType = "page_conference-seats";
 }
-<p style="text-align: right">
-    @ViewBag.OwnerName
-</p>
-@{ Html.RenderPartial("OrdersNavigation"); }
-<h2>
-    Orders & Attendees</h2>
-<div id="grid-container">
-    <table id="grid">
-        <thead>
-            <tr>
-                <th>
-                    <span>@Html.DisplayNameFor(model => model.AccessCode)</span>
-                </th>
-                <th>
-                    <span>@Html.DisplayNameFor(model => model.Status)</span>
-                </th>
-                <th>
-                    <span>@Html.DisplayNameFor(model => model.TotalAmount)</span>
-                </th>
-                <th>
-                    <span>@Html.DisplayNameFor(model => model.RegistrantName)</span>
-                </th>
-                <th>
-                    <span>@Html.DisplayNameFor(model => model.RegistrantEmail)</span>
-                </th>
-                <th>
-                    <span>Attendees</span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in this.Model)
-            {
-             <tr>
-                <td>
-                    @order.AccessCode
-                </td>
-                <td>
-                    @order.Status
-                </td>
-                <td>
-                    $@order.TotalAmount
-                </td>
-                <td>
-                    @order.RegistrantName
-                </td>
-                <td>
-                    @order.RegistrantEmail
-                </td>
-                <td>
-                    <ul>
-                    @foreach (var attendee in order.Seats)
-                    {
-                        <li>@attendee.SeatInfo.Name: @attendee.Attendee.LastName @attendee.Attendee.FirstName, @attendee.Attendee.Email</li>
-                    }
-                    </ul>
-                </td>
-              </tr>
-            }
-        </tbody>
-    </table>
+
+@section Navigation
+{
+    <div class="quick__login">@ViewBag.OwnerName</div>
+}
+
+@section PageNavigation {
+    @Html.Partial("Navigation")
+}
+
+<h1 class="page__head page__wrapper">
+    Orders & Attendees
+</h1>
+<div class="page__content">
+    <div class="page__wrapper">
+        <div class="content-main__wrapper">
+            <div class="content content-main__main">
+                <div id="grid-container">
+                    <table id="grid" class="content__table_first-cell-wide">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <span>@Html.DisplayNameFor(model => model.AccessCode)</span>
+                                </th>
+                                <th>
+                                    <span>@Html.DisplayNameFor(model => model.Status)</span>
+                                </th>
+                                <th>
+                                    <span>@Html.DisplayNameFor(model => model.TotalAmount)</span>
+                                </th>
+                                <th>
+                                    <span>@Html.DisplayNameFor(model => model.RegistrantName)</span>
+                                </th>
+                                <th>
+                                    <span>@Html.DisplayNameFor(model => model.RegistrantEmail)</span>
+                                </th>
+                                <th>
+                                    <span>Attendees</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in this.Model)
+                            {
+                                <tr>
+                                    <td>@order.AccessCode</td>
+                                    <td>@order.Status</td>
+                                    <td>$@order.TotalAmount</td>
+                                    <td>@order.RegistrantName</td>
+                                    <td>@order.RegistrantEmail</td>
+                                    <td>
+                                        <ul>
+                                            @foreach (var attendee in order.Seats)
+                                            {
+                                                <li>@attendee.SeatInfo.Name: @attendee.Attendee.LastName @attendee.Attendee.FirstName, @attendee.Attendee.Email</li>
+                                            }
+                                        </ul>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="g-clear"></div>
+        </div>
+    </div>
 </div>
+
+
+
+
 <style>
     #grid, #grid input, #grid button
     {

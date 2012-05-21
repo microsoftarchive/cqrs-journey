@@ -1,0 +1,30 @@
+.menu {
+}
+.menu__list {
+    overflow: hidden;
+    padding-top: 8px;
+    }
+.menu__item {
+    float: left;
+    margin-right: 23px;
+    }
+    .menu__item_active, .menu__item_active a {
+        font-weight: bold;
+        color: #fff;
+        }
+.menu__item a {
+    color: #cccccc;
+    text-decoration: none;
+    }
+.menu__item a:hover {
+	color: #66ccff;
+	}
+.menu__back {
+    width: 32px;
+    display: inline-block;
+    height: 32px;
+    background: url(menu__back.png);
+    margin-right: 5px;
+    position: relative;
+    top: -8px;
+    }

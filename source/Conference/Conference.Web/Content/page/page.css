@@ -1,0 +1,129 @@
+.page {
+    min-height: 100%;
+    color: #fff;
+    background: #183b56;
+}
+.page_green {
+	background: #0b3500;
+	}
+.page_green nav {
+	background: #000;
+	}
+.page__wrapper {
+    width: 1130px;
+    margin: 0 auto;
+}
+.page_conference-seats .page__wrapper,
+.page_create-conf .page__wrapper,
+.page_registration .page__wrapper {
+    width: 1070px;
+    padding-left: 60px;
+}
+.page_conference .page__wrapper {
+	width: 1130px;
+	padding-left: 0;
+}
+nav {
+    height: 22px;
+    background: #0e2d44;
+    padding-top: 4px;
+}
+.page_conference-seats nav .page__wrapper,
+.page_create-conf nav .page__wrapper {
+	width: 1130px;
+    margin: 0 auto;
+	padding-left: 0;
+	}
+.page__head {
+    padding-top: 37px;
+    padding-bottom: 13px;
+    overflow: hidden;
+    position: relative;
+    left: -2px;
+    min-height: 75px;
+    font-size: 45px;
+    font-family: "Segoe UI light", Arial, sans-serif;
+    line-height: 32px;
+    }
+    .page__head-note {
+        font-size: 28px;
+        }
+.page__content {}
+
+.page__likes {
+    margin-top: 20px;
+    }
+    .page__likes .page__wrapper {
+        width: 943px;
+        padding-right: 187px;
+        text-align: right;
+    }
+.page__menu {
+    margin: 23px auto -10px;
+    width: 1130px;
+}
+
+div.lightbox {
+	display: none;
+	}
+.lightbox-bg {
+	background: #000; 
+	opacity: 0.75; filter: alpha(opacity: 75); 
+	position: fixed; left: 0; top: 0; _position: absolute; _top: expression(parseInt(document.body.scrollTop) + "px");
+	width: 100%; height: 100%; }
+table.lightbox {
+	position: fixed; left: 0; top: 0; _position: absolute; _top: expression(parseInt(document.body.scrollTop) + "px");
+	width: 100%; height: 100%; }
+td.lightbox {
+	text-align: center;
+	vertical-align: middle;
+	}
+.lightbox-content {
+	position: relative;
+	display: inline-block;
+	text-align: left;
+	background: #fff; }
+.lightbox-content_delete {
+	background: #ffcc00 url(lightbox-content_delete.gif) 20px 20px no-repeat;
+	width: 248px;
+	padding: 0 30px 30px 85px;
+	}
+.lightbox-content__title {
+	font-size: 36px;
+	color: #333333;
+	font-family: Segoe UI Light;
+	line-height: 35px;
+	padding: 24px 0 0;
+	letter-spacing: -1px;
+	}
+.lightbox-content_delete__q {
+	font-size: 15px;
+	color: #333333;
+	padding: 30px 0 0;
+	}
+.lightbox-content_delete__action {
+	padding: 26px 0 0;
+	}
+.lightbox-content_delete__action__no,.lightbox-content_delete__action__no:active,.lightbox-content_delete__action__no:visited,.lightbox-content_delete__action__no:hover {
+	display: inline-block;
+	width: 60px; height: 40px;
+	line-height: 40px;
+	color: #ffffff;
+	font-size: 15px;
+	text-align: center;
+	text-decoration: none;
+	padding: 0 34px 0 0;
+	background: #ff6600 url(lightbox-content_delete__action__no.gif) 60px 8px no-repeat;
+	}
+.lightbox-content_delete__action__yes,.lightbox-content_delete__action__yes:active,.lightbox-content_delete__action__yes:visited,.lightbox-content_delete__action__yes:hover {
+	display: inline-block;
+	margin: 0 0 0 30px;
+	width: 60px; height: 40px;
+	line-height: 40px;
+	color: #ffffff;
+	font-size: 15px;
+	text-align: center;
+	text-decoration: none;
+	padding: 0 34px 0 0;
+	background: #ff6600 url(lightbox-content_delete__action__yes.gif) 60px 8px no-repeat;
+	}

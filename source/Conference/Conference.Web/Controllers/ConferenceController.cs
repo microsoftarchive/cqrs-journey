@@ -16,9 +16,15 @@ namespace Conference.Web.Admin.Controllers
     using System;
     using System.Data;
     using System.Web.Mvc;
+    using AutoMapper;
 
     public class ConferenceController : Controller
     {
+        static ConferenceController()
+        {
+            Mapper.CreateMap<EditableConferenceInfo, ConferenceInfo>();
+        }
+
         private ConferenceService service;
 
         private ConferenceService Service
@@ -76,11 +82,11 @@ namespace Conference.Web.Admin.Controllers
             var conference = this.Service.FindConference(email, accessCode);
             if (conference == null)
             {
-                ViewBag.NotFound = true;
+                ModelState.AddModelError(string.Empty, "Could not locate a conference with the provided email and access code.");
                 // Preserve input so the user doesn't have to type email again.
                 ViewBag.Email = email;
 
-                return Locate();
+                return View();
             }
 
             // TODO: not very secure ;).
@@ -102,7 +108,7 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(ConferenceInfo conference)
+        public ActionResult Create([Bind(Exclude = "Id,AccessCode,Seats,WasEverPublished")] ConferenceInfo conference)
         {
             if (ModelState.IsValid)
             {
@@ -133,19 +139,21 @@ namespace Conference.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(ConferenceInfo conference)
+        public ActionResult Edit(EditableConferenceInfo conference)
         {
             if (this.Conference == null)
             {
                 return HttpNotFound();
             }
+
             if (ModelState.IsValid)
             {
-                this.Service.UpdateConference(conference);
-                return RedirectToAction("Index", new { slug = conference.Slug, accessCode = conference.AccessCode });
+                var edited = Mapper.Map(conference, this.Conference);
+                this.Service.UpdateConference(edited);
+                return RedirectToAction("Index", new { slug = edited.Slug, accessCode = edited.AccessCode });
             }
 
-            return View(conference);
+            return View(this.Conference);
         }
 
         [HttpPost]
@@ -257,11 +265,12 @@ namespace Conference.Web.Admin.Controllers
             return PartialView(seat);
         }
 
-        [HttpPost]
-        public void DeleteSeat(Guid id)
-        {
-            this.Service.DeleteSeat(id);
-        }
+        // TODO: Cannot delete until the event is being published
+        //[HttpPost]
+        //public void DeleteSeat(Guid id)
+        //{
+        //    this.Service.DeleteSeat(id);
+        //}
 
         #endregion
 
