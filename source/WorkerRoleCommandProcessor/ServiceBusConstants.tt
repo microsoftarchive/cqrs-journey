@@ -1,0 +1,74 @@
+﻿<#@ Template Debug="False" Hostspecific="True" Language="C#" #>
+<#@ Output Extension=".cs" #>
+<#@ Assembly Name="System.Core" #>
+<#@ Assembly Name="System.Xml" #>
+<#@ Assembly Name="System.Xml.Linq" #>
+<#@ Import Namespace="System.IO" #>
+<#@ Import Namespace="System.Linq" #>
+<#@ Import Namespace="System.Xml" #>
+<#@ Import Namespace="System.Xml.Linq" #>
+<#
+	var doc = XDocument.Load(this.Host.ResolvePath(@"..\Infrastructure\Azure\Settings.xml"));
+#>
+// ==============================================================================================================
+// Microsoft patterns & practices
+// CQRS Journey project
+// ==============================================================================================================
+// ©2012 Microsoft. All rights reserved. Certain content used with permission from contributors
+// http://cqrsjourney.github.com/contributors/members
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
+// with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software distributed under the License is 
+// distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+// See the License for the specific language governing permissions and limitations under the License.
+// ==============================================================================================================
+
+namespace WorkerRoleCommandProcessor
+{
+	public static class Topics
+	{
+<#
+	foreach (var topic in doc.Descendants("{urn:microsoft-patterns-and-practices-cqrsjourney}Topic"))
+	{
+	    var topicClass = MakeFirstUpper(topic.Attribute("Path").Value.Split('/', '\\', '-', '.').Last());
+		
+#>
+		public static class <#= topicClass #>
+		{
+			/// <summary>
+			/// <#= topic.Attribute("Path").Value #>
+			/// </summary>
+			public const string Path = "<#= topic.Attribute("Path").Value #>";
+
+			public static class Subscriptions
+			{
+<#
+		foreach (var subscription in topic.Elements("{urn:microsoft-patterns-and-practices-cqrsjourney}Subscription"))
+		{
+	        var subscriptionName = MakeFirstUpper(subscription.Attribute("Name").Value.Split('/', '\\', '-', '.').Last());
+#>
+				/// <summary>
+				/// <#= subscription.Attribute("Name").Value #>
+				/// </summary>
+				public const string <#= subscriptionName #> = "<#= subscription.Attribute("Name").Value #>";
+<#
+		}
+#>
+			}
+		}
+
+<#
+	}
+#>
+	}
+}
+<#+
+private string MakeFirstUpper(string name)
+{
+	if (name.Length <= 1) return name.ToUpper();
+	var letters = name.ToCharArray();
+	letters[0] = Char.ToUpper(letters[0]);
+	
+	return new string(letters);
+}
+#>

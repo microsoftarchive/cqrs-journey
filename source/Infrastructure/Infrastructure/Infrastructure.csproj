@@ -49,6 +49,7 @@
     <Compile Include="Database\IAggregateRoot.cs" />
     <Compile Include="Database\IDataContext.cs" />
     <Compile Include="EntityNotFoundException.cs" />
+    <Compile Include="IProcessor.cs" />
     <Compile Include="MessageLog\EventLogExtensions.cs" />
     <Compile Include="MessageLog\IEventLogReader.cs" />
     <Compile Include="MessageLog\QueryCriteria.cs" />

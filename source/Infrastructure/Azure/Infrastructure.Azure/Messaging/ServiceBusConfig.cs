@@ -14,6 +14,10 @@
 namespace Infrastructure.Azure.Messaging
 {
     using System;
+    using System.Globalization;
+    using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus;
@@ -21,6 +25,7 @@ namespace Infrastructure.Azure.Messaging
 
     public class ServiceBusConfig
     {
+        private bool initialized;
         private ServiceBusSettings settings;
 
         public ServiceBusConfig(ServiceBusSettings settings)
@@ -44,6 +49,36 @@ namespace Infrastructure.Azure.Messaging
                     retryPolicy.ExecuteAction(() => CreateSubscriptionIfNotExists(namespaceManager, topic, subscription));
                 }
             }
+
+            this.initialized = true;
+        }
+
+        // Can't really infer the topic from the subscription, since subscriptions of the same 
+        // name can exist across different topics (i.e. "all" currently)
+        public EventProcessor CreateEventProcessor(string subscription, IEventHandler handler, ITextSerializer serializer)
+        {
+            if (!this.initialized)
+                throw new InvalidOperationException("Service bus configuration has not been initialized.");
+
+            var topicSettings = this.settings.Topics.Find(x => x.IsEventBus);
+            if (topicSettings == null)
+                throw new ArgumentOutOfRangeException("No topic has been marked with the IsEventBus attribute. Cannot create event processor.");
+
+            var subscriptionSettings = topicSettings.Subscriptions.Find(x => x.Name == subscription);
+            if (subscriptionSettings == null)
+                throw new ArgumentOutOfRangeException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    "Subscription '{0}' for topic '{1}' has not been registered in the service bus configuration.",
+                    subscription, topicSettings.Path));
+
+            var receiver = subscriptionSettings.RequiresSession ?
+                (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription) :
+                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription);
+
+            var processor = new EventProcessor(receiver, serializer);
+            processor.Register(handler);
+
+            return processor;
         }
 
         private void CreateTopicIfNotExists(NamespaceManager namespaceManager, TopicSettings topic)
@@ -76,6 +111,5 @@ namespace Infrastructure.Azure.Messaging
             }
             catch (MessagingEntityAlreadyExistsException) { }
         }
-
     }
 }

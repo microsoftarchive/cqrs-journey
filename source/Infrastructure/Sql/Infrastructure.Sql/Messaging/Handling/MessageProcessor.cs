@@ -14,16 +14,16 @@
 namespace Infrastructure.Sql.Messaging.Handling
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Messaging;
-    using System.Diagnostics;
 
     /// <summary>
     /// Provides basic common processing code for components that handle 
     /// incoming messages from a receiver.
     /// </summary>
-    public abstract class MessageProcessor : IDisposable
+    public abstract class MessageProcessor : IProcessor, IDisposable
     {
         private readonly IMessageReceiver receiver;
         private readonly ITextSerializer serializer;
