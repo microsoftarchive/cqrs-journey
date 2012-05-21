@@ -80,6 +80,21 @@ namespace Infrastructure.Sql.MessageLog
                 filter = null;
             }
 
+            foreach (var item in criteria.SourceTypes)
+            {
+                var value = item;
+                if (filter == null)
+                    filter = e => e.SourceType == value;
+                else
+                    filter = filter.Or(e => e.SourceType == value);
+            }
+
+            if (filter != null)
+            {
+                expression = (expression == null) ? filter : expression.And(filter);
+                filter = null;
+            }
+
             foreach (var item in criteria.TypeNames)
             {
                 var value = item;

@@ -52,6 +52,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 x.GetMetadata(eventA) == new Dictionary<string, string>
                 {
                     { StandardMetadata.SourceId, eventA.SourceId.ToString() },
+                    { StandardMetadata.SourceType, "SourceA" }, 
                     { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "A" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
@@ -61,6 +62,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 x.GetMetadata(eventB) == new Dictionary<string, string>
                 {
                     { StandardMetadata.SourceId, eventB.SourceId.ToString() },
+                    { StandardMetadata.SourceType, "SourceB" }, 
                     { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "Namespace" }, 
@@ -70,6 +72,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 x.GetMetadata(eventC) == new Dictionary<string, string>
                 {
                     { StandardMetadata.SourceId, eventC.SourceId.ToString() },
+                    { StandardMetadata.SourceType, "SourceC" }, 
                     { StandardMetadata.Kind, StandardMetadata.EventKind },
                     { StandardMetadata.AssemblyName, "B" }, 
                     { StandardMetadata.Namespace, "AnotherNamespace" }, 
@@ -222,12 +225,29 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
         }
 
         [Fact]
+        public void then_can_filter_by_source_type()
+        {
+            var events = this.sut.Query(new QueryCriteria { SourceTypes = { "SourceA" } }).ToList();
+
+            Assert.Equal(1, events.Count);
+        }
+
+        [Fact]
+        public void then_can_filter_by_source_types()
+        {
+            var events = this.sut.Query(new QueryCriteria { SourceTypes = { "SourceA", "SourceB" } }).ToList();
+
+            Assert.Equal(2, events.Count);
+        }
+
+        [Fact]
         public void then_can_use_fluent_criteria_builder()
         {
             var events = this.sut.Query()
                 .FromAssembly("A")
                 .FromAssembly("B")
                 .FromNamespace("Namespace")
+                .FromSource("SourceB")
                 .WithTypeName("EventB")
                 .WithFullName("Namespace.EventB")
                 .ToList();
