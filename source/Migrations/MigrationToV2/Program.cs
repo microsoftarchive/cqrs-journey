@@ -13,10 +13,8 @@
 
 namespace MigrationToV2
 {
-    using System.Diagnostics;
     using System.Reflection;
     using Conference;
-    using Conference.Common.Utils;
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.MessageLog;
@@ -43,15 +41,20 @@ namespace MigrationToV2
             var messageLogSettings = settings.MessageLog;
             var messageLogAccount = CloudStorageAccount.Parse(messageLogSettings.ConnectionString);
 
-            var logWriter = new AzureMessageLogWriter(messageLogAccount, messageLogSettings.TableName);
-            migrator.GeneratePastEventLogMessagesForConferenceManagement(logWriter, dbConnectionString, new StandardMetadataProvider(), new JsonTextSerializer());
+            migrator.GeneratePastEventLogMessagesForConferenceManagement(
+                messageLogAccount.CreateCloudTableClient(),
+                messageLogSettings.TableName,
+                dbConnectionString,
+                new StandardMetadataProvider(),
+                new JsonTextSerializer());
             migrator.MigrateEventSourcedAndGeneratePastEventLogs(
-                logWriter, 
-                eventSourcingAccount.CreateCloudTableClient(), 
+                messageLogAccount.CreateCloudTableClient(),
+                messageLogSettings.TableName,
+                eventSourcingAccount.CreateCloudTableClient(),
                 originalEventStoreName,
-                eventSourcingAccount.CreateCloudTableClient(), 
-                newEventStoreName, 
-                new StandardMetadataProvider(), 
+                eventSourcingAccount.CreateCloudTableClient(),
+                newEventStoreName,
+                new StandardMetadataProvider(),
                 new JsonTextSerializer());
 
             var logReader = new AzureEventLogReader(messageLogAccount, messageLogSettings.TableName, new JsonTextSerializer());

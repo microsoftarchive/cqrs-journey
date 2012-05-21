@@ -17,13 +17,11 @@ namespace MigrationToV2
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Data.Entity;
-    using System.Globalization;
-    using System.Linq;
+    using System.Data.Services.Client;
     using System.Threading;
     using AutoMapper;
     using Conference;
     using Infrastructure;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.EventSourcing;
@@ -47,8 +45,13 @@ namespace MigrationToV2
 
         private readonly RetryPolicy<StorageTransientErrorDetectionStrategy> retryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(10, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(1));
 
-        public void GeneratePastEventLogMessagesForConferenceManagement(AzureMessageLogWriter writer, string conferenceManagementConnectionString, IMetadataProvider metadataProvider, ITextSerializer serializer)
+        public void GeneratePastEventLogMessagesForConferenceManagement(
+            CloudTableClient messageLogClient, string messageLogName,
+            string conferenceManagementConnectionString,
+            IMetadataProvider metadataProvider, ITextSerializer serializer)
         {
+            retryPolicy.ExecuteAction(() => messageLogClient.CreateTableIfNotExist(messageLogName));
+
             // set the creation date to just before releasing V1 (previous month).
             var eventCreationDate = new DateTime(2012, 04, 01, 0, 0, 0, DateTimeKind.Utc);
 
@@ -77,13 +80,29 @@ namespace MigrationToV2
                     Kind = StandardMetadata.EventKind,
                     Payload = serializer.Serialize(evt),
                 };
-                writer.Save(entry);
+
+                var context = messageLogClient.GetDataServiceContext();
+                context.AddObject(messageLogName, entry);
+                retryPolicy.ExecuteAction(() => context.SaveChanges());
             }
         }
 
-        public void MigrateEventSourcedAndGeneratePastEventLogs(AzureMessageLogWriter writer, CloudTableClient originalEventStoreClient, string originalEventStoreName, CloudTableClient newEventStoreClient, string newEventStoreName, IMetadataProvider metadataProvider, ITextSerializer serializer)
+        public void MigrateEventSourcedAndGeneratePastEventLogs(
+            CloudTableClient messageLogClient, string messageLogName,
+            CloudTableClient originalEventStoreClient, string originalEventStoreName,
+            CloudTableClient newEventStoreClient, string newEventStoreName,
+            IMetadataProvider metadataProvider, ITextSerializer serializer)
         {
             retryPolicy.ExecuteAction(() => newEventStoreClient.CreateTableIfNotExist(newEventStoreName));
+
+            var currentEventStoreContext = newEventStoreClient.GetDataServiceContext();
+            string currentEventStorePartitionKey = null;
+            int currentEventStoreCount = 0;
+
+            var currentMessageLogContext = messageLogClient.GetDataServiceContext();
+            string currentMessageLogPartitionKey = null;
+            int currentMessageLogCount = 0;
+
             foreach (var esEntry in this.GetAllEventSourcingEntries(originalEventStoreClient, originalEventStoreName))
             {
                 // Copies the original values from the stored entry
@@ -97,9 +116,20 @@ namespace MigrationToV2
                 migratedEntry.TypeName = metadata[StandardMetadata.TypeName];
                 migratedEntry.CreationDate = esEntry.Timestamp.ToString("o");
 
-                var newEventStoreContext = newEventStoreClient.GetDataServiceContext();
-                newEventStoreContext.AddObject(newEventStoreName, migratedEntry);
-                retryPolicy.ExecuteAction(() => newEventStoreContext.SaveChanges());
+                if (currentEventStorePartitionKey == null)
+                {
+                    currentEventStorePartitionKey = migratedEntry.PartitionKey;
+                    ++currentEventStoreCount;
+                }
+                else if (currentEventStorePartitionKey != migratedEntry.PartitionKey || ++currentEventStoreCount == 100)
+                {
+                    retryPolicy.ExecuteAction(() => currentEventStoreContext.SaveChanges(SaveChangesOptions.Batch));
+                    currentEventStoreContext = newEventStoreClient.GetDataServiceContext();
+                    currentEventStorePartitionKey = migratedEntry.PartitionKey;
+                    currentEventStoreCount = 0;
+                }
+
+                currentEventStoreContext.AddObject(newEventStoreName, migratedEntry);
 
                 const string RowKeyVersionLowerLimit = "0000000000";
                 const string RowKeyVersionUpperLimit = "9999999999";
@@ -115,9 +145,26 @@ namespace MigrationToV2
                     logEntry.CorrelationId = null;
                     logEntry.Kind = StandardMetadata.EventKind;
 
-                    writer.Save(logEntry);
+                    if (currentMessageLogPartitionKey == null)
+                    {
+                        currentMessageLogPartitionKey = logEntry.PartitionKey;
+                        ++currentMessageLogCount;
+                    }
+                    else if (currentMessageLogPartitionKey != logEntry.PartitionKey || ++currentMessageLogCount == 100)
+                    {
+                        retryPolicy.ExecuteAction(() => currentMessageLogContext.SaveChanges(SaveChangesOptions.Batch));
+                        currentMessageLogContext = messageLogClient.GetDataServiceContext();
+                        currentMessageLogPartitionKey = logEntry.PartitionKey;
+                        currentMessageLogCount = 0;
+                    }
+
+                    currentMessageLogContext.AddObject(messageLogName, logEntry);
                 }
             }
+
+            // save any remaining entries
+            retryPolicy.ExecuteAction(() => currentEventStoreContext.SaveChanges(SaveChangesOptions.Batch));
+            retryPolicy.ExecuteAction(() => currentMessageLogContext.SaveChanges(SaveChangesOptions.Batch));
         }
 
         // Very similar to ConferenceService.cs
