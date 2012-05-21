@@ -68,7 +68,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         public void then_sent_event_contains_friendly_metadata()
         {
             Assert.Equal(testEvent.SourceId, sender.Sent.Single().Properties[StandardMetadata.SourceId]);
-            Assert.Equal(testEvent.SourceType, sender.Sent.Single().Properties["SourceType"]);
+            Assert.Equal(testEvent.SourceType, sender.Sent.Single().Properties[StandardMetadata.SourceType]);
             Assert.Equal(testEvent.TypeName, sender.Sent.Single().Properties[StandardMetadata.TypeName]);
             Assert.Equal(testEvent.FullName, sender.Sent.Single().Properties[StandardMetadata.FullName]);
             Assert.Equal(testEvent.Namespace, sender.Sent.Single().Properties[StandardMetadata.Namespace]);

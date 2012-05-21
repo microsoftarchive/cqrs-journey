@@ -116,11 +116,10 @@ namespace Infrastructure.Azure.EventSourcing
             {
                 MessageId = record.PartitionKey + "_" + version,
                 SessionId = record.SourceId,
-                // TODO: match with how StandardMetadataProvider adds this metadata.
                 Properties =
                     {
                         { "Version", version },
-                        { "SourceType", record.SourceType },
+                        { StandardMetadata.SourceType, record.SourceType },
                         { StandardMetadata.Kind, StandardMetadata.EventKind },
                         { StandardMetadata.AssemblyName, record.AssemblyName },
                         { StandardMetadata.FullName, record.FullName },

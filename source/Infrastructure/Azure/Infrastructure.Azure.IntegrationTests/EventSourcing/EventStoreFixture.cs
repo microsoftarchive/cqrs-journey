@@ -15,6 +15,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
@@ -175,6 +176,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[1].RowKey);
             Assert.Equal("Payload2", pending[1].Payload);
             Assert.Equal("Test2", pending[1].TypeName);
+            Assert.InRange(DateTime.Parse(pending[0].CreationDate, null, DateTimeStyles.RoundtripKind), DateTime.UtcNow.AddSeconds(-10), DateTime.UtcNow);
         }
 
         [Fact]

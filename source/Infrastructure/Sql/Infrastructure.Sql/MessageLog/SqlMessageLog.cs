@@ -49,6 +49,8 @@ namespace Infrastructure.Sql.MessageLog
                     FullName = metadata.TryGetValue(StandardMetadata.FullName),
                     Namespace = metadata.TryGetValue(StandardMetadata.Namespace),
                     TypeName = metadata.TryGetValue(StandardMetadata.TypeName),
+                    SourceType = metadata.TryGetValue(StandardMetadata.SourceType) as string,
+                    CreationDate = DateTime.UtcNow.ToString("o"),
                     Payload = serializer.Serialize(@event),
                 });
                 context.SaveChanges();
@@ -65,11 +67,13 @@ namespace Infrastructure.Sql.MessageLog
                 {
                     Id = Guid.NewGuid(),
                     SourceId = command.Id.ToString(),
-                    Kind = metadata[StandardMetadata.Kind],
-                    AssemblyName = metadata[StandardMetadata.AssemblyName],
-                    FullName = metadata[StandardMetadata.FullName],
-                    Namespace = metadata[StandardMetadata.Namespace],
-                    TypeName = metadata[StandardMetadata.TypeName],
+                    Kind = metadata.TryGetValue(StandardMetadata.Kind),
+                    AssemblyName = metadata.TryGetValue(StandardMetadata.AssemblyName),
+                    FullName = metadata.TryGetValue(StandardMetadata.FullName),
+                    Namespace = metadata.TryGetValue(StandardMetadata.Namespace),
+                    TypeName = metadata.TryGetValue(StandardMetadata.TypeName),
+                    SourceType = metadata.TryGetValue(StandardMetadata.SourceType) as string,
+                    CreationDate = DateTime.UtcNow.ToString("o"),
                     Payload = serializer.Serialize(command),
                 });
                 context.SaveChanges();

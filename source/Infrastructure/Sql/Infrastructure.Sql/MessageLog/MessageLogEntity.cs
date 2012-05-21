@@ -24,6 +24,8 @@ namespace Infrastructure.Sql.MessageLog
         public string Namespace { get; set; }
         public string FullName { get; set; }
         public string TypeName { get; set; }
+        public string SourceType { get; set; }
+        public string CreationDate { get; set; }
         public string Payload { get; set; }
     }
 }
