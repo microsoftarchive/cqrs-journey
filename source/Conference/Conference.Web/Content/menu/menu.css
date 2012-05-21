@@ -8,7 +8,7 @@
     float: left;
     margin-right: 23px;
     }
-    .menu__item_active {
+    .menu__item_active, .menu__item_active a {
         font-weight: bold;
         color: #fff;
         }

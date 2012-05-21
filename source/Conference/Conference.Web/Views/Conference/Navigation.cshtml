@@ -1,10 +1,16 @@
 ﻿<div class="page__menu menu">
     <ul class="menu__list">
         <li class="menu__item"><a class="menu__back" href="@Url.Action("Index", "Home")"></a></li>
-        <li class="menu__item menu__item_active"><a href="@Url.Action("Index", new { slug = ViewBag.Slug })">Conference details</a></li>
-        <li class="menu__item"><a href="@Url.Action("Seats", new { slug = ViewBag.Slug })">Seat types</a></li>
+        <li class="menu__item @this.RenderIfActive("Index")"><a href="@Url.Action("Index", new { slug = ViewBag.Slug })">Conference details</a></li>
+        <li class="menu__item @this.RenderIfActive("Seats")"><a href="@Url.Action("Seats", new { slug = ViewBag.Slug })">Seat types</a></li>
         @*<li class="menu__item"><a href="#">Venue Details</a></li>*@
-        <li class="menu__item"><a href="@Url.Action("Orders", new { slug = ViewBag.Slug })">Registrations</a></li>
-        <li class="menu__item">@*<a href="#">Sessions</a>*@</li>
+        <li class="menu__item @this.RenderIfActive("Orders")"><a href="@Url.Action("Orders", new { slug = ViewBag.Slug })">Registrations</a></li>
+        @*<li class="menu__item"><a href="#">Sessions</a></li>*@
     </ul>
 </div>
+
+@helper RenderIfActive(string actionName)
+{
+    if (string.Equals(Url.RequestContext.RouteData.Values["action"], actionName))
+    {<text>menu__item_active</text>}
+}

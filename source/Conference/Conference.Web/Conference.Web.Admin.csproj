@@ -244,7 +244,6 @@
     </Content>
     <Content Include="Views\Conference\Navigation.cshtml" />
     <Content Include="Views\Conference\Seats.cshtml" />
-    <Content Include="Views\Conference\SeatsNavigation.cshtml" />
     <Content Include="Views\Conference\SeatGrid.cshtml" />
     <Content Include="Views\Conference\EditSeat.cshtml" />
     <Content Include="Views\Conference\Index.cshtml" />
