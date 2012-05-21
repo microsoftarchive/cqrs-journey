@@ -46,6 +46,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 ConferenceId = Guid.NewGuid(),
                 AccessCode = "asdf",
                 Seats = new[] { new SeatQuantity(Guid.NewGuid(), 5) },
+                Version = 1
             };
 
             sut.Handle(orderPlacedEvent);
@@ -61,6 +62,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             Assert.Equal(orderPlacedEvent.ConferenceId, dto.ConferenceId);
             Assert.Equal(orderPlacedEvent.SourceId, dto.OrderId);
             Assert.Equal(1, dto.Lines.Count);
+            Assert.Equal(1, dto.OrderVersion);
         }
 
         [Fact]
@@ -105,7 +107,8 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 Email = "a@b.com",
                 FirstName = "A",
                 LastName = "Z",
-                SourceId = orderPlacedEvent.SourceId
+                SourceId = orderPlacedEvent.SourceId,
+                Version = 5
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -120,6 +123,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Seats = new[] { new SeatQuantity(Guid.NewGuid(), 2) },
+                Version = 2
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -135,12 +139,37 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Seats = new[] { new SeatQuantity(newSeat, 2) },
+                Version = 4,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
             Assert.Equal(2, dto.Lines.First().RequestedSeats);
             Assert.Equal(newSeat, dto.Lines.First().SeatType);
+            Assert.Equal(4, dto.OrderVersion);
+        }
+
+        [Fact]
+        public void when_order_updated_event_is_received_twice_then_no_ops()
+        {
+            var newSeat = Guid.NewGuid();
+            sut.Handle(new OrderUpdated
+            {
+                SourceId = orderPlacedEvent.SourceId,
+                Seats = new[] { new SeatQuantity(newSeat, 2) },
+                Version = 4,
+            });
+
+            var lineId = dao.FindDraftOrder(orderPlacedEvent.SourceId).Lines.First().Id;
+
+            sut.Handle(new OrderUpdated
+            {
+                SourceId = orderPlacedEvent.SourceId,
+                Seats = new[] { new SeatQuantity(newSeat, 2) },
+                Version = 4,
+            });
+
+            Assert.Equal(lineId, dao.FindDraftOrder(orderPlacedEvent.SourceId).Lines.First().Id);
         }
 
         [Fact]
@@ -150,6 +179,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Seats = new[] { new SeatQuantity(Guid.NewGuid(), 2) },
+                Version = 4,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -167,12 +197,14 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 ConferenceId = Guid.NewGuid(),
                 AccessCode = "asdf",
                 Seats = new[] { new SeatQuantity(Guid.NewGuid(), 5) },
+                Version = 1,
             });
 
             sut.Handle(new OrderUpdated
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Seats = new[] { new SeatQuantity(Guid.NewGuid(), 2) },
+                Version = 4,
             });
 
             var dto = dao.FindDraftOrder(secondOrder);
@@ -189,6 +221,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 ReservationExpiration = DateTime.UtcNow.AddMinutes(15),
                 // We got two rather than the requested 5.
                 Seats = new[] { new SeatQuantity(orderPlacedEvent.Seats.First().SeatType, 2) },
+                Version = 3,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -205,6 +238,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 ReservationExpiration = DateTime.UtcNow.AddMinutes(15),
                 // We got two rather than the requested 5.
                 Seats = new[] { new SeatQuantity(orderPlacedEvent.Seats.First().SeatType, 2) },
+                Version = 3,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -221,11 +255,13 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 ReservationExpiration = DateTime.UtcNow.AddMinutes(15),
                 // We got two rather than the requested 5.
                 Seats = new[] { new SeatQuantity(orderPlacedEvent.Seats.First().SeatType, 2) },
+                Version = 3,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
             Assert.Equal(DraftOrder.States.PartiallyReserved, dto.State);
+            Assert.Equal(3, dto.OrderVersion);
         }
 
         [Fact]
@@ -236,6 +272,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 SourceId = orderPlacedEvent.SourceId,
                 ReservationExpiration = DateTime.UtcNow.AddMinutes(15),
                 Seats = new[] { orderPlacedEvent.Seats.First() },
+                Version = 3,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -251,6 +288,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 SourceId = orderPlacedEvent.SourceId,
                 ReservationExpiration = DateTime.UtcNow.AddMinutes(15),
                 Seats = new[] { orderPlacedEvent.Seats.First() },
+                Version = 3,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -266,11 +304,13 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 SourceId = orderPlacedEvent.SourceId,
                 ReservationExpiration = DateTime.UtcNow.AddMinutes(15),
                 Seats = new[] { orderPlacedEvent.Seats.First() },
+                Version = 3,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
             Assert.Equal(DraftOrder.States.ReservationCompleted, dto.State);
+            Assert.Equal(3, dto.OrderVersion);
         }
 
         [Fact]
@@ -288,7 +328,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_order_totals_calculated_for_older_version_then_no_op()
+        public void when_order_totals_calculated_for_older_version_then_throws()
         {
             sut.Handle(new OrderTotalsCalculated
             {
@@ -296,11 +336,12 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 Version = 5,
             });
 
+            Assert.Throws<InvalidOperationException>(() =>
             sut.Handle(new OrderTotalsCalculated
             {
                 SourceId = orderPlacedEvent.SourceId,
                 Version = 3,
-            });
+            }));
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
@@ -313,12 +354,13 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             sut.Handle(new OrderPaymentConfirmed
             {
                 SourceId = orderPlacedEvent.SourceId,
-                Version = 2,
+                Version = 7,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
             Assert.Equal(DraftOrder.States.Confirmed, dto.State);
+            Assert.Equal(7, dto.OrderVersion);
         }
 
         [Fact]
@@ -327,7 +369,7 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             sut.Handle(new OrderConfirmed
             {
                 SourceId = orderPlacedEvent.SourceId,
-                Version = 2,
+                Version = 7,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
@@ -341,16 +383,16 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
             sut.Handle(new OrderConfirmed
             {
                 SourceId = orderPlacedEvent.SourceId,
-                Version = 2,
+                Version = 7,
             });
 
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
-            Assert.Equal(2, dto.OrderVersion);
+            Assert.Equal(7, dto.OrderVersion);
         }
 
         [Fact]
-        public void when_order_confirmed_for_older_version_then_updates_state_but_not_order_version()
+        public void when_order_confirmed_for_older_version_then_throws()
         {
             sut.Handle(new OrderTotalsCalculated
             {
@@ -358,16 +400,12 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
                 Version = 2,
             });
 
-            sut.Handle(new OrderConfirmed
-            {
-                SourceId = orderPlacedEvent.SourceId,
-                Version = 1,
-            });
-
-            var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
-
-            Assert.Equal(DraftOrder.States.Confirmed, dto.State);
-            Assert.Equal(2, dto.OrderVersion);
+            Assert.Throws<InvalidOperationException>(() =>
+                sut.Handle(new OrderConfirmed
+                            {
+                                SourceId = orderPlacedEvent.SourceId,
+                                Version = 1,
+                            }));
         }
     }
 }
