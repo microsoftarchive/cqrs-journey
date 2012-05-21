@@ -108,11 +108,10 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<IConferenceDao, ConferenceDao>(new ContainerControlledLifetimeManager());
             container.RegisterType<IOrderDao, OrderDao>(new ContainerControlledLifetimeManager());
 
-            // handlers
-            container.RegisterType<ICommandHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
-            container.RegisterType<RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
-
             container.RegisterType<IPricingService, PricingService>(new ContainerControlledLifetimeManager());
+
+            // handlers
+            container.RegisterType<ICommandHandler, RegistrationProcessRouter>("RegistrationProcessRouter");
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");

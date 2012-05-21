@@ -97,6 +97,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ServiceBusConstants.tt</DependentUpon>
     </Compile>
+    <Compile Include="UnityContainerExtensions.cs" />
     <Compile Include="WorkerRole.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -85,40 +85,13 @@ namespace WorkerRoleCommandProcessor
 
         private void RegisterEventProcessors(UnityContainer container)
         {
-            container.RegisterInstance<IProcessor>("RegistrationProcessRouter", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.RegistrationProcessRouter,
-                container.Resolve<RegistrationProcessRouter>(),
-                container.Resolve<ITextSerializer>()));
-
-            container.RegisterInstance<IProcessor>("OrderViewModelGenerator", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.OrderViewModelGenerator,
-                container.Resolve<OrderViewModelGenerator>(),
-                container.Resolve<ITextSerializer>()));
-
-            container.RegisterInstance<IProcessor>("PricedOrderViewModelGenerator", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.PricedOrderViewModelGenerator,
-                container.Resolve<PricedOrderViewModelGenerator>(),
-                container.Resolve<ITextSerializer>()));
-
-            container.RegisterInstance<IProcessor>("ConferenceViewModelGenerator", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.ConferenceViewModelGenerator,
-                container.Resolve<ConferenceViewModelGenerator>(),
-                container.Resolve<ITextSerializer>()));
-
-            container.RegisterInstance<IProcessor>("SeatAssignmentsViewModelGenerator", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator,
-                container.Resolve<SeatAssignmentsViewModelGenerator>(),
-                container.Resolve<ITextSerializer>()));
-
-            container.RegisterInstance<IProcessor>("SeatAssignmentsHandler", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.SeatAssignmentsHandler,
-                container.Resolve<SeatAssignmentsHandler>(),
-                container.Resolve<ITextSerializer>()));
-
-            container.RegisterInstance<IProcessor>("OrderEventHandler", this.busConfig.CreateEventProcessor(
-                Topics.Events.Subscriptions.OrderEventHandler,
-                container.Resolve<global::Conference.OrderEventHandler>(),
-                container.Resolve<ITextSerializer>()));
+            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationProcessRouter);
+            container.RegisterEventProcessor<OrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGenerator);
+            container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGenerator);
+            container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator);
+            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator);
+            container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler);
+            container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler);
         }
 
         private void RegisterRepository(UnityContainer container)
