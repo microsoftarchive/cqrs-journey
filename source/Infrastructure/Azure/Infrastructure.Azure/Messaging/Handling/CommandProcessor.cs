@@ -16,7 +16,6 @@ namespace Infrastructure.Azure.Messaging.Handling
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -66,14 +65,14 @@ namespace Infrastructure.Azure.Messaging.Handling
         /// <summary>
         /// Processes the message by calling the registered handler.
         /// </summary>
-        protected override void ProcessMessage(object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload)
         {
             var commandType = payload.GetType();
             ICommandHandler handler = null;
 
             if (this.handlers.TryGetValue(commandType, out handler))
             {
-                Trace.WriteLine("-- Handled by " + handler.GetType().FullName);
+                Trace.WriteLine("-- Handled by " + handler.GetType().FullName + traceIdentifier);
                 ((dynamic)handler).Handle((dynamic)payload);
             }
         }

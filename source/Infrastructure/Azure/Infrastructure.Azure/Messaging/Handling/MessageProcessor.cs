@@ -89,7 +89,12 @@ namespace Infrastructure.Azure.Messaging.Handling
             GC.SuppressFinalize(this);
         }
 
-        protected abstract void ProcessMessage(object payload);
+        /// <summary>
+        /// Processes the message.
+        /// </summary>
+        /// <param name="traceIdentifier">The identifier that can be used to track the source message in the logs.</param>
+        /// <param name="payload">The typed message payload.</param>
+        protected abstract void ProcessMessage(string traceIdentifier, object payload);
 
         /// <summary>
         /// Disposes the resources used by the processor.
@@ -134,7 +139,7 @@ namespace Infrastructure.Azure.Messaging.Handling
             string traceIdentifier = BuildTraceIdentifier(message);
             try
             {
-                ProcessMessage(payload);
+                ProcessMessage(traceIdentifier, payload);
             }
             catch (Exception e)
             {

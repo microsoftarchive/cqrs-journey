@@ -105,7 +105,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             this.waiter = waiter;
         }
 
-        protected override void ProcessMessage(object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload)
         {
             this.Payload = payload;
 
