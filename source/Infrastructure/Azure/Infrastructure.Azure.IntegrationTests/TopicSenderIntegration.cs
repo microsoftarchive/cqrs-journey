@@ -22,32 +22,24 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
     using Microsoft.ServiceBus.Messaging;
     using Xunit;
 
-    public class given_a_topic_sender : IDisposable
+    public class given_a_topic_sender : given_a_topic_and_subscription
     {
-        private ServiceBusSettings settings;
-        private string topic = "Test-" + Guid.NewGuid().ToString();
         private SubscriptionClient subscriptionClient;
         private TestableTopicSender sut;
 
         public given_a_topic_sender()
         {
-            this.settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
-            this.sut = new TestableTopicSender(this.settings, this.topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
+            this.sut = new TestableTopicSender(this.Settings, this.Topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
 
-            var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
-            var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
+            var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(this.Settings.TokenIssuer, this.Settings.TokenAccessKey);
+            var serviceUri = ServiceBusEnvironment.CreateServiceUri(this.Settings.ServiceUriScheme, this.Settings.ServiceNamespace, this.Settings.ServicePath);
 
             var manager = new NamespaceManager(serviceUri, tokenProvider);
-            manager.CreateSubscription(topic, "Test");
+            manager.CreateSubscription(this.Topic, "Test");
 
             var messagingFactory = MessagingFactory.Create(serviceUri, tokenProvider);
-            this.subscriptionClient = messagingFactory.CreateSubscriptionClient(topic, "Test");
+            this.subscriptionClient = messagingFactory.CreateSubscriptionClient(this.Topic, "Test");
 
-        }
-
-        public void Dispose()
-        {
-            this.settings.TryDeleteTopic(this.topic);
         }
 
         [Fact]

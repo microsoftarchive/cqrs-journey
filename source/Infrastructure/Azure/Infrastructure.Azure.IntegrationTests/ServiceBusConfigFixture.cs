@@ -36,6 +36,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
 
         public given_service_bus_config()
         {
+            System.Diagnostics.Trace.Listeners.Clear();
             this.settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
             foreach (var topic in this.settings.Topics)
             {
@@ -144,7 +145,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
 
             processor.Start();
 
-            var sender = new TopicSender(this.settings, "conference/events");
+            var sender = new TopicSender(this.settings, this.settings.Topics.First(t => t.Path.StartsWith("conference/events")).Path);
             var bus = new EventBus(sender, new StandardMetadataProvider(), serializer);
             bus.Publish(ev);
 
