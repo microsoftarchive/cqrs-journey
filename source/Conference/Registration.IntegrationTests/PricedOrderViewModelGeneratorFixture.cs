@@ -71,7 +71,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         },
                     },
                     Total = 50,
-                    IsFreeOfCharge = true
+                    IsFreeOfCharge = true,
+                    Version = 4,
                 });
 
                 this.dto = this.dao.FindPricedOrder(orderId);
@@ -81,6 +82,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             public void then_creates_model()
             {
                 Assert.NotNull(dto);
+                Assert.Equal(4, dto.OrderVersion);
             }
 
             [Fact]
@@ -96,7 +98,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             [Fact]
             public void then_populates_description()
             {
-                Assert.Equal("General", dto.Lines[0].Description);
+                Assert.Contains("General", dto.Lines.Select(x => x.Description));
             }
 
             [Fact]
@@ -122,6 +124,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         },
                     },
                     Total = 20,
+                    Version = 8,
                 });
 
                 var dto = this.dao.FindPricedOrder(orderId);
@@ -131,7 +134,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                 Assert.Equal(2, dto.Lines[0].Quantity);
                 Assert.Equal(10, dto.Lines[0].UnitPrice);
                 Assert.Equal(20, dto.Total);
-                Assert.Equal("Precon", dto.Lines[0].Description);
+                Assert.Contains("Precon", dto.Lines.Select(x => x.Description));
+                Assert.Equal(8, dto.OrderVersion);
             }
 
             [Fact]
@@ -148,11 +152,17 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             public void when_seat_assignments_created_then_updates_order_with_assignments_id()
             {
                 var assignmentsId = Guid.NewGuid();
-                this.sut.Handle(new SeatAssignmentsCreated { SourceId = assignmentsId, OrderId = orderId });
+                this.sut.Handle(new SeatAssignmentsCreated
+                                    {
+                                        SourceId = assignmentsId, 
+                                        OrderId = orderId,
+                                        Version = 9,
+                                    });
 
                 var dto = this.dao.FindPricedOrder(orderId);
 
                 Assert.Equal(assignmentsId, dto.AssignmentsId);
+                Assert.Equal(9, dto.OrderVersion);
             }
         }
 
@@ -199,7 +209,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         },
                     },
                     Total = 60,
-                    IsFreeOfCharge = true
+                    IsFreeOfCharge = true,
+                    Version = 9,
                 });
 
                 this.dto = this.dao.FindPricedOrder(orderId);
@@ -208,8 +219,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             [Fact]
             public void then_populates_with_updated_description()
             {
-                Assert.True(dto.Lines.Any(x => x.Description == "General_Updated"));
-                Assert.True(dto.Lines.Any(x => x.Description == "Precon"));
+                Assert.Contains("General_Updated", dto.Lines.Select(x => x.Description));
+                Assert.Contains("Precon_Updated", dto.Lines.Select(x => x.Description));
             }
 
             [Fact]
@@ -237,12 +248,13 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                         },
                     },
                     Total = 30,
+                    Version = 12,
                 });
 
                 var dto = this.dao.FindPricedOrder(orderId);
 
-                Assert.True(dto.Lines.Any(x => x.Description == "General_Updated"));
-                Assert.True(dto.Lines.Any(x => x.Description == "Precon_Updated"));
+                Assert.Contains("General_Updated", dto.Lines.Select(x => x.Description));
+                Assert.Contains("Precon_Updated", dto.Lines.Select(x => x.Description));
             }
         }
     }

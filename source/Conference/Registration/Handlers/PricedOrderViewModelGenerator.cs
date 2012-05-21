@@ -49,13 +49,18 @@ namespace Registration.Handlers
                     dto = new PricedOrder { OrderId = @event.SourceId };
                     context.Set<PricedOrder>().Add(dto);
                 }
-                else
+                else if (WasNotAlreadyHandled(dto, @event.Version))
                 {
                     var linesSet = context.Set<PricedOrderLine>();
                     foreach (var line in dto.Lines.ToList())
                     {
                         linesSet.Remove(line);
                     }
+                }
+                else
+                {
+                    // message already handled, skip.
+                    return;
                 }
 
                 List<PricedOrderLineSeatTypeDescription> seatTypeDescriptions;
@@ -108,10 +113,6 @@ namespace Registration.Handlers
                     context.Set<PricedOrder>().Remove(dto);
                     context.SaveChanges();
                 }
-                else
-                {
-                    Trace.TraceError("Failed to locate Priced order corresponding to the expired order with id {0}.", @event.SourceId);
-                }
             }
         }
 
@@ -123,14 +124,11 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<PricedOrder>(@event.OrderId);
-                if (dto != null)
+                if (WasNotAlreadyHandled(dto, @event.Version))
                 {
                     dto.AssignmentsId = @event.SourceId;
+                    dto.OrderVersion = @event.Version;
                     context.SaveChanges();
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate Priced order corresponding to the seat assignments created, order  with id {0}.", @event.OrderId);
                 }
             }
         }
@@ -164,6 +162,33 @@ namespace Registration.Handlers
 
                 dto.Name = @event.Name;
                 context.SaveChanges();
+            }
+        }
+
+        private static bool WasNotAlreadyHandled(PricedOrder pricedOrder, int eventVersion)
+        {
+            // This assumes that events will be handled in order, but we might get the same message more than once.
+            if (eventVersion > pricedOrder.OrderVersion)
+            {
+                return true;
+            }
+            else if (eventVersion == pricedOrder.OrderVersion)
+            {
+                Trace.TraceWarning(
+                    "Ignoring duplicate priced order update message with version {1} for order id {0}",
+                    pricedOrder.OrderId,
+                    eventVersion);
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
+This read model generator has an expectation that the EventBus will deliver messages for the same source in order.",
+                        pricedOrder.OrderId,
+                        eventVersion,
+                        pricedOrder.OrderVersion));
             }
         }
     }
