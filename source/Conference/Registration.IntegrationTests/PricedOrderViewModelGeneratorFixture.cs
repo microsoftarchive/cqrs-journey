@@ -155,14 +155,13 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                 this.sut.Handle(new SeatAssignmentsCreated
                                     {
                                         SourceId = assignmentsId, 
-                                        OrderId = orderId,
-                                        Version = 9,
+                                        OrderId = orderId
                                     });
 
                 var dto = this.dao.FindPricedOrder(orderId);
 
                 Assert.Equal(assignmentsId, dto.AssignmentsId);
-                Assert.Equal(9, dto.OrderVersion);
+                Assert.Equal(4, dto.OrderVersion);
             }
         }
 
@@ -220,7 +219,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             public void then_populates_with_updated_description()
             {
                 Assert.Contains("General_Updated", dto.Lines.Select(x => x.Description));
-                Assert.Contains("Precon_Updated", dto.Lines.Select(x => x.Description));
+                Assert.Contains("Precon", dto.Lines.Select(x => x.Description));
             }
 
             [Fact]
