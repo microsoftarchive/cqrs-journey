@@ -59,7 +59,7 @@ namespace Conference.Specflow.Support
             routeData.Values.Add("conferenceCode", conferenceCode);
 
             // Create the controller and set context
-            var controller = new RegistrationController(ConferenceHelper.GetCommandBus(), orderDao, conferenceDao);
+            var controller = new RegistrationController(ConferenceHelper.BuildCommandBus(), orderDao, conferenceDao);
             controller.ControllerContext = new ControllerContext(context, routeData, controller);
             controller.Url = new UrlHelper(new RequestContext(context, routeData), routes);
 
@@ -69,7 +69,7 @@ namespace Conference.Specflow.Support
         public static PaymentController GetPaymentController()
         {
             var paymentDao = new PaymentDao(() => new PaymentsReadDbContext(PaymentsReadDbContext.SchemaName));
-            return new PaymentController(ConferenceHelper.GetCommandBus(), paymentDao);
+            return new PaymentController(ConferenceHelper.BuildCommandBus(), paymentDao);
         }
 
         public static OrderController GetOrderController()
@@ -78,7 +78,7 @@ namespace Conference.Specflow.Support
             var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
 
-            return new OrderController(conferenceDao, orderDao, ConferenceHelper.GetCommandBus());
+            return new OrderController(conferenceDao, orderDao, ConferenceHelper.BuildCommandBus());
         }
 
         public static T GetModel<T>(ActionResult result) where T : class

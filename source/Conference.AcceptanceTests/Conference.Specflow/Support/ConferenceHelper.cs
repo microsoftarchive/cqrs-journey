@@ -97,11 +97,6 @@ namespace Conference.Specflow.Support
             return seatReservation.ReservationId;
         }
 
-        public static ICommandBus GetCommandBus()
-        {
-            return BuildCommandBus();
-        }
-
         private static ConferenceInfo BuildConferenceInfo(Table seats, string conferenceSlug)
         {
             var conference = new ConferenceInfo()
@@ -136,7 +131,7 @@ namespace Conference.Specflow.Support
             return conference;
         }
 
-        private static IEventBus BuildEventBus()
+        internal static IEventBus BuildEventBus()
         {
 #if LOCAL
             return new EventBus(GetMessageSender("SqlBus.Events"), new JsonTextSerializer());
@@ -145,7 +140,7 @@ namespace Conference.Specflow.Support
 #endif
         }
 
-        private static ICommandBus BuildCommandBus()
+        internal static ICommandBus BuildCommandBus()
         {
 #if LOCAL
             return new CommandBus(GetMessageSender("SqlBus.Commands"), new JsonTextSerializer());
@@ -160,7 +155,7 @@ namespace Conference.Specflow.Support
             return new MessageSender(Database.DefaultConnectionFactory, "SqlBus", tableName);
         }
 #else
-        private static TopicSender GetTopicSender(string topic)
+        internal static TopicSender GetTopicSender(string topic)
         {
             var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
             return new TopicSender(settings, "conference/" + topic);
