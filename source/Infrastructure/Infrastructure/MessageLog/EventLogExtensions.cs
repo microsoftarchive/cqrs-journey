@@ -68,6 +68,11 @@ namespace Infrastructure.MessageLog
             /// Filters events with a matching namespace metadata.
             /// </summary>
             IEventQuery FromNamespace(string @namespace);
+
+            /// <summary>
+            /// Filters events with a matching source type name metadata.
+            /// </summary>
+            IEventQuery FromSource(string sourceType);
         }
 
         /// <summary>
@@ -119,6 +124,12 @@ namespace Infrastructure.MessageLog
             public IEventQuery FromNamespace(string @namespace)
             {
                 criteria.Namespaces.Add(@namespace);
+                return this;
+            }
+
+            public IEventQuery FromSource(string sourceType)
+            {
+                criteria.SourceTypes.Add(sourceType);
                 return this;
             }
         }

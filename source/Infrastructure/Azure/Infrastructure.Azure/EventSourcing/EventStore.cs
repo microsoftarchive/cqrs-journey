@@ -77,6 +77,7 @@ namespace Infrastructure.Azure.EventSourcing
             var context = this.tableClient.GetDataServiceContext();
             foreach (var eventData in events)
             {
+                string creationDate = DateTime.UtcNow.ToString("o");
                 var formattedVersion = eventData.Version.ToString("D10");
                 context.AddObject(
                     this.tableName,
@@ -84,6 +85,7 @@ namespace Infrastructure.Azure.EventSourcing
                         {
                             PartitionKey = partitionKey,
                             RowKey = formattedVersion,
+                            CreationDate = creationDate,
                         }));
 
                 // Add a duplicate of this event to the Unpublished "queue"
@@ -93,10 +95,10 @@ namespace Infrastructure.Azure.EventSourcing
                         {
                             PartitionKey = partitionKey,
                             RowKey = UnpublishedRowKeyPrefix + formattedVersion,
+                            CreationDate = creationDate,
                         }));
             }
 
-            // TODO: additional error handling?
             try
             {
                 this.eventStoreRetryPolicy.ExecuteAction(() => context.SaveChanges(SaveChangesOptions.Batch));

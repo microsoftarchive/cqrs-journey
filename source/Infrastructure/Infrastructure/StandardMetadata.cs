@@ -58,5 +58,10 @@ namespace Infrastructure
         /// The simple type name (without the namespace) of the message payload (i.e. event or command).
         /// </summary>
         public const string TypeName = "TypeName";
+
+        /// <summary>
+        /// The name of the entity that originated this message.
+        /// </summary>
+        public const string SourceType = "SourceType";
     }
 }

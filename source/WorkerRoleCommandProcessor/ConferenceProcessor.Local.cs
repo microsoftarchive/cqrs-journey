@@ -57,13 +57,13 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);
             container.RegisterInstance<IProcessor>("EventProcessor", eventProcessor);
 
-            RegisterRepository(container);
-            RegisterEventHandlers(container, eventProcessor);
-
             // Event log database and handler.
             container.RegisterType<SqlMessageLog>(new InjectionConstructor("MessageLog", serializer, metadata));
             container.RegisterType<IEventHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
             container.RegisterType<ICommandHandler, SqlMessageLogHandler>("SqlMessageLogHandler");
+
+            RegisterRepository(container);
+            RegisterEventHandlers(container, eventProcessor);
         }
 
         private void RegisterEventHandlers(UnityContainer container, EventProcessor eventProcessor)
@@ -75,6 +75,7 @@ namespace WorkerRoleCommandProcessor
             eventProcessor.Register(container.Resolve<SeatAssignmentsViewModelGenerator>());
             eventProcessor.Register(container.Resolve<SeatAssignmentsHandler>());
             eventProcessor.Register(container.Resolve<global::Conference.OrderEventHandler>());
+            eventProcessor.Register(container.Resolve<SqlMessageLogHandler>());
         }
 
         private void RegisterRepository(UnityContainer container)

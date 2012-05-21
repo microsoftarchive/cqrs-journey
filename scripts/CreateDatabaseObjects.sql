@@ -108,16 +108,16 @@ CREATE TABLE [ConferenceManagement].[Conferences](
 	[AccessCode] [nvarchar](6) NULL,
 	[OwnerName] [nvarchar](max) NOT NULL,
 	[OwnerEmail] [nvarchar](max) NOT NULL,
+	[Slug] [nvarchar](max) NOT NULL,
+	[WasEverPublished] [bit] NOT NULL,
 	[Name] [nvarchar](max) NOT NULL,
 	[Description] [nvarchar](max) NOT NULL,
 	[Location] [nvarchar](max) NOT NULL,
-	[Slug] [nvarchar](max) NOT NULL,
 	[Tagline] [nvarchar](max) NULL,
 	[TwitterSearch] [nvarchar](max) NULL,
 	[StartDate] [datetime] NOT NULL,
 	[EndDate] [datetime] NOT NULL,
 	[IsPublished] [bit] NOT NULL,
-	[WasEverPublished] [bit] NOT NULL,
  CONSTRAINT [PK_ConferenceManagement.Conferences] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -165,6 +165,8 @@ CREATE TABLE [MessageLog].[Messages](
 	[Namespace] [nvarchar](max) NULL,
 	[FullName] [nvarchar](max) NULL,
 	[TypeName] [nvarchar](max) NULL,
+	[SourceType] [nvarchar](max) NULL,
+	[CreationDate] [nvarchar](max) NULL,
 	[Payload] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 
 (

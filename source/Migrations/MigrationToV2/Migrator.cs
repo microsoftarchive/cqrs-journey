@@ -17,6 +17,7 @@ namespace MigrationToV2
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using AutoMapper;
@@ -64,12 +65,10 @@ namespace MigrationToV2
                     PartitionKey = eventCreationDate.ToString("yyyMM"),
                     // could have a prefix instead of suffix to be able to search
                     RowKey = eventCreationDate.Ticks.ToString("D20") + "_Generated",
-                    // Timestamp cannot be set, and according to docs, should not be used for business logic.
-                    // TODO: should we add and extra column storing event creation date? 
-                    // we should do the same for EventTableServiceEntity and migrate schema (we probably need a migration of those anyway, to add new metadata)
-                    // Timestamp = eventCreationDate, 
+                    CreationDate = eventCreationDate.ToString("o"),
                     MessageId = null,
                     CorrelationId = null,
+                    SourceType = null,
                     SourceId = evt.SourceId.ToString(),
                     AssemblyName = metadata[StandardMetadata.AssemblyName],
                     FullName = metadata[StandardMetadata.FullName],
@@ -96,7 +95,7 @@ namespace MigrationToV2
                 migratedEntry.FullName = metadata[StandardMetadata.FullName];
                 migratedEntry.Namespace = metadata[StandardMetadata.Namespace];
                 migratedEntry.TypeName = metadata[StandardMetadata.TypeName];
-                migratedEntry.CreationDate = esEntry.Timestamp.ToEpochMilliseconds();
+                migratedEntry.CreationDate = esEntry.Timestamp.ToString("o");
 
                 var newEventStoreContext = newEventStoreClient.GetDataServiceContext();
                 newEventStoreContext.AddObject(newEventStoreName, migratedEntry);
@@ -110,17 +109,15 @@ namespace MigrationToV2
                 {
                     var messageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
                     var logEntry = Mapper.Map<MessageLogEntity>(migratedEntry);
-                    logEntry.PartitionKey = migratedEntry.CreationDate.ToDateTime().ToString("yyyMM");
-                    logEntry.RowKey = migratedEntry.CreationDate.ToDateTime().Ticks.ToString("D20") + "_" + messageId;
-                    logEntry.MessageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
+                    logEntry.PartitionKey = esEntry.Timestamp.ToString("yyyMM");
+                    logEntry.RowKey = esEntry.Timestamp.Ticks.ToString("D20") + "_" + messageId;
+                    logEntry.MessageId = messageId;
                     logEntry.CorrelationId = null;
                     logEntry.Kind = StandardMetadata.EventKind;
-                    //logEntry.SourceType = migratedEntry.SourceType;
 
                     writer.Save(logEntry);
                 }
             }
-
         }
 
         // Very similar to ConferenceService.cs
