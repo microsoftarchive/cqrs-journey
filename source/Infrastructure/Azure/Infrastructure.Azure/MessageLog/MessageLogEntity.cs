@@ -58,6 +58,11 @@ namespace Infrastructure.Azure.MessageLog
         public string TypeName { get; set; }
 
         /// <summary>
+        /// The name of the entity that originated this message.
+        /// </summary>
+        public string SourceType { get; set; }
+
+        /// <summary>
         /// Gets or sets the payload of the log.
         /// </summary>
         public string Payload { get; set; }

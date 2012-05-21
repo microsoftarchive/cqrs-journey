@@ -115,7 +115,6 @@ namespace MigrationToV2
                     logEntry.MessageId = migratedEntry.PartitionKey + "_" + migratedEntry.RowKey; //This is the message ID used in the past (deterministic).
                     logEntry.CorrelationId = null;
                     logEntry.Kind = StandardMetadata.EventKind;
-                    //logEntry.SourceType = migratedEntry.SourceType;
 
                     writer.Save(logEntry);
                 }
