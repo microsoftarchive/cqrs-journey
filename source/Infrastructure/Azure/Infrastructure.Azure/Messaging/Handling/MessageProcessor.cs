@@ -134,8 +134,6 @@ namespace Infrastructure.Azure.Messaging.Handling
             string traceIdentifier = BuildTraceIdentifier(message);
             try
             {
-                TracePayload(traceIdentifier, payload);
-
                 ProcessMessage(payload);
             }
             catch (Exception e)
@@ -187,17 +185,6 @@ namespace Infrastructure.Azure.Messaging.Handling
         {
             if (this.disposed)
                 throw new ObjectDisposedException("MessageProcessor");
-        }
-
-        [Conditional("TRACE")]
-        private void TracePayload(string traceIdentifier, object payload)
-        {
-            // TODO: can force the use of indented JSON for trace
-            using (var writer = new StringWriter())
-            {
-                this.Serializer.Serialize(writer, payload);
-                Trace.WriteLine("Processing message" + traceIdentifier + " with payload:\r\n" + writer.ToString());
-            }
         }
     }
 }
