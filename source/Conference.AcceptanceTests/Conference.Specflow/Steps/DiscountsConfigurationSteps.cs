@@ -11,30 +11,42 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
-using WatiN.Core;
 
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    public class StepDefinition
+    public class DiscountsConfigurationSteps
     {
-        private readonly Browser browser;
-
-        public StepDefinition()
+        [Given(@"the Seat Types configuration")]
+        public void GivenTheSeatTypesConfiguration(Table table)
         {
-            browser = ScenarioContext.Current.Browser();
+            ScenarioContext.Current.Pending();
         }
 
-        public StepDefinition(Browser browser)
+        [Given(@"the Business Customer selects 'Add new Promotional code' option")]
+        public void GivenTheBusinessCustomerSelectsAddNewPromotionalCodeOption()
         {
-            this.browser = browser;
+            ScenarioContext.Current.Pending();
         }
 
-        protected Browser Browser
+        [Given(@"the Business Customer enter the 'NEWCODE' Promotional Code and these attributes")]
+        public void GivenTheBusinessCustomerEnterTheNewcodePromotionalCodeAndTheseAttributes(Table table)
         {
-            get { return browser; }
+            ScenarioContext.Current.Pending();
         }
+
+        [When(@"the 'Save' option is selected")]
+        public void WhenTheSaveOptionIsSelected()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
+        [Then(@"the new Promotional Code is added to the list of existing codes")]
+        public void ThenTheNewPromotionalCodeIsAddedToTheListOfExistingCodes()
+        {
+            ScenarioContext.Current.Pending();
+        }
+
     }
 }

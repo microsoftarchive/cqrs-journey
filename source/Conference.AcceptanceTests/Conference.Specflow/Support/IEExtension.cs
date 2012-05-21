@@ -47,7 +47,7 @@ namespace Conference.Specflow.Support
         public static void ClickAndWait(this Browser browser, string controlId, string untilContainsText)
         {
             Click(browser, controlId);
-            browser.WaitUntilContainsText(untilContainsText, Constants.UI.WaitTimeout.Seconds);
+            browser.WaitUntilContainsText(untilContainsText, (int)Constants.UI.WaitTimeout.TotalSeconds);
         }
 
         public static void SelectListInTableRow(this Browser browser, string rowName, string value)
