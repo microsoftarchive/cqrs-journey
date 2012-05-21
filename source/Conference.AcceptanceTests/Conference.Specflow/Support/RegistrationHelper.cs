@@ -24,7 +24,6 @@ using Infrastructure.Serialization;
 using Infrastructure.Sql.BlobStorage;
 using Moq;
 using Payments.ReadModel.Implementation;
-using Registration.ReadModel;
 using Registration.ReadModel.Implementation;
 
 namespace Conference.Specflow.Support
