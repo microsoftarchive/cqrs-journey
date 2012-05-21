@@ -129,7 +129,10 @@
 .content .content__table_seats-edit td a.green,.content .content__table_seats-edit td a.green:active,.content .content__table_seats-edit td a.green:visited,.content .content__table_seats-edit td a.green:hover {
 	color: #7da466;
 	}
-.content .content__table__grey td {
+/*.content .content__table__grey td {
+	background: #cccccc;
+	}*/
+.content table tr:nth-child(even) td {
 	background: #cccccc;
 	}
 .content .content__table__pub {

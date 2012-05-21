@@ -16,7 +16,7 @@
 
         @RenderSection("Head", required: false)
     </head>
-<body class="page page_green page_create-conf">
+<body class="page page_green @(ViewBag.PageType ?? "page_create-conf")">
 <nav>
     <div class="page__wrapper quick">
         <ul class="quick__list">
