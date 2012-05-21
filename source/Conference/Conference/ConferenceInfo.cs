@@ -20,7 +20,33 @@ namespace Conference
     using Common.Utils;
     using Conference.Properties;
 
-    public class ConferenceInfo
+    public class EditableConferenceInfo
+    {
+        [Required(AllowEmptyStrings = false)]
+        public string Name { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        public string Description { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        public string Location { get; set; }
+
+        public string Tagline { get; set; }
+        public string TwitterSearch { get; set; }
+
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
+        [Display(Name = "Start")]
+        public DateTime StartDate { get; set; }
+
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
+        [Display(Name = "End")]
+        public DateTime EndDate { get; set; }
+
+        [Display(Name = "Is Published?")]
+        public bool IsPublished { get; set; }
+    }
+
+    public class ConferenceInfo : EditableConferenceInfo
     {
         public ConferenceInfo()
         {
@@ -44,32 +70,8 @@ namespace Conference
         public string OwnerEmail { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        public string Name { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Description { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        public string Location { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
         [RegularExpression(@"^\w+$", ErrorMessageResourceType = typeof(Resources), ErrorMessageResourceName = "InvalidSlug")]
         public string Slug { get; set; }
-
-        public string Tagline { get; set; }
-
-        public string TwitterSearch { get; set; }
-
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
-        [Display(Name = "Start")]
-        public DateTime StartDate { get; set; }
-
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy/MM/dd}")]
-        [Display(Name = "End")]
-        public DateTime EndDate { get; set; }
-
-        [Display(Name = "Is Published?")]
-        public bool IsPublished { get; set; }
 
         public bool WasEverPublished { get; set; }
 

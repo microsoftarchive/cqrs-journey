@@ -2,19 +2,35 @@
     ViewBag.Title = "Access Conference";
 }
 
-@if (((bool?)ViewBag.NotFound).GetValueOrDefault()) {
-    <div class="field-validation-error">Could not locate a conference with the provided email and access code.</div>
-}
+<div class="page__content">
+    <div class="page__wrapper">
+    @using (Html.BeginForm())
+    {
+        <div class="content-main__header">Login</div>
+        @Html.ValidationSummary(false)
+        <fieldset class="content content_login">
 
-<p>Please enter your email and conference access code to manage your conference:</p>
-
-@using (Html.BeginForm()) {
-    @Html.ValidationSummary(true)
-    <fieldset>
-        <div class="fieldset">
-            <div><label class="editor-label">Email:</label><input type="text" class="editor-field" name="email" value="@ViewBag.Email" /></div>
-            <div><label class="editor-label">Access Code:</label><input type="text" class="editor-field" name="accessCode" /></div>
-        </div>
-        <input id="access" type="submit" value="Access" />
-    </fieldset>
-}
+            <p>Please enter your email and conference access code to manage your conference:</p>
+            <div class="form">
+                <div class="form__fieldset">
+                    <label class="form__label">Login (E-mail):<span>*</span></label>
+                    <div class="form__field">
+                        <input type="text" name="email" value="@ViewBag.Email" data-val="true" data-val-required="e-mail field is required."  />
+                    </div>
+                </div>
+                <div class="form__fieldset">
+                    <label class="form__label">Access code:<span>*</span></label>
+                    <div class="form__field">
+                        <input type="password" name="accessCode" data-val="true" data-val-required="Access code is required."  />
+                    </div>
+                </div>
+                <div class="form__but-box">
+                    <button class="form__but">Login</button>
+                </div>
+                <div class="g-clear"></div>
+            </div>
+        </fieldset>
+        <div class="g-clear"></div>
+    }
+    </div>
+</div>
