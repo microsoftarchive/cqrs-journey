@@ -226,7 +226,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             stopWatch.Start();
             var actual = sut.GetPartitionsWithPendingEvents().ToList();
             stopWatch.Stop();
-            Debug.WriteLine(stopWatch.ElapsedMilliseconds);
+            //Debug.WriteLine(stopWatch.ElapsedMilliseconds);
             Assert.Equal(expectedPending.Length, actual.Distinct().Count());
             Assert.Equal(expectedPending.Length, actual.Intersect(expectedPending).Count());
         }

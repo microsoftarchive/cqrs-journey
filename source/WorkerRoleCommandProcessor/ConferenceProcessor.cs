@@ -14,7 +14,9 @@
 namespace WorkerRoleCommandProcessor
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Linq;
     using System.Threading;
     using Infrastructure;
     using Infrastructure.BlobStorage;
@@ -43,11 +45,15 @@ namespace WorkerRoleCommandProcessor
     {
         private IUnityContainer container;
         private CancellationTokenSource cancellationTokenSource;
+        private List<IProcessor> processors;
 
         public ConferenceProcessor()
         {
+            OnCreating();
+
+            this.cancellationTokenSource = new CancellationTokenSource();
             this.container = CreateContainer();
-            RegisterHandlers(container);
+            RegisterCommandHandlers(container);
 
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationProcessDbContext>(null);
@@ -57,32 +63,26 @@ namespace WorkerRoleCommandProcessor
 
             Database.SetInitializer<PaymentsDbContext>(null);
             Database.SetInitializer<PaymentsReadDbContext>(null);
+
+            this.processors = this.container.ResolveAll<IProcessor>().ToList();
         }
 
         public void Start()
         {
-            this.cancellationTokenSource = new CancellationTokenSource();
-
-            OnStart();
+            this.processors.ForEach(p => p.Start());
         }
-
-        partial void OnStart();
 
         public void Stop()
         {
             this.cancellationTokenSource.Cancel();
 
-            OnStop();
+            this.processors.ForEach(p => p.Stop());
         }
-
-        partial void OnStop();
 
         public void Dispose()
         {
             this.container.Dispose();
         }
-
-        partial void OnCreateContainer(UnityContainer container);
 
         private UnityContainer CreateContainer()
         {
@@ -91,8 +91,6 @@ namespace WorkerRoleCommandProcessor
             // infrastructure
             container.RegisterInstance<ITextSerializer>(new JsonTextSerializer());
             container.RegisterInstance<IMetadataProvider>(new StandardMetadataProvider());
-
-            OnCreateContainer(container);
 
             container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
@@ -109,46 +107,35 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterType<IConferenceDao, ConferenceDao>(new ContainerControlledLifetimeManager());
             container.RegisterType<IOrderDao, OrderDao>(new ContainerControlledLifetimeManager());
-            // handlers
-
-            container.RegisterType<IEventHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
-            container.RegisterType<ICommandHandler, RegistrationProcessRouter>("RegistrationProcessRouter", new ContainerControlledLifetimeManager());
 
             container.RegisterType<IPricingService, PricingService>(new ContainerControlledLifetimeManager());
+
+            // handlers
+            container.RegisterType<ICommandHandler, RegistrationProcessRouter>("RegistrationProcessRouter");
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
-
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
-
-            container.RegisterType<IEventHandler, OrderViewModelGenerator>("OrderViewModelGenerator");
-            container.RegisterType<IEventHandler, PricedOrderViewModelGenerator>("PricedOrderViewModelGenerator");
-            container.RegisterType<IEventHandler, ConferenceViewModelGenerator>("ConferenceViewModelGenerator");
-            container.RegisterType<IEventHandler, SeatAssignmentsViewModelGenerator>("SeatAssignmentsViewModelGenerator");
-
             container.RegisterType<ICommandHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
-            container.RegisterType<IEventHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
 
             // Conference management integration
             container.RegisterType<global::Conference.ConferenceContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceManagement"));
-            container.RegisterType<IEventHandler, global::Conference.OrderEventHandler>("Conference.OrderEventHandler");
+
+            OnCreateContainer(container);
 
             return container;
         }
 
-        private static void RegisterHandlers(IUnityContainer unityContainer)
+        private static void RegisterCommandHandlers(IUnityContainer unityContainer)
         {
             var commandHandlerRegistry = unityContainer.Resolve<ICommandHandlerRegistry>();
-            var eventHandlerRegistry = unityContainer.Resolve<IEventHandlerRegistry>();
 
             foreach (var commandHandler in unityContainer.ResolveAll<ICommandHandler>())
             {
                 commandHandlerRegistry.Register(commandHandler);
             }
-
-            foreach (var eventHandler in unityContainer.ResolveAll<IEventHandler>())
-            {
-                eventHandlerRegistry.Register(eventHandler);
-            }
         }
+
+        partial void OnCreating();
+        partial void OnCreateContainer(UnityContainer container);
     }
 }

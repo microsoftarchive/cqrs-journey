@@ -11,45 +11,23 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.MessageLog
+namespace WorkerRoleCommandProcessor
 {
-    using System;
+    using Infrastructure;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
+    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
+    using Microsoft.Practices.Unity;
 
-    public class AzureMessageLogListener : IProcessor, IDisposable
+    public static class UnityContainerExtensions
     {
-        private AzureMessageLogWriter eventLog;
-        private IMessageReceiver receiver;
-
-        public AzureMessageLogListener(AzureMessageLogWriter eventLog, IMessageReceiver receiver)
+        public static void RegisterEventProcessor<T>(this IUnityContainer container, ServiceBusConfig busConfig, string subscriptionName)
+            where T : IEventHandler
         {
-            this.eventLog = eventLog;
-            this.receiver = receiver;
-            this.receiver.MessageReceived += SaveMessage;
-        }
-
-        public void SaveMessage(object sender, BrokeredMessageEventArgs args)
-        {
-            this.eventLog.Save(args.Message.ToMessageLogEntity());
-            args.Message.SafeComplete();
-        }
-
-        public void Start()
-        {
-            this.receiver.Start();
-        }
-
-        public void Stop()
-        {
-            this.receiver.Stop();
-        }
-
-        public void Dispose()
-        {
-            var disposable = this.receiver as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            container.RegisterInstance<IProcessor>(subscriptionName, busConfig.CreateEventProcessor(
+                subscriptionName,
+                container.Resolve<T>(),
+                container.Resolve<ITextSerializer>()));
         }
     }
 }

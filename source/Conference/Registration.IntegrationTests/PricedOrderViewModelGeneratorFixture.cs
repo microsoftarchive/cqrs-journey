@@ -208,8 +208,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             [Fact]
             public void then_populates_with_updated_description()
             {
-                Assert.Equal("General_Updated", dto.Lines[0].Description);
-                Assert.Equal("Precon", dto.Lines[1].Description);
+                Assert.True(dto.Lines.Any(x => x.Description == "General_Updated"));
+                Assert.True(dto.Lines.Any(x => x.Description == "Precon"));
             }
 
             [Fact]

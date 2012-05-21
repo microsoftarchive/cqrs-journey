@@ -89,6 +89,8 @@ namespace Conference.Web.Public
                 new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
 #else
             var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
+            new ServiceBusConfig(settings).Initialize();
+
             var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new StandardMetadataProvider(), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);

@@ -25,6 +25,7 @@ namespace Infrastructure.Azure.IntegrationTests
     {
         public given_messaging_settings()
         {
+            System.Diagnostics.Trace.Listeners.Clear();
             this.Settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
         }
 
@@ -37,6 +38,8 @@ namespace Infrastructure.Azure.IntegrationTests
 
         public given_a_topic_and_subscription()
         {
+            System.Diagnostics.Trace.Listeners.Clear();
+
             this.Topic = "cqrsjourney-test-" + Guid.NewGuid().ToString();
             this.Subscription = "test-" + Guid.NewGuid().ToString();
 
