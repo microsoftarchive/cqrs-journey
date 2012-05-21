@@ -65,7 +65,8 @@
     padding: 0 7px;
     /*padding: 0;*/
 	font-size: 15px;
-	color: #333333;
+	color: #777777;
+    font-weight: 500;
 	height: 24px; line-height: 24px;
     font-family: "Segoe UI", "Arial", sans-serif;
     background-color: #DDDDDD
