@@ -41,6 +41,7 @@ namespace Infrastructure.Azure.MessageLog
                 Namespace = message.Properties.TryGetValue(StandardMetadata.Namespace) as string,
                 TypeName = message.Properties.TryGetValue(StandardMetadata.TypeName) as string,
                 SourceType = message.Properties.TryGetValue(StandardMetadata.SourceType) as string,
+                CreationDate = message.EnqueuedTimeUtc.ToString("o"),
                 Payload = payload,
             };
         }

@@ -77,7 +77,6 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="ConcurrencyException.cs" />
-    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="MessageLog\AzureMessageLogWriter.cs" />
     <Compile Include="MessageLog\AzureMessageLogListener.cs" />

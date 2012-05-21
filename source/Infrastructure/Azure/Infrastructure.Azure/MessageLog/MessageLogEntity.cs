@@ -63,6 +63,11 @@ namespace Infrastructure.Azure.MessageLog
         public string SourceType { get; set; }
 
         /// <summary>
+        /// The date and time when this message was created (in Round-trip format)
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
         /// Gets or sets the payload of the log.
         /// </summary>
         public string Payload { get; set; }
