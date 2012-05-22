@@ -18,6 +18,7 @@ namespace Infrastructure.Azure.Messaging.Handling
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
+    using System.Runtime.Serialization;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Utils;
     using Infrastructure.Serialization;
@@ -132,7 +133,15 @@ namespace Infrastructure.Azure.Messaging.Handling
             using (var stream = message.GetBody<Stream>())
             using (var reader = new StreamReader(stream))
             {
-                payload = this.serializer.Deserialize(reader);
+                try
+                {
+                    payload = this.serializer.Deserialize(reader);
+                }
+                catch (SerializationException e)
+                {
+                    message.SafeDeadLetter(e.Message, e.ToString());
+                    return;
+                }
             }
 
             // TODO: have a better trace correlation mechanism (that is used in both the sender and receiver).
