@@ -15,6 +15,7 @@ namespace Conference.Web.Admin
 {
     using System.Data.Entity;
     using System.Linq;
+    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common;
@@ -26,15 +27,14 @@ namespace Conference.Web.Admin
 #if LOCAL
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
-    using Microsoft.WindowsAzure.ServiceRuntime;
 
 #else
-    using System.Web;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure;
 #endif
+    using Microsoft.WindowsAzure.ServiceRuntime;
 
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         public static IEventBus EventBus { get; private set; }
 
