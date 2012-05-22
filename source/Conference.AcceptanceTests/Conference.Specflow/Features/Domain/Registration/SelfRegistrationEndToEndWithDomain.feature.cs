@@ -68,9 +68,24 @@ namespace Conference.Specflow.Features.Domain.Registration
             testRunner.CollectScenarioErrors();
         }
         
-        public virtual void FeatureBackground()
+        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature.FixtureData fixtureData)
         {
-#line 21
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference si" +
+            "te with Doamin Commands and Events")]
+        [Xunit.TraitAttribute("Description", "Make a reservation with the selected Order Items")]
+        public virtual void MakeAReservationWithTheSelectedOrderItems()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Make a reservation with the selected Order Items", ((string[])(null)));
+#line 22
+this.ScenarioSetup(scenarioInfo);
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -88,8 +103,8 @@ namespace Conference.Specflow.Features.Domain.Registration
                         "Additional cocktail party",
                         "$50",
                         "100"});
-#line 22
- testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
+#line 23
+testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -100,35 +115,24 @@ namespace Conference.Specflow.Features.Domain.Registration
             table2.AddRow(new string[] {
                         "Additional cocktail party",
                         "1"});
-#line 27
+#line 28
 testRunner.And("the selected Order Items", ((string)(null)), table2);
-#line hidden
-        }
-        
-        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature.FixtureData fixtureData)
-        {
-        }
-        
-        void System.IDisposable.Dispose()
-        {
-            this.ScenarioTearDown();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference si" +
-            "te with Doamin Commands and Events")]
-        [Xunit.TraitAttribute("Description", "The RegisterToConference command is send with the selected Order Items and the")]
-        public virtual void TheRegisterToConferenceCommandIsSendWithTheSelectedOrderItemsAndThe()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("The RegisterToConference command is send with the selected Order Items and the", ((string[])(null)));
+#line 32
+testRunner.When("the Registrant proceed to make the Reservation");
 #line 34
-this.ScenarioSetup(scenarioInfo);
-#line 21
-this.FeatureBackground();
-#line 35
-testRunner.When("the RegisterToConference command is sent");
+testRunner.Then("the command to register the selected Order Items is received");
 #line 36
-testRunner.Then("the OrderUpdated event should be processed and the Order should be persisted");
+testRunner.And("the event for Order placed is emitted");
+#line 38
+testRunner.And("the command for reserving the selected Seats is received");
+#line 40
+testRunner.And("the event for reserving the selected Seats is emitted");
+#line 42
+testRunner.And("the command for marking the selected Seats as reserved is received");
+#line 44
+testRunner.And("the event for completing the Order reservation is emitted");
+#line 46
+testRunner.And("the event for calculating the total of $249 is emitted");
 #line hidden
             this.ScenarioCleanup();
         }

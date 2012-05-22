@@ -18,8 +18,9 @@ Feature: Self Registrant end to end scenario for making a Registration for a Con
 	As an Attendee
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
 
-Background: 
-	Given the list of the available Order Items for the CQRS summit 2012 conference
+
+Scenario: Make a reservation with the selected Order Items
+Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
 	| CQRS Workshop             | $500 | 100   |
@@ -28,9 +29,20 @@ And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
+When the Registrant proceed to make the Reservation
+	# command:RegisterToConference
+Then the command to register the selected Order Items is received 
+	# event: OrderPlaced
+And the event for Order placed is emitted
+	# command: MakeSeatReservation
+And the command for reserving the selected Seats is received
+	# event: SeatsReserved
+And the event for reserving the selected Seats is emitted
+	# command: MarkSeatsAsReserved
+And the command for marking the selected Seats as reserved is received
+	# event: OrderReservationCompleted 
+And the event for completing the Order reservation is emitted
+	# event: OrderTotalsCalculated
+And the event for calculating the total of $249 is emitted
 
 
-	
-Scenario: The RegisterToConference command is send with the selected Order Items and the 
-When the RegisterToConference command is sent
-Then the OrderUpdated event should be processed and the Order should be persisted

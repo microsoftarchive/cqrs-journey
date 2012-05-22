@@ -18,7 +18,11 @@ namespace Conference.Specflow.Support
 {
     static class Constants
     {
-        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(7);
+#if LOCAL
+        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+#else   // Wait more for slower Azure connections
+        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10);
+#endif
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
         public static readonly string ConferenceManagementCreatePage = ConfigurationManager.AppSettings["ConferenceMgmtUrl"] + "create";
@@ -28,18 +32,20 @@ namespace Conference.Specflow.Support
 
         public static class UI
         {
+            // Max time for wait on a screen to show up
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30); 
+            
             public const string NextStepId = "Next";
             public const string FindId = "find";
             public const string ProceedToSeatAssignementId = "Proceed to Seat Assignment";
             public const string SeatAssignementId = "Assign seats to attendees";
             public const string ReservationSuccessfull = "Seats information";
-            public const string ReservationUnsuccessfull = "Could not reserve all the requested seats.";
+            public const string ReservationUnsuccessfull = "Could not reserve all the requested seats";
             public const string FindOrderSuccessfull = "Registration details";
             public const string RegistrationSuccessfull = "Thank you";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
             public const string SeatAssignmentPage = "Assign Seats";
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromMinutes(1);
             public const string TagLine = "Acceptance Tests";
             public const string Location = "Test";
             public const string TwitterSearch = "TwitterSearch";

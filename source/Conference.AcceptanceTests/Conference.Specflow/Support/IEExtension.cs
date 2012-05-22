@@ -86,12 +86,14 @@ namespace Conference.Specflow.Support
         {
             //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
             var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
-            if (tr != null && tr.Lists.Count > 0)
+            if (tr != null)
             {
-                var list = tr.Lists.First();
+                var list = tr.Lists.FirstOrDefault();
                 var nextRow = tr.NextSibling as TableRow;
-                return list.OwnListItems[0].Text == selected &&
-                       (string.IsNullOrWhiteSpace(message) || nextRow.Text.Trim().Contains(message));
+                return (list == null || list.OwnListItems[0].Text == selected) &&
+                       (string.IsNullOrWhiteSpace(message) || 
+                        tr.OwnTableCells.Any(tc => tc.Text.Contains(message)) || 
+                        nextRow.Text.Trim().Contains(message));
             }
             
             return false;

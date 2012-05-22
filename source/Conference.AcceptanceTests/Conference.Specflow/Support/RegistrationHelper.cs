@@ -14,13 +14,14 @@
 using System;
 using System.Collections.Specialized;
 using System.Data.Entity;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Conference.Common.Entity;
 using Conference.Web.Public.Controllers;
 using Infrastructure.Serialization;
-using Infrastructure.Sql.Blob;
+using Infrastructure.Sql.BlobStorage;
 using Moq;
 using Payments.ReadModel.Implementation;
 using Registration.ReadModel;
@@ -43,7 +44,7 @@ namespace Conference.Specflow.Support
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
             var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
-        
+   
             // Setup context mocks
             var requestMock = new Mock<HttpRequestBase>(MockBehavior.Strict);
             requestMock.SetupGet(x => x.ApplicationPath).Returns("/");
@@ -79,6 +80,22 @@ namespace Conference.Specflow.Support
             var conferenceDao = new ConferenceDao(ctxFactory);
 
             return new OrderController(conferenceDao, orderDao, ConferenceHelper.BuildCommandBus());
+        }
+
+        public static T FindInContext<T>(Guid id) where T : class
+        {
+            using (var context = new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName))
+            {
+                return context.Find<T>(id);
+            }
+        }
+
+        public static Registration.ReadModel.Conference FindConference(Guid conferenceId)
+        {
+            using (var context = new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName))
+            {
+                return context.Set<Registration.ReadModel.Conference>().Include(x => x.Seats).FirstOrDefault(x => x.Id == conferenceId);
+            }            
         }
 
         public static T GetModel<T>(ActionResult result) where T : class
