@@ -52,7 +52,8 @@ namespace Conference.Specflow.Support
             Registration.ReadModel.Conference published = null;
             while(published == null || 
                 !published.IsPublished || 
-                published.Seats.Count != table.Rows.Count)
+                published.Seats.Count != table.Rows.Count ||
+                published.Seats.Any(s => s.AvailableQuantity != conference.Seats.First(c => c.Id == s.Id).Quantity))
             {
                 published = RegistrationHelper.FindConference(conference.Id);
                 Thread.Sleep(100);
