@@ -14,7 +14,6 @@
 namespace Conference.Web.Public
 {
     using System;
-    using System.Linq;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.Diagnostics;
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -23,15 +22,6 @@ namespace Conference.Web.Public
     {
         public override bool OnStart()
         {
-            RoleEnvironment.Changing += (sender, e) =>
-            {
-                if (e.Changes.Any(change => change is RoleEnvironmentConfigurationSettingChange))
-                {
-                    // Set e.Cancel to true to restart this role instance
-                    e.Cancel = true;
-                }
-            };
-
             var config = DiagnosticMonitor.GetDefaultInitialConfiguration();
 
             var cloudStorageAccount =

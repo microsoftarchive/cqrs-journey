@@ -32,7 +32,8 @@ namespace WorkerRoleCommandProcessor
         {
             this.running = true;
 
-            if (!MaintenanceMode.IsInMaintainanceMode())
+            MaintenanceMode.RefreshIsInMaintainanceMode();
+            if (!MaintenanceMode.IsInMaintainanceMode)
             {
                 Trace.WriteLine("Starting the command processor", "Information");
                 using (var processor = new ConferenceProcessor())

@@ -13,17 +13,21 @@
 
 namespace Conference.Web.Public
 {
+    using System.Linq;
     using System.Web;
     using System.Data.Entity;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common;
     using Conference.Common.Entity;
+    using Conference.Web.Public.Utils;
     using Infrastructure;
     using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
+    using Microsoft.WindowsAzure.ServiceRuntime;
     using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
     using Registration.ReadModel;
@@ -43,10 +47,29 @@ namespace Conference.Web.Public
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+            filters.Add(new MaintenanceModeAttribute());
         }
 
         protected void Application_Start()
         {
+            RoleEnvironment.Changed +=
+                (s, a) =>
+                    {
+                        var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                        if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
+                        {
+                            RoleEnvironment.RequestRecycle();
+                        }
+                        else
+                        {
+                            if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                            {
+                                MaintenanceMode.RefreshIsInMaintainanceMode();
+                            }
+                        }
+                    };
+            MaintenanceMode.RefreshIsInMaintainanceMode();
+
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
             this.container = CreateContainer();
