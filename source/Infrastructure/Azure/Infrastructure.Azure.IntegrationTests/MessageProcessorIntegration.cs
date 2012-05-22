@@ -20,9 +20,9 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
-    using Moq;
-    using Moq.Protected;
     using Xunit;
+    using Moq.Protected;
+    using Moq;
 
     public class given_a_processor : given_a_topic_and_subscription
     {
@@ -63,7 +63,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
                 new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer()) { CallBase = true };
 
             processor.Protected()
-                .Setup("ProcessMessage", ItExpr.IsAny<object>())
+                .Setup("ProcessMessage", ItExpr.IsAny<string>(), ItExpr.IsAny<object>())
                 .Callback(() =>
                 {
                     failCount++;
