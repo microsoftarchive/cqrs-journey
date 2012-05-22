@@ -9,6 +9,7 @@
       <Setting name="Diagnostics.PerformanceCounterSampleRate" value="00:00:30" />
       <Setting name="DbContext.ConferenceManagement" value="" />
       <Setting name="DbContext.SqlBus" value="" />
+      <Setting name="MaintenanceMode" value="false" />
     </ConfigurationSettings>
   </Role>
   <Role name="Conference.Web.Public">
@@ -22,6 +23,7 @@
       <Setting name="DbContext.ConferenceRegistration" value="" />
       <Setting name="DbContext.SqlBus" value="" />
       <Setting name="DbContext.BlobStorage" value="" />
+      <Setting name="MaintenanceMode" value="false" />
     </ConfigurationSettings>
   </Role>
   <Role name="WorkerRoleCommandProcessor">
@@ -38,6 +40,7 @@
       <Setting name="DbContext.SqlBus" value="" />
       <Setting name="DbContext.BlobStorage" value="" />
       <Setting name="DbContext.ConferenceManagement" value="" />
+      <Setting name="MaintenanceMode" value="false" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
