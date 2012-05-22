@@ -143,10 +143,13 @@ namespace Conference.Specflow.Steps
 
             if (create)
             {
+                var slug = Slug.CreateNew().Value;
                 Browser.SetInput("OwnerName", row["Owner"]);
                 Browser.SetInput("OwnerEmail", row["Email"]);
                 Browser.SetInput("name", row["Email"], "ConfirmEmail");
-                Browser.SetInput("Slug", Slug.CreateNew().Value);
+                Browser.SetInput("Slug", slug);
+                // Store the conference Slug for future use
+                ScenarioContext.Current.Set(slug, "slug");
             }
 
             Browser.SetInput("Tagline", Constants.UI.TagLine);

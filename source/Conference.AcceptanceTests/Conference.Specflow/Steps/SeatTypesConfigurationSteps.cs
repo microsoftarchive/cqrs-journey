@@ -13,6 +13,8 @@
 
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
+using Xunit;
+using System.Linq;
 
 namespace Conference.Specflow.Steps
 {
@@ -31,22 +33,26 @@ namespace Conference.Specflow.Steps
             Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
         }
 
-        [Given(@"the information for the Seat Types")]
-        public void GivenTheInformationForTheSeatTypes(Table table)
-        {
-            ScenarioContext.Current.Pending();
-        }
-
         [When(@"the Business Customer proceed to create the Seat Types")]
-        public void WhenTheBusinessCustomerProceedToCreateTheSeatTypes()
+        public void WhenTheBusinessCustomerProceedToCreateTheSeatTypes(Table table)
         {
-            ScenarioContext.Current.Pending();
+            var slug = ScenarioContext.Current.Get<string>("slug");
+            ConferenceHelper.CreateSeats(slug, table);
         }
 
         [Then(@"the new Seat Types with this information are created")]
         public void ThenTheNewSeatTypesWithThisInformationAreCreated(Table table)
         {
-            ScenarioContext.Current.Pending();
+            var conferenceInfo = ConferenceHelper.FindConference(ScenarioContext.Current.Get<string>("slug"));
+            var seats = conferenceInfo.Seats.ToList();
+
+            foreach (var row in table.Rows)
+            {
+                Assert.True(seats.Any(s => s.Name == row["Name"]));
+                Assert.True(seats.Any(s => s.Description == row["Description"]));
+                Assert.True(seats.Any(s => s.Quantity == int.Parse(row["Quantity"])));
+                Assert.True(seats.Any(s => s.Price == decimal.Parse(row["Price"])));
+            }
         }
     }
 }

@@ -50,14 +50,14 @@ namespace Conference.Specflow.Support
             public const string Location = "Test";
             public const string TwitterSearch = "TwitterSearch";
             public const string ConferenceDescription = "Acceptance Tests CQRS summit 2012 conference";
-            public const string CreateConferenceId = "Create";
+            public const string CreateConferenceId = "Save conference";
             public const string PublishConferenceId = "Publish";
             public const string UnpublishConferenceId = "Unpublish";
             public const string EditConferenceId = "Edit";
             public const string UpdateConferenceId = "Save";
-            public const string ConferenceManagementAccessId = "Access";
-            public const string ConferenceManagementSeatTypesId = "Seat Types";
-            public const string ConferenceManagementCreateNewSeatTypesId = "Create New";
+            public const string ConferenceManagementAccessId = "Login";
+            public const string ConferenceManagementSeatTypesId = "Seat types";
+            public const string ConferenceManagementCreateNewSeatTypesId = "Add new seat type";
         }
 
         public static string RegistrationPage(string conferenceSlug)
