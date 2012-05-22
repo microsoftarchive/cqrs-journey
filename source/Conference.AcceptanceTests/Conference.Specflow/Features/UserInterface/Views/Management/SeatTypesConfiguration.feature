@@ -22,34 +22,11 @@ Given an existing unpublished conference with this information
 | Gregory Weber | gregoryweber@contoso.com | CQRS2012S | CQRS summit 2012 conference (Seat Assignment) | random | 05/02/2012 | 05/12/2012 |
 And the Business Customer selects the Seat Types opcion
 
-@Ignore
 Scenario: Seat Types are created and assigned to an existing Conference
 Given the Business Customer proceed to create new Seat Types
-And the information for the Seat Types
-| Name   | Description       | Quantity | Price |
-| GENADM | General admission | 100      | 199   | 
 When the Business Customer proceed to create the Seat Types
+| Name   | Description       | Quantity | Price |
+| GENADM | General admission | 100      | 199   | 
 Then the new Seat Types with this information are created
-| Name   | Description       | Quantity | Price  |
-| GENADM | General admission | 100      | 199,00 |
-
-@Ignore
-Scenario: Seat Types are edited from existing Conference
-Given the existing Seat Types
 | Name   | Description       | Quantity | Price |
-| GENADM | General admission | 100      | 199   | 
-And the updated information
-| Quantity |
-| 200      |
-When the Business Customer proceed to save the changes
-Then the updated Seat Type will show up
-| Quantity |
-| 200      |
-
-@Ignore
-Scenario: Seat Types are deleted from existing Conference
-Given the existing Seat Types
-| Name   | Description       | Quantity | Price |
-| GENADM | General admission | 100      | 199   | 
-When the Business Customer proceed to delete the selected Seat Type
-Then the Seat Type is removed from the Conference
+| GENADM | General admission | 100      | 199   |

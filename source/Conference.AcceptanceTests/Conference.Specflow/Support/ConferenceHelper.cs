@@ -79,6 +79,23 @@ namespace Conference.Specflow.Support
             return svc.FindOrders(conferenceId).FirstOrDefault(o => o.Id == orderId);
         }
 
+        public static void CreateSeats(string conferenceSlug, Table table)
+        {
+            var svc = new ConferenceService(BuildEventBus());
+            var conference = FindConference(conferenceSlug);
+
+            foreach (var row in table.Rows)
+            {
+                svc.CreateSeat(conference.Id, new SeatType
+                                            {
+                                                Name = row["Name"],
+                                                Description = row["Description"],
+                                                Quantity = int.Parse(row["Quantity"]),
+                                                Price = decimal.Parse(row["Price"])
+                                            });
+            }
+        }
+
         public static Guid ReserveSeats(ConferenceInfo conference, Table table)
         {
             var seats = new List<SeatQuantity>();
