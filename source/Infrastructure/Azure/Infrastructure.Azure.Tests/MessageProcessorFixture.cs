@@ -18,9 +18,9 @@ namespace Infrastructure.Azure.Tests
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
+    using Moq;
     using Moq.Protected;
     using Xunit;
-    using Moq;
 
     public class MessageProcessorFixture
     {
@@ -110,7 +110,7 @@ namespace Infrastructure.Azure.Tests
 
             receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
 
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), It.IsAny<string>(), ItExpr.IsAny<object>());
+            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>());
         }
     }
 }
