@@ -63,7 +63,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
                 new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer()) { CallBase = true };
 
             processor.Protected()
-                .Setup("ProcessMessage", ItExpr.IsAny<object>())
+                .Setup("ProcessMessage", ItExpr.IsAny<string>(), ItExpr.IsAny<object>())
                 .Callback(() =>
                 {
                     failCount++;
