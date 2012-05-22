@@ -30,6 +30,7 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.EventProcessorFixture
 
         public given_event_processor()
         {
+            System.Diagnostics.Trace.Listeners.Clear();
             this.receiverMock = new Mock<IMessageReceiver>();
             this.processor = new EventProcessor(this.receiverMock.Object, CreateSerializer());
         }

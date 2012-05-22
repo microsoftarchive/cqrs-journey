@@ -24,6 +24,11 @@ namespace Infrastructure.Azure.Tests
 
     public class CommandProcessorFixture
     {
+        public CommandProcessorFixture()
+        {
+            System.Diagnostics.Trace.Listeners.Clear();
+        }
+
         [Fact]
         public void when_disposing_processor_then_disposes_receiver_if_disposable()
         {
