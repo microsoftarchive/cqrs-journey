@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.Web.Public.Utils
+namespace Conference.Web.Utils
 {
     using System.Web.Mvc;
     using Conference.Common;

@@ -20,7 +20,7 @@ namespace Conference.Web.Public
     using System.Web.Routing;
     using Conference.Common;
     using Conference.Common.Entity;
-    using Conference.Web.Public.Utils;
+    using Conference.Web.Utils;
     using Infrastructure;
     using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
@@ -46,8 +46,8 @@ namespace Conference.Web.Public
 
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
-            filters.Add(new HandleErrorAttribute());
             filters.Add(new MaintenanceModeAttribute());
+            filters.Add(new HandleErrorAttribute());
         }
 
         protected void Application_Start()
