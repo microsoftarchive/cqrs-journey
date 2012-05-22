@@ -20,6 +20,7 @@
       <Setting name="Diagnostics.PerformanceCounterSampleRate" />
       <Setting name="DbContext.ConferenceManagement" />
       <Setting name="DbContext.SqlBus" />
+      <Setting name="MaintenanceMode" />
     </ConfigurationSettings>
   </WebRole>
   <WebRole name="Conference.Web.Public" vmsize="ExtraSmall">
@@ -44,6 +45,7 @@
       <Setting name="DbContext.ConferenceRegistration" />
       <Setting name="DbContext.SqlBus" />
       <Setting name="DbContext.BlobStorage" />
+      <Setting name="MaintenanceMode" />
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
@@ -61,6 +63,7 @@
       <Setting name="DbContext.ConferenceRegistration" />
       <Setting name="DbContext.SqlBus" />
       <Setting name="DbContext.ConferenceManagement" />
+      <Setting name="MaintenanceMode" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>
