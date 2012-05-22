@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
 {
     using System;
     using System.IO;
+    using System.Text;
     using System.Threading;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
@@ -26,11 +27,6 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
 
     public class given_a_processor : given_a_topic_and_subscription
     {
-        static given_a_processor()
-        {
-            System.Diagnostics.Trace.Listeners.Clear();
-        }
-
         [Fact]
         public void when_message_received_then_calls_process_message()
         {
@@ -92,6 +88,38 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             var data = new JsonTextSerializer().Deserialize(new StreamReader(deadMessage.GetBody<Stream>()));
 
             Assert.Equal("Foo", (string)data);
+        }
+
+        [Fact]
+        public void when_message_fails_to_deserialize_then_dead_letters_message()
+        {
+            var waiter = new ManualResetEventSlim();
+            var sender = new TopicSender(this.Settings, this.Topic);
+            var processor = new FakeProcessor(
+                waiter,
+                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription),
+                new JsonTextSerializer());
+
+            processor.Start();
+
+            var data = new JsonTextSerializer().Serialize(new Data());
+            data = data.Replace(typeof(Data).FullName, "Some.TypeName.Cannot.Resolve");
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(data));
+            stream.Position = 0;
+
+            sender.SendAsync(() => new BrokeredMessage(stream, true));
+
+            waiter.Wait(5000);
+
+            var deadReceiver = this.Settings.CreateMessageReceiver(this.Topic, this.Subscription);
+            var deadMessage = deadReceiver.Receive(TimeSpan.FromSeconds(5));
+
+            processor.Dispose();
+
+            Assert.NotNull(deadMessage);
+            var payload = new StreamReader(deadMessage.GetBody<Stream>()).ReadToEnd();
+
+            Assert.Contains("Some.TypeName.Cannot.Resolve", payload);
         }
     }
 

@@ -14,6 +14,7 @@
 namespace Infrastructure.Serialization
 {
     using System.IO;
+    using System.Runtime.Serialization;
     using Newtonsoft.Json;
 
     public class JsonTextSerializer : ITextSerializer
@@ -53,7 +54,15 @@ namespace Infrastructure.Serialization
         {
             var jsonReader = new JsonTextReader(reader);
 
-            return this.serializer.Deserialize(jsonReader);
+            try
+            {
+                return this.serializer.Deserialize(jsonReader);
+            }
+            catch (JsonSerializationException e)
+            {
+                // Wrap in a standard .NET exception.
+                throw new SerializationException(e.Message, e);
+            }
         }
     }
 }
