@@ -21,4 +21,5 @@ _UpgradeReport_Files
 /fix-line-endings.ps1
 /source/Infrastructure/Azure/Settings.xml
 /source/Conference.Azure/csx/
+/source/Migrations/MigrationToV2.Azure/csx/
 *.build.csdef
