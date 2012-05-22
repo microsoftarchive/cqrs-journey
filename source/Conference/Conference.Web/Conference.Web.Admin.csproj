@@ -138,6 +138,9 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Conference.Web.Public\Utils\MaintenanceModeAttribute.cs">
+      <Link>Utils\MaintenanceModeAttribute.cs</Link>
+    </Compile>
     <Compile Include="Controllers\ConferenceController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -248,6 +251,7 @@
     <Content Include="Views\Conference\EditSeat.cshtml" />
     <Content Include="Views\Conference\Index.cshtml" />
     <Content Include="Views\Conference\Orders.cshtml" />
+    <Content Include="Views\Shared\MaintenanceMode.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
