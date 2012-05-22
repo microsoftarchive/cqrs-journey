@@ -11,25 +11,19 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Conference.IntegrationTests.ConferenceServiceTests
+namespace Conference.IntegrationTests.ConferenceServiceFixture
 {
     using System;
     using System.Data;
-    using System.Data.Entity;
     using System.Linq;
     using Infrastructure.Messaging.InMemory;
     using Xunit;
 
     public class given_no_conference : IDisposable
     {
-        private string dbName = "ConferenceServiceTests_" + Guid.NewGuid().ToString();
+        private string dbName = "ConferenceServiceFixture_" + Guid.NewGuid().ToString();
         private MemoryEventBus bus;
         private ConferenceService service;
-
-        static given_no_conference()
-        {
-            Database.SetInitializer(new DropCreateDatabaseAlways<ConferenceContext>());
-        }
 
         public given_no_conference()
         {
@@ -38,7 +32,7 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
                 if (context.Database.Exists())
                     context.Database.Delete();
 
-                context.Database.CreateIfNotExists();
+                context.Database.Create();
             }
 
             this.bus = new MemoryEventBus();
@@ -111,15 +105,10 @@ namespace Conference.IntegrationTests.ConferenceServiceTests
 
     public class given_an_existing_conference_with_a_seat : IDisposable
     {
-        private string dbName = "ConferenceServiceTests_" + Guid.NewGuid().ToString();
-        private ConferenceInfo conference;
+        protected string dbName = "ConferenceServiceTests_" + Guid.NewGuid().ToString();
+        protected ConferenceInfo conference;
         private MemoryEventBus bus;
         private ConferenceService service;
-
-        static given_an_existing_conference_with_a_seat()
-        {
-            Database.SetInitializer(new DropCreateDatabaseAlways<ConferenceContext>());
-        }
 
         public given_an_existing_conference_with_a_seat()
         {
