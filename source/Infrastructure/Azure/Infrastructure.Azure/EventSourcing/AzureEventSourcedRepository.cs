@@ -110,6 +110,8 @@ namespace Infrastructure.Azure.EventSourcing
         private IVersionedEvent Deserialize(EventData @event)
         {
             using (var reader = new StringReader(@event.Payload))
+         
+            
             {
                 return (IVersionedEvent)this.serializer.Deserialize(reader);
             }

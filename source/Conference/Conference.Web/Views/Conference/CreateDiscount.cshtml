@@ -1,0 +1,30 @@
+﻿@model Conference.Web.Admin.Models.DiscountInfo
+
+@{
+    ViewBag.Title = "Discount";
+}
+
+<h2>Discount</h2>
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Code)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Code)
+            @Html.ValidationMessageFor(model => model.Code)
+        </div>        
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Percentage)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Percentage)
+            @Html.ValidationMessageFor(model => model.Percentage)
+        </div>        
+    </fieldset>
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+		}

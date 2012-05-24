@@ -62,9 +62,9 @@
     <Compile Include="ValueObjects\PercentageDiscount.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
-      <Project>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</Project>
-      <Name>Infrastructure.Sql</Name>
+    <ProjectReference Include="..\..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
+      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
+      <Name>Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

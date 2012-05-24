@@ -3,6 +3,7 @@
     @Html.ActionLink("Home", "Index", "Home") | 
     <strong>@Html.ActionLink("Conference Details", "Index", new { slug = ViewBag.Slug })</strong> | 
     @Html.ActionLink("Seat Types", "Seats", new { slug = ViewBag.Slug }) | 
+    @Html.ActionLink("Discount Addition", "CreateDiscount", new { slug = ViewBag.Slug }) | 
     <a href="#">Venue Details</a> |
     @Html.ActionLink("Registrations", "Orders", new { slug = ViewBag.Slug }) |
     <a href="#">Sessions</a>

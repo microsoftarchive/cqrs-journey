@@ -135,6 +135,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\DiscountInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
@@ -162,7 +163,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -185,6 +185,7 @@
     <Content Include="Views\Conference\Index.cshtml" />
     <Content Include="Views\Conference\Orders.cshtml" />
     <Content Include="Views\Conference\OrdersNavigation.cshtml" />
+    <Content Include="Views\Conference\CreateDiscount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
@@ -206,6 +207,10 @@
     <ProjectReference Include="..\Conference\Conference.csproj">
       <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
       <Name>Conference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Discounts\Discounts\Discounts.csproj">
+      <Project>{7D23D5BF-5132-43C4-97A8-BD0614D82C0E}</Project>
+      <Name>Discounts %28Discounts\Discounts%29</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

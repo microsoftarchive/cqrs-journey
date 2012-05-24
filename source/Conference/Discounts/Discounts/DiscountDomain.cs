@@ -6,11 +6,11 @@ using Discounts.Events;
 using Discounts.Exceptions;
 using Discounts.Infrastructure;
 using Discounts.ValueObjects;
-using Infrastructure.Sql.EventSourcing;
+using Infrastructure.EventSourcing;
 
 namespace Discounts {
     public class DiscountDomain : IStore, IConsume {
-        private readonly Dictionary<Guid, List<DiscountEvent>> _conferenceEvents;
+        private readonly IEventSourcedRepository<Discount> _conferenceEvents;
         public DiscountDomain() {
             Mapper.CreateMap<GlobalDiscountAddedEvent, PercentageDiscount>();
             _conferenceEvents = new Dictionary<Guid, List<DiscountEvent>>();
@@ -21,8 +21,8 @@ namespace Discounts {
             else _conferenceEvents[discountEvent.ConfID].Add(discountEvent);
         }
 
-        public IEnumerable<Event> Consume(DiscountCommand discountCommand) {
-            var discount = new Discount(_conferenceEvents[discountCommand.ConfID]);
+        public IEnumerable<IVersionedEvent> Consume(DiscountCommand discountCommand) {
+            var discount =  _conferenceEvents.Find(discountCommand.ConfID); // new Discount(_conferenceEvents[discountCommand.ConfID]);
             if (discountCommand is ApplyDiscountCommand) {
                 var discountEvents = discount.Consume((ApplyDiscountCommand) discountCommand);   
                 foreach (var discountEvent in discountEvents) {

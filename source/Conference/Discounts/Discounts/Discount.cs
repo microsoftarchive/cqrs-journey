@@ -6,10 +6,11 @@ using Discounts.Commands;
 using Discounts.Events;
 using Discounts.Exceptions;
 using Discounts.ValueObjects;
+using Infrastructure.EventSourcing;
 using Infrastructure.Sql.EventSourcing;
 
 namespace Discounts {
-    public class Discount {
+    public class Discount : IEventSourced {
 
         private readonly Dictionary<Guid, PercentageDiscount> _discounts;
 

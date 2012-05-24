@@ -11,6 +11,10 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using Conference.Web.Admin.Models;
+using Discounts;
+using Discounts.Commands;
+
 namespace Conference.Web.Admin.Controllers
 {
     using System;
@@ -201,6 +205,17 @@ namespace Conference.Web.Admin.Controllers
         public ActionResult CreateSeat()
         {
             return PartialView("EditSeat");
+        }
+
+        public ViewResult CreateDiscount() {
+            return View(new DiscountInfo());
+        }
+
+        [HttpPost]
+        public ActionResult CreateDiscount(DiscountInfo discountInfo) {
+            var discountDomain = new DiscountDomain();
+            discountDomain.Consume(new AddDiscountCommand {ConfID = this.Conference.Id, Code = discountInfo.Code, Percentage = discountInfo.Percentage, DiscountID = Guid.NewGuid()});
+            return RedirectToAction("Index", new { slug = this.Conference.Slug, accessCode = this.Conference.AccessCode });
         }
 
         [HttpPost]
