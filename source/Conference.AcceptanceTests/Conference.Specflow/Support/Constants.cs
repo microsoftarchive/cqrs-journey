@@ -56,8 +56,8 @@ namespace Conference.Specflow.Support
             public const string EditConferenceId = "Edit";
             public const string UpdateConferenceId = "Save";
             public const string ConferenceManagementAccessId = "Login";
-            public const string ConferenceManagementSeatTypesId = "Seat types";
-            public const string ConferenceManagementCreateNewSeatTypesId = "Add new seat type";
+            public const string ConferenceManagementSeatTypesId = "Seat Types";
+            public const string ConferenceManagementCreateNewSeatTypesId = "Create New";
         }
 
         public static string RegistrationPage(string conferenceSlug)

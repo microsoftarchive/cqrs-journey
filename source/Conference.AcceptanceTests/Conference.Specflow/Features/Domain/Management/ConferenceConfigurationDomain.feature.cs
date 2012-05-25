@@ -74,6 +74,93 @@ namespace Conference.Specflow.Features.Domain.Management
             this.ScenarioTearDown();
         }
         
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings w" +
+            "ith events and commands")]
+        [Xunit.TraitAttribute("Description", "An existing unpublished Conference is selected and published")]
+        public virtual void AnExistingUnpublishedConferenceIsSelectedAndPublished()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("An existing unpublished Conference is selected and published", ((string[])(null)));
+#line 19
+this.ScenarioSetup(scenarioInfo);
+#line hidden
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Owner",
+                        "Email",
+                        "Name",
+                        "Description",
+                        "Slug",
+                        "Start",
+                        "End"});
+            table1.AddRow(new string[] {
+                        "Gregory Weber",
+                        "gregoryweber@contoso.com",
+                        "CQRS2012P",
+                        "CQRS summit 2012 conference (Published)",
+                        "random",
+                        "05/02/2012",
+                        "05/12/2012"});
+#line 20
+testRunner.Given("this conference information", ((string)(null)), table1);
+#line 24
+testRunner.When("the event for creating the conference is emitted");
+#line 26
+testRunner.And("the event for publishing the conference is emitted");
+#line 27
+testRunner.Then("the conference is created and published");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings w" +
+            "ith events and commands")]
+        [Xunit.TraitAttribute("Description", "Adding Seats to an existing conferences")]
+        public virtual void AddingSeatsToAnExistingConferences()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Adding Seats to an existing conferences", ((string[])(null)));
+#line 30
+this.ScenarioSetup(scenarioInfo);
+#line hidden
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Owner",
+                        "Email",
+                        "Name",
+                        "Description",
+                        "Slug",
+                        "Start",
+                        "End"});
+            table2.AddRow(new string[] {
+                        "Gregory Weber",
+                        "gregoryweber@contoso.com",
+                        "CQRS2012P",
+                        "CQRS summit 2012 conference (Published)",
+                        "random",
+                        "05/02/2012",
+                        "05/12/2012"});
+#line 31
+testRunner.Given("this conference information", ((string)(null)), table2);
+#line 34
+testRunner.And("the conference already exists");
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Name",
+                        "Description",
+                        "Quantity",
+                        "Price"});
+            table3.AddRow(new string[] {
+                        "GENADM",
+                        "General admission",
+                        "100",
+                        "199"});
+#line 35
+testRunner.When("these Seat Types are created", ((string)(null)), table3);
+#line 39
+testRunner.Then("the event for creating a Seat is emitted");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : System.IDisposable

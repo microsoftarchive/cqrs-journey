@@ -169,6 +169,37 @@ this.ScenarioSetup(scenarioInfo);
 #line 54
 this.ScenarioSetup(scenarioInfo);
 #line hidden
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "rate",
+                        "quota"});
+            table5.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "$500",
+                        "200"});
+            table5.AddRow(new string[] {
+                        "General admission",
+                        "$199",
+                        "100"});
+#line 55
+ testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table5);
+#line hidden
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "quantity"});
+            table6.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "1"});
+            table6.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "2"});
+#line 59
+ testRunner.When("200 Registrants selects these Order Items", ((string)(null)), table6);
+#line 64
+ testRunner.Then("only 50 events for completing the Order reservation are emitted");
+#line 66
+ testRunner.And("150 events for partially completing the order are emitted");
+#line hidden
             this.ScenarioCleanup();
         }
         
