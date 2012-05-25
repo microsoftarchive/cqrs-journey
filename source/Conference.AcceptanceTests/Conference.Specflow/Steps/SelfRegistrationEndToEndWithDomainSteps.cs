@@ -32,6 +32,7 @@ namespace Conference.Specflow.Steps
     {
         private readonly ICommandBus commandBus;
         private Guid orderId;
+        private RegisterToConference registerToConference;
 
         public SelfRegistrationEndToEndWithDomainSteps()
         {
@@ -41,12 +42,12 @@ namespace Conference.Specflow.Steps
         [When(@"the Registrant proceed to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
-            var command = ScenarioContext.Current.Get<RegisterToConference>();
+            registerToConference = ScenarioContext.Current.Get<RegisterToConference>();
             var conferenceAlias = ScenarioContext.Current.Get<ConferenceAlias>();
 
-            command.ConferenceId = conferenceAlias.Id;
-            orderId = command.OrderId;
-            this.commandBus.Send(command);
+            registerToConference.ConferenceId = conferenceAlias.Id;
+            orderId = registerToConference.OrderId;
+            this.commandBus.Send(registerToConference);
 
             // Wait for event processing
             Thread.Sleep(Constants.WaitTimeout);
@@ -65,10 +66,11 @@ namespace Conference.Specflow.Steps
         [Then(@"the event for Order placed is emitted")]
         public void ThenTheEventForOrderPlacedIsEmitted()
         {
-            //OrderPlaced
-            var draftOrder = RegistrationHelper.FindInContext<DraftOrder>(orderId);
-
-            Assert.NotNull(draftOrder);
+            var orderPlaced = MessageLogHelper.GetEvents<OrderPlaced>(orderId).SingleOrDefault();
+            
+            Assert.NotNull(orderPlaced);
+            Assert.True(orderPlaced.Seats.All(
+                os => registerToConference.Seats.Count(cs => cs.SeatType == os.SeatType && cs.Quantity == os.Quantity) == 1));
         }
 
         [Then(@"the command for reserving the selected Seats is received")]
@@ -85,8 +87,10 @@ namespace Conference.Specflow.Steps
         [Then(@"the event for reserving the selected Seats is emitted")]
         public void ThenTheEventForReservingTheSelectedSeatsIsEmitted()
         {
-            //SeatsReserved
-            // This event will send the MarkSeatsAsReserved cmd
+            var seatsReserved = MessageLogHelper.GetEvents<SeatsReserved>(registerToConference.ConferenceId).SingleOrDefault();
+
+            Assert.NotNull(seatsReserved);
+            Assert.Equal(registerToConference.Seats.Count, seatsReserved.AvailableSeatsChanged.Count());
         }
 
         [Then(@"the command for marking the selected Seats as reserved is received")]
@@ -102,21 +106,21 @@ namespace Conference.Specflow.Steps
         [Then(@"the event for completing the Order reservation is emitted")]
         public void ThenTheEventForCompletingTheOrderReservationIsEmitted()
         {
-            //OrderReservationCompleted
-            var draftOrder = RegistrationHelper.FindInContext<DraftOrder>(orderId);
-            
-            Assert.Equal(DraftOrder.States.ReservationCompleted, draftOrder.State);
+            var orderReservationCompleted = MessageLogHelper.GetEvents<OrderReservationCompleted>(orderId).SingleOrDefault();
+
+            Assert.NotNull(orderReservationCompleted);
+            Assert.Equal(registerToConference.Seats.Count, orderReservationCompleted.Seats.Count());
+            Assert.True(orderReservationCompleted.ReservationExpiration > DateTime.Now);
         }
 
         [Then(@"the event for calculating the total of \$(.*) is emitted")]
         public void ThenTheEventForCalculatingTheTotalIsEmitted(decimal total)
         {
-            //OrderTotalsCalculated
-            var conference = ScenarioContext.Current.Get<ConferenceInfo>();
-            Order order = ConferenceHelper.FindOrder(conference.Id, orderId);
+            var orderTotalsCalculated = MessageLogHelper.GetEvents<OrderTotalsCalculated>(orderId).SingleOrDefault();
 
-            Assert.NotNull(order);
-            Assert.Equal(total, order.TotalAmount);
+            Assert.NotNull(orderTotalsCalculated);
+            Assert.Equal(total, orderTotalsCalculated.Total);
+            Assert.False(orderTotalsCalculated.IsFreeOfCharge);
         }
     }
 }
