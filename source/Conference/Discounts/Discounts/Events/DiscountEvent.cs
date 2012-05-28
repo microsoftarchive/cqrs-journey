@@ -1,8 +1,10 @@
 using System;
-using Infrastructure.Sql.EventSourcing;
+using Infrastructure.EventSourcing;
 
 namespace Discounts.Events {
-    public class DiscountEvent : Event {
-        public Guid ConfID;
+    public class DiscountEvent : IVersionedEvent {
+        public Guid ID { get; set; }
+        public Guid SourceId { get; private set; }
+        public int Version { get; private set; }
     }
 }

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Discounts.Commands;
-using Infrastructure.Sql.EventSourcing;
+using Infrastructure.EventSourcing;
 
 namespace Discounts.Infrastructure {
     public interface IConsume {
-        IEnumerable<Event> Consume(DiscountCommand discountCommand);
+        IEnumerable<IVersionedEvent> Consume(DiscountCommand discountCommand);
     }
 }

@@ -205,9 +205,11 @@
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
     <Compile Include="Steps\Registration\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
     <Compile Include="Steps\StepDefinition.cs" />
+    <Compile Include="Support\ConferenceDiscountsRepo.cs" />
     <Compile Include="Support\ConferenceHelper.cs" />
     <Compile Include="Support\Constants.cs" />
     <Compile Include="Support\IEExtension.cs" />
+    <Compile Include="Support\IStore.cs" />
     <Compile Include="Support\RegistrationHelper.cs" />
     <Compile Include="Support\ScenarioContextExtension.cs" />
     <Compile Include="Support\Slug.cs" />

@@ -2,6 +2,6 @@ using System;
 
 namespace Discounts.Commands {
     public class DiscountCommand {
-        public Guid ConfID;
+        public Guid ID;
     }
 }
