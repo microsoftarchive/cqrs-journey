@@ -93,6 +93,16 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Features\Domain\Management\ConferenceConfigurationDomain.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ConferenceConfigurationDomain.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Domain\Registration\SelfRegistrationReservationWithConcurrencyDomain.feature.cs">
+      <DependentUpon>SelfRegistrationReservationWithConcurrencyDomain.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="Features\Domain\Registration\SelfRegistrationEndToEndWithDomain.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -208,6 +218,7 @@
     <Compile Include="Steps\CommonSteps.cs" />
     <Compile Include="Steps\SelfRegistrationEndToEndWithControllersSteps.cs" />
     <Compile Include="Steps\SelfRegistrationEndToEndWithDomainSteps.cs" />
+    <Compile Include="Steps\SelfRegistrationReservationWithConcurrencyDomainSteps.cs" />
     <Compile Include="Steps\SelfRegistrationReservationWithConcurrencySteps.cs" />
     <Compile Include="Steps\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
     <Compile Include="Steps\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
@@ -216,6 +227,7 @@
     <Compile Include="Support\Constants.cs" />
     <Compile Include="Support\EventSourceHelper.cs" />
     <Compile Include="Support\IEExtension.cs" />
+    <Compile Include="Support\MessageLogHelper.cs" />
     <Compile Include="Support\RegistrationHelper.cs" />
     <Compile Include="Support\ScenarioContextExtension.cs" />
     <Compile Include="Support\Slug.cs" />
@@ -226,6 +238,14 @@
     </None>
     <None Include="App.config">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Features\Domain\Management\ConferenceConfigurationDomain.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>ConferenceConfigurationDomain.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Domain\Registration\SelfRegistrationReservationWithConcurrencyDomain.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SelfRegistrationReservationWithConcurrencyDomain.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Domain\Registration\SelfRegistrationEndToEndWithDomain.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
