@@ -1,6 +1,6 @@
 using Discounts.Events;
 
-namespace Discounts.Infrastructure {
+namespace Conference.Specflow.Support {
     public interface IStore {
         void Store(DiscountEvent @event);
     }

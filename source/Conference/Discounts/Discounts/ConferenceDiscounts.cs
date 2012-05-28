@@ -1,31 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 using AutoMapper;
 using Discounts.Commands;
 using Discounts.Events;
 using Discounts.Exceptions;
 using Discounts.ValueObjects;
 using Infrastructure.EventSourcing;
-using Infrastructure.Sql.EventSourcing;
 
-namespace Discounts {
-    public class Discount : IEventSourced {
-
-        private readonly Dictionary<Guid, PercentageDiscount> _discounts;
-
-        public Discount(List<DiscountEvent> events) {
-            _discounts = new Dictionary<Guid, PercentageDiscount>();
-            events.ForEach(Hydrate);
+namespace Discounts { 
+    public class ConferenceDiscounts : IEventSourced {
+        private readonly Dictionary<Guid, PercentageDiscount> _discounts = new Dictionary<Guid, PercentageDiscount>();
+        public ConferenceDiscounts(Guid id, IEnumerable<DiscountEvent> discountEvents) {
+            Mapper.CreateMap<GlobalDiscountAddedEvent, PercentageDiscount>();
+            Id = id;
+            Events = discountEvents;
+            Events.ToList().ForEach(Hydrate);
         }
 
-        public IEnumerable<DiscountEvent> Consume(ApplyDiscountCommand applyDiscountCommand) {
-            return ApplyDiscount(applyDiscountCommand.DiscountID, applyDiscountCommand.Total, applyDiscountCommand.Order);
-        }
-
-        public IEnumerable<DiscountEvent> Consume(AddDiscountCommand addDiscountCommand) {
-            return AddDiscount(addDiscountCommand.DiscountID, addDiscountCommand.Code, addDiscountCommand.Percentage);
-        }
+        public IEnumerable<DiscountEvent> Consume(ApplyDiscountCommand applyDiscountCommand) { return ApplyDiscount(applyDiscountCommand.DiscountID, applyDiscountCommand.Total, applyDiscountCommand.Order); }
+        public IEnumerable<DiscountEvent> Consume(AddDiscountCommand addDiscountCommand) { return AddDiscount(addDiscountCommand.DiscountID, addDiscountCommand.Code, addDiscountCommand.Percentage); }
 
         private IEnumerable<DiscountEvent> AddDiscount(Guid discountID, string code, int percentage) {
             _discounts[discountID] = new PercentageDiscount {Percentage = percentage};
@@ -41,7 +35,7 @@ namespace Discounts {
                 DiscountAmount = total * discount.Percentage / 100, DiscountID = discountID }) };
         }
 
-        private void Hydrate(Event @event) {
+        private void Hydrate(IVersionedEvent @event) {
             if (@event is GlobalDiscountAddedEvent) ApplyStateChange((GlobalDiscountAddedEvent) @event);
             else if (@event is DiscountAppliedEvent) ApplyStateChange((DiscountAppliedEvent) @event);
             else throw new EventIsNotHandledException();
@@ -55,6 +49,10 @@ namespace Discounts {
             var usedBy = _discounts[globalDiscountAdded.DiscountID].UsedBy;
             usedBy.Add(globalDiscountAdded.Order);
         }
+
+        public Guid Id { get; private set; }
+        public int Version { get { return Events.Count(); } }
+        public IEnumerable<IVersionedEvent> Events { get; private set; }
     }
 }
         //todo: add limit and refactor

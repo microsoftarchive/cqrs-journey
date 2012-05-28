@@ -14,6 +14,8 @@
 using Conference.Web.Admin.Models;
 using Discounts;
 using Discounts.Commands;
+using Infrastructure.Azure.EventSourcing;
+using Infrastructure.Serialization;
 
 namespace Conference.Web.Admin.Controllers
 {
@@ -213,8 +215,8 @@ namespace Conference.Web.Admin.Controllers
 
         [HttpPost]
         public ActionResult CreateDiscount(DiscountInfo discountInfo) {
-            var discountDomain = new DiscountDomain();
-            discountDomain.Consume(new AddDiscountCommand {ConfID = this.Conference.Id, Code = discountInfo.Code, Percentage = discountInfo.Percentage, DiscountID = Guid.NewGuid()});
+            var discountDomain = new DiscountDomain(new AzureEventSourcedRepository<ConferenceDiscounts>(null, null, new JsonTextSerializer()));
+            discountDomain.Consume(new AddDiscountCommand {ID = Guid.NewGuid(), Code = discountInfo.Code, Percentage = discountInfo.Percentage, DiscountID = Guid.NewGuid()});
             return RedirectToAction("Index", new { slug = this.Conference.Slug, accessCode = this.Conference.AccessCode });
         }
 

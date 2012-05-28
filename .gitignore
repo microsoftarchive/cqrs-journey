@@ -22,3 +22,4 @@ _UpgradeReport_Files
 /source/Infrastructure/Azure/Settings.xml
 /source/Conference.Azure/csx/
 *.build.csdef
+*.orig
