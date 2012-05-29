@@ -44,7 +44,7 @@ namespace Registration.IntegrationTests.SeatAssignmentsViewModelGeneratorFixture
 
             var blobs = new MemoryBlobStorage();
             this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), blobs, new JsonTextSerializer());
-            this.sut = new SeatAssignmentsViewModelGenerator(conferenceDao.Object, this.dao, blobs, new JsonTextSerializer());
+            this.sut = new SeatAssignmentsViewModelGenerator(conferenceDao.Object, blobs, new JsonTextSerializer());
 
             this.sut.Handle(new SeatAssignmentsCreated
             {

@@ -18,12 +18,14 @@ namespace Registration.Handlers
     using Infrastructure.Messaging.Handling;
     using Registration.Commands;
 
+    // Note: ConfirmOrderPayment was renamed to this from V1. Make sure there are no commands pending for processing when this is deployed,
+    // otherwise the ConfirmOrderPayment commands will not be processed.
     public class OrderCommandHandler :
         ICommandHandler<RegisterToConference>,
         ICommandHandler<MarkSeatsAsReserved>,
         ICommandHandler<RejectOrder>,
         ICommandHandler<AssignRegistrantDetails>,
-        ICommandHandler<ConfirmOrderPayment>
+        ICommandHandler<ConfirmOrder>
     {
         private readonly IEventSourcedRepository<Order> repository;
         private readonly IPricingService pricingService;
@@ -75,10 +77,10 @@ namespace Registration.Handlers
             repository.Save(order);
         }
 
-        public void Handle(ConfirmOrderPayment command)
+        public void Handle(ConfirmOrder command)
         {
             var order = repository.Get(command.OrderId);
-            order.ConfirmPayment();
+            order.Confirm();
             repository.Save(order);
         }
     }

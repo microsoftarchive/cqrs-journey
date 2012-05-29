@@ -80,6 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureEventLogFixture.cs" />
     <Compile Include="BaseMessagingIntegration.cs" />
     <Compile Include="EventProcessingIntegration.cs" />
     <Compile Include="EventSourcing\EventStoreFixture.cs" />
@@ -88,6 +89,10 @@
     <Compile Include="CommandProcessingIntegration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendReceiveIntegration.cs" />
+    <Compile Include="ServiceBusConfigFixture.cs" />
+    <Compile Include="SessionSubscriptionReceiverIntegration.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SubscriptionReceiverIntegration.cs" />
     <Compile Include="TopicSenderIntegration.cs" />
   </ItemGroup>

@@ -14,9 +14,11 @@
 namespace Registration.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
+    using Conference;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
     using Registration.ReadModel;
@@ -25,20 +27,20 @@ namespace Registration.Handlers
     public class PricedOrderViewModelGenerator :
         IEventHandler<OrderTotalsCalculated>,
         IEventHandler<OrderExpired>,
-        IEventHandler<SeatAssignmentsCreated>
+        IEventHandler<SeatAssignmentsCreated>,
+        IEventHandler<SeatCreated>,
+        IEventHandler<SeatUpdated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
-        private IConferenceDao conferenceDao;
 
-        public PricedOrderViewModelGenerator(IConferenceDao conferenceDao, Func<ConferenceRegistrationDbContext> contextFactory)
+        public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
-            this.conferenceDao = conferenceDao;
             this.contextFactory = contextFactory;
         }
 
         public void Handle(OrderTotalsCalculated @event)
         {
-            var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).ToArray();
+            var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).Distinct().ToArray();
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(x => x.OrderId == @event.SourceId);
@@ -47,7 +49,7 @@ namespace Registration.Handlers
                     dto = new PricedOrder { OrderId = @event.SourceId };
                     context.Set<PricedOrder>().Add(dto);
                 }
-                else
+                else if (WasNotAlreadyHandled(dto, @event.Version))
                 {
                     var linesSet = context.Set<PricedOrderLine>();
                     foreach (var line in dto.Lines.ToList())
@@ -55,8 +57,23 @@ namespace Registration.Handlers
                         linesSet.Remove(line);
                     }
                 }
+                else
+                {
+                    // message already handled, skip.
+                    return;
+                }
 
-                var seatTypeDescriptions = this.conferenceDao.GetSeatTypeNames(seatTypeIds);
+                List<PricedOrderLineSeatTypeDescription> seatTypeDescriptions;
+                if (seatTypeIds.Length != 0)
+                {
+                    seatTypeDescriptions = context.Query<PricedOrderLineSeatTypeDescription>()
+                        .Where(x => seatTypeIds.Contains(x.SeatTypeId))
+                        .ToList();
+                }
+                else
+                {
+                    seatTypeDescriptions = new List<PricedOrderLineSeatTypeDescription>();
+                }
 
                 foreach (var orderLine in @event.Lines)
                 {
@@ -68,7 +85,8 @@ namespace Registration.Handlers
                     var seatOrderLine = orderLine as SeatOrderLine;
                     if (seatOrderLine != null)
                     {
-                        line.Description = seatTypeDescriptions.Where(x => x.Id == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
+                        // should we update the view model to avoid loosing the SeatTypeId?
+                        line.Description = seatTypeDescriptions.Where(x => x.SeatTypeId == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
                         line.UnitPrice = seatOrderLine.UnitPrice;
                         line.Quantity = seatOrderLine.Quantity;
                     }
@@ -77,6 +95,7 @@ namespace Registration.Handlers
                 }
 
                 dto.Total = @event.Total;
+                dto.IsFreeOfCharge = @event.IsFreeOfCharge;
                 dto.OrderVersion = @event.Version;
 
                 context.SaveChanges();
@@ -94,10 +113,6 @@ namespace Registration.Handlers
                     context.Set<PricedOrder>().Remove(dto);
                     context.SaveChanges();
                 }
-                else
-                {
-                    Trace.TraceError("Failed to locate Priced order corresponding to the expired order with id {0}.", @event.SourceId);
-                }
             }
         }
 
@@ -109,15 +124,67 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<PricedOrder>(@event.OrderId);
-                if (dto != null)
+                dto.AssignmentsId = @event.SourceId;
+                context.SaveChanges();
+            }
+        }
+
+        public void Handle(SeatCreated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrderLineSeatTypeDescription>(@event.SourceId);
+                if (dto == null)
                 {
-                    dto.AssignmentsId = @event.SourceId;
-                    context.SaveChanges();
+                    dto = new PricedOrderLineSeatTypeDescription { SeatTypeId = @event.SourceId };
+                    context.Set<PricedOrderLineSeatTypeDescription>().Add(dto);
                 }
-                else
+
+                dto.Name = @event.Name;
+                context.SaveChanges();
+            }
+        }
+
+        public void Handle(SeatUpdated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrderLineSeatTypeDescription>(@event.SourceId);
+                if (dto == null)
                 {
-                    Trace.TraceError("Failed to locate Priced order corresponding to the seat assignments created, order  with id {0}.", @event.OrderId);
+                    dto = new PricedOrderLineSeatTypeDescription { SeatTypeId = @event.SourceId };
+                    context.Set<PricedOrderLineSeatTypeDescription>().Add(dto);
                 }
+
+                dto.Name = @event.Name;
+                context.SaveChanges();
+            }
+        }
+
+        private static bool WasNotAlreadyHandled(PricedOrder pricedOrder, int eventVersion)
+        {
+            // This assumes that events will be handled in order, but we might get the same message more than once.
+            if (eventVersion > pricedOrder.OrderVersion)
+            {
+                return true;
+            }
+            else if (eventVersion == pricedOrder.OrderVersion)
+            {
+                Trace.TraceWarning(
+                    "Ignoring duplicate priced order update message with version {1} for order id {0}",
+                    pricedOrder.OrderId,
+                    eventVersion);
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
+This read model generator has an expectation that the EventBus will deliver messages for the same source in order.",
+                        pricedOrder.OrderId,
+                        eventVersion,
+                        pricedOrder.OrderVersion));
             }
         }
     }

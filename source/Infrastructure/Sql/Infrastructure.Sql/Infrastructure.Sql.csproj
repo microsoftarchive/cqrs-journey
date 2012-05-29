@@ -52,10 +52,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Blob\BlobEntity.cs" />
-    <Compile Include="Blob\BlobStorageDbContext.cs" />
-    <Compile Include="Blob\SqlBlobStorage.cs" />
+    <Compile Include="BlobStorage\BlobEntity.cs" />
+    <Compile Include="BlobStorage\BlobStorageDbContext.cs" />
+    <Compile Include="BlobStorage\SqlBlobStorage.cs" />
     <Compile Include="Database\SqlDataContext.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="MessageLog\SqlMessageLogHandler.cs" />
+    <Compile Include="MessageLog\MessageLogDbContext.cs" />
+    <Compile Include="MessageLog\MessageLogEntity.cs" />
+    <Compile Include="MessageLog\QueryCriteriaExtensions.cs" />
+    <Compile Include="MessageLog\SqlMessageLog.cs" />
     <Compile Include="EventSourcing\EventStoreDbContext.cs" />
     <Compile Include="Messaging\Implementation\MessagingDbInitializer.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />

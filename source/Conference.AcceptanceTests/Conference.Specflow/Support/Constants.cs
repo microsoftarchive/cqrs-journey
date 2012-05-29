@@ -18,7 +18,11 @@ namespace Conference.Specflow.Support
 {
     static class Constants
     {
+#if LOCAL
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+#else   // Wait more for slower Azure connections
+        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10);
+#endif
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
         public static readonly string ConferenceManagementCreatePage = ConfigurationManager.AppSettings["ConferenceMgmtUrl"] + "create";
@@ -28,30 +32,32 @@ namespace Conference.Specflow.Support
 
         public static class UI
         {
+            // Max time for wait on a screen to show up
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30); 
+            
             public const string NextStepId = "Next";
             public const string FindId = "find";
             public const string ProceedToSeatAssignementId = "Proceed to Seat Assignment";
             public const string SeatAssignementId = "Assign seats to attendees";
             public const string ReservationSuccessfull = "Seats information";
-            public const string ReservationUnsuccessfull = "Could not reserve all the requested seats.";
+            public const string ReservationUnsuccessfull = "Could not reserve all the requested seats";
             public const string FindOrderSuccessfull = "Registration details";
             public const string RegistrationSuccessfull = "Thank you";
             public const string AcceptPaymentInputValue = "accepted";
             public const string RejectPaymentInputValue = "rejected";
             public const string SeatAssignmentPage = "Assign Seats";
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); // Wait > 5 secs, longer than page retry 
             public const string TagLine = "Acceptance Tests";
             public const string Location = "Test";
             public const string TwitterSearch = "TwitterSearch";
             public const string ConferenceDescription = "Acceptance Tests CQRS summit 2012 conference";
-            public const string CreateConferenceId = "Create";
+            public const string CreateConferenceId = "Save conference";
             public const string PublishConferenceId = "Publish";
             public const string UnpublishConferenceId = "Unpublish";
             public const string EditConferenceId = "Edit";
             public const string UpdateConferenceId = "Save";
-            public const string ConferenceManagementAccessId = "Access";
-            public const string ConferenceManagementSeatTypesId = "Seat Types";
-            public const string ConferenceManagementCreateNewSeatTypesId = "Create New";
+            public const string ConferenceManagementAccessId = "Login";
+            public const string ConferenceManagementSeatTypesId = "Seat types";
+            public const string ConferenceManagementCreateNewSeatTypesId = "Add new seat type";
         }
 
         public static string RegistrationPage(string conferenceSlug)

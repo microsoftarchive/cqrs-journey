@@ -3,8 +3,11 @@
   <assemblies>
     <assembly filename="..\source\Conference\Registration.Tests\bin\Debug\Registration.Tests.dll" shadow-copy="true" />
     <assembly filename="..\source\Conference\Conference.Web.Public.Tests\bin\Debug\Conference.Web.Public.Tests.dll" shadow-copy="true" />
-    <assembly filename="..\source\Conference\Registration.IntegrationTests\bin\Debug\Registration.IntegrationTests.dll" shadow-copy="true" />
-    <assembly filename="..\source\Conference\Azure\Azure.Common.IntegrationTests\bin\Debug\Azure.IntegrationTests.dll" shadow-copy="true" />
-    <assembly filename="..\source\Conference\Azure\Azure.Common.Tests\bin\Debug\Azure.Tests.dll" shadow-copy="true" />
+	<assembly filename="..\source\Conference\Payments.Tests\bin\Debug\Payments.Tests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Conference\Conference.IntegrationTests\bin\Debug\Conference.IntegrationTests.dll" shadow-copy="true" />
+	<assembly filename="..\source\Conference\Registration.IntegrationTests\bin\Debug\Registration.IntegrationTests.dll" shadow-copy="true" />
+	<assembly filename="..\source\Infrastructure\Azure\Infrastructure.Azure.Tests\bin\Debug\Azure.Tests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Infrastructure\Azure\Infrastructure.Azure.IntegrationTests\bin\Debug\Azure.IntegrationTests.dll" shadow-copy="true" />
+    <assembly filename="..\source\Infrastructure\Sql\Infrastructure.Sql.IntegrationTests\bin\Debug\Infrastructure.Sql.IntegrationTests.dll" shadow-copy="true" />
   </assemblies>
 </xunit>

@@ -31,7 +31,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         public void when_receiving_event_then_calls_handler()
         {
             var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
@@ -59,7 +59,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
             var processor = new EventProcessor(receiver, new JsonTextSerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
@@ -90,7 +90,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         public void when_sending_multiple_events_then_calls_all_handlers()
         {
             var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new MetadataProvider(), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var fooEvent = new ManualResetEventSlim();
             var fooHandler = new FooEventHandler(fooEvent);

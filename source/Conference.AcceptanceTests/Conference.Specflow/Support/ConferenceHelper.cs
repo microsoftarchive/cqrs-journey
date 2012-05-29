@@ -17,6 +17,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading;
 using Conference.Common.Entity;
+using Infrastructure;
 using Registration;
 using Registration.Commands;
 using TechTalk.SpecFlow;
@@ -35,7 +36,7 @@ namespace Conference.Specflow.Support
     static class ConferenceHelper
     {
         static ConferenceHelper()
-        {
+        { 
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
             Database.SetInitializer<ConferenceContext>(null);
         }
@@ -44,23 +45,56 @@ namespace Conference.Specflow.Support
         {
             string conferenceSlug = Slug.CreateNew().Value;
             var svc = new ConferenceService(BuildEventBus());
-            var conference = svc.FindConference(conferenceSlug);
-
-            if (null != conference)
-            {
-                if(conference.Seats.Count == 0)
-                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
-                return conference;
-            }
-
-            conference = BuildConferenceInfo(table, conferenceSlug);
+            var conference = BuildConferenceInfo(table, conferenceSlug);
             svc.CreateConference(conference);
             svc.Publish(conference.Id);
 
-            // Wait for the events to be processed
-            Thread.Sleep(Constants.WaitTimeout);
+            Registration.ReadModel.Conference published = null;
+            while(published == null || 
+                !published.IsPublished || 
+                published.Seats.Count != table.Rows.Count ||
+                published.Seats.Any(s => s.AvailableQuantity != conference.Seats.First(c => c.Id == s.Id).Quantity))
+            {
+                published = RegistrationHelper.FindConference(conference.Id);
+                Thread.Sleep(100);
+            }
 
             return conference;
+        }
+
+        public static ConferenceInfo FindConference(string conferenceSlug)
+        {
+            var svc = new ConferenceService(BuildEventBus());
+            var conference = svc.FindConference(conferenceSlug);
+            if (null != conference)
+            {
+                if (conference.Seats.Count == 0)
+                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
+            }
+            return conference;
+        }
+
+        public static Order FindOrder(Guid conferenceId, Guid orderId)
+        {
+            var svc = new ConferenceService(BuildEventBus());
+            return svc.FindOrders(conferenceId).FirstOrDefault(o => o.Id == orderId);
+        }
+
+        public static void CreateSeats(string conferenceSlug, Table table)
+        {
+            var svc = new ConferenceService(BuildEventBus());
+            var conference = FindConference(conferenceSlug);
+
+            foreach (var row in table.Rows)
+            {
+                svc.CreateSeat(conference.Id, new SeatType
+                                            {
+                                                Name = row["Name"],
+                                                Description = row["Description"],
+                                                Quantity = int.Parse(row["Quantity"]),
+                                                Price = decimal.Parse(row["Price"])
+                                            });
+            }
         }
 
         public static Guid ReserveSeats(ConferenceInfo conference, Table table)
@@ -97,11 +131,6 @@ namespace Conference.Specflow.Support
             return seatReservation.ReservationId;
         }
 
-        public static ICommandBus GetCommandBus()
-        {
-            return BuildCommandBus();
-        }
-
         private static ConferenceInfo BuildConferenceInfo(Table seats, string conferenceSlug)
         {
             var conference = new ConferenceInfo()
@@ -136,21 +165,23 @@ namespace Conference.Specflow.Support
             return conference;
         }
 
-        private static IEventBus BuildEventBus()
+        internal static IEventBus BuildEventBus()
         {
+            var serializer = new JsonTextSerializer();
 #if LOCAL
-            return new EventBus(GetMessageSender("SqlBus.Events"), new JsonTextSerializer());
+            return new EventBus(GetMessageSender("SqlBus.Events"), serializer);
 #else
-            return new EventBus(GetTopicSender("events"), new MetadataProvider(), new JsonTextSerializer());
+            return new EventBus(GetTopicSender("events"), new StandardMetadataProvider(), serializer);
 #endif
         }
 
-        private static ICommandBus BuildCommandBus()
+        internal static ICommandBus BuildCommandBus()
         {
+            var serializer = new JsonTextSerializer();
 #if LOCAL
-            return new CommandBus(GetMessageSender("SqlBus.Commands"), new JsonTextSerializer());
+            return new CommandBus(GetMessageSender("SqlBus.Commands"), serializer);
 #else
-            return new CommandBus(GetTopicSender("commands"), new MetadataProvider(), new JsonTextSerializer());
+            return new CommandBus(GetTopicSender("commands"), new StandardMetadataProvider(), serializer);
 #endif
         }
 
@@ -160,10 +191,10 @@ namespace Conference.Specflow.Support
             return new MessageSender(Database.DefaultConnectionFactory, "SqlBus", tableName);
         }
 #else
-        private static TopicSender GetTopicSender(string topic)
+        internal static TopicSender GetTopicSender(string topic)
         {
-            var settings = InfrastructureSettings.ReadMessaging("Settings.xml");
-            return new TopicSender(settings, "conference/" + topic);
+            var settings = InfrastructureSettings.Read("Settings.xml");
+            return new TopicSender(settings.ServiceBus, "conference/" + topic);
         }
 #endif
     }

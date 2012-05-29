@@ -18,6 +18,7 @@ namespace WorkerRoleCommandProcessor
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
+    using Conference.Common;
     using Conference.Common.Entity;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.Diagnostics;
@@ -29,20 +30,31 @@ namespace WorkerRoleCommandProcessor
 
         public override void Run()
         {
-            Trace.WriteLine("Starting the command processor", "Information");
-
             this.running = true;
 
-            using (var processor = new ConferenceCommandProcessor())
+            MaintenanceMode.RefreshIsInMaintainanceMode();
+            if (!MaintenanceMode.IsInMaintainanceMode)
             {
-                processor.Start();
+                Trace.WriteLine("Starting the command processor", "Information");
+                using (var processor = new ConferenceProcessor())
+                {
+                    processor.Start();
 
+                    while (this.running)
+                    {
+                        Thread.Sleep(10000);
+                    }
+
+                    processor.Stop();
+                }
+            }
+            else
+            {
+                Trace.TraceWarning("Starting the command processor in mantainance mode.");
                 while (this.running)
                 {
                     Thread.Sleep(10000);
                 }
-
-                processor.Stop();
             }
         }
 

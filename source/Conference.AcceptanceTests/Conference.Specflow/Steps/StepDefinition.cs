@@ -27,6 +27,11 @@ namespace Conference.Specflow.Steps
             browser = ScenarioContext.Current.Browser();
         }
 
+        public StepDefinition(Browser browser)
+        {
+            this.browser = browser;
+        }
+
         protected Browser Browser
         {
             get { return browser; }

@@ -71,6 +71,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Discounts", "Discounts", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discounts", "Conference\Discounts\Discounts\Discounts.csproj", "{7D23D5BF-5132-43C4-97A8-BD0614D82C0E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Migrations", "Migrations", "{EB2A0055-A001-498D-B4AA-7E3DF72C8F84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationToV2", "Migrations\MigrationToV2\MigrationToV2.csproj", "{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}"
+EndProject
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "MigrationToV2.Azure", "Migrations\MigrationToV2.Azure\MigrationToV2.Azure.ccproj", "{BE7057E8-67AA-4440-B6C3-D06C23E064FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,13 +123,11 @@ Global
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
-		{60AF76A9-0891-400F-8F87-A5978D3F3744}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60AF76A9-0891-400F-8F87-A5978D3F3744}.Release|Any CPU.Build.0 = Release|Any CPU
 		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{85C85861-B89C-44E8-94DB-90B5751B3781}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85C85861-B89C-44E8-94DB-90B5751B3781}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
-		{85C85861-B89C-44E8-94DB-90B5751B3781}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
 		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85C85861-B89C-44E8-94DB-90B5751B3781}.Release|Any CPU.Build.0 = Release|Any CPU
 		{55C34F60-8B4D-428E-9340-2A6C4800E7B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -222,6 +226,18 @@ Global
 		{7D23D5BF-5132-43C4-97A8-BD0614D82C0E}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
 		{7D23D5BF-5132-43C4-97A8-BD0614D82C0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D23D5BF-5132-43C4-97A8-BD0614D82C0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -247,6 +263,8 @@ Global
 		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D} = {E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}
 		{F038F286-5AEF-4341-83EC-9F72F42D06D6} = {E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}
 		{7D23D5BF-5132-43C4-97A8-BD0614D82C0E} = {5459BFEE-7CAD-4E86-9ED9-98881EB600AB}
+		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
+		{BE7057E8-67AA-4440-B6C3-D06C23E064FE} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.2\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime

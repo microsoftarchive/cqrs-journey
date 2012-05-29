@@ -13,6 +13,7 @@
 
 namespace Infrastructure.Sql.Messaging.Handling
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -45,11 +46,27 @@ namespace Infrastructure.Sql.Messaging.Handling
             var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
 
             foreach (dynamic handler in this.handlers
-                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+                .Where(x => handlerType.IsAssignableFrom(x.GetType()) || CanHandle(x.GetType(), payload.GetType())))
             {
                 Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName);
                 handler.Handle((dynamic)payload);
             }
+        }
+
+        /// <summary>
+        /// Searches for all <see cref="IEventHandler{TEvent}"/> interfaces on the 
+        /// <paramref name="handlerType"/>, gets the generic parameter on them and 
+        /// determines if the payload type is a derived class of the parameter. 
+        /// This makes it possible for a handler to handle events of a more 
+        /// generic type.
+        /// </summary>
+        private bool CanHandle(Type handlerType, Type payloadType)
+        {
+            return handlerType.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+                .Select(i => i.GetGenericArguments()[0])
+                .Where(t => t.IsAssignableFrom(payloadType))
+                .Any();
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Infrastructure.Azure.IntegrationTests
 {
     using System;
     using Infrastructure.Azure.Messaging;
+    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
+    using Microsoft.Practices.TransientFaultHandling;
 
     /// <summary>
     /// Base class for messaging integration tests.
@@ -23,27 +25,35 @@ namespace Infrastructure.Azure.IntegrationTests
     {
         public given_messaging_settings()
         {
-            this.Settings = InfrastructureSettings.ReadMessaging("Settings.xml");
+            System.Diagnostics.Trace.Listeners.Clear();
+            this.Settings = InfrastructureSettings.Read("Settings.xml").ServiceBus;
         }
 
-        public MessagingSettings Settings { get; private set; }
+        public ServiceBusSettings Settings { get; private set; }
     }
 
     public class given_a_topic_and_subscription : given_messaging_settings, IDisposable
     {
+        private RetryPolicy<ServiceBusTransientErrorDetectionStrategy> retryPolicy;
+
         public given_a_topic_and_subscription()
         {
-            this.Topic = "Test-" + Guid.NewGuid().ToString();
-            this.Subscription = "Test-" + Guid.NewGuid().ToString();
+            System.Diagnostics.Trace.Listeners.Clear();
+
+            this.Topic = "cqrsjourney-test-" + Guid.NewGuid().ToString();
+            this.Subscription = "test-" + Guid.NewGuid().ToString();
+
+            var retryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
+            this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
 
             // Creates the topic too.
-            this.Settings.CreateSubscription(this.Topic, this.Subscription);
+            this.retryPolicy.ExecuteAction(() => this.Settings.CreateSubscription(this.Topic, this.Subscription));
         }
 
         public virtual void Dispose()
         {
             // Deletes subscriptions too.
-            this.Settings.TryDeleteTopic(this.Topic);
+            this.retryPolicy.ExecuteAction(() => this.Settings.TryDeleteTopic(this.Topic));
         }
 
         public string Topic { get; private set; }

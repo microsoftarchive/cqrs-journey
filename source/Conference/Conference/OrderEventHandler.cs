@@ -42,7 +42,8 @@ namespace Conference
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderRegistrantAssigned>,
         IEventHandler<OrderTotalsCalculated>,
-        IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderConfirmed>,
+        IEventHandler<OrderExpired>,
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
         IEventHandler<SeatAssignmentUpdated>,
@@ -81,11 +82,24 @@ namespace Conference
             }
         }
 
-        public void Handle(OrderPaymentConfirmed @event)
+        public void Handle(OrderConfirmed @event)
         {
             if (!ProcessOrder(order => order.Id == @event.SourceId, order => order.Status = Order.OrderStatus.Paid))
             {
                 Trace.TraceError("Failed to locate the order with {0} to apply confirmed payment.", @event.SourceId);
+            }
+        }
+
+        public void Handle(OrderExpired @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var order = context.Orders.FirstOrDefault(x => x.Id == @event.SourceId);
+                if (order != null)
+                {
+                    context.Orders.Remove(order);
+                    context.SaveChanges();
+                }
             }
         }
 

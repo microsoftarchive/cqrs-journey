@@ -23,6 +23,8 @@ namespace Conference.Web.Public.Models
 
         public bool PartiallyFulfilled { get; set; }
 
-        public int MaxSeatSelection { get; set; }
+        public int AvailableQuantityForOrder { get; set; }
+
+        public int MaxSelectionQuantity { get; set; }
     }
 }

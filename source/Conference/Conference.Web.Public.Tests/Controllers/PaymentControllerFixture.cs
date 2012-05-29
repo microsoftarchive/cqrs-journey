@@ -61,7 +61,7 @@ namespace Conference.Web.Public.Tests.Controllers.PaymentControllerFixture
             // Arrange
             var paymentId = Guid.NewGuid();
             this.paymentDaoMock
-                .Setup(pd => pd.GetThirdPartyProcessorPaymentDetails(It.IsAny<Guid>()))
+                .Setup(dao => dao.GetThirdPartyProcessorPaymentDetails(It.IsAny<Guid>()))
                 .Returns(new ThirdPartyProcessorPaymentDetails(Guid.NewGuid(), Payments.ThirdPartyProcessorPayment.States.Initiated, Guid.NewGuid(), "payment", 100));
 
             // Act

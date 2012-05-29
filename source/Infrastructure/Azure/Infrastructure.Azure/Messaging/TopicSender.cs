@@ -30,7 +30,7 @@ namespace Infrastructure.Azure.Messaging
     {
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
-        private readonly MessagingSettings settings;
+        private readonly ServiceBusSettings settings;
         private readonly string topic;
         private readonly RetryPolicy retryPolicy;
         private readonly TopicClient topicClient;
@@ -39,8 +39,8 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
         /// automatically creating the given topic if it does not exist.
         /// </summary>
-        public TopicSender(MessagingSettings settings, string topic)
-            : this(settings, topic, GetRetryStrategy())
+        public TopicSender(ServiceBusSettings settings, string topic)
+            : this(settings, topic, new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
 
@@ -48,26 +48,13 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
         /// automatically creating the given topic if it does not exist.
         /// </summary>
-        protected TopicSender(MessagingSettings settings, string topic, RetryStrategy retryStrategy)
+        protected TopicSender(ServiceBusSettings settings, string topic, RetryStrategy retryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
-
-            try
-            {
-                new NamespaceManager(this.serviceUri, this.tokenProvider)
-                    .CreateTopic(
-                        new TopicDescription(topic)
-                        {
-                            RequiresDuplicateDetection = true,
-                            DuplicateDetectionHistoryTimeWindow = TimeSpan.FromMinutes(30)
-                        });
-            }
-            catch (MessagingEntityAlreadyExistsException)
-            { }
 
             // TODO: This could be injected.
             this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
@@ -165,11 +152,6 @@ namespace Infrastructure.Azure.Messaging
             {
                 using (ar.AsyncState as IDisposable) { }
             }
-        }
-
-        private static RetryStrategy GetRetryStrategy()
-        {
-            return new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1));
         }
     }
 }

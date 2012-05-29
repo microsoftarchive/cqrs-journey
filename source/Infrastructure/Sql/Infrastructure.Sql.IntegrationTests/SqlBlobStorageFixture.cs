@@ -15,7 +15,7 @@ namespace Infrastructure.Sql.IntegrationTests
 {
     using System;
     using Infrastructure.Serialization;
-    using Infrastructure.Sql.Blob;
+    using Infrastructure.Sql.BlobStorage;
     using Xunit;
     using System.Text;
 

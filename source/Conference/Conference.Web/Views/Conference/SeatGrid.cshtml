@@ -3,7 +3,7 @@
 @foreach (var item in Model) {
     <tr data-pkey="@item.Id">
         <td>
-            @Html.DisplayFor(modelItem => item.Name)
+            <a href="#makeRowEditable" class="makeRowEditable">@item.Name</a> 
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Description)
@@ -12,15 +12,14 @@
             @Html.DisplayFor(modelItem => item.Quantity)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Price)
+            $@Html.DisplayFor(modelItem => item.Price)
         </td>
-        <td class="rowControl">
-            <a href="#makeRowEditable" class="makeRowEditable">Edit</a> | 
-            @if (ViewBag.WasEverPublished) {
+        <td>
+@*            @if (ViewBag.WasEverPublished) {
                 <span title="The conference has been published at least once before. Cannot delete seat types.">Delete</span>
             } else {
                 <a href="#deleteRow" class="deleteRow">Delete</a>
-            }
+            }*@
         </td>
     </tr>
 }

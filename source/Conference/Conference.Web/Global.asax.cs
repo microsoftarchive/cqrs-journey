@@ -14,26 +14,33 @@
 namespace Conference.Web.Admin
 {
     using System.Data.Entity;
+    using System.Linq;
+    using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common;
     using Conference.Common.Entity;
+    using Conference.Web.Utils;
+    using Infrastructure;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 #if LOCAL
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
-#else
-    using System.Web;
-    using Infrastructure.Azure;
-    using Infrastructure.Azure.Messaging;
-#endif
 
-    public class MvcApplication : System.Web.HttpApplication
+#else
+    using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure;
+#endif
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
+    public class MvcApplication : HttpApplication
     {
         public static IEventBus EventBus { get; private set; }
 
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
+            filters.Add(new MaintenanceModeAttribute());
             filters.Add(new HandleErrorAttribute());
         }
 
@@ -69,6 +76,24 @@ namespace Conference.Web.Admin
 
         protected void Application_Start()
         {
+            RoleEnvironment.Changed +=
+                (s, a) =>
+                {
+                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
+                    {
+                        RoleEnvironment.RequestRecycle();
+                    }
+                    else
+                    {
+                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                        {
+                            MaintenanceMode.RefreshIsInMaintainanceMode();
+                        }
+                    }
+                };
+            MaintenanceMode.RefreshIsInMaintainanceMode();
+
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
             AreaRegistration.RegisterAllAreas();
@@ -82,9 +107,10 @@ namespace Conference.Web.Admin
 #if LOCAL
             EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
-            var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
+            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
+            new ServiceBusConfig(settings).Initialize();
 
-            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new MetadataProvider(), serializer);
+            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new StandardMetadataProvider(), serializer);
 #endif
 
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)

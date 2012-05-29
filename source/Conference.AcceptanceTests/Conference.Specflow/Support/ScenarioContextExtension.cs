@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TechTalk.SpecFlow;
 using WatiN.Core;
+using WatiN.Core.Native.Chrome;
+using WatiN.Core.Native.Mozilla;
 
 namespace Conference.Specflow.Support
 {

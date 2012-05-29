@@ -135,6 +135,7 @@
     <Compile Include="Models\RegistrationViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\DateTimeExtensions.cs" />
+    <Compile Include="Utils\MaintenanceModeAttribute.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -187,7 +188,6 @@
     <Content Include="Content\Conference\sessions.png" />
     <Content Include="Content\Conference\sponsors.png" />
     <Content Include="Global.asax" />
-    <Content Include="Content\Site.css" />
     <Content Include="Scripts\Conference.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Web.config">
@@ -224,6 +224,7 @@
     <Content Include="Views\Registration\ShowCompletedOrder.cshtml" />
     <Content Include="App_Code\ConferenceHelpers.cshtml" />
     <Content Include="Areas\ThirdPartyProcessor\Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\MaintenanceMode.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

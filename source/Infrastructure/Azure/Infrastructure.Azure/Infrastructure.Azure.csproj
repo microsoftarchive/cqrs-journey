@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper">
+      <HintPath>..\..\..\packages\AutoMapper.2.1.267\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common">
       <HintPath>..\..\..\packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
     </Reference>
@@ -74,6 +77,14 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="ConcurrencyException.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="MessageLog\AzureMessageLogWriter.cs" />
+    <Compile Include="MessageLog\AzureMessageLogListener.cs" />
+    <Compile Include="MessageLog\AzureEventLogReader.cs" />
+    <Compile Include="MessageLog\BrokeredMessageExtension.cs" />
+    <Compile Include="MessageLog\MessageLogEntity.cs" />
+    <Compile Include="MessageLog\MessageLogSettings.cs" />
+    <Compile Include="MessageLog\QueryCriteriaExtensions.cs" />
     <Compile Include="EventSourcing\AzureEventSourcedRepository.cs" />
     <Compile Include="EventSourcing\IEventStoreBusPublisher.cs" />
     <Compile Include="EventSourcing\IPendingEventsQueue.cs" />
@@ -83,19 +94,21 @@
     <Compile Include="EventSourcing\EventTableServiceEntity.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="Messaging\CommandBus.cs" />
-    <Compile Include="Messaging\EventSourcingSettings.cs" />
-    <Compile Include="Messaging\InfrastructureSettings.cs" />
+    <Compile Include="EventSourcing\EventSourcingSettings.cs" />
+    <Compile Include="InfrastructureSettings.cs" />
     <Compile Include="Messaging\EventBus.cs" />
     <Compile Include="Messaging\Handling\CommandProcessor.cs" />
     <Compile Include="Messaging\Handling\EventProcessor.cs" />
-    <Compile Include="MetadataProvider.cs" />
-    <Compile Include="IMetadataProvider.cs" />
-    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="Messaging\ServiceBusConfig.cs" />
+    <Compile Include="Messaging\SessionSubscriptionReceiver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messaging\Handling\MessageProcessor.cs" />
     <Compile Include="Messaging\BrokeredMessageEventArgs.cs" />
     <Compile Include="Messaging\IMessageReceiver.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
     <Compile Include="Messaging\SubscriptionReceiver.cs" />
-    <Compile Include="Messaging\MessagingSettings.cs" />
+    <Compile Include="Messaging\ServiceBusSettings.cs" />
     <Compile Include="Messaging\TopicSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\BrokeredMessageExtensions.cs" />
@@ -105,6 +118,11 @@
     <None Include="..\..\..\CQRS-journey.licenseheader">
       <Link>CQRS-journey.licenseheader</Link>
     </None>
+    <EmbeddedResource Include="..\Settings.xsd">
+      <Link>Settings.xsd</Link>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -113,7 +131,13 @@
       <Name>Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\Settings.Template.xml">
+      <Link>Settings.Template.xml</Link>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

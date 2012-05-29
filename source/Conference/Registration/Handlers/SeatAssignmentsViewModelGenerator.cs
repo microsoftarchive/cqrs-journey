@@ -15,18 +15,16 @@ namespace Registration.Handlers
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
     using AutoMapper;
-    using Infrastructure.Blob;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Registration.Events;
     using Registration.ReadModel;
 
-    // TODO: should work correctly with out of order messages instead of dropping events!
     public class SeatAssignmentsViewModelGenerator :
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatAssigned>,
@@ -35,17 +33,14 @@ namespace Registration.Handlers
     {
         private readonly IBlobStorage storage;
         private readonly ITextSerializer serializer;
-        private IConferenceDao conferenceDao;
-        private IOrderDao orderDao;
+        private readonly IConferenceDao conferenceDao;
 
         public SeatAssignmentsViewModelGenerator(
             IConferenceDao conferenceDao,
-            IOrderDao orderDao,
             IBlobStorage storage,
             ITextSerializer serializer)
         {
             this.conferenceDao = conferenceDao;
-            this.orderDao = orderDao;
             this.storage = storage;
             this.serializer = serializer;
         }
@@ -70,67 +65,25 @@ namespace Registration.Handlers
         public void Handle(SeatAssigned @event)
         {
             var dto = Find(@event.SourceId);
-            if (dto != null)
-            {
-                var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
-                if (seat != null)
-                {
-                    Mapper.Map(@event, seat);
-                    Save(dto);
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate the seat at position {0} being assigned.", @event.Position);
-                }
-            }
-            else
-            {
-                Trace.TraceError("Failed to locate the order seats assignments read model corresponding to the assigned seat, assignments id {0}.", @event.SourceId);
-            }
+            var seat = dto.Seats.First(x => x.Position == @event.Position);
+            Mapper.Map(@event, seat);
+            Save(dto);
         }
 
         public void Handle(SeatUnassigned @event)
         {
             var dto = Find(@event.SourceId);
-            if (dto != null)
-            {
-                var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
-                if (seat != null)
-                {
-                    seat.Attendee.Email = seat.Attendee.FirstName = seat.Attendee.LastName = null;
-                    Save(dto);
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate the seat at position {0} being unassigned.", @event.Position);
-                }
-            }
-            else
-            {
-                Trace.TraceError("Failed to locate the order seats assignments read model corresponding to the unassigned seat, assignments id {0}.", @event.SourceId);
-            }
+            var seat = dto.Seats.First(x => x.Position == @event.Position);
+            seat.Attendee.Email = seat.Attendee.FirstName = seat.Attendee.LastName = null;
+            Save(dto);
         }
 
         public void Handle(SeatAssignmentUpdated @event)
         {
             var dto = Find(@event.SourceId);
-            if (dto != null)
-            {
-                var seat = dto.Seats.FirstOrDefault(x => x.Position == @event.Position);
-                if (seat != null)
-                {
-                    Mapper.Map(@event, seat);
-                    Save(dto);
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate the seat at position {0} being updated.", @event.Position);
-                }
-            }
-            else
-            {
-                Trace.TraceError("Failed to locate the order seats assignments read model corresponding to the updated seat, assignments id {0}.", @event.SourceId);
-            }
+            var seat = dto.Seats.First(x => x.Position == @event.Position);
+            Mapper.Map(@event, seat);
+            Save(dto);
         }
 
         private OrderSeats Find(Guid id)

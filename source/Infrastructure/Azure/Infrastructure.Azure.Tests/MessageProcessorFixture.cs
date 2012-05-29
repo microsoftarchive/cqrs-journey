@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.Tests
 {
     using System;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
     using Moq;
@@ -94,7 +95,7 @@ namespace Infrastructure.Azure.Tests
 
             receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
 
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<object>());
+            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>());
         }
 
         [Fact]
@@ -109,7 +110,7 @@ namespace Infrastructure.Azure.Tests
 
             receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
 
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<object>());
+            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>());
         }
     }
 }

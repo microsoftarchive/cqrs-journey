@@ -18,6 +18,7 @@ namespace Registration.Handlers
     using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
+    using AutoMapper;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
     using Registration.ReadModel;
@@ -27,10 +28,18 @@ namespace Registration.Handlers
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>,
-        IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderConfirmed>, IEventHandler<OrderPaymentConfirmed>,
         IEventHandler<OrderTotalsCalculated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+
+        static OrderViewModelGenerator()
+        {
+            // Mapping old version of the OrderPaymentConfirmed event to the new version.
+            // Currently it is being done explicitly by the consumer, but this one in particular could be done
+            // at the deserialization level, as it is just a rename, not a functionality change.
+            Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
+        }
 
         public OrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
@@ -56,17 +65,11 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<DraftOrder>(@event.SourceId);
-                if (dto != null)
+                if (WasNotAlreadyHandled(dto, @event.Version))
                 {
                     dto.RegistrantEmail = @event.Email;
-
                     dto.OrderVersion = @event.Version;
-
                     context.Save(dto);
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate Order read model for assigned registrant for order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -75,8 +78,8 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Set<DraftOrder>().Include(o => o.Lines).FirstOrDefault(o => o.OrderId == @event.SourceId);
-                if (dto != null)
+                var dto = context.Set<DraftOrder>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
+                if (WasNotAlreadyHandled(dto, @event.Version))
                 {
                     var linesSet = context.Set<DraftOrderItem>();
                     foreach (var line in dto.Lines.ToArray())
@@ -90,10 +93,6 @@ namespace Registration.Handlers
                     dto.OrderVersion = @event.Version;
 
                     context.Save(dto);
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate Order read model for updated order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -110,21 +109,19 @@ namespace Registration.Handlers
 
         public void Handle(OrderPaymentConfirmed @event)
         {
+            this.Handle(Mapper.Map<OrderConfirmed>(@event));
+        }
+
+        public void Handle(OrderConfirmed @event)
+        {
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<DraftOrder>(@event.SourceId);
-                if (dto != null)
+                if (WasNotAlreadyHandled(dto, @event.Version))
                 {
                     dto.State = DraftOrder.States.Confirmed;
-                    if (dto.OrderVersion < @event.Version)
-                    {
-                        dto.OrderVersion = @event.Version;
-                    }
+                    dto.OrderVersion = @event.Version;
                     context.Save(dto);
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate Order read model for confirmed payment for order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -134,17 +131,10 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Find<DraftOrder>(@event.SourceId);
-                if (dto != null)
+                if (WasNotAlreadyHandled(dto, @event.Version))
                 {
-                    if (dto.OrderVersion < @event.Version)
-                    {
-                        dto.OrderVersion = @event.Version;
-                        context.Save(dto);
-                    }
-                }
-                else
-                {
-                    Trace.TraceError("Failed to locate Order read model for calculated totals for order with id {0}.", @event.SourceId);
+                    dto.OrderVersion = @event.Version;
+                    context.Save(dto);
                 }
             }
         }
@@ -154,7 +144,7 @@ namespace Registration.Handlers
             using (var context = this.contextFactory.Invoke())
             {
                 var dto = context.Set<DraftOrder>().Include(x => x.Lines).First(x => x.OrderId == orderId);
-                if (dto != null)
+                if (WasNotAlreadyHandled(dto, orderVersion))
                 {
                     foreach (var seat in seats)
                     {
@@ -169,10 +159,33 @@ namespace Registration.Handlers
 
                     context.Save(dto);
                 }
-                else
-                {
-                    Trace.TraceError("Failed to locate Order read model for updated reservation for order with id {0}.", orderId);
-                }
+            }
+        }
+
+        private static bool WasNotAlreadyHandled(DraftOrder draftOrder, int eventVersion)
+        {
+            // This assumes that events will be handled in order, but we might get the same message more than once.
+            if (eventVersion > draftOrder.OrderVersion)
+            {
+                return true;
+            }
+            else if (eventVersion == draftOrder.OrderVersion)
+            {
+                Trace.TraceWarning(
+                    "Ignoring duplicate draft order update message with version {1} for order id {0}",
+                    draftOrder.OrderId,
+                    eventVersion);
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
+This read model generator has an expectation that the EventBus will deliver messages for the same source in order.",
+                        draftOrder.OrderId,
+                        eventVersion,
+                        draftOrder.OrderVersion));
             }
         }
     }

@@ -23,3 +23,6 @@ _UpgradeReport_Files
 /source/Conference.Azure/csx/
 *.build.csdef
 *.orig
+/source/Migrations/MigrationToV2.Azure/csx/
+*.build.csdef
+*crunch*

@@ -1,5 +1,7 @@
 CREATE SCHEMA [SqlBus] AUTHORIZATION [dbo]
 GO
+CREATE SCHEMA [MessageLog] AUTHORIZATION [dbo]
+GO
 CREATE SCHEMA [Events] AUTHORIZATION [dbo]
 GO
 CREATE SCHEMA [ConferenceRegistrationProcesses] AUTHORIZATION [dbo]
@@ -77,9 +79,23 @@ CREATE TABLE [ConferenceRegistration].[PricedOrders](
 	[AssignmentsId] [uniqueidentifier] NULL,
 	[Total] [decimal](18, 2) NOT NULL,
 	[OrderVersion] [int] NOT NULL,
+	[IsFreeOfCharge] [bit] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[OrderId] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [ConferenceRegistration].[PricedOrderLineSeatTypeDescriptions](
+	[SeatTypeId] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[SeatTypeId] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
@@ -92,16 +108,16 @@ CREATE TABLE [ConferenceManagement].[Conferences](
 	[AccessCode] [nvarchar](6) NULL,
 	[OwnerName] [nvarchar](max) NOT NULL,
 	[OwnerEmail] [nvarchar](max) NOT NULL,
+	[Slug] [nvarchar](max) NOT NULL,
+	[WasEverPublished] [bit] NOT NULL,
 	[Name] [nvarchar](max) NOT NULL,
 	[Description] [nvarchar](max) NOT NULL,
 	[Location] [nvarchar](max) NOT NULL,
-	[Slug] [nvarchar](max) NOT NULL,
 	[Tagline] [nvarchar](max) NULL,
 	[TwitterSearch] [nvarchar](max) NULL,
 	[StartDate] [datetime] NOT NULL,
 	[EndDate] [datetime] NOT NULL,
 	[IsPublished] [bit] NOT NULL,
-	[WasEverPublished] [bit] NOT NULL,
  CONSTRAINT [PK_ConferenceManagement.Conferences] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -131,6 +147,27 @@ CREATE TABLE [BlobStorage].[Blobs](
 	[ContentType] [nvarchar](max) NULL,
 	[Blob] [varbinary](max) NULL,
 	[BlobString] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [MessageLog].[Messages](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Kind] [nvarchar](max) NULL,
+	[SourceId] [nvarchar](max) NULL,
+	[AssemblyName] [nvarchar](max) NULL,
+	[Namespace] [nvarchar](max) NULL,
+	[FullName] [nvarchar](max) NULL,
+	[TypeName] [nvarchar](max) NULL,
+	[SourceType] [nvarchar](max) NULL,
+	[CreationDate] [nvarchar](max) NULL,
+	[Payload] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -181,6 +218,7 @@ CREATE TABLE [ConferenceRegistration].[ConferencesView](
 	[Tagline] [nvarchar](max) NULL,
 	[TwitterSearch] [nvarchar](max) NULL,
 	[StartDate] [datetimeoffset](7) NOT NULL,
+	[SeatsAvailabilityVersion] [int] NOT NULL,
 	[IsPublished] [bit] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
@@ -239,8 +277,8 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [ConferenceManagement].[SeatTypes](
 	[Id] [uniqueidentifier] NOT NULL,
-	[Name] [nvarchar](max) NOT NULL,
-	[Description] [nvarchar](max) NOT NULL,
+	[Name] [nvarchar](70) NOT NULL,
+	[Description] [nvarchar](250) NOT NULL,
 	[Quantity] [int] NOT NULL,
 	[Price] [decimal](18, 2) NOT NULL,
 	[ConferenceInfo_Id] [uniqueidentifier] NOT NULL,
@@ -266,6 +304,7 @@ CREATE TABLE [ConferenceRegistration].[ConferenceSeatTypesView](
 	[Description] [nvarchar](max) NULL,
 	[Price] [decimal](18, 2) NOT NULL,
 	[Quantity] [int] NOT NULL,
+	[AvailableQuantity] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

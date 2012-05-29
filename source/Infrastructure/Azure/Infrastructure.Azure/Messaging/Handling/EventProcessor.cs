@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.Messaging.Handling
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -25,6 +24,8 @@ namespace Infrastructure.Azure.Messaging.Handling
     /// Processes incoming events from the bus and routes them to the appropriate 
     /// handlers.
     /// </summary>
+    // TODO: now that we have just one handler per subscription, it doesn't make 
+    // much sense to have this processor doing multi dispatch.
     public class EventProcessor : MessageProcessor, IEventHandlerRegistry
     {
         // A simpler list just works. We don't care about two handlers for the same event 
@@ -41,14 +42,14 @@ namespace Infrastructure.Azure.Messaging.Handling
             this.handlers.Add(eventHandler);
         }
 
-        protected override void ProcessMessage(object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload)
         {
             var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
 
             foreach (dynamic handler in this.handlers
                 .Where(x => handlerType.IsAssignableFrom(x.GetType())))
             {
-                Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName);
+                Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName + traceIdentifier);
                 handler.Handle((dynamic)payload);
             }
         }

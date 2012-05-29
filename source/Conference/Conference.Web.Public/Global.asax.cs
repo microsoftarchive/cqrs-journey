@@ -13,15 +13,21 @@
 
 namespace Conference.Web.Public
 {
+    using System.Linq;
+    using System.Web;
     using System.Data.Entity;
     using System.Web.Mvc;
     using System.Web.Routing;
+    using Conference.Common;
     using Conference.Common.Entity;
-    using Infrastructure.Blob;
+    using Conference.Web.Utils;
+    using Infrastructure;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
-    using Infrastructure.Sql.Blob;
+    using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
+    using Microsoft.WindowsAzure.ServiceRuntime;
     using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
     using Registration.ReadModel;
@@ -30,22 +36,40 @@ namespace Conference.Web.Public
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
 #else
-    using Infrastructure.Azure;
-    using System.Web;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure;
 #endif
 
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
         private IUnityContainer container;
 
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
+            filters.Add(new MaintenanceModeAttribute());
             filters.Add(new HandleErrorAttribute());
         }
 
         protected void Application_Start()
         {
+            RoleEnvironment.Changed +=
+                (s, a) =>
+                    {
+                        var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                        if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
+                        {
+                            RoleEnvironment.RequestRecycle();
+                        }
+                        else
+                        {
+                            if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                            {
+                                MaintenanceMode.RefreshIsInMaintainanceMode();
+                            }
+                        }
+                    };
+            MaintenanceMode.RefreshIsInMaintainanceMode();
+
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
             this.container = CreateContainer();
@@ -87,8 +111,10 @@ namespace Conference.Web.Public
             container.RegisterType<ICommandBus, CommandBus>(
                 new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
 #else
-            var settings = InfrastructureSettings.ReadMessaging(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
-            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new MetadataProvider(), serializer);
+            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
+            new ServiceBusConfig(settings).Initialize();
+
+            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new StandardMetadataProvider(), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
 #endif

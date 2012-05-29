@@ -14,13 +14,16 @@
 namespace Registration.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
     using Conference;
+    using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Registration.Commands;
+    using Registration.Events;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
@@ -31,7 +34,10 @@ namespace Registration.Handlers
         IEventHandler<ConferencePublished>,
         IEventHandler<ConferenceUnpublished>,
         IEventHandler<SeatCreated>,
-        IEventHandler<SeatUpdated>
+        IEventHandler<SeatUpdated>,
+        IEventHandler<AvailableSeatsChanged>,
+        IEventHandler<SeatsReserved>,
+        IEventHandler<SeatsReservationCancelled>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
         private ICommandBus bus;
@@ -141,7 +147,7 @@ namespace Registration.Handlers
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate Conference read model for created seat, with conference id {0}.", @event.SourceId);
+                    Trace.TraceError("Failed to locate Conference read model for created seat, with conference id {0}.", @event.ConferenceId);
                 }
             }
         }
@@ -190,6 +196,65 @@ namespace Registration.Handlers
                     else
                     {
                         Trace.TraceError("Failed to locate Seat Type read model being updated with id {0}.", @event.SourceId);
+                    }
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate Conference read model for updated seat type, with conference id {0}.", @event.ConferenceId);
+                }
+            }
+        }
+
+        public void Handle(AvailableSeatsChanged @event)
+        {
+            this.UpdateAvailableQuantity(@event, @event.Seats);
+        }
+
+        public void Handle(SeatsReserved @event)
+        {
+            this.UpdateAvailableQuantity(@event, @event.AvailableSeatsChanged);
+        }
+
+        public void Handle(SeatsReservationCancelled @event)
+        {
+            this.UpdateAvailableQuantity(@event, @event.AvailableSeatsChanged);
+        }
+
+        private void UpdateAvailableQuantity(IVersionedEvent @event, IEnumerable<SeatQuantity> seats)
+        {
+            using (var repository = this.contextFactory.Invoke())
+            {
+                var dto = repository.Set<Conference>().Include(x => x.Seats).FirstOrDefault(x => x.Id == @event.SourceId);
+                if (dto != null)
+                {
+                    // This check assumes events might be received more than once, but not out of order
+                    if (@event.Version > dto.SeatsAvailabilityVersion)
+                    {
+                        foreach (var seat in seats)
+                        {
+                            var seatDto = dto.Seats.FirstOrDefault(x => x.Id == seat.SeatType);
+                            if (seatDto != null)
+                            {
+                                seatDto.AvailableQuantity += seat.Quantity;
+                            }
+                            else
+                            {
+                                // TODO should reject the entire update?
+                                Trace.TraceError("Failed to locate Seat Type read model being updated with id {0}.", seat.SeatType);
+                            }
+                        }
+
+                        dto.SeatsAvailabilityVersion = @event.Version;
+
+                        repository.Save(dto);
+                    }
+                    else
+                    {
+                        Trace.TraceWarning(
+                            "Ignoring availability update message with version {1} for conference id {0}, last known version {2}.",
+                            @event.SourceId,
+                            @event.Version,
+                            dto.SeatsAvailabilityVersion);
                     }
                 }
                 else

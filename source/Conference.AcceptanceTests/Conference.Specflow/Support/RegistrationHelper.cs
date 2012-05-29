@@ -14,16 +14,16 @@
 using System;
 using System.Collections.Specialized;
 using System.Data.Entity;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Conference.Common.Entity;
 using Conference.Web.Public.Controllers;
 using Infrastructure.Serialization;
-using Infrastructure.Sql.Blob;
+using Infrastructure.Sql.BlobStorage;
 using Moq;
 using Payments.ReadModel.Implementation;
-using Registration.ReadModel;
 using Registration.ReadModel.Implementation;
 
 namespace Conference.Specflow.Support
@@ -43,7 +43,7 @@ namespace Conference.Specflow.Support
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
             var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
-        
+   
             // Setup context mocks
             var requestMock = new Mock<HttpRequestBase>(MockBehavior.Strict);
             requestMock.SetupGet(x => x.ApplicationPath).Returns("/");
@@ -59,7 +59,7 @@ namespace Conference.Specflow.Support
             routeData.Values.Add("conferenceCode", conferenceCode);
 
             // Create the controller and set context
-            var controller = new RegistrationController(ConferenceHelper.GetCommandBus(), orderDao, conferenceDao);
+            var controller = new RegistrationController(ConferenceHelper.BuildCommandBus(), orderDao, conferenceDao);
             controller.ControllerContext = new ControllerContext(context, routeData, controller);
             controller.Url = new UrlHelper(new RequestContext(context, routeData), routes);
 
@@ -69,7 +69,7 @@ namespace Conference.Specflow.Support
         public static PaymentController GetPaymentController()
         {
             var paymentDao = new PaymentDao(() => new PaymentsReadDbContext(PaymentsReadDbContext.SchemaName));
-            return new PaymentController(ConferenceHelper.GetCommandBus(), paymentDao);
+            return new PaymentController(ConferenceHelper.BuildCommandBus(), paymentDao);
         }
 
         public static OrderController GetOrderController()
@@ -78,7 +78,23 @@ namespace Conference.Specflow.Support
             var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
 
-            return new OrderController(conferenceDao, orderDao, ConferenceHelper.GetCommandBus());
+            return new OrderController(conferenceDao, orderDao, ConferenceHelper.BuildCommandBus());
+        }
+
+        public static T FindInContext<T>(Guid id) where T : class
+        {
+            using (var context = new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName))
+            {
+                return context.Find<T>(id);
+            }
+        }
+
+        public static Registration.ReadModel.Conference FindConference(Guid conferenceId)
+        {
+            using (var context = new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName))
+            {
+                return context.Set<Registration.ReadModel.Conference>().Include(x => x.Seats).FirstOrDefault(x => x.Id == conferenceId);
+            }            
         }
 
         public static T GetModel<T>(ActionResult result) where T : class

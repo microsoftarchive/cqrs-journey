@@ -192,8 +192,24 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
-        	if (paymentType == ThirdPartyProcessorPayment) 
-        		return InitiateRegistrationWithThirdPartyProcessorPayment(command, orderId, orderVersion);
+            var pricedOrder = this.orderDao.FindPricedOrder(orderId);
+            if (pricedOrder.IsFreeOfCharge)
+            {
+                return CompleteRegistrationWithoutPayment(command, orderId);
+            }
+
+            switch (paymentType)
+            {
+                case ThirdPartyProcessorPayment:
+
+                    return CompleteRegistrationWithThirdPartyProcessorPayment(command, pricedOrder, orderVersion);
+
+                case InvoicePayment:
+                    break;
+
+                default:
+                    break;
+            }
 
         	throw new InvalidOperationException();
         }
@@ -214,14 +230,14 @@ namespace Conference.Web.Public.Controllers
             return View(order);
         }
 
-        private ActionResult InitiateRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, Guid orderId, int orderVersion)
+        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, PricedOrder order, int orderVersion)
         {
-            var paymentCommand = CreatePaymentCommand(orderId);
+            var paymentCommand = CreatePaymentCommand(order);
 
             this.commandBus.Send(new ICommand[] { command, paymentCommand });
 
-            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
-            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId, orderVersion });
+            var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, order.OrderId });
+            var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId = order.OrderId, orderVersion });
 
             return RedirectToAction(
                 "ThirdPartyProcessorPayment",
@@ -235,25 +251,33 @@ namespace Conference.Web.Public.Controllers
                 });
         }
 
-        private InitiateThirdPartyProcessorPayment CreatePaymentCommand(Guid orderId)
+        private InitiateThirdPartyProcessorPayment CreatePaymentCommand(PricedOrder order)
         {
-            var totalledOrder = this.orderDao.FindPricedOrder(orderId);
             // TODO: should add the line items?
 
             var description = "Registration for " + this.ConferenceAlias.Name;
-            var totalAmount = totalledOrder.Total;
+            var totalAmount = order.Total;
 
             var paymentCommand =
                 new InitiateThirdPartyProcessorPayment
                 {
                     PaymentId = Guid.NewGuid(),
                     ConferenceId = this.ConferenceAlias.Id,
-                    PaymentSourceId = orderId,
+                    PaymentSourceId = order.OrderId,
                     Description = description,
                     TotalAmount = totalAmount
                 };
 
             return paymentCommand;
+        }
+
+        private ActionResult CompleteRegistrationWithoutPayment(AssignRegistrantDetails command, Guid orderId)
+        {
+            var confirmationCommand = new ConfirmOrder { OrderId = orderId };
+
+            this.commandBus.Send(new ICommand[] { command, confirmationCommand });
+
+            return RedirectToAction("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
         }
 
         private OrderViewModel CreateViewModel()
@@ -272,7 +296,8 @@ namespace Conference.Web.Public.Controllers
                                 {
                                     SeatType = s,
                                     OrderItem = new DraftOrderItem(s.Id, 0),
-                                    MaxSeatSelection = 20
+                                    AvailableQuantityForOrder = Math.Max(s.AvailableQuantity, 0),
+                                    MaxSelectionQuantity = Math.Max(Math.Min(s.AvailableQuantity, 20), 0)
                                 }).ToList(),
                 };
 
@@ -290,11 +315,9 @@ namespace Conference.Web.Public.Controllers
             {
                 var seat = viewModel.Items.First(s => s.SeatType.Id == line.SeatType);
                 seat.OrderItem = line;
-                if (line.RequestedSeats > line.ReservedSeats)
-                {
-                    seat.PartiallyFulfilled = true;
-                    seat.MaxSeatSelection = line.ReservedSeats;
-                }
+                seat.AvailableQuantityForOrder = seat.AvailableQuantityForOrder + line.ReservedSeats;
+                seat.MaxSelectionQuantity = Math.Min(seat.AvailableQuantityForOrder, 20);
+                seat.PartiallyFulfilled = line.RequestedSeats > line.ReservedSeats;
             }
 
             return viewModel;

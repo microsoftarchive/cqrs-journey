@@ -22,22 +22,17 @@ namespace Conference.Specflow.Support
     {
         public static void Click(this Browser browser, string controlId)
         {
-            var element = browser.Link(Find.ById(controlId)) as Element;
+            var element = browser.Link(l => l.Id == controlId || 
+                                      (l.Text != null && l.Text.Contains(controlId))) as Element;
 
             if (!element.Exists)
             {
-                element = browser.Link(Find.ByText(t => t.Contains(controlId)));
+                element = browser.Button(b => b.Id == controlId || 
+                                        (b.Value != null && b.Value.Contains(controlId)) || 
+                                        (b.OuterText != null && b.OuterText.Contains(controlId)));
                 if (!element.Exists)
                 {
-                    element = browser.Button(Find.ById(controlId));
-                    if (!element.Exists)
-                    {
-                        element = browser.Button(Find.ByValue(t => t.Contains(controlId)));
-                        if (!element.Exists)
-                        {
-                            throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
-                        }
-                    }
+                    throw new InvalidOperationException(string.Format("Could not find '{0}' link on the page", controlId));
                 }
             }
 
@@ -47,7 +42,7 @@ namespace Conference.Specflow.Support
         public static void ClickAndWait(this Browser browser, string controlId, string untilContainsText)
         {
             Click(browser, controlId);
-            browser.WaitUntilContainsText(untilContainsText, Constants.UI.WaitTimeout.Seconds);
+            browser.WaitUntilContainsText(untilContainsText, (int)Constants.UI.WaitTimeout.TotalSeconds);
         }
 
         public static void SelectListInTableRow(this Browser browser, string rowName, string value)
@@ -86,12 +81,14 @@ namespace Conference.Specflow.Support
         {
             //var tr = browser.TableRow(Find.ByTextInColumn(rowName, 0));
             var tr = browser.TableRows.FirstOrDefault(r => r.Text.Contains(rowName));
-            if (tr != null && tr.Lists.Count > 0)
+            if (tr != null)
             {
-                var list = tr.Lists.First();
+                var list = tr.Lists.FirstOrDefault();
                 var nextRow = tr.NextSibling as TableRow;
-                return list.OwnListItems[0].Text == selected &&
-                       (string.IsNullOrWhiteSpace(message) || nextRow.Text.Trim().Contains(message));
+                return (list == null || list.OwnListItems[0].Text == selected) &&
+                       (string.IsNullOrWhiteSpace(message) || 
+                        tr.OwnTableCells.Any(tc => tc.Text.Contains(message)) || 
+                        nextRow.Text.Trim().Contains(message));
             }
             
             return false;

@@ -91,7 +91,7 @@ input[type=number] {
 .input-validation-error
 {
     border: 1px solid #ff0000;
-    background-color: #ffeeee;
+    background-color: #ffaaaa;
 }
 
 .validation-summary-errors
