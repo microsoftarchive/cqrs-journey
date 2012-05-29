@@ -32,9 +32,12 @@ namespace Conference.Specflow.Support
 
         public static class UI
         {
+#if LOCAL
             // Max time for wait on a screen to show up
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10); 
+#else
             public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30); 
-            
+#endif
             public const string NextStepId = "Next";
             public const string FindId = "find";
             public const string ProceedToSeatAssignementId = "Proceed to Seat Assignment";

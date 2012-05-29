@@ -191,7 +191,7 @@ this.ScenarioSetup(scenarioInfo);
                         "CQRS Workshop",
                         "1"});
             table6.AddRow(new string[] {
-                        "CQRS Workshop",
+                        "General admission",
                         "2"});
 #line 59
  testRunner.When("200 Registrants selects these Order Items", ((string)(null)), table6);

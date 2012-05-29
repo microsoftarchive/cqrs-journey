@@ -36,7 +36,9 @@ namespace Conference.Specflow.Features.Domain.Management
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Conference configuration scenarios for creating and editing Conference settings w" +
                     "ith events and commands", "In order to create or update a Conference configuration\r\nAs a Business Customer\r\n" +
-                    "I want to be able to create or update a Conference and set its properties", ProgrammingLanguage.CSharp, ((string[])(null)));
+                    "I want to be able to create or update a Conference and set its properties", ProgrammingLanguage.CSharp, new string[] {
+                        "ConferenceConfigurationDomain",
+                        "NoWatiN"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -65,24 +67,9 @@ namespace Conference.Specflow.Features.Domain.Management
             testRunner.CollectScenarioErrors();
         }
         
-        public virtual void SetFixture(ConferenceConfigurationScenariosForCreatingAndEditingConferenceSettingsWithEventsAndCommandsFeature.FixtureData fixtureData)
+        public virtual void FeatureBackground()
         {
-        }
-        
-        void System.IDisposable.Dispose()
-        {
-            this.ScenarioTearDown();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings w" +
-            "ith events and commands")]
-        [Xunit.TraitAttribute("Description", "An existing unpublished Conference is selected and published")]
-        public virtual void AnExistingUnpublishedConferenceIsSelectedAndPublished()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("An existing unpublished Conference is selected and published", ((string[])(null)));
-#line 19
-this.ScenarioSetup(scenarioInfo);
+#line 21
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "Owner",
@@ -100,14 +87,39 @@ this.ScenarioSetup(scenarioInfo);
                         "random",
                         "05/02/2012",
                         "05/12/2012"});
-#line 20
+#line 22
 testRunner.Given("this conference information", ((string)(null)), table1);
-#line 24
-testRunner.When("the event for creating the conference is emitted");
+#line hidden
+        }
+        
+        public virtual void SetFixture(ConferenceConfigurationScenariosForCreatingAndEditingConferenceSettingsWithEventsAndCommandsFeature.FixtureData fixtureData)
+        {
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings w" +
+            "ith events and commands")]
+        [Xunit.TraitAttribute("Description", "A new Conference is created and published")]
+        public virtual void ANewConferenceIsCreatedAndPublished()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("A new Conference is created and published", ((string[])(null)));
 #line 26
-testRunner.And("the event for publishing the conference is emitted");
+this.ScenarioSetup(scenarioInfo);
+#line 21
+this.FeatureBackground();
 #line 27
-testRunner.Then("the conference is created and published");
+testRunner.When("the conference is created");
+#line 28
+testRunner.And("the conference is published");
+#line 30
+testRunner.Then("the event for creating the conference is emitted");
+#line 32
+testRunner.And("the event for publishing the conference is emitted");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -115,48 +127,37 @@ testRunner.Then("the conference is created and published");
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings w" +
             "ith events and commands")]
-        [Xunit.TraitAttribute("Description", "Adding Seats to an existing conferences")]
-        public virtual void AddingSeatsToAnExistingConferences()
+        [Xunit.TraitAttribute("Description", "Adding Seats to an existing conference")]
+        public virtual void AddingSeatsToAnExistingConference()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Adding Seats to an existing conferences", ((string[])(null)));
-#line 30
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Adding Seats to an existing conference", ((string[])(null)));
+#line 34
 this.ScenarioSetup(scenarioInfo);
+#line 21
+this.FeatureBackground();
+#line 35
+testRunner.Given("the conference already exists");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Owner",
-                        "Email",
-                        "Name",
-                        "Description",
-                        "Slug",
-                        "Start",
-                        "End"});
+                        "seat type",
+                        "rate",
+                        "quota"});
             table2.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
-                        "CQRS2012P",
-                        "CQRS summit 2012 conference (Published)",
-                        "random",
-                        "05/02/2012",
-                        "05/12/2012"});
-#line 31
-testRunner.Given("this conference information", ((string)(null)), table2);
-#line 34
-testRunner.And("the conference already exists");
-#line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Name",
-                        "Description",
-                        "Quantity",
-                        "Price"});
-            table3.AddRow(new string[] {
-                        "GENADM",
                         "General admission",
-                        "100",
-                        "199"});
-#line 35
-testRunner.When("these Seat Types are created", ((string)(null)), table3);
-#line 39
-testRunner.Then("the event for creating a Seat is emitted");
+                        "$199",
+                        "100"});
+            table2.AddRow(new string[] {
+                        "CQRS Workshop",
+                        "$500",
+                        "100"});
+            table2.AddRow(new string[] {
+                        "Additional cocktail party",
+                        "$50",
+                        "100"});
+#line 36
+testRunner.When("these Seat Types are created", ((string)(null)), table2);
+#line 42
+testRunner.Then("the events for creating the Seat Type are emitted");
 #line hidden
             this.ScenarioCleanup();
         }

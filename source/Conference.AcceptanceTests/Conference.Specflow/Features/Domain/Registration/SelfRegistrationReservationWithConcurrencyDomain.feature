@@ -57,9 +57,9 @@ Scenario: Many Registrants try to reserve many same Order Items and some of them
 	| CQRS Workshop     | $500 | 200   |
 	| General admission | $199 | 100   |
 	When 200 Registrants selects these Order Items
-	| seat type     | quantity |
-	| CQRS Workshop | 1        |
-	| CQRS Workshop | 2        |
+	| seat type         | quantity |
+	| CQRS Workshop     | 1        |
+	| General admission | 2        |
 	# event: OrderReservationCompleted 
 	Then only 50 events for completing the Order reservation are emitted
 	# event: OrderPartiallyReserved 

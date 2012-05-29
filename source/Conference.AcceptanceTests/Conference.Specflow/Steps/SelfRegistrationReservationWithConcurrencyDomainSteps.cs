@@ -60,24 +60,13 @@ namespace Conference.Specflow.Steps
         [Then(@"only (.*) events for completing the Order reservation are emitted")]
         public void ThenOnlySomeEventsForCompletingTheOrderReservationAreEmitted(int eventCount)
         {
-            CollectEvents<OrderReservationCompleted>(eventCount);
+            Assert.True(MessageLogHelper.CollectEvents<OrderReservationCompleted>(orderIds, eventCount));
         }
 
         [Then(@"(.*) events for partially completing the order are emitted")]
         public void ThenSomeEventsForPartiallyCompletingTheOrderAreEmitted(int eventCount)
         {
-            CollectEvents<OrderPartiallyReserved>(eventCount);
-        }
-
-        private void CollectEvents<T>(int count) where T : IEvent
-        {
-            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
-            while (MessageLogHelper.GetEvents<T>(orderIds).Count() != count)
-            {
-                Assert.True(DateTime.Now < timeout, "Events not collected within the specified timeframe.");
-                Thread.Sleep(100);
-            }
-            // If we get here then we exit the loop with the expected event count
+            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderIds, eventCount));
         }
 
         private string CreateAndSendRegisterToConference(Guid conferenceId, IEnumerable<SeatQuantity> seats)
@@ -109,7 +98,7 @@ namespace Conference.Specflow.Steps
         public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(Table table)
         {
 #if LOCAL
-            CommonSteps common = new CommonSteps();
+            var common = new CommonSteps();
             common.GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(table);
 #endif
         }
