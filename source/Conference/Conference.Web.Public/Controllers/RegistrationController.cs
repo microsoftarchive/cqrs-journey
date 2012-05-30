@@ -28,7 +28,7 @@ namespace Conference.Web.Public.Controllers
         public const string ThirdPartyProcessorPayment = "thirdParty";
         public const string InvoicePayment = "invoice";
         private const int DraftOrderWaitTimeoutInSeconds = 5;
-        private const int PricedOrderWaitTimeoutInSeconds = 1;
+        private const int PricedOrderWaitTimeoutInSeconds = 5;
 
         private readonly ICommandBus commandBus;
         private readonly IOrderDao orderDao;
@@ -128,35 +128,19 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
-            var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
-            if (order == null)
-            {
-                return View("ReservationUnknown");
-            }
-
-            if (order.State == DraftOrder.States.PartiallyReserved)
-            {
-                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
-            }
-
-            if (order.State == DraftOrder.States.Confirmed)
-            {
-                return View("ShowCompletedOrder");
-            }
-
-            if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
-            {
-                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
-            }
-
             var pricedOrder = this.WaitUntilOrderIsPriced(orderId, orderVersion);
             if (pricedOrder == null)
             {
                 return View("ReservationUnknown");
             }
 
+            if (pricedOrder.ReservationExpirationDate.HasValue && pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
+            {
+                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
+            }
+
             // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
+            this.ViewBag.ExpirationDateUTC = pricedOrder.ReservationExpirationDate;
 
             // We just render the command which is later posted back.
             return View(
@@ -177,14 +161,21 @@ namespace Conference.Web.Public.Controllers
                 return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
-            var order = this.orderDao.FindDraftOrder(orderId);
-
-            // TODO check conference and order exist.
-            // TODO validate that order belongs to the user.
-
+            var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
             if (order == null)
             {
-                throw new ArgumentException();
+                return View("ReservationUnknown");
+            }
+
+            if (order.State == DraftOrder.States.PartiallyReserved)
+            {
+                //TODO: have a clear message in the UI saying there was a hiccup and he actually didn't get all the seats.
+                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
+            }
+
+            if (order.State == DraftOrder.States.Confirmed)
+            {
+                return View("ShowCompletedOrder");
             }
 
             if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
@@ -192,17 +183,19 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
+            this.commandBus.Send(command);
+
             var pricedOrder = this.orderDao.FindPricedOrder(orderId);
             if (pricedOrder.IsFreeOfCharge)
             {
-                return CompleteRegistrationWithoutPayment(command, orderId);
+                return CompleteRegistrationWithoutPayment(orderId);
             }
 
             switch (paymentType)
             {
                 case ThirdPartyProcessorPayment:
 
-                    return CompleteRegistrationWithThirdPartyProcessorPayment(command, pricedOrder, orderVersion);
+                    return CompleteRegistrationWithThirdPartyProcessorPayment(pricedOrder, orderVersion);
 
                 case InvoicePayment:
                     break;
@@ -230,11 +223,11 @@ namespace Conference.Web.Public.Controllers
             return View(order);
         }
 
-        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, PricedOrder order, int orderVersion)
+        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(PricedOrder order, int orderVersion)
         {
             var paymentCommand = CreatePaymentCommand(order);
 
-            this.commandBus.Send(new ICommand[] { command, paymentCommand });
+            this.commandBus.Send(paymentCommand);
 
             var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, order.OrderId });
             var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId = order.OrderId, orderVersion });
@@ -271,11 +264,11 @@ namespace Conference.Web.Public.Controllers
             return paymentCommand;
         }
 
-        private ActionResult CompleteRegistrationWithoutPayment(AssignRegistrantDetails command, Guid orderId)
+        private ActionResult CompleteRegistrationWithoutPayment(Guid orderId)
         {
             var confirmationCommand = new ConfirmOrder { OrderId = orderId };
 
-            this.commandBus.Send(new ICommand[] { command, confirmationCommand });
+            this.commandBus.Send(confirmationCommand);
 
             return RedirectToAction("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
         }
@@ -354,7 +347,7 @@ namespace Conference.Web.Public.Controllers
                     return order;
                 }
 
-                Thread.Sleep(300);
+                Thread.Sleep(500);
             }
 
             return null;

@@ -107,7 +107,7 @@
         <div class="content-main__aside">
             <div class="content-main__header"></div>
 			<div id="countdown" class="reg-time-info">
-				<div id="countdown_time" data-targetDate="@DateTimeExtensions.ToEpochMilliseconds(this.ViewBag.ExpirationDateUTC)" class="reg-time-info__title">
+				<div id="countdown_time" data-targetDate="@this.Model.Order.ReservationExpirationDate.ToEpochMilliseconds()" class="reg-time-info__title">
 					7:18
 				</div>
 				<div  id="countdown_warning" class="reg-time-info__txt">
