@@ -137,7 +137,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         }
 
         [Fact]
-        public void when_displaying_payment_and_registration_information_for_a_partially_reserved_order_then_redirects_back_to_seat_selection()
+        public void when_initiating_payment_for_a_partially_reserved_order_then_redirects_back_to_seat_selection()
         {
             var seatTypeId = Guid.NewGuid();
             var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
@@ -155,7 +155,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                         Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
 
-            var result = (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
+            var result = (RedirectToRouteResult)this.sut.StartPayment(orderId, RegistrationController.ThirdPartyProcessorPayment, orderVersion - 1);
 
             Assert.Equal(null, result.RouteValues["controller"]);
             Assert.Equal("StartRegistration", result.RouteValues["action"]);
@@ -175,17 +175,12 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             var orderId = Guid.NewGuid();
             var orderVersion = 10;
 
-            Mock.Get(this.orderDao)
-                .Setup(r => r.FindDraftOrder(orderId))
-                .Returns(
-                    new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted, orderVersion)
-                    {
-                        Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
-                    });
-
+            Mock.Get<IOrderDao>(this.orderDao)
+                .Setup(d => d.FindPricedOrder(orderId))
+                .Returns(new PricedOrder { OrderId = orderId, Total = 100, OrderVersion = orderVersion });
             var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
 
-            Assert.Equal("ReservationUnknown", result.ViewName);
+            Assert.Equal("PricedOrderUnknown", result.ViewName);
         }
 
         [Fact]
@@ -227,24 +222,24 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 FirstName = "First Name",
                 LastName = "Last Name",
             };
-            Guid paymentId = Guid.Empty;
+            InitiateThirdPartyProcessorPayment paymentCommand = null;
 
             // Arrange
             var seatId = Guid.NewGuid();
 
-            var order = new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted);
+            var order = new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.ReservationCompleted, 10);
             order.Lines.Add(new DraftOrderItem(seatId, 5) { ReservedSeats = 5 });
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.FindDraftOrder(orderId))
                 .Returns(order);
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.FindPricedOrder(orderId))
-                .Returns(new PricedOrder { OrderId = orderId, Total = 100 });
+                .Returns(new PricedOrder { OrderId = orderId, Total = 100, OrderVersion = 10});
 
             Mock.Get<ICommandBus>(this.bus)
-                .Setup(b => b.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))
-                .Callback<IEnumerable<Envelope<ICommand>>>(
-                    es => { paymentId = (es.Select(e => e.Body).OfType<InitiateThirdPartyProcessorPayment>().First()).PaymentId; });
+                .Setup(b => b.Send(It.IsAny<Envelope<ICommand>>()))
+                .Callback<Envelope<ICommand>>(
+                    es => { if (es.Body is InitiateThirdPartyProcessorPayment) paymentCommand = (InitiateThirdPartyProcessorPayment)es.Body; });
 
             this.routes.MapRoute("ThankYou", "thankyou", new { controller = "Registration", action = "ThankYou" });
             this.routes.MapRoute("SpecifyRegistrantAndPaymentDetails", "checkout", new { controller = "Registration", action = "SpecifyRegistrantAndPaymentDetails" });
@@ -255,25 +250,50 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             // Assert
             Mock.Get<ICommandBus>(this.bus)
-                .Verify(
-                    b =>
-                        b.Send(
-                            It.Is<IEnumerable<Envelope<ICommand>>>(es =>
-                                es.Select(e => e.Body).Any(c => c == command)
-                                && es.Select(e => e.Body).OfType<InitiateThirdPartyProcessorPayment>()
-                                     .Any(c =>
-                                         c.ConferenceId == conferenceAlias.Id
-                                         && c.PaymentSourceId == orderId
-                                         && Math.Abs(c.TotalAmount - 100) < 0.01m)
-                                && es.Select(e => e.Body).Contains(command))),
-                    Times.Once());
+                .Verify(b => b.Send(It.Is<Envelope<ICommand>>(es => es.Body == command)), Times.Once());
+            
+            Assert.NotNull(paymentCommand);
+            Assert.Equal(conferenceAlias.Id, paymentCommand.ConferenceId);
+            Assert.Equal(orderId, paymentCommand.PaymentSourceId);
+            Assert.InRange(paymentCommand.TotalAmount, 99.9m, 100.1m);
 
             Assert.Equal("Payment", result.RouteValues["controller"]);
             Assert.Equal("ThirdPartyProcessorPayment", result.RouteValues["action"]);
             Assert.Equal(this.conferenceAlias.Code, result.RouteValues["conferenceCode"]);
-            Assert.Equal(paymentId, result.RouteValues["paymentId"]);
+            Assert.Equal(paymentCommand.PaymentId, result.RouteValues["paymentId"]);
             Assert.True(((string)result.RouteValues["paymentAcceptedUrl"]).StartsWith("/thankyou"));
             Assert.True(((string)result.RouteValues["paymentRejectedUrl"]).StartsWith("/checkout"));
+        }
+
+        [Fact]
+        public void when_specifying_registrant_and_credit_card_payment_details_for_a_non_yet_updated_order_then_shows_wait_page()
+        {
+            var orderId = Guid.NewGuid();
+            var orderVersion = 10;
+            var command = new AssignRegistrantDetails
+            {
+                OrderId = orderId,
+                Email = "info@contoso.com",
+                FirstName = "First Name",
+                LastName = "Last Name",
+            };
+            Guid paymentId = Guid.Empty;
+
+            var seatTypeId = Guid.NewGuid();
+
+            Mock.Get(this.orderDao)
+                .Setup(r => r.FindDraftOrder(orderId))
+                .Returns(
+                    new DraftOrder(orderId, conferenceAlias.Id, DraftOrder.States.Confirmed, orderVersion)
+                    {
+                        Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
+                    });
+            Mock.Get<IOrderDao>(this.orderDao)
+                .Setup(d => d.FindPricedOrder(orderId))
+                .Returns(new PricedOrder { OrderId = orderId, Total = 100, OrderVersion = orderVersion + 1 });
+            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment, orderVersion);
+
+            Assert.Equal("ReservationUnknown", result.ViewName);
         }
 
         //[Fact]

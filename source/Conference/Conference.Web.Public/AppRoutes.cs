@@ -46,6 +46,11 @@ namespace Conference.Web.Public
                 new { controller = "Registration", action = "SpecifyRegistrantAndPaymentDetails" });
 
             routes.MapRoute(
+                "StartPayment",
+                "{conferenceCode}/pay",
+                new { controller = "Registration", action = "StartPayment" });
+
+            routes.MapRoute(
                 "ExpiredOrder",
                 "{conferenceCode}/expired",
                 new { controller = "Registration", action = "ShowExpiredOrder" });

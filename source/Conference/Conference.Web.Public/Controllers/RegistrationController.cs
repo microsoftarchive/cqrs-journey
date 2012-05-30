@@ -86,6 +86,7 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult StartRegistration(RegisterToConference command, int orderVersion)
         {
+            // TODO: validate that there are still seats available at this time.
             if (!ModelState.IsValid)
             {
                 return this.ShowRegistrationEditor(command.OrderId, orderVersion);
@@ -131,7 +132,7 @@ namespace Conference.Web.Public.Controllers
             var pricedOrder = this.WaitUntilOrderIsPriced(orderId, orderVersion);
             if (pricedOrder == null)
             {
-                return View("ReservationUnknown");
+                return View("PricedOrderUnknown");
             }
 
             if (pricedOrder.ReservationExpirationDate.HasValue && pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
@@ -139,10 +140,6 @@ namespace Conference.Web.Public.Controllers
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
-            // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ExpirationDateUTC = pricedOrder.ReservationExpirationDate;
-
-            // We just render the command which is later posted back.
             return View(
                 new RegistrationViewModel
                 {
@@ -161,6 +158,14 @@ namespace Conference.Web.Public.Controllers
                 return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
+            this.commandBus.Send(command);
+
+            return this.StartPayment(orderId, paymentType, orderVersion);
+        }
+
+        [HttpPost]
+        public ActionResult StartPayment(Guid orderId, string paymentType, int orderVersion)
+        {
             var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
             if (order == null)
             {
@@ -182,8 +187,6 @@ namespace Conference.Web.Public.Controllers
             {
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
-
-            this.commandBus.Send(command);
 
             var pricedOrder = this.orderDao.FindPricedOrder(orderId);
             if (pricedOrder.IsFreeOfCharge)

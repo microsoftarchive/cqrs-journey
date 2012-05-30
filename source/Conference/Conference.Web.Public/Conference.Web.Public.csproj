@@ -225,6 +225,7 @@
     <Content Include="App_Code\ConferenceHelpers.cshtml" />
     <Content Include="Areas\ThirdPartyProcessor\Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\MaintenanceMode.cshtml" />
+    <Content Include="Views\Registration\PricedOrderUnknown.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
