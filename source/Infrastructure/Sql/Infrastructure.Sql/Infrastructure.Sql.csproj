@@ -52,11 +52,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Conference\Conference.Common\DictionaryExtensions.cs">
+      <Link>DictionaryExtensions.cs</Link>
+    </Compile>
     <Compile Include="BlobStorage\BlobEntity.cs" />
     <Compile Include="BlobStorage\BlobStorageDbContext.cs" />
     <Compile Include="BlobStorage\SqlBlobStorage.cs" />
     <Compile Include="Database\SqlDataContext.cs" />
-    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="MessageLog\SqlMessageLogHandler.cs" />
     <Compile Include="MessageLog\MessageLogDbContext.cs" />
     <Compile Include="MessageLog\MessageLogEntity.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="MessageLog\SqlMessageLog.cs" />
     <Compile Include="EventSourcing\EventStoreDbContext.cs" />
     <Compile Include="Messaging\Implementation\MessagingDbInitializer.cs" />
+    <Compile Include="Processes\PendingCommandsEntity.cs" />
     <Compile Include="Utils\CacheAnyEnumerableExtensions.cs" />
     <Compile Include="Messaging\CommandBus.cs">
       <SubType>Code</SubType>

@@ -14,34 +14,70 @@
 namespace Infrastructure.Sql.Processes
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
     using Infrastructure.Messaging;
     using Infrastructure.Processes;
+    using Infrastructure.Serialization;
 
-    // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
-    // It is not transactional with the event bus.
-    // Does this even belong to a reusable infrastructure?
     public class SqlProcessDataContext<T> : IProcessDataContext<T> where T : class, IProcess
     {
         private readonly ICommandBus commandBus;
         private readonly DbContext context;
+        private readonly ITextSerializer serializer;
 
-        public SqlProcessDataContext(Func<DbContext> contextFactory, ICommandBus commandBus)
+        public SqlProcessDataContext(Func<DbContext> contextFactory, ICommandBus commandBus, ITextSerializer serializer)
         {
             this.commandBus = commandBus;
             this.context = contextFactory.Invoke();
+            this.serializer = serializer;
         }
 
         public T Find(Guid id)
         {
-            return this.context.Set<T>().Find(id);
+            return Find(process => process.Id == id);
         }
 
         public T Find(Expression<Func<T, bool>> predicate)
         {
-            return this.context.Set<T>().Where(predicate).FirstOrDefault();
+            var process = this.context.Set<T>().Where(predicate).FirstOrDefault();
+            if (process == null)
+                return default(T);
+
+            var pendingCommands = this.context.Set<PendingCommandsEntity>().Find(process.Id);
+            if (pendingCommands != null)
+            {
+                // Must dispatch pending commands before the process 
+                // can be further used.
+                var commands = this.serializer.Deserialize<IEnumerable<Envelope<ICommand>>>(pendingCommands.Commands).OfType<Envelope<ICommand>>().ToList();
+                var commandIndex = 0;
+
+                // Here we try again, one by one. Anyone might fail, so we have to keep 
+                // decreasing the pending commands count until no more are left.
+                try
+                {
+                    for (int i = 0; i < commands.Count; i++)
+                    {
+                        this.commandBus.Send(commands[i]);
+                        commandIndex++;
+                    }
+                }
+                catch (Exception) // We catch a generic exception as we don't know what implementation of ICommandBus we might be using.
+                {
+                    pendingCommands.Commands = this.serializer.Serialize(commands.Skip(commandIndex));
+                    this.context.SaveChanges();
+                    // If this fails, we propagate the exception.
+                    throw;
+                }
+
+                // If succeed, we delete the pending commands.
+                this.context.Set<PendingCommandsEntity>().Remove(pendingCommands);
+                this.context.SaveChanges();
+            }
+
+            return process;
         }
 
         public void Save(T process)
@@ -51,10 +87,31 @@ namespace Infrastructure.Sql.Processes
             if (entry.State == System.Data.EntityState.Detached)
                 this.context.Set<T>().Add(process);
 
-            // Can't have transactions across storage and message bus.
-            this.context.SaveChanges();
+            var commandIndex = 0;
+            var commands = process.Commands.ToList();
 
-            this.commandBus.Send(process.Commands);
+            try
+            {
+                for (int i = 0; i < commands.Count; i++)
+                {
+                    this.commandBus.Send(commands[i]);
+                    commandIndex++;
+                }
+            }
+            catch (Exception) // We catch a generic exception as we don't know what implementation of ICommandBus we might be using.
+            {
+                var pending = this.context.Set<PendingCommandsEntity>().Find(process.Id);
+                if (pending == null)
+                {
+                    pending = new PendingCommandsEntity(process.Id);
+                    this.context.Set<PendingCommandsEntity>().Add(pending);
+                }
+
+                pending.Commands = this.serializer.Serialize(commands.Skip(commandIndex));
+            }
+
+            // Saves both the state of the process as well as the pending commands if any.
+            this.context.SaveChanges();
         }
 
         public void Dispose()

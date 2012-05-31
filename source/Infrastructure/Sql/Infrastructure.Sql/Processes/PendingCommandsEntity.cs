@@ -11,32 +11,20 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace System.Collections.Generic
+namespace Infrastructure.Sql.Processes
 {
-    /// <summary>
-    /// Usability extensions for dictionaries.
-    /// </summary>
-    public static class DictionaryExtensions
+    using System;
+
+    public class PendingCommandsEntity
     {
-        /// <summary>
-        /// Gets an item from the dictionary, if it's found.
-        /// </summary>
-        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        protected PendingCommandsEntity() { }
+
+        public PendingCommandsEntity(Guid id)
         {
-            return dictionary.TryGetValue(key, default(TValue));
+            this.Id = id;
         }
 
-        /// <summary>
-        /// Gets an item from the dictionary, if it's found. Otherwise, 
-        /// returns the specified default value.
-        /// </summary>
-        public static TValue TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue)
-        {
-            var result = defaultValue;
-            if (!dictionary.TryGetValue(key, out result))
-                return defaultValue;
-
-            return result;
-        }
+        public Guid Id { get; set; }
+        public string Commands { get; set; }
     }
 }
