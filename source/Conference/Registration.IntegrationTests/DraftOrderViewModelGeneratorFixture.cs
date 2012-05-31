@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
+namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
 {
     using System;
     using System.Linq;
@@ -24,12 +24,12 @@ namespace Registration.IntegrationTests.OrderViewModelGeneratorFixture
 
     public class given_a_read_model_generator : given_a_read_model_database
     {
-        protected OrderViewModelGenerator sut;
+        protected DraftOrderViewModelGenerator sut;
         protected IOrderDao dao;
 
         public given_a_read_model_generator()
         {
-            this.sut = new OrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
+            this.sut = new DraftOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
             this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), new MemoryBlobStorage(), new JsonTextSerializer());
         }
     }

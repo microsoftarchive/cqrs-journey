@@ -49,6 +49,34 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             }
         }
 
+        public class given_a_placed_order : given_some_initial_seats
+        {
+            private static readonly Guid orderId = Guid.NewGuid();
+            private static readonly DateTime expirationDate = DateTime.UtcNow;
+
+            private PricedOrder dto;
+
+            public given_a_placed_order()
+            {
+                this.sut.Handle(new OrderPlaced
+                                    {
+                                        SourceId = orderId,
+                                        ReservationAutoExpiration = expirationDate,
+                                        Version = 2,
+                                    });
+
+                this.dto = this.dao.FindPricedOrder(orderId);
+            }
+
+            [Fact]
+            public void then_creates_model_with_expiration_date_and_version()
+            {
+                Assert.NotNull(dto);
+                Assert.InRange(dto.ReservationExpirationDate.Value, expirationDate.AddSeconds(-1), expirationDate.AddSeconds(1));
+                Assert.Equal(2, dto.OrderVersion);
+            }
+        }
+
         public class given_a_calculated_order : given_some_initial_seats
         {
             private static readonly Guid orderId = Guid.NewGuid();
@@ -155,7 +183,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                 this.sut.Handle(new SeatAssignmentsCreated
                                     {
                                         SourceId = assignmentsId, 
-                                        OrderId = orderId
+                                        OrderId = orderId,
                                     });
 
                 var dto = this.dao.FindPricedOrder(orderId);
