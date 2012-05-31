@@ -7,3 +7,20 @@
     }
 </h1>
 }
+
+@helper ExpirationBox(long countdownDate, string redirectUrl)
+{
+    if (countdownDate > 0)
+    {
+         <div id="countdown" class="reg-time-info">
+             <div id="countdown_time" data-targetDate="@countdownDate" data-redirectUrl="@redirectUrl" class="reg-time-info__title">
+                 15:00
+             </div>
+             <div  id="countdown_warning" class="reg-time-info__txt">
+                 <p>
+                     Please complete registration within 15:00 minutes. After 15:00 minutes, the reservation we're holding will be released to others.
+                 </p>
+             </div>
+         </div>
+    }
+}

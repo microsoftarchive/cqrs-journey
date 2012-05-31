@@ -45,13 +45,11 @@ namespace Conference.Web.Public.Controllers
         public ActionResult StartRegistration(Guid? orderId = null)
         {
             OrderViewModel viewModel;
-            var orderVersion = 0;
 
             if (!orderId.HasValue)
             {
-                orderId = Guid.NewGuid();
                 viewModel = this.CreateViewModel();
-                this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
+                viewModel.OrderId = Guid.NewGuid();
             }
             else
             {
@@ -72,13 +70,8 @@ namespace Conference.Web.Public.Controllers
                     return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
                 }
 
-                orderVersion = order.OrderVersion;
                 viewModel = this.CreateViewModel(order);
-                ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
             }
-
-            ViewBag.OrderId = orderId;
-            ViewBag.OrderVersion = orderVersion;
 
             return View(viewModel);
         }
@@ -107,20 +100,7 @@ namespace Conference.Web.Public.Controllers
             OrderViewModel viewModel = null;
             var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(orderId) : null;
 
-            if (existingOrder == null)
-            {
-                viewModel = this.CreateViewModel();
-                this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
-            }
-            else
-            {
-                orderVersion = existingOrder.OrderVersion;
-                viewModel = this.CreateViewModel(existingOrder);
-                ViewBag.ExpirationDateUTC = existingOrder.ReservationExpirationDate;
-            }
-
-            ViewBag.OrderId = orderId;
-            ViewBag.OrderVersion = orderVersion;
+            viewModel = existingOrder == null ? this.CreateViewModel() : this.CreateViewModel(existingOrder);
 
             return View(viewModel);
         }
@@ -303,7 +283,9 @@ namespace Conference.Web.Public.Controllers
         private OrderViewModel CreateViewModel(DraftOrder order)
         {
             var viewModel = this.CreateViewModel();
-            viewModel.Id = order.OrderId;
+            viewModel.OrderId = order.OrderId;
+            viewModel.OrderVersion = order.OrderVersion;
+            viewModel.ReservationExpirationDate = order.ReservationExpirationDate.ToEpochMilliseconds();
 
             // TODO check DTO matches view model
 

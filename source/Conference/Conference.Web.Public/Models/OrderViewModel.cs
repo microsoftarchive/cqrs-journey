@@ -23,7 +23,9 @@ namespace Conference.Web.Public.Models
             this.Items = new List<OrderItemViewModel>();
         }
 
-        public Guid Id { get; set; }
+        public Guid OrderId { get; set; }
+
+        public int OrderVersion { get; set; }
 
         public Guid ConferenceId { get; set; }
 
@@ -33,8 +35,6 @@ namespace Conference.Web.Public.Models
 
         public IList<OrderItemViewModel> Items { get; set; }
 
-        public decimal Total { get; set; }
-
-        public long ExpirationDateUTCMilliseconds { get; set; }
+        public long ReservationExpirationDate { get; set; }
     }
 }

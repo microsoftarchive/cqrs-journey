@@ -85,19 +85,7 @@
         </div>
         <div class="content-main__aside">
             <div class="content-main__header"></div>
-            @if (ViewBag.ExpirationDateUTC != DateTime.MinValue)
-            { 
-			<div id="countdown" class="reg-time-info">
-				<div id="countdown_time" data-targetDate="@DateTimeExtensions.ToEpochMilliseconds(this.ViewBag.ExpirationDateUTC)" class="reg-time-info__title">
-					7:18
-				</div>
-				<div  id="countdown_warning" class="reg-time-info__txt">
-					<p>
-						Please complete registration within 15:00 minutes. After 15:00 minutes, the reservation we're holding will be released to others.
-					</p>
-				</div>
-			</div>
-            }
+            @ConferenceHelpers.ExpirationBox(Model.ReservationExpirationDate, Url.Action("ShowExpiredOrder", "Registration", new { conferenceCode = this.ViewBag.Conference.Code, orderId = this.Model.OrderId }))
         </div>
         <div class="g-clear"></div>
     </div>
@@ -125,7 +113,6 @@
 @section Scripts
 {
 <script type="text/javascript" src="@Url.Content("~/Content/form/form.js")"></script>
-<script type="text/javascript" src="@Url.Content("~/Scripts/Conference.js")"></script>
 <script type="text/javascript" src="@Url.Content("~/Content/reg-time-info/reg-time-info.js")"></script>
 <script type="text/javascript">
     $(function () {
@@ -146,18 +133,4 @@
         calculateTotals();
     });
 </script>
-@if (ViewBag.ExpirationDateUTC != DateTime.MinValue)
-{ 
-<script type="text/javascript">
-
-    function reservationTimedOut() {
-        window.location = '@Url.Action("ShowExpiredOrder", "Registration", new { conferenceCode = this.ViewBag.Conference.Code, orderId = this.ViewBag.OrderId })';
-    }
-
-    $(document).ready(function () {
-        Conference.StartTimer('countdown_time', reservationTimedOut);
-    });
-
-</script>
-}
 }

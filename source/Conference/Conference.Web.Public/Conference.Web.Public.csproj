@@ -188,7 +188,6 @@
     <Content Include="Content\Conference\sessions.png" />
     <Content Include="Content\Conference\sponsors.png" />
     <Content Include="Global.asax" />
-    <Content Include="Scripts\Conference.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
