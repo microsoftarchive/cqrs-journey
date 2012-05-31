@@ -37,6 +37,26 @@ namespace Registration.Tests
         }
 
         [Fact]
+        public void when_order_placed_is_is_reprocessed_then_discards_event()
+        {
+            var process = new RegistrationProcess
+            {
+                State = RegistrationProcess.ProcessState.AwaitingReservationConfirmation,
+                OrderId = Guid.NewGuid(),
+                ReservationId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
+                ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
+            };
+            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
+            var router = new RegistrationProcessRouter(() => context);
+
+            router.Handle(new OrderPlaced { SourceId = process.OrderId, ConferenceId = process.ConferenceId, Seats = new SeatQuantity[0] });
+
+            Assert.Equal(0, context.SavedProcesses.Count);
+            Assert.True(context.DisposeCalled);
+        }
+
+        [Fact]
         public void when_order_updated_then_routes_and_saves()
         {
             var process = new RegistrationProcess

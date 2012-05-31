@@ -47,9 +47,9 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
         }
 
         [Fact]
-        public void then_locks_seats()
+        public void then_sends_two_commands()
         {
-            Assert.Equal(1, sut.Commands.Count());
+            Assert.Equal(2, sut.Commands.Count());
         }
 
         [Fact]
@@ -59,6 +59,15 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
 
             Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
             Assert.Equal(2, reservation.Seats[0].Quantity);
+        }
+
+        [Fact]
+        public void then_posts_delayed_expiration_command()
+        {
+            var expirationCommandEnvelope = this.sut.Commands.Where(e => e.Body is ExpireRegistrationProcess).Single();
+
+            Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(32));
+            Assert.Equal(((ExpireRegistrationProcess)expirationCommandEnvelope.Body).ProcessId, this.sut.Id);
         }
 
         [Fact]
@@ -126,15 +135,6 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         public void then_transitions_state()
         {
             Assert.Equal(RegistrationProcess.ProcessState.ReservationConfirmationReceived, sut.State);
-        }
-
-        [Fact]
-        public void then_posts_delayed_expiration_command()
-        {
-            var expirationCommandEnvelope = this.sut.Commands.Where(e => e.Body is ExpireRegistrationProcess).Single();
-
-            Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(32));
-            Assert.Equal(((ExpireRegistrationProcess)expirationCommandEnvelope.Body).ProcessId, this.sut.Id);
         }
     }
 

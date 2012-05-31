@@ -72,7 +72,8 @@ namespace Registration
             {
                 this.ConferenceId = message.ConferenceId;
                 this.OrderId = message.SourceId;
-                this.ReservationId = Guid.NewGuid();
+                // use the order id as the opaque reservation id for the seat reservation
+                this.ReservationId = message.SourceId;
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
@@ -83,6 +84,17 @@ namespace Registration
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
                     });
+
+                if (this.ExpirationCommandId == Guid.Empty)
+                {
+                    var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                    this.ExpirationCommandId = expirationCommand.Id;
+
+                    this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                    {
+                        Delay = message.ReservationAutoExpiration.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
+                    });
+                }
             }
             else
             {
@@ -115,25 +127,13 @@ namespace Registration
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
-                var expirationTime = this.ReservationAutoExpiration.Value;
                 this.State = ProcessState.ReservationConfirmationReceived;
-
-                if (this.ExpirationCommandId == Guid.Empty)
-                {
-                    var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
-                    this.ExpirationCommandId = expirationCommand.Id;
-
-                    this.AddCommand(new Envelope<ICommand>(expirationCommand)
-                    {
-                        Delay = expirationTime.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
-                    });
-                }
 
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
                     Seats = message.ReservationDetails.ToList(),
-                    Expiration = expirationTime,
+                    Expiration = this.ReservationAutoExpiration.Value,
                 });
             }
             else

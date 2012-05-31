@@ -39,14 +39,20 @@ namespace Registration
 
         public void Handle(OrderPlaced @event)
         {
-            var process = new RegistrationProcess();
-            process.Handle(@event);
-
             using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    context.Save(process);
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                    if (process == null)
+                    {
+                        // If the process already exists, it means that the OrderPlaced event is being reprocessed because the message 
+                        // could not be completed. No need to handle it again.
+                        process = new RegistrationProcess();
+                        process.Handle(@event);
+
+                        context.Save(process);
+                    }
                 }
             }
         }
@@ -120,6 +126,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
+                    // TODO should not skip the completed processes and move them to a "manual intervention" state
                     var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.Completed == false);
                     if (process != null)
                     {
