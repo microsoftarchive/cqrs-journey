@@ -68,7 +68,7 @@
     <Compile Include="Events\SeatsReserved.cs" />
     <Compile Include="Handlers\ConferenceViewModelGenerator.cs" />
     <Compile Include="Handlers\OrderCommandHandler.cs" />
-    <Compile Include="Handlers\OrderViewModelGenerator.cs" />
+    <Compile Include="Handlers\DraftOrderViewModelGenerator.cs" />
     <Compile Include="Handlers\SeatAssignmentsHandler.cs" />
     <Compile Include="Handlers\SeatAssignmentsViewModelGenerator.cs" />
     <Compile Include="Handlers\PricedOrderViewModelGenerator.cs" />

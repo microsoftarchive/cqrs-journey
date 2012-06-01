@@ -69,7 +69,7 @@ namespace WorkerRoleCommandProcessor
         private void RegisterEventHandlers(UnityContainer container, EventProcessor eventProcessor)
         {
             eventProcessor.Register(container.Resolve<RegistrationProcessRouter>());
-            eventProcessor.Register(container.Resolve<OrderViewModelGenerator>());
+            eventProcessor.Register(container.Resolve<DraftOrderViewModelGenerator>());
             eventProcessor.Register(container.Resolve<PricedOrderViewModelGenerator>());
             eventProcessor.Register(container.Resolve<ConferenceViewModelGenerator>());
             eventProcessor.Register(container.Resolve<SeatAssignmentsViewModelGenerator>());

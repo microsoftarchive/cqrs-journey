@@ -52,7 +52,7 @@
     <Compile Include="ConferenceViewModelGeneratorFixture.cs" />
     <Compile Include="GivenAReadModelDatabase.cs" />
     <Compile Include="MemoryBlobStorage.cs" />
-    <Compile Include="OrderViewModelGeneratorFixture.cs" />
+    <Compile Include="DraftOrderViewModelGeneratorFixture.cs" />
     <Compile Include="PricedOrderViewModelGeneratorFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrationProcessDbContextFixture.cs" />
