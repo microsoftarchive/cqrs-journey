@@ -62,12 +62,21 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
         }
 
         [Fact]
+        public void then_saves_reservation_command_id_for_later_use()
+        {
+            var reservation = sut.Commands.Select(x => x.Body).OfType<MakeSeatReservation>().Single();
+
+            Assert.Equal(reservation.Id, this.sut.SeatReservationCommandId);
+        }
+
+        [Fact]
         public void then_posts_delayed_expiration_command()
         {
             var expirationCommandEnvelope = this.sut.Commands.Where(e => e.Body is ExpireRegistrationProcess).Single();
 
             Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(32));
             Assert.Equal(((ExpireRegistrationProcess)expirationCommandEnvelope.Body).ProcessId, this.sut.Id);
+            Assert.Equal(expirationCommandEnvelope.Body.Id, this.sut.ExpirationCommandId);
         }
 
         [Fact]
@@ -169,6 +178,14 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
 
             Assert.Equal(this.conferenceId, newReservation.ConferenceId);
             Assert.Equal(3, newReservation.Seats[0].Quantity);
+        }
+
+        [Fact]
+        public void then_saves_reservation_command_id_for_later_use()
+        {
+            var reservation = sut.Commands.Select(x => x.Body).OfType<MakeSeatReservation>().ElementAt(1);
+
+            Assert.Equal(reservation.Id, this.sut.SeatReservationCommandId);
         }
 
         [Fact]
@@ -280,6 +297,14 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
 
             Assert.Equal(this.conferenceId, newReservation.ConferenceId);
             Assert.Equal(3, newReservation.Seats[0].Quantity);
+        }
+
+        [Fact]
+        public void then_saves_reservation_command_id_for_later_use()
+        {
+            var reservation = sut.Commands.Select(x => x.Body).OfType<MakeSeatReservation>().ElementAt(1);
+
+            Assert.Equal(reservation.Id, this.sut.SeatReservationCommandId);
         }
 
         [Fact]

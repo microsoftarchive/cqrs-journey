@@ -106,7 +106,7 @@ namespace Registration.Tests
                 return default(T);
             }
 
-            void IEventSourcedRepository<T>.Save(T eventSourced)
+            void IEventSourcedRepository<T>.Save(T eventSourced, string correlationId)
             {
                 this.onSave(eventSourced);
             }

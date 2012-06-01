@@ -80,7 +80,7 @@ namespace Infrastructure.Sql.EventSourcing
             return entity;
         }
 
-        public void Save(T eventSourced)
+        public void Save(T eventSourced, string correlationId)
         {
             // TODO: guarantee that only incremental versions of the event are stored
             var events = eventSourced.Events.ToArray();
@@ -89,7 +89,7 @@ namespace Infrastructure.Sql.EventSourcing
                 var eventsSet = context.Set<Event>();
                 foreach (var e in events)
                 {
-                    eventsSet.Add(this.Serialize(e));
+                    eventsSet.Add(this.Serialize(e, correlationId));
                 }
 
                 context.SaveChanges();
@@ -99,7 +99,7 @@ namespace Infrastructure.Sql.EventSourcing
             this.eventBus.Publish(events);
         }
 
-        private Event Serialize(IVersionedEvent e)
+        private Event Serialize(IVersionedEvent e, string correlationId)
         {
             Event serialized;
             using (var writer = new StringWriter())
@@ -110,7 +110,8 @@ namespace Infrastructure.Sql.EventSourcing
                     AggregateId = e.SourceId,
                     AggregateType = sourceType,
                     Version = e.Version,
-                    Payload = writer.ToString()
+                    Payload = writer.ToString(),
+                    CorrelationId = correlationId
                 };
             }
             return serialized;

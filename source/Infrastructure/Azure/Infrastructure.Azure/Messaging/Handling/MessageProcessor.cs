@@ -95,7 +95,9 @@ namespace Infrastructure.Azure.Messaging.Handling
         /// </summary>
         /// <param name="traceIdentifier">The identifier that can be used to track the source message in the logs.</param>
         /// <param name="payload">The typed message payload.</param>
-        protected abstract void ProcessMessage(string traceIdentifier, object payload);
+        /// <param name="messageId">The message id.</param>
+        /// <param name="correlationId">The message correlation id.</param>
+        protected abstract void ProcessMessage(string traceIdentifier, object payload, string messageId, string correlationId);
 
         /// <summary>
         /// Disposes the resources used by the processor.
@@ -148,7 +150,7 @@ namespace Infrastructure.Azure.Messaging.Handling
             string traceIdentifier = BuildTraceIdentifier(message);
             try
             {
-                ProcessMessage(traceIdentifier, payload);
+                ProcessMessage(traceIdentifier, payload, message.MessageId, message.CorrelationId);
             }
             catch (Exception e)
             {

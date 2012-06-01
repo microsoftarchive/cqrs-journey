@@ -74,6 +74,7 @@
     <Compile Include="Messaging\IEventPublisher.cs" />
     <Compile Include="Messaging\MemoryCommandBus.cs" />
     <Compile Include="Messaging\MemoryEventBus.cs" />
+    <Compile Include="Messaging\Handling\ReceiveEnvelope.cs" />
     <Compile Include="Processes\IProcess.cs" />
     <Compile Include="Processes\IProcessDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

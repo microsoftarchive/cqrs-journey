@@ -55,6 +55,7 @@ CREATE TABLE [ConferenceRegistrationProcesses].[RegistrationProcess](
 	[ConferenceId] [uniqueidentifier] NOT NULL,
 	[OrderId] [uniqueidentifier] NOT NULL,
 	[ReservationId] [uniqueidentifier] NOT NULL,
+	[SeatReservationCommandId] [uniqueidentifier] NOT NULL,
 	[ReservationAutoExpiration] [datetime] NULL,
 	[ExpirationCommandId] [uniqueidentifier] NOT NULL,
 	[StateValue] [int] NOT NULL,
@@ -192,6 +193,7 @@ CREATE TABLE [Events].[Events](
 	[AggregateType] [nvarchar](128) NOT NULL,
 	[Version] [int] NOT NULL,
 	[Payload] [nvarchar](max) NULL,
+	[CorrelationId] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[AggregateId] ASC,

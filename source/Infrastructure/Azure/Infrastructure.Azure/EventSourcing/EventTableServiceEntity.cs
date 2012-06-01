@@ -23,6 +23,7 @@ namespace Infrastructure.Azure.EventSourcing
         string SourceType { get; }
         string Payload { get; }
         string CreationDate { get; }
+        string CorrelationId { get; }
 
         // Standard metadata
         string AssemblyName { get; }
@@ -37,6 +38,7 @@ namespace Infrastructure.Azure.EventSourcing
         public string SourceType { get; set; }
         public string Payload { get; set; }
         public string CreationDate { get; set; }
+        public string CorrelationId { get; set; }
 
         // Standard metadata
         public string AssemblyName { get; set; }

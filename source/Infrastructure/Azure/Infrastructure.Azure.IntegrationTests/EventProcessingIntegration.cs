@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
 {
     using System;
     using System.Threading;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
@@ -35,6 +34,33 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
 
             var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
+
+            processor.Register(handler);
+
+            processor.Start();
+
+            try
+            {
+                bus.Publish(new FooEvent());
+
+                e.Wait(TimeoutPeriod);
+
+                Assert.True(handler.Called);
+            }
+            finally
+            {
+                processor.Stop();
+            }
+        }
+
+        [Fact]
+        public void when_receiving_event_then_calls_handler_with_envelope()
+        {
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+
+            var e = new ManualResetEventSlim();
+            var handler = new FooEnvelopedEventHandler(e);
 
             processor.Register(handler);
 
@@ -149,6 +175,24 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
             }
 
             public void Handle(FooEvent command)
+            {
+                this.Called = true;
+                e.Set();
+            }
+
+            public bool Called { get; set; }
+        }
+
+        public class FooEnvelopedEventHandler : IEnvelopedEventHandler<FooEvent>
+        {
+            private ManualResetEventSlim e;
+
+            public FooEnvelopedEventHandler(ManualResetEventSlim e)
+            {
+                this.e = e;
+            }
+
+            public void Handle(ReceiveEnvelope<FooEvent> command)
             {
                 this.Called = true;
                 e.Set();

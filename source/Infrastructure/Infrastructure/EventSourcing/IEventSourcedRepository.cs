@@ -32,6 +32,11 @@ namespace Infrastructure.EventSourcing
         /// <exception cref="EntityNotFoundException">If the entity is not found.</exception>
         T Get(Guid id);
 
-        void Save(T eventSourced);
+        /// <summary>
+        /// Saves the event sourced entity.
+        /// </summary>
+        /// <param name="eventSourced">The entity.</param>
+        /// <param name="correlationId">A correlation id to use when publishing events.</param>
+        void Save(T eventSourced, string correlationId);
     }
 }

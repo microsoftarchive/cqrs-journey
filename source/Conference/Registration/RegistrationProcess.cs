@@ -47,6 +47,7 @@ namespace Registration
         public Guid ConferenceId { get; set; }
         public Guid OrderId { get; internal set; }
         public Guid ReservationId { get; internal set; }
+        public Guid SeatReservationCommandId { get; internal set; }
 
         // feels akward and possibly disrupting to store these properties here. Would it be better if instead of using 
         // current state values, we use event sourcing?
@@ -77,13 +78,15 @@ namespace Registration
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
-                this.AddCommand(
+                var seatReservationCommand =
                     new MakeSeatReservation
                     {
-                        ConferenceId = message.ConferenceId,
+                        ConferenceId = this.ConferenceId,
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
-                    });
+                    };
+                this.SeatReservationCommandId = seatReservationCommand.Id;
+                this.AddCommand(seatReservationCommand);
 
                 if (this.ExpirationCommandId == Guid.Empty)
                 {
@@ -109,13 +112,15 @@ namespace Registration
             {
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
-                this.AddCommand(
+                var seatReservationCommand =
                     new MakeSeatReservation
                     {
                         ConferenceId = this.ConferenceId,
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
-                    });
+                    };
+                this.SeatReservationCommandId = seatReservationCommand.Id;
+                this.AddCommand(seatReservationCommand);
             }
             else
             {
@@ -128,6 +133,7 @@ namespace Registration
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
                 this.State = ProcessState.ReservationConfirmationReceived;
+                this.SeatReservationCommandId = Guid.Empty;
 
                 this.AddCommand(new MarkSeatsAsReserved
                 {

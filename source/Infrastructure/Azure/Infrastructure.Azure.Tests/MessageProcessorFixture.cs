@@ -95,7 +95,7 @@ namespace Infrastructure.Azure.Tests
 
             receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
 
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>());
+            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace Infrastructure.Azure.Tests
 
             receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
 
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>());
+            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
         }
     }
 }

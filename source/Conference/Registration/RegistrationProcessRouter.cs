@@ -24,7 +24,7 @@ namespace Registration
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
-        IEventHandler<SeatsReserved>,
+        IEnvelopedEventHandler<SeatsReserved>,
         IEventHandler<PaymentCompleted>,
         IEventHandler<OrderConfirmed>,
         ICommandHandler<ExpireRegistrationProcess>
@@ -78,22 +78,40 @@ namespace Registration
             }
         }
 
-        public void Handle(SeatsReserved @event)
+        public void Handle(ReceiveEnvelope<SeatsReserved> envelope)
         {
             using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = context.Find(x => x.ReservationId == @event.ReservationId && x.Completed == false);
+                    Guid correlationId;
+                    if (!Guid.TryParse(envelope.CorrelationId, out correlationId))
+                    {
+                        Trace.TraceWarning("Seat reservation response for reservation id {0} does not include message correlation id.", envelope.Body.ReservationId);
+                        return;
+                    }
+
+                    var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId && x.Completed == false);
                     if (process != null)
                     {
-                        process.Handle(@event);
+                        if (process.SeatReservationCommandId == correlationId)
+                        {
+                            process.Handle(envelope.Body);
 
-                        context.Save(process);
+                            context.Save(process);
+                        }
+                        else
+                        {
+                            Trace.TraceWarning(
+                                "Ignoring SeatsReserved event. Correlation id {0} does not match the expected correlation id {1} for reservation with id {2}.",
+                                correlationId,
+                                process.SeatReservationCommandId,
+                                process.ReservationId);
+                        }
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", @event.ReservationId);
+                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", envelope.Body.ReservationId);
                     }
                 }
             }

@@ -39,21 +39,21 @@ namespace Registration.Handlers
             // TODO: what if there's no aggregate? how do we tell the registration process?
             var availability = this.repository.Get(command.ConferenceId);
             availability.MakeReservation(command.ReservationId, command.Seats);
-            this.repository.Save(availability);
+            this.repository.Save(availability, command.Id.ToString());
         }
 
         public void Handle(CancelSeatReservation command)
         {
             var availability = this.repository.Get(command.ConferenceId);
             availability.CancelReservation(command.ReservationId);
-            this.repository.Save(availability);
+            this.repository.Save(availability, command.Id.ToString());
         }
 
         public void Handle(CommitSeatReservation command)
         {
             var availability = this.repository.Get(command.ConferenceId);
             availability.CommitReservation(command.ReservationId);
-            this.repository.Save(availability);
+            this.repository.Save(availability, command.Id.ToString());
         }
 
         // Commands created from events from the conference BC
@@ -65,7 +65,7 @@ namespace Registration.Handlers
                 availability = new SeatsAvailability(command.ConferenceId);
 
             availability.AddSeats(command.SeatType, command.Quantity);
-            this.repository.Save(availability);
+            this.repository.Save(availability, command.Id.ToString());
         }
 
         public void Handle(RemoveSeats command)
@@ -75,7 +75,7 @@ namespace Registration.Handlers
                 availability = new SeatsAvailability(command.ConferenceId);
 
             availability.RemoveSeats(command.SeatType, command.Quantity);
-            this.repository.Save(availability);
+            this.repository.Save(availability, command.Id.ToString());
         }
     }
 }
