@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Infrastructure.MessageLog;
 using Infrastructure.Messaging;
 using Infrastructure.Serialization;
@@ -58,6 +59,25 @@ namespace Conference.Specflow.Support
             var criteria = new QueryCriteria { FullNames = {typeof (T).FullName}};
             criteria.SourceIds.AddRange(sourceIds);
             return eventLog.Query(criteria).OfType<T>();
+        }
+
+        public static bool CollectEvents<T>(Guid sourceId, int count) where T : IEvent
+        {
+            return CollectEvents<T>(new[] { sourceId.ToString() }, count);
+        }
+
+        public static bool CollectEvents<T>(ICollection<string> sourceIds, int count) where T : IEvent
+        {
+            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+            int collected;
+            
+            do
+            {
+                collected = GetEvents<T>(sourceIds).Count();
+                Thread.Sleep(100);
+            } while (collected != count && DateTime.Now < timeout);
+
+            return collected == count;
         }
     }
 }
