@@ -20,6 +20,9 @@ namespace Conference
     using Common.Utils;
     using Conference.Properties;
 
+    /// <summary>
+    /// Editable information about a conference.
+    /// </summary>
     public class EditableConferenceInfo
     {
         [Required(AllowEmptyStrings = false)]
@@ -46,6 +49,14 @@ namespace Conference
         public bool IsPublished { get; set; }
     }
 
+    /// <summary>
+    /// The full conference information.
+    /// </summary>
+    /// <remarks>
+    /// This class inherits from <see cref="EditableConferenceInfo"/> 
+    /// and exposes more information that is not user-editable once 
+    /// it has been generated or provided.
+    /// </remarks>
     public class ConferenceInfo : EditableConferenceInfo
     {
         public ConferenceInfo()

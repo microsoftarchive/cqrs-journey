@@ -20,16 +20,14 @@ namespace Conference
     using System.Linq;
     using Infrastructure.Messaging;
 
+    /// <summary>
+    /// Transaction-script style domain service that manages 
+    /// the interaction between the MVC controller and the 
+    /// ORM persistence, as well as the publishing of integration 
+    /// events.
+    /// </summary>
     public class ConferenceService
     {
-        // TODO: transactionally save to DB the outgoing events
-        // and an async process should pick and push to the bus.
-
-        // using (tx)
-        // {
-        //  DB save (state snapshot)
-        //  DB queue (events) -> push to bus (async)
-        // }
         private IEventBus eventBus;
         private string nameOrConnectionString;
 
@@ -217,7 +215,6 @@ namespace Conference
         private void PublishConferenceEvent<T>(ConferenceInfo conference)
             where T : ConferenceEvent, new()
         {
-            // TODO: replace with AutoMapper one-liner
             this.eventBus.Publish(new T()
             {
                 SourceId = conference.Id,
@@ -239,7 +236,6 @@ namespace Conference
 
         private void PublishSeatCreated(Guid conferenceId, SeatType seat)
         {
-            // TODO: replace with AutoMapper one-liner
             this.eventBus.Publish(new SeatCreated
             {
                 ConferenceId = conferenceId,
