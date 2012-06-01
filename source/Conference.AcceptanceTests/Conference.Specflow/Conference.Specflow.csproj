@@ -98,6 +98,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceConfigurationDomain.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Domain\Registration\RegistrationProcessHardeningWithDomain.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RegistrationProcessHardeningWithDomain.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Domain\Registration\SelfRegistrationReservationWithConcurrencyDomain.feature.cs">
       <DependentUpon>SelfRegistrationReservationWithConcurrencyDomain.feature</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -209,6 +214,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Features\UserInterface\Views\Registration\Waitlist.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Waitlist.feature</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steps\ConferenceConfigurationSteps.cs" />
     <Compile Include="Steps\ConferenceConfigurationDomainSteps.cs" />
@@ -219,6 +229,7 @@
     <Compile Include="Steps\CommonSteps.cs" />
     <Compile Include="Steps\SelfRegistrationEndToEndWithControllersSteps.cs" />
     <Compile Include="Steps\SelfRegistrationEndToEndWithDomainSteps.cs" />
+    <Compile Include="Steps\RegistrationProcessHardeningWithDomainSteps.cs" />
     <Compile Include="Steps\SelfRegistrationReservationWithConcurrencyDomainSteps.cs" />
     <Compile Include="Steps\SelfRegistrationReservationWithConcurrencySteps.cs" />
     <Compile Include="Steps\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
@@ -243,6 +254,10 @@
     <None Include="Features\Domain\Management\ConferenceConfigurationDomain.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceConfigurationDomain.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Domain\Registration\RegistrationProcessHardeningWithDomain.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>RegistrationProcessHardeningWithDomain.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Domain\Registration\SelfRegistrationReservationWithConcurrencyDomain.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -327,6 +342,10 @@
     <None Include="Features\UserInterface\Views\Registration\PartialAssignments.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>PartialAssignments.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\UserInterface\Views\Registration\Waitlist.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Waitlist.feature.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
   </ItemGroup>

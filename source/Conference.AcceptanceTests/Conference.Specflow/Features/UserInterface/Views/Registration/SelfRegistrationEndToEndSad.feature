@@ -103,14 +103,4 @@ Scenario: Partiall Seats allocation
 	| Additional cocktail party | 1        |
 
 
-# Next release
-@Ignore
-Scenario: Partial Promotional Code for none of the selected items
-	Given the selected Order Items
-	| seat type     | quantity |
-	| CQRS Workshop | 1        |
-	And the total amount should be of $500
-	When the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
-	And the total amount should be of $500
 

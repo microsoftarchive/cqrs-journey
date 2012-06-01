@@ -348,40 +348,6 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
-        [Xunit.FactAttribute(Skip="Ignored")]
-        [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference (s" +
-            "ad path)")]
-        [Xunit.TraitAttribute("Description", "Partial Promotional Code for none of the selected items")]
-        public virtual void PartialPromotionalCodeForNoneOfTheSelectedItems()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Partial Promotional Code for none of the selected items", new string[] {
-                        "Ignore"});
-#line 108
-this.ScenarioSetup(scenarioInfo);
-#line 19
-this.FeatureBackground();
-#line hidden
-            TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type",
-                        "quantity"});
-            table13.AddRow(new string[] {
-                        "CQRS Workshop",
-                        "1"});
-#line 109
- testRunner.Given("the selected Order Items", ((string)(null)), table13);
-#line 112
- testRunner.And("the total amount should be of $500");
-#line 113
- testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
-#line 114
- testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
-                    "bout the problem");
-#line 115
- testRunner.And("the total amount should be of $500");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : System.IDisposable

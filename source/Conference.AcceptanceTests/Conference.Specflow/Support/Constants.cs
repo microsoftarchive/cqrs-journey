@@ -34,9 +34,9 @@ namespace Conference.Specflow.Support
         {
 #if LOCAL
             // Max time for wait on a screen to show up
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10); 
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(20); 
 #else
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30); 
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(40); 
 #endif
             public const string NextStepId = "Next";
             public const string FindId = "find";

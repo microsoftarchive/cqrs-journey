@@ -150,3 +150,14 @@ Scenario: Partial scope
 	When the Registrant apply the 'CONFONLY' Promotional Code
 	Then the 'CONFONLY' Promo code should show a value of -$50
 	And the total amount should be of $699
+
+
+# Next release
+@Ignore
+Scenario: Make a reservation with the selected Order Items and a Promo Code
+	Given the Registrant apply the 'COPRESENTER' Promotional Code
+	And the 'COPRESENTER' Promo code should show a value of -$5
+	When the Registrant proceed to make the Reservation		
+	Then the Reservation is confirmed for all the selected Order Items
+	And the total should read $244
+	And the countdown started
