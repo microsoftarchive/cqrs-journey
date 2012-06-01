@@ -86,6 +86,8 @@ namespace Registration.Tests.ConferenceViewModelGeneratorFixture
 
         public given_existing_conference()
         {
+            System.Diagnostics.Trace.Listeners.Clear();
+
             this.sut.Handle(new ConferenceCreated
             {
                 SourceId = conferenceId,

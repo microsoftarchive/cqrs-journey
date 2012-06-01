@@ -25,7 +25,7 @@ namespace Infrastructure.Serialization
             : this(JsonSerializer.Create(new JsonSerializerSettings
             {
                 // Allows deserializing to the actual runtime type
-                TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameHandling = TypeNameHandling.All,
                 // In a version resilient way
                 TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
             }))
