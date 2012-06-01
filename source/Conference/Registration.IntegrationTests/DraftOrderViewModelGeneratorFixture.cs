@@ -40,6 +40,8 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
 
         public given_a_placed_order()
         {
+            System.Diagnostics.Trace.Listeners.Clear();
+
             this.orderPlacedEvent = new OrderPlaced
             {
                 SourceId = Guid.NewGuid(),

@@ -18,7 +18,8 @@ namespace Infrastructure.Processes
     using Infrastructure.Messaging;
 
     /// <summary>
-    /// Interface implemented by processes (also known as Sagas in the CQRS community) that publish commands to the command bus.
+    /// Interface implemented by processes (also known as Sagas in the CQRS community) that 
+    /// publish commands to the command bus.
     /// </summary>
     public interface IProcess
     {
