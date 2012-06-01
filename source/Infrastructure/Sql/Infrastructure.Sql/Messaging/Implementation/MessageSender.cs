@@ -31,7 +31,7 @@ namespace Infrastructure.Sql.Messaging.Implementation
         {
             this.connectionFactory = connectionFactory;
             this.name = name;
-            this.insertQuery = string.Format("INSERT INTO {0} (Body, DeliveryDate) VALUES (@Body, @DeliveryDate)", tableName);
+            this.insertQuery = string.Format("INSERT INTO {0} (Body, DeliveryDate, CorrelationId) VALUES (@Body, @DeliveryDate, @CorrelationId)", tableName);
         }
 
         /// <summary>
@@ -77,6 +77,7 @@ namespace Infrastructure.Sql.Messaging.Implementation
 
                 command.Parameters.Add("@Body", SqlDbType.NVarChar).Value = message.Body;
                 command.Parameters.Add("@DeliveryDate", SqlDbType.DateTime).Value = message.DeliveryDate.HasValue ? (object)message.DeliveryDate.Value : DBNull.Value;
+                command.Parameters.Add("@CorrelationId", SqlDbType.NVarChar).Value = (object)message.CorrelationId ?? DBNull.Value;
 
                 command.ExecuteNonQuery();
             }

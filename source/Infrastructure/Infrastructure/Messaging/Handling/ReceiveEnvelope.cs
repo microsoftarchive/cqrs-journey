@@ -13,12 +13,19 @@
 
 namespace Infrastructure.Messaging.Handling
 {
+    using System;
 
     /// <summary>
     /// Static factory class for <see cref="ReceiveEnvelope{T}"/>.
     /// </summary>
-    public static class ReceiveEnvelope
+    public abstract class ReceiveEnvelope
     {
+        protected ReceiveEnvelope(string messageId, string correlationId)
+        {
+            this.MessageId = messageId;
+            this.CorrelationId = correlationId;
+        }
+
         /// <summary>
         /// Creates an envelope for the given body.
         /// </summary>
@@ -26,27 +33,6 @@ namespace Infrastructure.Messaging.Handling
         {
             return new ReceiveEnvelope<T>(body, messageId, correlationId);
         }
-    }
-
-    /// <summary>
-    /// Provides the envelope for an object that will be sent to a bus.
-    /// </summary>
-    public class ReceiveEnvelope<T>
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReceiveEnvelope{T}"/> class.
-        /// </summary>
-        public ReceiveEnvelope(T body, string messageId, string correlationId)
-        {
-            this.Body = body;
-            this.MessageId = messageId;
-            this.CorrelationId = correlationId;
-        }
-
-        /// <summary>
-        /// Gets the body.
-        /// </summary>
-        public T Body { get; private set; }
 
         /// <summary>
         /// Gets the correlation id.
@@ -57,5 +43,25 @@ namespace Infrastructure.Messaging.Handling
         /// Gets the correlation id.
         /// </summary>
         public string MessageId { get; private set; }
+    }
+
+    /// <summary>
+    /// Provides the envelope for an object that will be sent to a bus.
+    /// </summary>
+    public class ReceiveEnvelope<T> : ReceiveEnvelope
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceiveEnvelope{T}"/> class.
+        /// </summary>
+        public ReceiveEnvelope(T body, string messageId, string correlationId)
+            : base(messageId, correlationId)
+        {
+            this.Body = body;
+        }
+
+        /// <summary>
+        /// Gets the body.
+        /// </summary>
+        public T Body { get; private set; }
     }
 }

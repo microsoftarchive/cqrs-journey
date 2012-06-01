@@ -45,7 +45,7 @@ namespace Infrastructure.Sql.Messaging
         /// </summary>
         public void Publish(IEvent @event)
         {
-            var message = BuildMessage(@event);
+            var message = BuildMessage(@event, null);
 
             this.sender.Send(message);
         }
@@ -55,17 +55,27 @@ namespace Infrastructure.Sql.Messaging
         /// </summary>
         public void Publish(IEnumerable<IEvent> events)
         {
-            var messages = events.Select(e => BuildMessage(e));
+            var messages = events.Select(e => BuildMessage(e, null));
 
             this.sender.Send(messages);
         }
 
-        private Message BuildMessage(IEvent @event)
+        /// <summary>
+        /// Publishes the specified events with a correlation id.
+        /// </summary>
+        public void Publish(IEnumerable<IEvent> events, string correlationId)
+        {
+            var messages = events.Select(e => BuildMessage(e, correlationId));
+
+            this.sender.Send(messages);
+        }
+
+        private Message BuildMessage(IEvent @event, string correlationId)
         {
             using (var payloadWriter = new StringWriter())
             {
                 this.serializer.Serialize(payloadWriter, @event);
-                return new Message(payloadWriter.ToString());
+                return new Message(payloadWriter.ToString(), correlationId: correlationId);
             }
         }
     }

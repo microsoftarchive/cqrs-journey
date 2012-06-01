@@ -66,7 +66,7 @@ namespace Infrastructure.Sql.Messaging.Handling
         /// <summary>
         /// Processes the message by calling the registered handler.
         /// </summary>
-        protected override void ProcessMessage(object payload)
+        protected override void ProcessMessage(object payload, string correlationId)
         {
             var commandType = payload.GetType();
             ICommandHandler handler = null;

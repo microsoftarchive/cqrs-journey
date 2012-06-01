@@ -128,6 +128,7 @@ CREATE TABLE [SqlBus].[Commands](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Body] [nvarchar](max) NOT NULL,
 	[DeliveryDate] [datetime] NULL,
+	[CorrelationId] [nvarchar](max) NULL,
  CONSTRAINT [PK_SqlBus.Commands] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -178,6 +179,7 @@ CREATE TABLE [SqlBus].[Events](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Body] [nvarchar](max) NOT NULL,
 	[DeliveryDate] [datetime] NULL,
+	[CorrelationId] [nvarchar](max) NULL,
  CONSTRAINT [PK_SqlBus.Events] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
