@@ -29,13 +29,13 @@ namespace Registration.Database
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<RegistrationProcess>().ToTable("RegistrationProcess", SchemaName);
-            modelBuilder.Entity<PendingCommandsEntity>().ToTable("PendingCommands", SchemaName);
+            modelBuilder.Entity<UndispatchedMessages>().ToTable("UndispatchedMessages", SchemaName);
         }
 
         // Define the available entity sets for the database.
         public DbSet<RegistrationProcess> RegistrationProcesses { get; set; }
 
-        // Table for pending undispatched commands associated with a process.
-        public DbSet<PendingCommandsEntity> PendingCommands { get; set; }
+        // Table for pending undispatched messages associated with a process.
+        public DbSet<UndispatchedMessages> UndispatchedMessages { get; set; }
     }
 }

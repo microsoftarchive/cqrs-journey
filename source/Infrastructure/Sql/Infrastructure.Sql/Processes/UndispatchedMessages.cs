@@ -15,11 +15,11 @@ namespace Infrastructure.Sql.Processes
 {
     using System;
 
-    public class PendingCommandsEntity
+    public class UndispatchedMessages
     {
-        protected PendingCommandsEntity() { }
+        protected UndispatchedMessages() { }
 
-        public PendingCommandsEntity(Guid id)
+        public UndispatchedMessages(Guid id)
         {
             this.Id = id;
         }

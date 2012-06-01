@@ -18,7 +18,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [ConferenceRegistrationProcesses].[PendingCommands](
+CREATE TABLE [ConferenceRegistrationProcesses].[UndispatchedMessages](
 	[Id] [uniqueidentifier] NOT NULL,
 	[Commands] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 

@@ -127,7 +127,7 @@ namespace Infrastructure.Sql.IntegrationTests
                 var aggregate = new OrmTestProcess(id);
                 aggregate.AddEnvelope(command1, command2);
 
-                context.Save(aggregate);
+                Assert.Throws<TimeoutException>(() => context.Save(aggregate));
             }
 
             bus.Verify(x => x.Send(command1));
@@ -161,7 +161,7 @@ namespace Infrastructure.Sql.IntegrationTests
                 var aggregate = new OrmTestProcess(id);
                 aggregate.AddEnvelope(command1, command2);
 
-                context.Save(aggregate);
+                Assert.Throws<TimeoutException>(() => context.Save(aggregate));
             }
 
             using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
@@ -169,6 +169,26 @@ namespace Infrastructure.Sql.IntegrationTests
                 bus.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Body.Id))).Throws<TimeoutException>();
 
                 Assert.Throws<TimeoutException>(() => context.Find(id));
+            }
+        }
+
+        [Fact]
+        public void WhenCommandPublishingFails_ThenThrows()
+        {
+            var bus = new Mock<ICommandBus>();
+            var command1 = new Envelope<ICommand>(new TestCommand());
+            var command2 = new Envelope<ICommand>(new TestCommand());
+            var command3 = new Envelope<ICommand>(new TestCommand());
+            var id = Guid.NewGuid();
+
+            bus.Setup(x => x.Send(command2)).Throws<TimeoutException>();
+
+            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            {
+                var aggregate = new OrmTestProcess(id);
+                aggregate.AddEnvelope(command1, command2, command3);
+
+                Assert.Throws<TimeoutException>(() => context.Save(aggregate));
             }
         }
 
@@ -188,7 +208,7 @@ namespace Infrastructure.Sql.IntegrationTests
                 var aggregate = new OrmTestProcess(id);
                 aggregate.AddEnvelope(command1, command2, command3);
 
-                context.Save(aggregate);
+                Assert.Throws<TimeoutException>(() => context.Save(aggregate));
             }
 
             bus.Verify(x => x.Send(command1));
@@ -229,7 +249,7 @@ namespace Infrastructure.Sql.IntegrationTests
             }
 
             public DbSet<OrmTestProcess> TestProcesses { get; set; }
-            public DbSet<PendingCommandsEntity> PendingCommands { get; set; }
+            public DbSet<UndispatchedMessages> UndispatchedMessages { get; set; }
         }
 
         public class TestCommand : ICommand

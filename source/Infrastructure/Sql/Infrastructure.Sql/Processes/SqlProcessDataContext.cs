@@ -46,36 +46,10 @@ namespace Infrastructure.Sql.Processes
             if (process == null)
                 return default(T);
 
-            var pendingCommands = this.context.Set<PendingCommandsEntity>().Find(process.Id);
-            if (pendingCommands != null)
-            {
-                // Must dispatch pending commands before the process 
-                // can be further used.
-                var commands = this.serializer.Deserialize<IEnumerable<Envelope<ICommand>>>(pendingCommands.Commands).OfType<Envelope<ICommand>>().ToList();
-                var commandIndex = 0;
-
-                // Here we try again, one by one. Anyone might fail, so we have to keep 
-                // decreasing the pending commands count until no more are left.
-                try
-                {
-                    for (int i = 0; i < commands.Count; i++)
-                    {
-                        this.commandBus.Send(commands[i]);
-                        commandIndex++;
-                    }
-                }
-                catch (Exception) // We catch a generic exception as we don't know what implementation of ICommandBus we might be using.
-                {
-                    pendingCommands.Commands = this.serializer.Serialize(commands.Skip(commandIndex));
-                    this.context.SaveChanges();
-                    // If this fails, we propagate the exception.
-                    throw;
-                }
-
-                // If succeed, we delete the pending commands.
-                this.context.Set<PendingCommandsEntity>().Remove(pendingCommands);
-                this.context.SaveChanges();
-            }
+            // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
+            var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+            
+            this.DispatchMessages(undispatchedMessages);
 
             return process;
         }
@@ -87,31 +61,58 @@ namespace Infrastructure.Sql.Processes
             if (entry.State == System.Data.EntityState.Detached)
                 this.context.Set<T>().Add(process);
 
-            var commandIndex = 0;
             var commands = process.Commands.ToList();
-
-            try
+            UndispatchedMessages undispatched = null;
+            if (commands.Count > 0)
             {
-                for (int i = 0; i < commands.Count; i++)
-                {
-                    this.commandBus.Send(commands[i]);
-                    commandIndex++;
-                }
-            }
-            catch (Exception) // We catch a generic exception as we don't know what implementation of ICommandBus we might be using.
-            {
-                var pending = this.context.Set<PendingCommandsEntity>().Find(process.Id);
-                if (pending == null)
-                {
-                    pending = new PendingCommandsEntity(process.Id);
-                    this.context.Set<PendingCommandsEntity>().Add(pending);
-                }
-
-                pending.Commands = this.serializer.Serialize(commands.Skip(commandIndex));
+                // if there are pending commands to send, we store them as undispatched.
+                undispatched = new UndispatchedMessages(process.Id)
+                                   {
+                                       Commands = this.serializer.Serialize(commands)
+                                   };
+                this.context.Set<UndispatchedMessages>().Add(undispatched);
             }
 
-            // Saves both the state of the process as well as the pending commands if any.
             this.context.SaveChanges();
+
+            this.DispatchMessages(undispatched, commands);
+        }
+
+        private void DispatchMessages(UndispatchedMessages undispatched, List<Envelope<ICommand>> deserializedCommands = null)
+        {
+            if (undispatched != null)
+            {
+                if (deserializedCommands == null)
+                {
+                    deserializedCommands = this.serializer.Deserialize<IEnumerable<Envelope<ICommand>>>(undispatched.Commands).ToList();
+                }
+
+                var originalCommandsCount = deserializedCommands.Count;
+                try
+                {
+                    while (deserializedCommands.Count > 0)
+                    {
+                        this.commandBus.Send(deserializedCommands.First());
+                        deserializedCommands.RemoveAt(0);
+                    }
+
+                    // we remove all the undispatched messages for this process
+                    this.context.Set<UndispatchedMessages>().Remove(undispatched);
+                    this.context.SaveChanges();
+                }
+                catch (Exception) 
+                {
+                    // We catch a generic exception as we don't know what implementation of ICommandBus we might be using.
+                    if (originalCommandsCount != deserializedCommands.Count)
+                    {
+                        // if we were able to send some commands, then updates the undispatched messages.
+                        undispatched.Commands = this.serializer.Serialize(deserializedCommands);
+                        this.context.SaveChanges();
+                    }
+
+                    throw;
+                }
+            }
         }
 
         public void Dispose()
