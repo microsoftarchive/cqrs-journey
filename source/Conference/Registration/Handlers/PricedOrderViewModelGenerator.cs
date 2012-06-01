@@ -29,13 +29,37 @@ namespace Registration.Handlers
         IEventHandler<OrderExpired>,
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatCreated>,
-        IEventHandler<SeatUpdated>
+        IEventHandler<SeatUpdated>,
+        IEventHandler<OrderPlaced>,
+        IEventHandler<OrderConfirmed>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
         public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
+        }
+
+        public void Handle(OrderPlaced @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrder>(@event.SourceId);
+                if (dto == null)
+                {
+                    dto = new PricedOrder { OrderId = @event.SourceId };
+                    context.Set<PricedOrder>().Add(dto);
+                }
+                else if (!WasNotAlreadyHandled(dto, @event.Version))
+                {
+                    return;
+                }
+
+                dto.ReservationExpirationDate = @event.ReservationAutoExpiration;
+                dto.OrderVersion = @event.Version;
+
+                context.SaveChanges();
+            }
         }
 
         public void Handle(OrderTotalsCalculated @event)
@@ -102,6 +126,20 @@ namespace Registration.Handlers
             }
         }
 
+        public void Handle(OrderConfirmed @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrder>(@event.SourceId);
+                if (WasNotAlreadyHandled(dto, @event.Version))
+                {
+                    dto.ReservationExpirationDate = null;
+                    dto.OrderVersion = @event.Version;
+                    context.Save(dto);
+                }
+            }
+        }
+
         public void Handle(OrderExpired @event)
         {
             // No need to keep this priced order alive if it is expired.
@@ -125,6 +163,7 @@ namespace Registration.Handlers
             {
                 var dto = context.Find<PricedOrder>(@event.OrderId);
                 dto.AssignmentsId = @event.SourceId;
+                // Note: @event.Version does not correspond to order.Version.;
                 context.SaveChanges();
             }
         }

@@ -42,11 +42,11 @@ namespace Registration.Handlers
             var order = repository.Find(command.OrderId);
             if (order == null)
             {
-                order = new Order(command.OrderId, command.ConferenceId, items);
+                order = new Order(command.OrderId, command.ConferenceId, items, pricingService);
             }
             else
             {
-                order.UpdateSeats(items);
+                order.UpdateSeats(items, pricingService);
             }
 
             repository.Save(order);

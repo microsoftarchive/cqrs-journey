@@ -57,21 +57,29 @@ namespace Registration
             this.LoadFrom(history);
         }
 
-        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items)
+        public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items, IPricingService pricingService)
             : this(id)
         {
+            var all = ConvertItems(items);
+            var totals = pricingService.CalculateTotal(conferenceId, all.AsReadOnly());
+
             this.Update(new OrderPlaced
             {
                 ConferenceId = conferenceId,
-                Seats = ConvertItems(items),
+                Seats = all,
                 ReservationAutoExpiration = DateTime.UtcNow.Add(ReservationAutoExpiration),
                 AccessCode = HandleGenerator.Generate(6)
             });
+            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines != null ? totals.Lines.ToArray() : null, IsFreeOfCharge = totals.Total == 0m });
         }
 
-        public void UpdateSeats(IEnumerable<OrderItem> seats)
+        public void UpdateSeats(IEnumerable<OrderItem> items, IPricingService pricingService)
         {
-            this.Update(new OrderUpdated { Seats = ConvertItems(seats) });
+            var all = ConvertItems(items);
+            var totals = pricingService.CalculateTotal(this.conferenceId, all.AsReadOnly());
+
+            this.Update(new OrderUpdated { Seats = all });
+            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines != null ? totals.Lines.ToArray() : null, IsFreeOfCharge = totals.Total == 0m });
         }
 
         public void MarkAsReserved(IPricingService pricingService, DateTime expirationDate, IEnumerable<SeatQuantity> reservedSeats)
@@ -81,19 +89,18 @@ namespace Registration
 
             var reserved = reservedSeats.ToList();
 
-            var totals = pricingService.CalculateTotal(this.conferenceId, reserved.AsReadOnly());
-
             // Is there an order item which didn't get an exact reservation?
             if (this.seats.Any(item => item.Quantity != 0 && !reserved.Any(seat => seat.SeatType == item.SeatType && seat.Quantity == item.Quantity)))
             {
+                var totals = pricingService.CalculateTotal(this.conferenceId, reserved.AsReadOnly());
+
                 this.Update(new OrderPartiallyReserved { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
+                this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines != null ? totals.Lines.ToArray() : null, IsFreeOfCharge = totals.Total == 0m });
             }
             else
             {
                 this.Update(new OrderReservationCompleted { ReservationExpiration = expirationDate, Seats = reserved.ToArray() });
             }
-
-            this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines.ToArray(), IsFreeOfCharge = totals.Total == 0m });
         }
 
         public void Expire()

@@ -37,6 +37,7 @@ namespace Registration.ReadModel
         public decimal Total { get; set; }
         public int OrderVersion { get; set; }
         public bool IsFreeOfCharge { get; set; }
+        public DateTime? ReservationExpirationDate { get; set; }
     }
 
     public class PricedOrderLine

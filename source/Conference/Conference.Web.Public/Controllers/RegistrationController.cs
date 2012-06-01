@@ -28,7 +28,7 @@ namespace Conference.Web.Public.Controllers
         public const string ThirdPartyProcessorPayment = "thirdParty";
         public const string InvoicePayment = "invoice";
         private const int DraftOrderWaitTimeoutInSeconds = 5;
-        private const int PricedOrderWaitTimeoutInSeconds = 1;
+        private const int PricedOrderWaitTimeoutInSeconds = 5;
 
         private readonly ICommandBus commandBus;
         private readonly IOrderDao orderDao;
@@ -45,13 +45,11 @@ namespace Conference.Web.Public.Controllers
         public ActionResult StartRegistration(Guid? orderId = null)
         {
             OrderViewModel viewModel;
-            var orderVersion = 0;
 
             if (!orderId.HasValue)
             {
-                orderId = Guid.NewGuid();
                 viewModel = this.CreateViewModel();
-                this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
+                viewModel.OrderId = Guid.NewGuid();
             }
             else
             {
@@ -72,13 +70,8 @@ namespace Conference.Web.Public.Controllers
                     return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
                 }
 
-                orderVersion = order.OrderVersion;
                 viewModel = this.CreateViewModel(order);
-                ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
             }
-
-            ViewBag.OrderId = orderId;
-            ViewBag.OrderVersion = orderVersion;
 
             return View(viewModel);
         }
@@ -86,12 +79,40 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult StartRegistration(RegisterToConference command, int orderVersion)
         {
+            var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(command.OrderId) : null;
+            var viewModel = existingOrder == null ? this.CreateViewModel() : this.CreateViewModel(existingOrder);
+            viewModel.OrderId = command.OrderId;
+            
             if (!ModelState.IsValid)
             {
-                return this.ShowRegistrationEditor(command.OrderId, orderVersion);
+                return View(viewModel);
             }
 
-            // TODO: validate incoming seat types correspond to the conference.
+            // checks that there are still enough available seats, and the seat type IDs submitted ar valid.
+            ModelState.Clear();
+            bool needsExtraValidation = false;
+            foreach (var seat in command.Seats)
+            {
+                var modelItem = viewModel.Items.FirstOrDefault(x => x.SeatType.Id == seat.SeatType);
+                if (modelItem != null)
+                {
+                    if (seat.Quantity > modelItem.MaxSelectionQuantity)
+                    {
+                        modelItem.PartiallyFulfilled = needsExtraValidation = true;
+                        modelItem.OrderItem.ReservedSeats = modelItem.MaxSelectionQuantity;
+                    }
+                }
+                else
+                {
+                    // seat type no longer exists for conference.
+                    needsExtraValidation = true;
+                }
+            }
+
+            if (needsExtraValidation)
+            {
+                return View(viewModel);
+            }
 
             command.ConferenceId = this.ConferenceAlias.Id;
             this.commandBus.Send(command);
@@ -101,64 +122,26 @@ namespace Conference.Web.Public.Controllers
                 new { conferenceCode = this.ConferenceCode, orderId = command.OrderId, orderVersion = orderVersion });
         }
 
-        private ActionResult ShowRegistrationEditor(Guid orderId, int orderVersion)
-        {
-            OrderViewModel viewModel = null;
-            var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(orderId) : null;
-
-            if (existingOrder == null)
-            {
-                viewModel = this.CreateViewModel();
-                this.ViewBag.ExpirationDateUTC = DateTime.MinValue;
-            }
-            else
-            {
-                orderVersion = existingOrder.OrderVersion;
-                viewModel = this.CreateViewModel(existingOrder);
-                ViewBag.ExpirationDateUTC = existingOrder.ReservationExpirationDate;
-            }
-
-            ViewBag.OrderId = orderId;
-            ViewBag.OrderVersion = orderVersion;
-
-            return View(viewModel);
-        }
-
         [HttpGet]
         [OutputCache(Duration = 0, NoStore = true)]
         public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
-            var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
-            if (order == null)
+            var pricedOrder = this.WaitUntilOrderIsPriced(orderId, orderVersion);
+            if (pricedOrder == null)
             {
-                return View("ReservationUnknown");
+                return View("PricedOrderUnknown");
             }
 
-            if (order.State == DraftOrder.States.PartiallyReserved)
-            {
-                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
-            }
-
-            if (order.State == DraftOrder.States.Confirmed)
+            if (!pricedOrder.ReservationExpirationDate.HasValue)
             {
                 return View("ShowCompletedOrder");
             }
 
-            if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
+            if (pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
             {
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }
 
-            var pricedOrder = this.WaitUntilOrderIsPriced(orderId, orderVersion);
-            if (pricedOrder == null)
-            {
-                return View("ReservationUnknown");
-            }
-
-            // NOTE: we use the view bag to pass out of band details needed for the UI.
-            this.ViewBag.ExpirationDateUTC = order.ReservationExpirationDate;
-
-            // We just render the command which is later posted back.
             return View(
                 new RegistrationViewModel
                 {
@@ -177,14 +160,29 @@ namespace Conference.Web.Public.Controllers
                 return SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
             }
 
-            var order = this.orderDao.FindDraftOrder(orderId);
+            this.commandBus.Send(command);
 
-            // TODO check conference and order exist.
-            // TODO validate that order belongs to the user.
+            return this.StartPayment(orderId, paymentType, orderVersion);
+        }
 
+        [HttpPost]
+        public ActionResult StartPayment(Guid orderId, string paymentType, int orderVersion)
+        {
+            var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
             if (order == null)
             {
-                throw new ArgumentException();
+                return View("ReservationUnknown");
+            }
+
+            if (order.State == DraftOrder.States.PartiallyReserved)
+            {
+                //TODO: have a clear message in the UI saying there was a hiccup and he actually didn't get all the seats.
+                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
+            }
+
+            if (order.State == DraftOrder.States.Confirmed)
+            {
+                return View("ShowCompletedOrder");
             }
 
             if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
@@ -195,14 +193,14 @@ namespace Conference.Web.Public.Controllers
             var pricedOrder = this.orderDao.FindPricedOrder(orderId);
             if (pricedOrder.IsFreeOfCharge)
             {
-                return CompleteRegistrationWithoutPayment(command, orderId);
+                return CompleteRegistrationWithoutPayment(orderId);
             }
 
             switch (paymentType)
             {
                 case ThirdPartyProcessorPayment:
 
-                    return CompleteRegistrationWithThirdPartyProcessorPayment(command, pricedOrder, orderVersion);
+                    return CompleteRegistrationWithThirdPartyProcessorPayment(pricedOrder, orderVersion);
 
                 case InvoicePayment:
                     break;
@@ -230,11 +228,11 @@ namespace Conference.Web.Public.Controllers
             return View(order);
         }
 
-        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(AssignRegistrantDetails command, PricedOrder order, int orderVersion)
+        private ActionResult CompleteRegistrationWithThirdPartyProcessorPayment(PricedOrder order, int orderVersion)
         {
             var paymentCommand = CreatePaymentCommand(order);
 
-            this.commandBus.Send(new ICommand[] { command, paymentCommand });
+            this.commandBus.Send(paymentCommand);
 
             var paymentAcceptedUrl = this.Url.Action("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, order.OrderId });
             var paymentRejectedUrl = this.Url.Action("SpecifyRegistrantAndPaymentDetails", new { conferenceCode = this.ConferenceAlias.Code, orderId = order.OrderId, orderVersion });
@@ -271,11 +269,11 @@ namespace Conference.Web.Public.Controllers
             return paymentCommand;
         }
 
-        private ActionResult CompleteRegistrationWithoutPayment(AssignRegistrantDetails command, Guid orderId)
+        private ActionResult CompleteRegistrationWithoutPayment(Guid orderId)
         {
             var confirmationCommand = new ConfirmOrder { OrderId = orderId };
 
-            this.commandBus.Send(new ICommand[] { command, confirmationCommand });
+            this.commandBus.Send(confirmationCommand);
 
             return RedirectToAction("ThankYou", new { conferenceCode = this.ConferenceAlias.Code, orderId });
         }
@@ -307,7 +305,9 @@ namespace Conference.Web.Public.Controllers
         private OrderViewModel CreateViewModel(DraftOrder order)
         {
             var viewModel = this.CreateViewModel();
-            viewModel.Id = order.OrderId;
+            viewModel.OrderId = order.OrderId;
+            viewModel.OrderVersion = order.OrderVersion;
+            viewModel.ReservationExpirationDate = order.ReservationExpirationDate.ToEpochMilliseconds();
 
             // TODO check DTO matches view model
 
@@ -354,7 +354,7 @@ namespace Conference.Web.Public.Controllers
                     return order;
                 }
 
-                Thread.Sleep(300);
+                Thread.Sleep(500);
             }
 
             return null;

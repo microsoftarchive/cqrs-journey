@@ -24,7 +24,7 @@ namespace Registration.Handlers
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
-    public class OrderViewModelGenerator :
+    public class DraftOrderViewModelGenerator :
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>,
@@ -33,7 +33,7 @@ namespace Registration.Handlers
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
-        static OrderViewModelGenerator()
+        static DraftOrderViewModelGenerator()
         {
             // Mapping old version of the OrderPaymentConfirmed event to the new version.
             // Currently it is being done explicitly by the consumer, but this one in particular could be done
@@ -41,7 +41,7 @@ namespace Registration.Handlers
             Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
         }
 
-        public OrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
+        public DraftOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
@@ -126,6 +126,7 @@ namespace Registration.Handlers
             }
         }
 
+        // TODO: why is this needed?
         public void Handle(OrderTotalsCalculated @event)
         {
             using (var context = this.contextFactory.Invoke())

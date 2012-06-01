@@ -80,6 +80,7 @@ CREATE TABLE [ConferenceRegistration].[PricedOrders](
 	[Total] [decimal](18, 2) NOT NULL,
 	[OrderVersion] [int] NOT NULL,
 	[IsFreeOfCharge] [bit] NOT NULL,
+	[ReservationExpirationDate] [datetime] NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[OrderId] ASC
