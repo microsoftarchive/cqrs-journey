@@ -42,15 +42,18 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_creating_order_then_is_placed_with_specified_id()
         {
-            this.sut.When(new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 5) } });
+            var command = new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 5) } };
+            this.sut.When(command);
 
             Assert.Equal(OrderId, sut.ThenHasOne<OrderPlaced>().SourceId);
+            Assert.Equal(command.Id.ToString(), sut.Events.Single(t => t.Item1 is OrderPlaced).Item2);
         }
 
         [Fact]
         public void when_placing_order_then_has_full_details()
         {
-            this.sut.When(new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 5) } });
+            var command = new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 5) } };
+            this.sut.When(command);
 
             var @event = sut.ThenHasOne<OrderPlaced>();
             Assert.Equal(OrderId, @event.SourceId);
@@ -83,7 +86,8 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_creating_order_then_calculates_totals()
         {
-            this.sut.When(new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 5) } });
+            var command = new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 5) } };
+            this.sut.When(command);
 
             var totals = sut.ThenHasOne<OrderTotalsCalculated>();
             Assert.Equal(OrderTotal.Total, totals.Total);
@@ -97,7 +101,7 @@ namespace Registration.Tests.OrderFixture
         private static readonly Guid OrderId = Guid.NewGuid();
         private static readonly Guid ConferenceId = Guid.NewGuid();
         private static readonly Guid SeatTypeId = Guid.NewGuid();
-        private static readonly OrderTotal OrderTotal = new OrderTotal { Total = 33, Lines = new [] { new OrderLine() } };
+        private static readonly OrderTotal OrderTotal = new OrderTotal { Total = 33, Lines = new[] { new OrderLine() } };
         private EventSourcingTestHelper<Order> sut;
         private readonly Mock<IPricingService> pricingService;
 
@@ -109,8 +113,8 @@ namespace Registration.Tests.OrderFixture
             this.sut.Setup(new OrderCommandHandler(sut.Repository, pricingService.Object));
 
             this.sut.Given(
-                    new OrderPlaced 
-                    { 
+                    new OrderPlaced
+                    {
                         SourceId = OrderId,
                         ConferenceId = ConferenceId,
                         Seats = new[] { new SeatQuantity(SeatTypeId, 5) },
@@ -121,32 +125,42 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_updating_seats_then_updates_order_with_new_seats()
         {
-            this.sut.When(new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 20) }});
+            var command = new RegisterToConference { ConferenceId = ConferenceId, OrderId = OrderId, Seats = new[] { new SeatQuantity(SeatTypeId, 20) } };
+
+            this.sut.When(command);
 
             var @event = sut.ThenHasOne<OrderUpdated>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(20, @event.Seats.ElementAt(0).Quantity);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderUpdated).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
         public void when_marking_a_subset_of_seats_as_reserved_then_order_is_partially_reserved()
         {
             var expiration = DateTime.UtcNow.AddMinutes(15);
-            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } });
+            var command = new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } };
+            this.sut.When(command);
 
             var @event = sut.ThenHasOne<OrderPartiallyReserved>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(3, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderPartiallyReserved).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
         public void when_marking_a_subset_of_seats_as_reserved_then_totals_are_calculated()
         {
             var expiration = DateTime.UtcNow.AddMinutes(15);
-            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } });
+            var command = new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 3) } };
+            this.sut.When(command);
 
             var @event = sut.ThenHasOne<OrderTotalsCalculated>();
             Assert.Equal(OrderId, @event.SourceId);
@@ -155,19 +169,26 @@ namespace Registration.Tests.OrderFixture
             Assert.Same(OrderTotal.Lines.Single(), @event.Lines.Single());
 
             pricingService.Verify(s => s.CalculateTotal(ConferenceId, It.Is<ICollection<SeatQuantity>>(x => x.Single().SeatType == SeatTypeId && x.Single().Quantity == 3)));
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderTotalsCalculated).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
         public void when_marking_all_seats_as_reserved_then_order_is_reserved()
         {
             var expiration = DateTime.UtcNow.AddMinutes(15);
-            this.sut.When(new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 5) } });
+            var command = new MarkSeatsAsReserved { OrderId = OrderId, Expiration = expiration, Seats = new List<SeatQuantity> { new SeatQuantity(SeatTypeId, 5) } };
+            this.sut.When(command);
 
             var @event = sut.ThenHasOne<OrderReservationCompleted>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal(1, @event.Seats.Count());
             Assert.Equal(5, @event.Seats.ElementAt(0).Quantity);
             Assert.Equal(expiration, @event.ReservationExpiration);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderReservationCompleted).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
@@ -182,22 +203,30 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_expiring_order_then_notifies()
         {
-            this.sut.When(new RejectOrder { OrderId = OrderId });
+            var command = new RejectOrder { OrderId = OrderId };
+            this.sut.When(command);
 
             var @event = sut.ThenHasSingle<OrderExpired>();
             Assert.Equal(OrderId, @event.SourceId);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderExpired).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
         public void when_assigning_registrant_information_then_raises_integration_event()
         {
-            this.sut.When(new AssignRegistrantDetails { OrderId = OrderId, FirstName = "foo", LastName = "bar", Email = "foo@bar.com" });
+            var command = new AssignRegistrantDetails { OrderId = OrderId, FirstName = "foo", LastName = "bar", Email = "foo@bar.com" };
+            this.sut.When(command);
 
             var @event = sut.ThenHasSingle<OrderRegistrantAssigned>();
             Assert.Equal(OrderId, @event.SourceId);
             Assert.Equal("foo", @event.FirstName);
             Assert.Equal("bar", @event.LastName);
             Assert.Equal("foo@bar.com", @event.Email);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderRegistrantAssigned).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         //[Fact]
@@ -242,19 +271,27 @@ namespace Registration.Tests.OrderFixture
         [Fact]
         public void when_expiring_order_then_notifies()
         {
-            this.sut.When(new RejectOrder { OrderId = OrderId });
+            var command = new RejectOrder { OrderId = OrderId };
+            this.sut.When(command);
 
             var @event = sut.ThenHasSingle<OrderExpired>();
             Assert.Equal(OrderId, @event.SourceId);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderExpired).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
         public void when_confirming_order_then_notifies()
         {
-            this.sut.When(new ConfirmOrder { OrderId = OrderId });
+            var command = new ConfirmOrder { OrderId = OrderId };
+            this.sut.When(command);
 
             var @event = sut.ThenHasSingle<OrderConfirmed>();
             Assert.Equal(OrderId, @event.SourceId);
+
+            var correlationId = sut.Events.First(t => t.Item1 is OrderConfirmed).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]

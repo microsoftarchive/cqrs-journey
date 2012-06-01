@@ -29,11 +29,11 @@ namespace Registration.Tests
 
         public EventSourcingTestHelper()
         {
-            this.Events = new List<IVersionedEvent>();
-            this.repository = new RepositoryStub(eventSouced => this.Events.AddRange(eventSouced.Events));
+            this.Events = new List<Tuple<IVersionedEvent, string>>();
+            this.repository = new RepositoryStub((eventSouced, correlationId) => this.Events.AddRange(eventSouced.Events.Select(e => new Tuple<IVersionedEvent, string>(e, correlationId))));
         }
 
-        public List<IVersionedEvent> Events { get; private set; }
+        public List<Tuple<IVersionedEvent, string>> Events { get; private set; }
 
         public IEventSourcedRepository<T> Repository { get { return this.repository; } }
 
@@ -65,25 +65,25 @@ namespace Registration.Tests
         public TEvent ThenHasSingle<TEvent>() where TEvent : IVersionedEvent
         {
             Assert.Equal(1, this.Events.Count);
-            var @event = this.Events.Single();
+            var @event = this.Events.Single().Item1;
             Assert.IsAssignableFrom<TEvent>(@event);
             return (TEvent)@event;
         }
 
         public TEvent ThenHasOne<TEvent>() where TEvent : IVersionedEvent
         {
-            Assert.Equal(1, this.Events.OfType<TEvent>().Count());
-            var @event = this.Events.OfType<TEvent>().Single();
+            Assert.Equal(1, this.Events.Select(t => t.Item1).OfType<TEvent>().Count());
+            var @event = this.Events.Select(t => t.Item1).OfType<TEvent>().Single();
             return @event;
         }
 
         private class RepositoryStub : IEventSourcedRepository<T>
         {
             public readonly List<IVersionedEvent> History = new List<IVersionedEvent>();
-            private readonly Action<T> onSave;
+            private readonly Action<T, string> onSave;
             private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
 
-            internal RepositoryStub(Action<T> onSave)
+            internal RepositoryStub(Action<T, string> onSave)
             {
                 this.onSave = onSave;
                 var constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
@@ -92,7 +92,7 @@ namespace Registration.Tests
                     throw new InvalidCastException(
                         "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
                 }
-                this.entityFactory = (id, events) => (T) constructor.Invoke(new object[] { id, events });
+                this.entityFactory = (id, events) => (T)constructor.Invoke(new object[] { id, events });
             }
 
             T IEventSourcedRepository<T>.Find(Guid id)
@@ -108,7 +108,7 @@ namespace Registration.Tests
 
             void IEventSourcedRepository<T>.Save(T eventSourced, string correlationId)
             {
-                this.onSave(eventSourced);
+                this.onSave(eventSourced, correlationId);
             }
 
             T IEventSourcedRepository<T>.Get(Guid id)

@@ -88,16 +88,12 @@ namespace Registration
                 this.SeatReservationCommandId = seatReservationCommand.Id;
                 this.AddCommand(seatReservationCommand);
 
-                if (this.ExpirationCommandId == Guid.Empty)
+                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                this.ExpirationCommandId = expirationCommand.Id;
+                this.AddCommand(new Envelope<ICommand>(expirationCommand)
                 {
-                    var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
-                    this.ExpirationCommandId = expirationCommand.Id;
-
-                    this.AddCommand(new Envelope<ICommand>(expirationCommand)
-                    {
-                        Delay = message.ReservationAutoExpiration.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
-                    });
-                }
+                    Delay = message.ReservationAutoExpiration.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
+                });
             }
             else
             {

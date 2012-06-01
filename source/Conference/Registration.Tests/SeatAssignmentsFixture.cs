@@ -55,13 +55,17 @@ namespace Registration.Tests.SeatAssignmentsFixture
         [Fact]
         public void when_order_confirmed_then_seats_assignments_created()
         {
-            sut.When(new OrderConfirmed { SourceId = orderId });
+            var orderConfirmed = new OrderConfirmed { SourceId = orderId };
+            sut.When(orderConfirmed);
 
             var @event = sut.ThenHasSingle<SeatAssignmentsCreated>();
             // We do not reuse the order id.
             Assert.NotEqual(orderId, @event.SourceId);
             Assert.Equal(orderId, @event.OrderId);
             Assert.Equal(15, @event.Seats.Count());
+
+            var correlationId = sut.Events.Single(e => e.Item1 is SeatAssignmentsCreated).Item2;
+            Assert.Null(correlationId);
         }
     }
 
@@ -122,6 +126,9 @@ namespace Registration.Tests.SeatAssignmentsFixture
             Assert.Equal(seatType, @event.SeatType);
             Assert.Equal(assigmentsId, @event.SourceId);
             Assert.Equal(command.Attendee, @event.Attendee);
+
+            var correlationId = sut.Events.Single(e => e.Item1 is SeatAssigned).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
@@ -138,6 +145,9 @@ namespace Registration.Tests.SeatAssignmentsFixture
 
             Assert.Equal(0, @event.Position);
             Assert.Equal(assigmentsId, @event.SourceId);
+
+            var correlationId = sut.Events.Single(e => e.Item1 is SeatUnassigned).Item2;
+            Assert.Equal(command.Id.ToString(), correlationId);
         }
 
         [Fact]
@@ -174,12 +184,16 @@ namespace Registration.Tests.SeatAssignmentsFixture
             Assert.Equal(0, unassign.Position);
             Assert.Equal(assigmentsId, unassign.SourceId);
 
+            Assert.Equal(command.Id.ToString(), sut.Events.Single(e => e.Item1 is SeatUnassigned).Item2);
+
             var assign = sut.ThenHasOne<SeatAssigned>();
 
             Assert.Equal(0, assign.Position);
             Assert.Equal(seatType, assign.SeatType);
             Assert.Equal(assigmentsId, assign.SourceId);
             Assert.Equal(command.Attendee, assign.Attendee);
+
+            Assert.Equal(command.Id.ToString(), sut.Events.Single(e => e.Item1 is SeatAssigned).Item2);
         }
 
         [Fact]
@@ -203,6 +217,8 @@ namespace Registration.Tests.SeatAssignmentsFixture
             Assert.Equal(0, assign.Position);
             Assert.Equal(assigmentsId, assign.SourceId);
             Assert.Equal(command.Attendee, assign.Attendee);
+
+            Assert.Equal(command.Id.ToString(), sut.Events.Single(e => e.Item1 is SeatAssignmentUpdated).Item2);
         }
     }
 }
