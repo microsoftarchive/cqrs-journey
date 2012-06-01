@@ -79,13 +79,40 @@ namespace Conference.Web.Public.Controllers
         [HttpPost]
         public ActionResult StartRegistration(RegisterToConference command, int orderVersion)
         {
-            // TODO: validate that there are still seats available at this time.
+            var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(command.OrderId) : null;
+            var viewModel = existingOrder == null ? this.CreateViewModel() : this.CreateViewModel(existingOrder);
+            viewModel.OrderId = command.OrderId;
+            
             if (!ModelState.IsValid)
             {
-                return this.ShowRegistrationEditor(command.OrderId, orderVersion);
+                return View(viewModel);
             }
 
-            // TODO: validate incoming seat types correspond to the conference.
+            // checks that there are still enough available seats, and the seat type IDs submitted ar valid.
+            ModelState.Clear();
+            bool needsExtraValidation = false;
+            foreach (var seat in command.Seats)
+            {
+                var modelItem = viewModel.Items.FirstOrDefault(x => x.SeatType.Id == seat.SeatType);
+                if (modelItem != null)
+                {
+                    if (seat.Quantity > modelItem.MaxSelectionQuantity)
+                    {
+                        modelItem.PartiallyFulfilled = needsExtraValidation = true;
+                        modelItem.OrderItem.ReservedSeats = modelItem.MaxSelectionQuantity;
+                    }
+                }
+                else
+                {
+                    // seat type no longer exists for conference.
+                    needsExtraValidation = true;
+                }
+            }
+
+            if (needsExtraValidation)
+            {
+                return View(viewModel);
+            }
 
             command.ConferenceId = this.ConferenceAlias.Id;
             this.commandBus.Send(command);
@@ -93,16 +120,6 @@ namespace Conference.Web.Public.Controllers
             return RedirectToAction(
                 "SpecifyRegistrantAndPaymentDetails",
                 new { conferenceCode = this.ConferenceCode, orderId = command.OrderId, orderVersion = orderVersion });
-        }
-
-        private ActionResult ShowRegistrationEditor(Guid orderId, int orderVersion)
-        {
-            OrderViewModel viewModel = null;
-            var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(orderId) : null;
-
-            viewModel = existingOrder == null ? this.CreateViewModel() : this.CreateViewModel(existingOrder);
-
-            return View(viewModel);
         }
 
         [HttpGet]
