@@ -45,7 +45,7 @@ namespace Conference.Specflow.Support
         {
             string conferenceSlug = Slug.CreateNew().Value;
             var svc = new ConferenceService(BuildEventBus());
-            var conference = BuildConferenceInfo(table, conferenceSlug);
+            var conference = BuildConferenceInfoWithSeats(table, conferenceSlug);
             svc.CreateConference(conference);
             svc.Publish(conference.Id);
 
@@ -131,7 +131,46 @@ namespace Conference.Specflow.Support
             return seatReservation.ReservationId;
         }
 
-        private static ConferenceInfo BuildConferenceInfo(Table seats, string conferenceSlug)
+        public static ConferenceInfo BuildConferenceInfo(Table conference)
+        {
+            string conferenceSlug = Slug.CreateNew().Value;
+            return new ConferenceInfo
+            {
+                Description = conference.Rows[0]["Description"],
+                Name = conferenceSlug,
+                Slug = conferenceSlug,
+                Location = Constants.UI.Location,
+                Tagline = Constants.UI.TagLine,
+                TwitterSearch = Constants.UI.TwitterSearch,
+                StartDate = DateTime.Parse(conference.Rows[0]["Start"]),
+                EndDate = DateTime.Parse(conference.Rows[0]["End"]),
+                OwnerName = conference.Rows[0]["Name"],
+                OwnerEmail = conference.Rows[0]["Email"],
+                IsPublished = false,
+                WasEverPublished = false
+            };
+        }
+
+        public static ICollection<SeatType> CreateSeats(Table seats)
+        {
+            var createdSeats = new List<SeatType>();
+
+            foreach (var row in seats.Rows)
+            {
+                var seat = new SeatType()
+                {
+                    Id = Guid.NewGuid(),
+                    Description = row["seat type"],
+                    Name = row["seat type"],
+                    Price = Convert.ToDecimal(row["rate"].Replace("$", "")),
+                    Quantity = Convert.ToInt32(row["quota"])
+                };
+                createdSeats.Add(seat);
+            }
+
+            return createdSeats;
+        }
+        public static ConferenceInfo BuildConferenceInfoWithSeats(Table seats, string conferenceSlug)
         {
             var conference = new ConferenceInfo()
             {
@@ -149,18 +188,7 @@ namespace Conference.Specflow.Support
                 WasEverPublished = true
             };
 
-            foreach (var row in seats.Rows)
-            {
-                var seat = new SeatType()
-                {
-                    Id = Guid.NewGuid(),
-                    Description = row["seat type"],
-                    Name = row["seat type"],
-                    Price = Convert.ToDecimal(row["rate"].Replace("$", "")),
-                    Quantity = Convert.ToInt32(row["quota"])
-                };
-                conference.Seats.Add(seat);
-            }
+            conference.Seats.AddRange(CreateSeats(seats));
 
             return conference;
         }

@@ -211,6 +211,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steps\ConferenceConfigurationSteps.cs" />
+    <Compile Include="Steps\ConferenceConfigurationDomainSteps.cs" />
     <Compile Include="Steps\DiscountsConfigurationSteps.cs" />
     <Compile Include="Steps\SeatTypesConfigurationSteps.cs" />
     <Compile Include="Steps\SeatAssignmentSteps.cs" />
@@ -341,6 +342,10 @@
     <ProjectReference Include="..\..\Conference\Conference.Common\Conference.Common.csproj">
       <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
       <Name>Conference.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Conference.Contracts\Conference.Contracts.csproj">
+      <Project>{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA}</Project>
+      <Name>Conference.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Conference\Conference.Web.Public\Conference.Web.Public.csproj">
       <Project>{32E3E4D7-D887-4BE1-A84F-130BF80533D0}</Project>

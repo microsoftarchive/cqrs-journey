@@ -49,6 +49,18 @@ Scenario: Many Registrants try to reserve the same Order Item and not all of the
 
 
 #This scenario with hight volume is for Sql build (DebugLocal)  
-#Group Registrant scenario
+#Group Registrant scenario with some partial and some full reservations
 @SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly
 Scenario: Many Registrants try to reserve many same Order Items and some of them get a partial reservation
+	Given the list of the available Order Items for the CQRS summit 2012 conference
+	| seat type         | rate | quota |
+	| CQRS Workshop     | $500 | 200   |
+	| General admission | $199 | 100   |
+	When 200 Registrants selects these Order Items
+	| seat type         | quantity |
+	| CQRS Workshop     | 1        |
+	| General admission | 2        |
+	# event: OrderReservationCompleted 
+	Then only 50 events for completing the Order reservation are emitted
+	# event: OrderPartiallyReserved 
+	And 150 events for partially completing the order are emitted

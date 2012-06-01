@@ -32,9 +32,12 @@ namespace Conference.Specflow.Support
 
         public static class UI
         {
+#if LOCAL
             // Max time for wait on a screen to show up
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10); 
+#else
             public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30); 
-            
+#endif
             public const string NextStepId = "Next";
             public const string FindId = "find";
             public const string ProceedToSeatAssignementId = "Proceed to Seat Assignment";
@@ -56,8 +59,8 @@ namespace Conference.Specflow.Support
             public const string EditConferenceId = "Edit";
             public const string UpdateConferenceId = "Save";
             public const string ConferenceManagementAccessId = "Login";
-            public const string ConferenceManagementSeatTypesId = "Seat types";
-            public const string ConferenceManagementCreateNewSeatTypesId = "Add new seat type";
+            public const string ConferenceManagementSeatTypesId = "Seat Types";
+            public const string ConferenceManagementCreateNewSeatTypesId = "Create New";
         }
 
         public static string RegistrationPage(string conferenceSlug)
