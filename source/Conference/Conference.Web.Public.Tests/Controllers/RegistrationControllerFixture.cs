@@ -99,7 +99,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_specifying_seats_for_a_valid_registration_then_places_registration_and_redirects_to_action()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) { AvailableQuantity = 50 } };
 
             // Arrange
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
@@ -187,7 +187,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
         public void when_displaying_payment_and_registration_information_for_a_fully_reserved_order_then_shows_input_page()
         {
             var seatTypeId = Guid.NewGuid();
-            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) };
+            var seats = new[] { new SeatType(seatTypeId, conferenceAlias.Id, "Test Seat", "Description", 10, 50) { AvailableQuantity = 50 } };
 
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
@@ -203,7 +203,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                     });
             Mock.Get(this.orderDao)
                 .Setup(r => r.FindPricedOrder(orderId))
-                .Returns(new PricedOrder { OrderId = orderId, OrderVersion = orderVersion});
+                .Returns(new PricedOrder { OrderId = orderId, OrderVersion = orderVersion, ReservationExpirationDate = DateTime.UtcNow.AddMinutes(1) });
 
             var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
 

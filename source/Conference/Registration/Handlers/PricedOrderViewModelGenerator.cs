@@ -30,7 +30,8 @@ namespace Registration.Handlers
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatCreated>,
         IEventHandler<SeatUpdated>,
-        IEventHandler<OrderPlaced>
+        IEventHandler<OrderPlaced>,
+        IEventHandler<OrderConfirmed>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
@@ -122,6 +123,20 @@ namespace Registration.Handlers
                 dto.OrderVersion = @event.Version;
 
                 context.SaveChanges();
+            }
+        }
+
+        public void Handle(OrderConfirmed @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrder>(@event.SourceId);
+                if (WasNotAlreadyHandled(dto, @event.Version))
+                {
+                    dto.ReservationExpirationDate = null;
+                    dto.OrderVersion = @event.Version;
+                    context.Save(dto);
+                }
             }
         }
 

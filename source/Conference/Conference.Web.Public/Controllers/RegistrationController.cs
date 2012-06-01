@@ -132,7 +132,12 @@ namespace Conference.Web.Public.Controllers
                 return View("PricedOrderUnknown");
             }
 
-            if (pricedOrder.ReservationExpirationDate.HasValue && pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
+            if (!pricedOrder.ReservationExpirationDate.HasValue)
+            {
+                return View("ShowCompletedOrder");
+            }
+
+            if (pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
             {
                 return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
             }

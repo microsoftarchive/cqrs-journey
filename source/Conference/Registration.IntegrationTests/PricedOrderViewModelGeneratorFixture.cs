@@ -155,7 +155,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                     Version = 8,
                 });
 
-                var dto = this.dao.FindPricedOrder(orderId);
+                this.dto = this.dao.FindPricedOrder(orderId);
 
                 Assert.Equal(1, dto.Lines.Count);
                 Assert.Equal(20, dto.Lines[0].LineTotal);
@@ -171,7 +171,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             {
                 this.sut.Handle(new OrderExpired { SourceId = orderId });
 
-                var dto = this.dao.FindPricedOrder(orderId);
+                this.dto = this.dao.FindPricedOrder(orderId);
 
                 Assert.Null(dto);
             }
@@ -186,10 +186,21 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                                         OrderId = orderId,
                                     });
 
-                var dto = this.dao.FindPricedOrder(orderId);
+                this.dto = this.dao.FindPricedOrder(orderId);
 
                 Assert.Equal(assignmentsId, dto.AssignmentsId);
                 Assert.Equal(4, dto.OrderVersion);
+            }
+
+            [Fact]
+            public void when_confirmed_then_removes_expiration()
+            {
+                this.sut.Handle(new OrderConfirmed { SourceId = orderId, Version = 15 });
+
+                this.dto = this.dao.FindPricedOrder(orderId);
+
+                Assert.Null(dto.ReservationExpirationDate);
+                Assert.Equal(15, dto.OrderVersion);
             }
         }
 
