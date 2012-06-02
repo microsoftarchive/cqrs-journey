@@ -72,6 +72,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -240,6 +241,11 @@
     <Compile Include="Support\EventSourceHelper.cs" />
     <Compile Include="Support\IEExtension.cs" />
     <Compile Include="Support\MessageLogHelper.cs" />
+    <Compile Include="Support\MessageLog\AzureCommandLogReader.cs" />
+    <Compile Include="Support\MessageLog\ICommandLogReader.cs" />
+    <Compile Include="Support\MessageLog\AzureQueryCriteriaExtensions.cs" />
+    <Compile Include="Support\MessageLog\SqlQueryCriteriaExtensions.cs" />
+    <Compile Include="Support\MessageLog\SqlCommandMessageLog.cs" />
     <Compile Include="Support\RegistrationHelper.cs" />
     <Compile Include="Support\ScenarioContextExtension.cs" />
     <Compile Include="Support\Slug.cs" />

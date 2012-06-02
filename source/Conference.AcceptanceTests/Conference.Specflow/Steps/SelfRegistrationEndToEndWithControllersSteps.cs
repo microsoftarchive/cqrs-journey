@@ -28,7 +28,6 @@ namespace Conference.Specflow.Steps
 {
     [Binding]
     [Scope(Tag = "SelfRegistrationEndToEndWithControllers")]
-    [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
     public class SelfRegistrationEndToEndWithControllersSteps : IDisposable
     {
         private ConferenceInfo conferenceInfo;
@@ -40,6 +39,8 @@ namespace Conference.Specflow.Steps
         private bool disposed;
 
         [Given(@"the selected Order Items")]
+        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
+        [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
         public void GivenTheSelectedOrderItems(Table table)
         {
             conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();

@@ -84,14 +84,10 @@ namespace Conference.Specflow.Steps
     [Scope(Tag = "@SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly")]
     public class SelfRegistrationReservationWithConcurrencyDomainStepsDebugLocal
     {
-        private readonly SelfRegistrationReservationWithConcurrencyDomainSteps steps;
-
-        public SelfRegistrationReservationWithConcurrencyDomainStepsDebugLocal()
-        {
 #if LOCAL
-            steps = new SelfRegistrationReservationWithConcurrencyDomainSteps();
+        private readonly SelfRegistrationReservationWithConcurrencyDomainSteps steps =
+            new SelfRegistrationReservationWithConcurrencyDomainSteps();
 #endif
-        }
 
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference")]
         public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(Table table)

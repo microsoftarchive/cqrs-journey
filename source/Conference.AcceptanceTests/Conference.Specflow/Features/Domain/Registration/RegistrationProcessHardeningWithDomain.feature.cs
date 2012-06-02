@@ -18,7 +18,7 @@ namespace Conference.Specflow.Features.Domain.Registration
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class TheRegistrationProcessShouldBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature : Xunit.IUseFixture<TheRegistrationProcessShouldBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData>, System.IDisposable
+    public partial class HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature : Xunit.IUseFixture<HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,7 +26,7 @@ namespace Conference.Specflow.Features.Domain.Registration
 #line 1 "RegistrationProcessHardeningWithDomain.feature"
 #line hidden
         
-        public TheRegistrationProcessShouldBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature()
+        public HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature()
         {
             this.TestInitialize();
         }
@@ -34,8 +34,8 @@ namespace Conference.Specflow.Features.Domain.Registration
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "The RegistrationProcess should be able to recover from unexpected conditions and " +
-                    "failures", "There are two general issues to consider\r\nMessages are handled successfully but t" +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+                    "ions and failures", "There are two general issues to consider\r\nMessages are handled successfully but t" +
                     "hey cannot be completed so they are handled again and\r\nthe process state is stor" +
                     "ed but the commands it generates fail to be published", ProgrammingLanguage.CSharp, new string[] {
                         "RegistrationProcessHardeningWithDomain",
@@ -68,26 +68,9 @@ namespace Conference.Specflow.Features.Domain.Registration
             testRunner.CollectScenarioErrors();
         }
         
-        public virtual void SetFixture(TheRegistrationProcessShouldBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData fixtureData)
+        public virtual void FeatureBackground()
         {
-        }
-        
-        void System.IDisposable.Dispose()
-        {
-            this.ScenarioTearDown();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "The RegistrationProcess should be able to recover from unexpected conditions and " +
-            "failures")]
-        [Xunit.TraitAttribute("Description", "Crashes or is unable to access storage after receiving an event and before it sen" +
-            "ds any commands")]
-        public virtual void CrashesOrIsUnableToAccessStorageAfterReceivingAnEventAndBeforeItSendsAnyCommands()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Crashes or is unable to access storage after receiving an event and before it sen" +
-                    "ds any commands", ((string[])(null)));
-#line 29
-this.ScenarioSetup(scenarioInfo);
+#line 28
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -105,7 +88,7 @@ this.ScenarioSetup(scenarioInfo);
                         "Additional cocktail party",
                         "$50",
                         "100"});
-#line 30
+#line 29
 testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -117,24 +100,60 @@ testRunner.Given("the list of the available Order Items for the CQRS summit 2012
             table2.AddRow(new string[] {
                         "Additional cocktail party",
                         "1"});
-#line 35
+#line 34
 testRunner.And("the selected Order Items", ((string)(null)), table2);
-#line 39
-testRunner.When("the Registrant proceed to make the Reservation");
-#line 41
-testRunner.Then("the command to register the selected Order Items is received");
+#line hidden
+        }
+        
+        public virtual void SetFixture(HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData fixtureData)
+        {
+        }
+        
+        void System.IDisposable.Dispose()
+        {
+            this.ScenarioTearDown();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+            "ions and failures")]
+        [Xunit.TraitAttribute("Description", "The Command to Register the order is lost after a crash")]
+        public virtual void TheCommandToRegisterTheOrderIsLostAfterACrash()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("The Command to Register the order is lost after a crash", ((string[])(null)));
+#line 42
+this.ScenarioSetup(scenarioInfo);
+#line 28
+this.FeatureBackground();
 #line 43
+testRunner.When("the command to register the selected Order Items is lost");
+#line 44
 testRunner.And("the event for Order placed is emitted");
-#line 45
-testRunner.And("the command for reserving the selected Seats is received");
-#line 47
+#line 46
+testRunner.Then("the command for reserving the selected Seats is received");
+#line 48
 testRunner.And("the event for reserving the selected Seats is emitted");
-#line 49
-testRunner.And("the command for marking the selected Seats as reserved is received");
-#line 51
-testRunner.And("the event for completing the Order reservation is emitted");
-#line 53
-testRunner.And("the event for calculating the total of $249 is emitted");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+            "ions and failures")]
+        [Xunit.TraitAttribute("Description", "Times-out afther the reservation is completed")]
+        public virtual void Times_OutAftherTheReservationIsCompleted()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Times-out afther the reservation is completed", ((string[])(null)));
+#line 54
+this.ScenarioSetup(scenarioInfo);
+#line 28
+this.FeatureBackground();
+#line 56
+testRunner.When("the event for Order placed is emitted with a short expiration time");
+#line 58
+testRunner.Then("the command for cancelling the reservation is received");
+#line 60
+testRunner.And("the command for rejecting the order is received");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -146,12 +165,12 @@ testRunner.And("the event for calculating the total of $249 is emitted");
             
             public FixtureData()
             {
-                TheRegistrationProcessShouldBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureSetup();
+                HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                TheRegistrationProcessShouldBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureTearDown();
+                HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureTearDown();
             }
         }
     }

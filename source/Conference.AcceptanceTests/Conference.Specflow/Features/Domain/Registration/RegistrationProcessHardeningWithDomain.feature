@@ -13,20 +13,19 @@
 
 @RegistrationProcessHardeningWithDomain
 @NoWatiN
-Feature: The RegistrationProcess should be able to recover from unexpected conditions and failures
+Feature: Hardening the RegistrationProcess so it be able to recover from unexpected conditions and failures
 	There are two general issues to consider
 	Messages are handled successfully but they cannot be completed so they are handled again and
 	the process state is stored but the commands it generates fail to be published
 
 #The RegistrationProcess should be able to recover from the following:
-#- Crashes or is unable to access storage after receiving an event and before it sends any commands.
 #- Crashes or is unable to access storage after saving its own state but before sending the commands.
+#- Crashes or is unable to access storage after receiving an event and before it sends any commands.
 #- Fails to mark an event as processed after it has finished doing all of its work.
 #- Times-out because it is expecting a timely response from any of the commands it has sent, but for some reason the recipients of those commands fail to respond.
 #- Receives an unexpected event (i.e. PaymentCompleted after the order has been expired).
 
-
-Scenario: Crashes or is unable to access storage after receiving an event and before it sends any commands
+Background: 
 Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
@@ -36,18 +35,27 @@ And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-When the Registrant proceed to make the Reservation
-	# command:RegisterToConference
-Then the command to register the selected Order Items is received 
-	# event: OrderPlaced
+
+
+
+#- Crashes or is unable to access storage after receiving an event and before it sends any commands.
+Scenario: The Command to Register the order is lost after a crash
+When the command to register the selected Order Items is lost 
 And the event for Order placed is emitted
 	# command: MakeSeatReservation
-And the command for reserving the selected Seats is received
+Then the command for reserving the selected Seats is received
 	# event: SeatsReserved
-And the event for reserving the selected Seats is emitted
-	# command: MarkSeatsAsReserved
-And the command for marking the selected Seats as reserved is received
-	# event: OrderReservationCompleted 
-And the event for completing the Order reservation is emitted
-	# event: OrderTotalsCalculated
-And the event for calculating the total of $249 is emitted
+And  the event for reserving the selected Seats is emitted
+#No more events or commands are emitted
+
+
+
+#- Times-out because it is expecting a timely response from any of the commands it has sent, but for some reason the recipients of those commands fail to respond.
+Scenario: Times-out afther the reservation is completed
+	# event: OrderPlaced (1 sec expiration)
+When the event for Order placed is emitted with a short expiration time
+	# command: CancelSeatReservation
+Then the command for cancelling the reservation is received
+	# command: RejectOrder
+And the command for rejecting the order is received
+
