@@ -249,6 +249,7 @@
     <Compile Include="Support\RegistrationHelper.cs" />
     <Compile Include="Support\ScenarioContextExtension.cs" />
     <Compile Include="Support\Slug.cs" />
+    <Compile Include="Support\TestEvents.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
@@ -403,6 +404,10 @@
     <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
       <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
       <Name>Registration.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WorkerRoleCommandProcessor\WorkerRoleCommandProcessor.csproj">
+      <Project>{8D856E0A-17CC-42FC-9F18-32D20EF0C53A}</Project>
+      <Name>WorkerRoleCommandProcessor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

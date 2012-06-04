@@ -59,13 +59,13 @@ namespace Conference.Specflow.Steps
         [Then(@"only (.*) events for completing the Order reservation are emitted")]
         public void ThenOnlySomeEventsForCompletingTheOrderReservationAreEmitted(int eventCount)
         {
-            Assert.True(MessageLogHelper.CollectEvents<OrderReservationCompleted>(orderIds, eventCount));
+            Assert.True(MessageLogHelper.CollectEvents<OrderReservationCompleted>(orderIds, eventCount), "Timeout for Collecting OrderReservationCompleted Events");
         }
 
         [Then(@"(.*) events for partially completing the order are emitted")]
         public void ThenSomeEventsForPartiallyCompletingTheOrderAreEmitted(int eventCount)
         {
-            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderIds, eventCount));
+            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderIds, eventCount), "Timeout for Collecting OrderPartiallyReserved Events");
         }
 
         private string CreateAndSendRegisterToConference(Guid conferenceId, IEnumerable<SeatQuantity> seats)

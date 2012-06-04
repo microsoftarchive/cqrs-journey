@@ -44,7 +44,6 @@ Background:
 	| General admission         |          | Sold out |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
-	And the countdown started
 
 
 #Initial state	: 3 selected and two get reserved
@@ -62,10 +61,10 @@ Background:
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
-	| General admission         | 1        |          |
+	| General admission         | 0        |          |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
-	And the countdown started
+	#And the countdown started
 
 
 #Initial state	: 3 selected and 1 get partially reserved and 1 get all reserved
@@ -83,9 +82,13 @@ Background:
 	And the Registrant proceed to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
-	| General admission         | 1        |          |
-	| CQRS Workshop             | 1        |          |
+	| General admission         | 0        |          |
+	| CQRS Workshop             | 0        |          |
 	| Additional cocktail party |          | Sold out |
+	And the selected Order Items
+	| seat type         | quantity |
+	| General admission | 1        |
+	| CQRS Workshop     | 1        |
 	And the total should read $699
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items

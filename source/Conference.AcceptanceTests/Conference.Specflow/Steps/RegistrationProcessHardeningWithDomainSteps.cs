@@ -100,6 +100,9 @@ namespace Conference.Specflow.Steps
             };
 
             eventBus.Publish(orderPlaced);
+
+            // Wait for event processing
+            Thread.Sleep(Constants.WaitTimeout);
         }
 
         [Then(@"the command for cancelling the reservation is received")]

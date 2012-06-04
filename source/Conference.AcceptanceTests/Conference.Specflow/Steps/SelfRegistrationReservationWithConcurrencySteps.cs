@@ -89,8 +89,8 @@ namespace Conference.Specflow.Steps
         public void ThenOnlySomeRegistrantsGetConfirmedReservationsForTheSelectedOrderItems(int registrants)
         {
             int reserved = results.Count(s => s == null);
-            Assert.True(registrants == reserved, 
-                "Only " + reserved +  " got reserved\n\r" + 
+            Assert.True(registrants == reserved,
+                "Reservations expected: " + registrants + " and got reserved: " + reserved + "\n\r" + 
                 string.Join("\r\n", results.Where(s => s != null).ToArray()));
         }
     }
