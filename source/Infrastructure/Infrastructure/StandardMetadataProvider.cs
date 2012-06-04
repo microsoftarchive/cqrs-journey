@@ -52,7 +52,6 @@ namespace Infrastructure
             if (c != null)
             {
                 metadata[StandardMetadata.Kind] = StandardMetadata.CommandKind;
-                metadata[StandardMetadata.SourceId] = c.Id.ToString();
             }
 
             // NOTE: here we may add an "Area" or "Subsystem" or 

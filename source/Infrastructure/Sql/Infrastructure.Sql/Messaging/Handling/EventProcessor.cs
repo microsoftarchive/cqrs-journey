@@ -39,7 +39,8 @@ namespace Infrastructure.Sql.Messaging.Handling
 
         protected override void ProcessMessage(object payload, string correlationId)
         {
-            this.messageDispatcher.DispatchMessage((IEvent)payload, null, correlationId);
+            var @event = (IEvent)payload;
+            this.messageDispatcher.DispatchMessage(@event, null, correlationId, "");
         }
     }
 }

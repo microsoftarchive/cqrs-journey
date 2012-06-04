@@ -178,15 +178,15 @@ namespace Infrastructure.Azure.Messaging.Handling
             try
             {
                 var messageId = message.MessageId;
-                if (!string.IsNullOrEmpty(messageId))
-                {
-                    return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0})", messageId);
-                }
-
                 var sourceId = message.Properties.TryGetValue(StandardMetadata.SourceId) as string;
+
                 if (!string.IsNullOrEmpty(sourceId))
                 {
-                    return string.Format(CultureInfo.InvariantCulture, " (with SourceId: {0})", sourceId);
+                    return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0} with SourceId: {1})", messageId, sourceId);
+                }
+                else
+                {
+                    return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0})", messageId);
                 }
             }
             catch (ObjectDisposedException)

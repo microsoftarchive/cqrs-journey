@@ -25,12 +25,12 @@ namespace Infrastructure.Messaging.Handling
     public class MessageDispatcher
     {
         private Dictionary<Type, List<Tuple<Type, Action<ReceiveEnvelope>>>> handlersByEventType;
-        private Dictionary<Type, Action<IEvent, string, string>> dispatchersByEventType;
+        private Dictionary<Type, Action<IEvent, string, string, string>> dispatchersByEventType;
 
         public MessageDispatcher()
         {
             this.handlersByEventType = new Dictionary<Type, List<Tuple<Type, Action<ReceiveEnvelope>>>>();
-            this.dispatchersByEventType = new Dictionary<Type, Action<IEvent, string, string>>();
+            this.dispatchersByEventType = new Dictionary<Type, Action<IEvent, string, string, string>>();
         }
 
         public MessageDispatcher(IEnumerable<IEventHandler> handlers)
@@ -75,25 +75,19 @@ namespace Infrastructure.Messaging.Handling
 
         public void DispatchMessage(IEvent @event)
         {
-            this.DispatchMessage(@event, null, null);
+            this.DispatchMessage(@event, null, null, "");
         }
 
-        public void DispatchMessage(IEvent @event, string messageId, string correlationId)
+        public void DispatchMessage(IEvent @event, string messageId, string correlationId, string traceIdentifier)
         {
-            Trace.WriteLine(BuildMessageDescription(@event));
-
-            Action<IEvent, string, string> dispatch;
+            Action<IEvent, string, string, string> dispatch;
             if (this.dispatchersByEventType.TryGetValue(@event.GetType(), out dispatch))
             {
-                dispatch(@event, messageId, correlationId);
-            }
-            else
-            {
-                Trace.WriteLine("-- Not handled");
+                dispatch(@event, messageId, correlationId, traceIdentifier);
             }
         }
 
-        private void DoDispatchMessage<T>(T @event, string messageId, string correlationId)
+        private void DoDispatchMessage<T>(T @event, string messageId, string correlationId, string traceIdentifier)
             where T : IEvent
         {
             var envelope = ReceiveEnvelope.Create(@event, messageId, correlationId);
@@ -103,7 +97,7 @@ namespace Infrastructure.Messaging.Handling
             {
                 foreach (var handler in handlers)
                 {
-                    Trace.WriteLine("-- Handled by " + handler.Item1.FullName);
+                    Trace.WriteLine("-- Handled by " + handler.Item1.FullName + traceIdentifier);
                     handler.Item2(envelope);
                 }
             }
@@ -162,11 +156,12 @@ namespace Infrastructure.Messaging.Handling
             return (Action<ReceiveEnvelope>)invocationExpression.Compile();
         }
 
-        private Action<IEvent, string, string> BuildDispatchInvocation(Type eventType)
+        private Action<IEvent, string, string, string> BuildDispatchInvocation(Type eventType)
         {
             var eventParameter = Expression.Parameter(typeof(IEvent));
             var messageIdParameter = Expression.Parameter(typeof(string));
             var correlationIdParameter = Expression.Parameter(typeof(string));
+            var traceIdParameter = Expression.Parameter(typeof(string));
 
             var dispatchExpression =
                 Expression.Lambda(
@@ -176,35 +171,14 @@ namespace Infrastructure.Messaging.Handling
                             this.GetType().GetMethod("DoDispatchMessage", BindingFlags.Instance | BindingFlags.NonPublic).MakeGenericMethod(eventType),
                             Expression.Convert(eventParameter, eventType),
                             messageIdParameter,
-                            correlationIdParameter)),
+                            correlationIdParameter,
+                            traceIdParameter)),
                     eventParameter,
                     messageIdParameter,
-                    correlationIdParameter);
+                    correlationIdParameter,
+                    traceIdParameter);
 
-            return (Action<IEvent, string, string>)dispatchExpression.Compile();
-        }
-
-        private string BuildMessageDescription(IEvent @event)
-        {
-            var versionedEvent = @event as IVersionedEvent;
-
-            if (versionedEvent != null)
-            {
-                return string.Format(
-                    CultureInfo.CurrentCulture,
-                    "Processing event of type {0} for source id {1} with version {2}.",
-                    versionedEvent.GetType().Name,
-                    versionedEvent.SourceId,
-                    versionedEvent.Version);
-            }
-            else
-            {
-                return string.Format(
-                    CultureInfo.CurrentCulture,
-                    "Processing event of type {0} for source id {1}.",
-                    @event.GetType().Name,
-                    @event.SourceId);
-            }
+            return (Action<IEvent, string, string, string>)dispatchExpression.Compile();
         }
     }
 }

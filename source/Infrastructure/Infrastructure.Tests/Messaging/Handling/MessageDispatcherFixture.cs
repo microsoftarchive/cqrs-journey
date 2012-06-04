@@ -33,7 +33,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventC();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
         }
     }
 
@@ -57,7 +57,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventA();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
 
             this.handlerMock.As<IEventHandler<EventA>>().Verify(h => h.Handle(@event), Times.Once());
         }
@@ -67,7 +67,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventC();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
         }
     }
 
@@ -91,7 +91,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventA();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
 
             this.handlerMock.As<IEnvelopedEventHandler<EventA>>()
                 .Verify(
@@ -104,7 +104,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventC();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
         }
     }
 
@@ -135,7 +135,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventA();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
 
             this.handler1Mock.As<IEnvelopedEventHandler<EventA>>()
                 .Verify(
@@ -149,7 +149,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventB();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
 
             this.handler1Mock.As<IEventHandler<EventB>>().Verify(h => h.Handle(@event), Times.Once());
         }
@@ -159,7 +159,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
         {
             var @event = new EventC();
 
-            this.sut.DispatchMessage(@event, "message", "correlation");
+            this.sut.DispatchMessage(@event, "message", "correlation", "");
         }
     }
 
