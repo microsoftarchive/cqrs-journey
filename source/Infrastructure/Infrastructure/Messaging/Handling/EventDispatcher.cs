@@ -22,18 +22,18 @@ namespace Infrastructure.Messaging.Handling
     using System.Reflection;
     using Infrastructure.EventSourcing;
 
-    public class MessageDispatcher
+    public class EventDispatcher
     {
         private Dictionary<Type, List<Tuple<Type, Action<ReceiveEnvelope>>>> handlersByEventType;
         private Dictionary<Type, Action<IEvent, string, string, string>> dispatchersByEventType;
 
-        public MessageDispatcher()
+        public EventDispatcher()
         {
             this.handlersByEventType = new Dictionary<Type, List<Tuple<Type, Action<ReceiveEnvelope>>>>();
             this.dispatchersByEventType = new Dictionary<Type, Action<IEvent, string, string, string>>();
         }
 
-        public MessageDispatcher(IEnumerable<IEventHandler> handlers)
+        public EventDispatcher(IEnumerable<IEventHandler> handlers)
             : this()
         {
             foreach (var handler in handlers)

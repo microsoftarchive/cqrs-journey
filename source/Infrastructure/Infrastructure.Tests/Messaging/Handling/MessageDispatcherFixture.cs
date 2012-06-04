@@ -21,11 +21,11 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
 
     public class given_empty_dispatcher
     {
-        private MessageDispatcher sut;
+        private EventDispatcher sut;
 
         public given_empty_dispatcher()
         {
-            this.sut = new MessageDispatcher();
+            this.sut = new EventDispatcher();
         }
 
         [Fact]
@@ -39,12 +39,12 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
 
     public class given_dispatcher_with_handler
     {
-        private MessageDispatcher sut;
+        private EventDispatcher sut;
         private Mock<IEventHandler> handlerMock;
 
         public given_dispatcher_with_handler()
         {
-            this.sut = new MessageDispatcher();
+            this.sut = new EventDispatcher();
 
             this.handlerMock = new Mock<IEventHandler>();
             this.handlerMock.As<IEventHandler<EventA>>();
@@ -73,12 +73,12 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
 
     public class given_dispatcher_with_handler_for_envelope
     {
-        private MessageDispatcher sut;
+        private EventDispatcher sut;
         private Mock<IEventHandler> handlerMock;
 
         public given_dispatcher_with_handler_for_envelope()
         {
-            this.sut = new MessageDispatcher();
+            this.sut = new EventDispatcher();
 
             this.handlerMock = new Mock<IEventHandler>();
             this.handlerMock.As<IEnvelopedEventHandler<EventA>>();
@@ -110,13 +110,13 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
 
     public class given_dispatcher_with_multiple_handlers
     {
-        private MessageDispatcher sut;
+        private EventDispatcher sut;
         private Mock<IEventHandler> handler1Mock;
         private Mock<IEventHandler> handler2Mock;
 
         public given_dispatcher_with_multiple_handlers()
         {
-            this.sut = new MessageDispatcher();
+            this.sut = new EventDispatcher();
 
             this.handler1Mock = new Mock<IEventHandler>();
             this.handler1Mock.As<IEnvelopedEventHandler<EventA>>();

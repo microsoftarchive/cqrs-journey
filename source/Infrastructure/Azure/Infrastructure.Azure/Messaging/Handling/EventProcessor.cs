@@ -26,12 +26,12 @@ namespace Infrastructure.Azure.Messaging.Handling
     // much sense to have this processor doing multi dispatch.
     public class EventProcessor : MessageProcessor, IEventHandlerRegistry
     {
-        private readonly MessageDispatcher eventDispatcher;
+        private readonly EventDispatcher eventDispatcher;
 
         public EventProcessor(IMessageReceiver receiver, ITextSerializer serializer)
             : base(receiver, serializer)
         {
-            this.eventDispatcher = new MessageDispatcher();
+            this.eventDispatcher = new EventDispatcher();
         }
 
         public void Register(IEventHandler eventHandler)

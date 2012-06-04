@@ -24,12 +24,12 @@ namespace Infrastructure.Sql.Messaging.Handling
     /// </summary>
     public class EventProcessor : MessageProcessor, IEventHandlerRegistry
     {
-        private MessageDispatcher messageDispatcher;
+        private EventDispatcher messageDispatcher;
 
         public EventProcessor(IMessageReceiver receiver, ITextSerializer serializer)
             : base(receiver, serializer)
         {
-            this.messageDispatcher = new MessageDispatcher();
+            this.messageDispatcher = new EventDispatcher();
         }
 
         public void Register(IEventHandler eventHandler)
