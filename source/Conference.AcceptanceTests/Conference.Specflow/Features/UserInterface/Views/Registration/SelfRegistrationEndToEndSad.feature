@@ -27,9 +27,6 @@ Background:
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-#	And the Promotional Codes
-#	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
-#	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
 
 Scenario: No selected Seat Type
@@ -54,11 +51,13 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 	| seat type                 | selected | message  |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
+	And the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 1        |
 	And these Order Items should be reserved
 	| seat type                        | quantity |
 	| General admission                | 1		  |
 	And the total should read $199
-	And the countdown started
 
 
 Scenario: Checkout:Registrant Invalid Details
@@ -103,14 +102,4 @@ Scenario: Partiall Seats allocation
 	| Additional cocktail party | 1        |
 
 
-# Next release
-@Ignore
-Scenario: Partial Promotional Code for none of the selected items
-	Given the selected Order Items
-	| seat type     | quantity |
-	| CQRS Workshop | 1        |
-	And the total amount should be of $500
-	When the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
-	And the total amount should be of $500
 

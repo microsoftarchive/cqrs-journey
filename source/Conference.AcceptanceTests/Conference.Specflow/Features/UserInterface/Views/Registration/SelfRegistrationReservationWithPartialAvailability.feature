@@ -44,7 +44,6 @@ Background:
 	| General admission         |          | Sold out |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
-	And the countdown started
 
 
 #Initial state	: 3 selected and two get reserved
@@ -62,10 +61,10 @@ Background:
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
-	| General admission         | 1        |          |
+	| General admission         | 0        |          |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
-	And the countdown started
+	#And the countdown started
 
 
 #Initial state	: 3 selected and 1 get partially reserved and 1 get all reserved
@@ -83,9 +82,13 @@ Background:
 	And the Registrant proceed to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
-	| General admission         | 1        |          |
-	| CQRS Workshop             | 1        |          |
+	| General admission         | 0        |          |
+	| CQRS Workshop             | 0        |          |
 	| Additional cocktail party |          | Sold out |
+	And the selected Order Items
+	| seat type         | quantity |
+	| General admission | 1        |
+	| CQRS Workshop     | 1        |
 	And the total should read $699
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
@@ -95,64 +98,3 @@ Background:
 		| CQRS Workshop     | 1        |
 	And the total should read $699
 	And the countdown started
-
-
-#Initial state	: 1 available, 2 waitlisted but only 2w selected
-#End state		: 2 waitlisted confirmed  
-#Next release
-@Ignore
-Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2 get confirmed	
-	Given the list of available Order Items selected by the Registrant
-	| seat type         | quantity |
-	| General admission | 0        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 1        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 1        |
-
-
-#Initial state	: 1 available, 2 waitlisted and only 1a selected
-#End state		: 1 reserved 
-#Next release
-@Ignore
-Scenario: 1 order item is available,  2 are waitlisted and 1 available is selected, then only 1 get reserved	
-	Given the list of available Order Items selected by the Registrant
-	| seat type         | quantity |
-	| General admission | 1        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                 | quantity |
-	| CQRS Workshop             | 0        |
-	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation					
-	Then these order items get reserved
-	| seat type         | quantity |
-	| General admission | 1        |
-
-
-#Initial state	: 1 available, 2 waitlisted and 1a & 1w selected
-#End state		: 1 reserved,  1 waitlisted confirmed  
-#Next release
-@Ignore
-Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
-	Given the list of available Order Items selected by the Registrant
-	| seat type         | quantity |
-	| General admission | 1        |
-	And the list of these Order Items offered to be waitlisted and selected by the Registrant
-	| seat type                 | quantity |
-	| CQRS Workshop             | 1        |
-	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
-	| seat type     | quantity |
-	| CQRS Workshop | 1        |
-	And these other order items get reserved
-	| seat type         | quantity |
-	| General admission | 1        |
-
-
-

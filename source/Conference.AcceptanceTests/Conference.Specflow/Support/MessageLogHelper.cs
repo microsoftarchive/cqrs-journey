@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Conference.Specflow.Support.MessageLog;
 using Infrastructure.MessageLog;
 using Infrastructure.Messaging;
 using Infrastructure.Serialization;
@@ -34,6 +35,7 @@ namespace Conference.Specflow.Support
     public static class MessageLogHelper
     {
         private static readonly IEventLogReader eventLog;
+        private static readonly ICommandLogReader commandLog;
 
         static MessageLogHelper()
         {
@@ -42,10 +44,12 @@ namespace Conference.Specflow.Support
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
             Database.SetInitializer<MessageLogDbContext>(null);
             eventLog = new SqlMessageLog("MessageLog", serializer, new StandardMetadataProvider());
+            commandLog = new SqlCommandMessageLog("MessageLog", serializer, new StandardMetadataProvider());
 #else
             var settings = InfrastructureSettings.Read("Settings.xml").MessageLog;
             var account = CloudStorageAccount.Parse(settings.ConnectionString);
             eventLog = new AzureEventLogReader(account, settings.TableName, serializer);
+            commandLog = new AzureCommandLogReader(account, settings.TableName, serializer);
 #endif
         }
 
@@ -61,16 +65,51 @@ namespace Conference.Specflow.Support
             return eventLog.Query(criteria).OfType<T>();
         }
 
+        public static IEnumerable<T> GetCommands<T>() where T : ICommand
+        {
+            var criteria = new QueryCriteria { FullNames = { typeof(T).FullName } };
+            return commandLog.Query(criteria).OfType<T>();
+        }
+
+        public static IEnumerable<T> GetCommands<T>(Guid sourceId) where T : ICommand
+        {
+            return GetCommands<T>(new[] { sourceId.ToString() });
+        }
+
+        public static IEnumerable<T> GetCommands<T>(ICollection<string> sourceIds) where T : ICommand
+        {
+            var criteria = new QueryCriteria { FullNames = { typeof(T).FullName } };
+            criteria.SourceIds.AddRange(sourceIds);
+            return commandLog.Query(criteria).OfType<T>();
+        }
+
         public static bool CollectEvents<T>(Guid sourceId, int count) where T : IEvent
         {
             return CollectEvents<T>(new[] { sourceId.ToString() }, count);
+        }
+
+        public static bool CollectCommands<T>(Guid sourceId, int count) where T : ICommand
+        {
+            return CollectCommands<T>(new[] { sourceId.ToString() }, count);
+        }
+
+        public static bool CollectCommands<T>(ICollection<string> sourceIds, int count) where T : ICommand
+        {
+            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+            int collected;
+            do
+            {
+                collected = GetCommands<T>(sourceIds).Count();
+                Thread.Sleep(100);
+            } while (collected != count && DateTime.Now < timeout);
+
+            return collected == count;
         }
 
         public static bool CollectEvents<T>(ICollection<string> sourceIds, int count) where T : IEvent
         {
             var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
             int collected;
-            
             do
             {
                 collected = GetEvents<T>(sourceIds).Count();

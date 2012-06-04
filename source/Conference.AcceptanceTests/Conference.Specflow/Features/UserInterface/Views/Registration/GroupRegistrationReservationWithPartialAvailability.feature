@@ -40,10 +40,9 @@ Background:
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
-	| General admission         |          | Sold out |
-	| CQRS Workshop             |          | Sold out |
-	| Additional cocktail party |          | Sold out |
-	And the countdown started
+	| General admission         | 0        | Sold out |
+	| CQRS Workshop             | 0        | Sold out |
+	| Additional cocktail party | 0        | Sold out |
 
 
 #Initial state	: 3 selected and two get unavailable
@@ -61,11 +60,13 @@ Background:
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message                                    |
-	| General admission         | 3        |                                            |
+	| General admission         | 0        |                                            |
 	| CQRS Workshop             | 10       | Could not reserve all the requested seats. |
-	| Additional cocktail party |          | Sold out                                   |
-	And the countdown started
-
+	| Additional cocktail party | 0        | Sold out                                   |
+	And the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 3        |
+	And the total should read $5597
 
 
 #Initial state	: 3 selected and 3 get partially unavailable (1 full)
@@ -84,9 +85,13 @@ Background:
 	And the Registrant proceed to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message                                    |
-	| General admission         |          | Sold out                                   |
+	| General admission         | 0        | Sold out                                   |
 	| CQRS Workshop             | 10       | Could not reserve all the requested seats. |
-	| Additional cocktail party | 9        |                                            |
+	| Additional cocktail party | 0        |                                            |    
+	And the selected Order Items	
+	| seat type                 | quantity |
+	| CQRS Workshop             | 10       |
+	| Additional cocktail party | 9        |
 	And the total should read $5450
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items

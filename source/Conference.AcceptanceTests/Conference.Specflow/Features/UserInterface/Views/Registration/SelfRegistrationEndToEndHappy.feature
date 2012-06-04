@@ -26,9 +26,6 @@ Background:
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-#	And the Promotional Codes
-#	| Promotional Code | Discount | Quota     | Scope                     | Cumulative |
-#	| COPRESENTER      | 10%      | Unlimited | Additional cocktail party | Exclusive  |
 
 
 Scenario: Make a reservation with the selected Order Items
@@ -89,12 +86,3 @@ Scenario: Allocate all purchased Seats
 	| Additional cocktail party | 1        |
 
 
-# Next release
-@Ignore
-Scenario: Make a reservation with the selected Order Items and a Promo Code
-	Given the Registrant apply the 'COPRESENTER' Promotional Code
-	And the 'COPRESENTER' Promo code should show a value of -$5
-	When the Registrant proceed to make the Reservation		
-	Then the Reservation is confirmed for all the selected Order Items
-	And the total should read $244
-	And the countdown started

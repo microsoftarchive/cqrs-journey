@@ -144,6 +144,13 @@ namespace Conference.Specflow.Steps
 
         #region Then
 
+        [Then(@"the selected Order Items")]
+        public void ThenTheSelectedOrderItems(Table table)
+        {
+            SelectOrderItems(Browser, conferenceInfo, table, false);
+            MakeTheReservation(Browser);
+        }
+
         [Then(@"the Reservation is confirmed for all the selected Order Items")]
         public void ThenTheReservationIsConfirmedForAllTheSelectedOrderItems()
         {
@@ -184,7 +191,7 @@ namespace Conference.Specflow.Steps
         {
             foreach (var row in table.Rows)
             {
-                Assert.False(Browser.ContainsValueInTableRow(row["seat type"], ""),
+                Assert.True(Browser.ContainsValueInTableRow(row["seat type"], "0"),
                     string.Format("The following text was not found on the page: {0}", row["seat type"]));
             }
         }
@@ -217,10 +224,12 @@ namespace Conference.Specflow.Steps
 
         #region Common code
 
-        internal static void SelectOrderItems(Browser browser, ConferenceInfo conferenceInfo, Table table)
+        internal static void SelectOrderItems(Browser browser, ConferenceInfo conferenceInfo, Table table, bool navigateToRegPage = true)
         {
-            // Navigate to Registration page
-            browser.GoTo(Constants.RegistrationPage(conferenceInfo.Slug));
+            if (navigateToRegPage)
+            {
+                browser.GoTo(Constants.RegistrationPage(conferenceInfo.Slug));
+            }
 
             foreach (var row in table.Rows)
             {
