@@ -113,13 +113,13 @@ this.ScenarioSetup(scenarioInfo);
 #line 21
 this.FeatureBackground();
 #line 27
-testRunner.When("the conference is created");
+ testRunner.When("the conference is created");
 #line 28
-testRunner.And("the conference is published");
+ testRunner.And("the conference is published");
 #line 30
-testRunner.Then("the event for creating the conference is emitted");
+ testRunner.Then("the event for creating the conference is emitted");
 #line 32
-testRunner.And("the event for publishing the conference is emitted");
+ testRunner.And("the event for publishing the conference is emitted");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -136,7 +136,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 21
 this.FeatureBackground();
 #line 35
-testRunner.Given("the conference already exists");
+ testRunner.Given("the conference already exists");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -155,9 +155,9 @@ testRunner.Given("the conference already exists");
                         "$50",
                         "100"});
 #line 36
-testRunner.When("these Seat Types are created", ((string)(null)), table2);
+ testRunner.When("these Seat Types are created", ((string)(null)), table2);
 #line 42
-testRunner.Then("the events for creating the Seat Type are emitted");
+ testRunner.Then("the events for creating the Seat Type are emitted");
 #line hidden
             this.ScenarioCleanup();
         }

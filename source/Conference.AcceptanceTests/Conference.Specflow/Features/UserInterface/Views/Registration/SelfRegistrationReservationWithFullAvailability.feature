@@ -73,6 +73,9 @@ Scenario: All Seat Types are offered, one get reserved and two get unavailable
 	| seat type                 | selected | message  |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
+	And the selected Order Items
+	| seat type         | quantity |
+	| General admission | 1        |
 	And these Order Items should be reserved
 	| seat type         | quantity |
 	| General admission | 1        |

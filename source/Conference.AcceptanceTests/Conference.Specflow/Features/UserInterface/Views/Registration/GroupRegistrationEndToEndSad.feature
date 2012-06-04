@@ -43,15 +43,14 @@ Background:
 	| seat type                 | selected | message                                    |
 	| General admission         | 2        | Could not reserve all the requested seats. |
 	| CQRS Workshop             |          | Sold out                                   |
-	| Additional cocktail party | 2        |                                            |
-	And the total should read $498
+	| Additional cocktail party | 0        |                                            |
+	And the total should read $398
 	When the Registrant proceed to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
 	| seat type                 | quantity |
 	| General admission         | 2        |
-	| Additional cocktail party | 2        |
-	And the total should read $498
+	And the total should read $398
 	And the countdown started
 
 

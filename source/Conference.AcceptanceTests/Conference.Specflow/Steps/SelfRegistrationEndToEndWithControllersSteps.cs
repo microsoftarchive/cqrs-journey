@@ -13,6 +13,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using System.Web.Mvc;
 using System.Web.Routing;
 using Conference.Specflow.Support;
@@ -28,7 +29,6 @@ namespace Conference.Specflow.Steps
 {
     [Binding]
     [Scope(Tag = "SelfRegistrationEndToEndWithControllers")]
-    [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
     public class SelfRegistrationEndToEndWithControllersSteps : IDisposable
     {
         private ConferenceInfo conferenceInfo;
@@ -37,19 +37,22 @@ namespace Conference.Specflow.Steps
         private RegistrationViewModel registrationViewModel;
         private RouteValueDictionary routeValues;
         private DraftOrder draftOrder;
+        private OrderViewModel orderViewModel;
         private bool disposed;
 
         [Given(@"the selected Order Items")]
+        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
+        [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
         public void GivenTheSelectedOrderItems(Table table)
         {
             conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
             registrationController = RegistrationHelper.GetRegistrationController(conferenceInfo.Slug);
 
-            var orderViewModel = RegistrationHelper.GetModel<OrderViewModel>(registrationController.StartRegistration());
+            orderViewModel = RegistrationHelper.GetModel<OrderViewModel>(registrationController.StartRegistration());
             Assert.NotNull(orderViewModel);
 
-            registration = new RegisterToConference { ConferenceId = conferenceInfo.Id, OrderId = registrationController.ViewBag.OrderId };
-
+            registration = new RegisterToConference { ConferenceId = conferenceInfo.Id, OrderId = orderViewModel.OrderId };
+            
             foreach (var row in table.Rows)
             {
                 var orderItemViewModel = orderViewModel.Items.FirstOrDefault(s => s.SeatType.Description == row["seat type"]);
@@ -66,9 +69,9 @@ namespace Conference.Specflow.Steps
         public void GivenTheRegistrantProceedToMakeTheReservation()
         {
             var redirect = registrationController.StartRegistration(
-                registration, registrationController.ViewBag.OrderVersion) as RedirectToRouteResult;
+                registration, orderViewModel.OrderVersion) as RedirectToRouteResult;
 
-            Assert.NotNull(redirect);
+            Assert.True(redirect != null, "Reservation not accepted. May be waitlisted.");
 
             // Perform external redirection
             var timeout =  DateTime.Now.Add(Constants.UI.WaitTimeout);
@@ -77,7 +80,7 @@ namespace Conference.Specflow.Steps
             {
                 //ReservationUnknown
                 var result = registrationController.SpecifyRegistrantAndPaymentDetails(
-                    (Guid)redirect.RouteValues["orderId"], registrationController.ViewBag.OrderVersion);
+                    (Guid)redirect.RouteValues["orderId"], orderViewModel.OrderVersion);
 
                 Assert.IsNotType<RedirectToRouteResult>(result);
                 registrationViewModel = RegistrationHelper.GetModel<RegistrationViewModel>(result);
@@ -120,7 +123,7 @@ namespace Conference.Specflow.Steps
         {
             var result = registrationController.SpecifyRegistrantAndPaymentDetails(
                 registrationViewModel.RegistrantDetails,
-                RegistrationController.ThirdPartyProcessorPayment, registrationController.ViewBag.OrderVersion) as RedirectToRouteResult;
+                RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion) as RedirectToRouteResult;
 
             Assert.NotNull(result);
 
@@ -151,6 +154,9 @@ namespace Conference.Specflow.Steps
                 Assert.NotNull(orderItem);
                 Assert.Equal(Int32.Parse(row["quantity"]), orderItem.ReservedSeats);
             }
+
+            // Wait for event processing
+            Thread.Sleep(Constants.WaitTimeout);
         }
 
         [Then(@"the Registrant assign these seats")]

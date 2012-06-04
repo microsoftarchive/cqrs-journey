@@ -69,7 +69,6 @@ Scenario: All the Order Items are available and all get waitlisted
 	| General admission         |          | Sold out |
 	| Additional cocktail party |          | Sold out |
 	And the total should read $0
-	And the countdown started
 
 
 #4
@@ -90,10 +89,13 @@ Scenario: All the Order Items are available, 1 becomes partially available, 1 be
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message                                    |
 	| General admission         | 1        | Could not reserve all the requested seats. |
-	| CQRS Workshop             | 1        |                                            |
+	| CQRS Workshop             | 0        |                                            |
 	| Additional cocktail party |          | Sold out                                   |
+	And the selected Order Items
+	| seat type                 | quantity |
+	| General admission         | 1        |
+	| CQRS Workshop             | 1        |
 	And the total should read $699
-	And the countdown started
 
 
 

@@ -74,6 +74,7 @@ namespace Conference.Specflow.Steps
         }
 
         [Then(@"the command for reserving the selected Seats is received")]
+        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
         public void ThenTheCommandForReservingTheSelectedSeatsIsReceived()
         {
             var repository = EventSourceHelper.GetRepository<SeatsAvailability>();
@@ -85,8 +86,10 @@ namespace Conference.Specflow.Steps
         }
 
         [Then(@"the event for reserving the selected Seats is emitted")]
+        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
         public void ThenTheEventForReservingTheSelectedSeatsIsEmitted()
         {
+            registerToConference = registerToConference ?? ScenarioContext.Current.Get<RegisterToConference>();
             var seatsReserved = MessageLogHelper.GetEvents<SeatsReserved>(registerToConference.ConferenceId).SingleOrDefault();
 
             Assert.NotNull(seatsReserved);

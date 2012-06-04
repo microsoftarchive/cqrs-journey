@@ -247,10 +247,19 @@ this.FeatureBackground();
                         "General admission",
                         "1"});
 #line 76
- testRunner.And("these Order Items should be reserved", ((string)(null)), table8);
+ testRunner.And("the selected Order Items", ((string)(null)), table8);
+#line hidden
+            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type",
+                        "quantity"});
+            table9.AddRow(new string[] {
+                        "General admission",
+                        "1"});
 #line 79
+ testRunner.And("these Order Items should be reserved", ((string)(null)), table9);
+#line 82
  testRunner.And("the total should read $199");
-#line 80
+#line 83
  testRunner.And("the countdown started");
 #line hidden
             this.ScenarioCleanup();
@@ -263,59 +272,59 @@ this.FeatureBackground();
         public virtual void FindAPurchasedOrder()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Find a purchased Order", ((string[])(null)));
-#line 83
+#line 86
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
-            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
                         "quantity"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "General admission",
                         "3"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "CQRS Workshop",
                         "1"});
-            table9.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 84
- testRunner.Given("the selected Order Items", ((string)(null)), table9);
-#line 89
+#line 87
+ testRunner.Given("the selected Order Items", ((string)(null)), table10);
+#line 92
  testRunner.And("the Registrant proceed to make the Reservation");
 #line hidden
-            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
                         "last name",
                         "email address"});
-            table10.AddRow(new string[] {
+            table11.AddRow(new string[] {
                         "William",
                         "Weber",
                         "William@Weber.com"});
-#line 90
- testRunner.And("the Registrant enter these details", ((string)(null)), table10);
 #line 93
+ testRunner.And("the Registrant enter these details", ((string)(null)), table11);
+#line 96
  testRunner.And("the Registrant proceed to Checkout:Payment");
-#line 94
+#line 97
  testRunner.When("the Registrant proceed to confirm the payment");
-#line 95
+#line 98
     testRunner.Then("the Registration process was successful");
 #line hidden
-            TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
                         "quantity"});
-            table11.AddRow(new string[] {
+            table12.AddRow(new string[] {
                         "General admission",
                         "3"});
-            table11.AddRow(new string[] {
+            table12.AddRow(new string[] {
                         "CQRS Workshop",
                         "1"});
-            table11.AddRow(new string[] {
+            table12.AddRow(new string[] {
                         "Additional cocktail party",
                         "2"});
-#line 96
- testRunner.And("the Order should be found with the following Order Items", ((string)(null)), table11);
+#line 99
+ testRunner.And("the Order should be found with the following Order Items", ((string)(null)), table12);
 #line hidden
             this.ScenarioCleanup();
         }

@@ -14,7 +14,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Conference.Specflow.Support;
 using Infrastructure.Messaging;
@@ -60,13 +59,13 @@ namespace Conference.Specflow.Steps
         [Then(@"only (.*) events for completing the Order reservation are emitted")]
         public void ThenOnlySomeEventsForCompletingTheOrderReservationAreEmitted(int eventCount)
         {
-            Assert.True(MessageLogHelper.CollectEvents<OrderReservationCompleted>(orderIds, eventCount));
+            Assert.True(MessageLogHelper.CollectEvents<OrderReservationCompleted>(orderIds, eventCount), "Timeout for Collecting OrderReservationCompleted Events");
         }
 
         [Then(@"(.*) events for partially completing the order are emitted")]
         public void ThenSomeEventsForPartiallyCompletingTheOrderAreEmitted(int eventCount)
         {
-            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderIds, eventCount));
+            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderIds, eventCount), "Timeout for Collecting OrderPartiallyReserved Events");
         }
 
         private string CreateAndSendRegisterToConference(Guid conferenceId, IEnumerable<SeatQuantity> seats)
@@ -85,14 +84,10 @@ namespace Conference.Specflow.Steps
     [Scope(Tag = "@SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly")]
     public class SelfRegistrationReservationWithConcurrencyDomainStepsDebugLocal
     {
-        private readonly SelfRegistrationReservationWithConcurrencyDomainSteps steps;
-
-        public SelfRegistrationReservationWithConcurrencyDomainStepsDebugLocal()
-        {
 #if LOCAL
-            steps = new SelfRegistrationReservationWithConcurrencyDomainSteps();
+        private readonly SelfRegistrationReservationWithConcurrencyDomainSteps steps =
+            new SelfRegistrationReservationWithConcurrencyDomainSteps();
 #endif
-        }
 
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference")]
         public void GivenTheListOfTheAvailableOrderItemsForTheCqrsSummit2012Conference(Table table)

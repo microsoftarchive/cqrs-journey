@@ -461,6 +461,33 @@ this.FeatureBackground();
             this.ScenarioCleanup();
         }
         
+        [Xunit.FactAttribute(Skip="Ignored")]
+        [Xunit.TraitAttribute("FeatureTitle", "Promotional Code scenarios for applying Promotional Codes to Seat Types")]
+        [Xunit.TraitAttribute("Description", "Make a reservation with the selected Order Items and a Promo Code")]
+        public virtual void MakeAReservationWithTheSelectedOrderItemsAndAPromoCode()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Make a reservation with the selected Order Items and a Promo Code", new string[] {
+                        "Ignore"});
+#line 157
+this.ScenarioSetup(scenarioInfo);
+#line 19
+this.FeatureBackground();
+#line 158
+ testRunner.Given("the Registrant apply the \'COPRESENTER\' Promotional Code");
+#line 159
+ testRunner.And("the \'COPRESENTER\' Promo code should show a value of -$5");
+#line 160
+ testRunner.When("the Registrant proceed to make the Reservation");
+#line 161
+ testRunner.Then("the Reservation is confirmed for all the selected Order Items");
+#line 162
+ testRunner.And("the total should read $244");
+#line 163
+ testRunner.And("the countdown started");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
         [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
         [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
         public class FixtureData : System.IDisposable
