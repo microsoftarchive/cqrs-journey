@@ -41,6 +41,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                 && x.SourceId == "TestId"
                 && x.SourceType == "TestSourceType"
                 && x.Payload == "serialized event"
+                && x.CorrelationId == "correlation"
                 && x.AssemblyName == "Assembly"
                 && x.Namespace == "Namespace"
                 && x.FullName == "Namespace.TestEventType");
@@ -74,6 +75,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             Assert.Equal(testEvent.Namespace, sender.Sent.Single().Properties[StandardMetadata.Namespace]);
             Assert.Equal(testEvent.AssemblyName, sender.Sent.Single().Properties[StandardMetadata.AssemblyName]);
             Assert.Equal(version, sender.Sent.Single().Properties["Version"]);
+            Assert.Equal(testEvent.CorrelationId, sender.Sent.Single().CorrelationId);
         }
 
         [Fact]

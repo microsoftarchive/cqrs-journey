@@ -18,7 +18,7 @@ namespace Infrastructure.Messaging
     /// <summary>
     /// Static factory class for <see cref="Envelope{T}"/>.
     /// </summary>
-    public static class Envelope
+    public abstract class Envelope
     {
         /// <summary>
         /// Creates an envelope for the given body.
@@ -32,7 +32,7 @@ namespace Infrastructure.Messaging
     /// <summary>
     /// Provides the envelope for an object that will be sent to a bus.
     /// </summary>
-    public class Envelope<T>
+    public class Envelope<T> : Envelope
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Envelope{T}"/> class.
@@ -51,6 +51,16 @@ namespace Infrastructure.Messaging
         /// Gets or sets the delay for sending, enqueing or processing the body.
         /// </summary>
         public TimeSpan Delay { get; set; }
+
+        /// <summary>
+        /// Gets the correlation id.
+        /// </summary>
+        public string CorrelationId { get; set; }
+
+        /// <summary>
+        /// Gets the correlation id.
+        /// </summary>
+        public string MessageId { get; set; }
 
         public static implicit operator Envelope<T>(T body)
         {

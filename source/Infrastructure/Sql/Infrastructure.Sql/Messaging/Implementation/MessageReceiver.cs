@@ -20,7 +20,6 @@ namespace Infrastructure.Sql.Messaging.Implementation
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Diagnostics;
 
     public class MessageReceiver : IMessageReceiver, IDisposable
     {
@@ -49,7 +48,8 @@ namespace Infrastructure.Sql.Messaging.Implementation
                     @"SELECT TOP (1) 
                     {0}.[Id] AS [Id], 
                     {0}.[Body] AS [Body], 
-                    {0}.[DeliveryDate] AS [DeliveryDate]
+                    {0}.[DeliveryDate] AS [DeliveryDate],
+                    {0}.[CorrelationId] AS [CorrelationId]
                     FROM {0} WITH (UPDLOCK, READPAST)
                     WHERE ({0}.[DeliveryDate] IS NULL) OR ({0}.[DeliveryDate] <= @CurrentDate)
                     ORDER BY {0}.[Id] ASC",
@@ -155,8 +155,10 @@ namespace Infrastructure.Sql.Messaging.Implementation
                                 var body = (string)reader["Body"];
                                 var deliveryDateValue = reader["DeliveryDate"];
                                 var deliveryDate = deliveryDateValue == DBNull.Value ? (DateTime?)null : new DateTime?((DateTime)deliveryDateValue);
+                                var correlationIdValue = reader["CorrelationId"];
+                                var correlationId = (string)(correlationIdValue == DBNull.Value ? null : correlationIdValue);
 
-                                message = new Message(body, deliveryDate);
+                                message = new Message(body, deliveryDate, correlationId);
                                 messageId = (long)reader["Id"];
                             }
                         }

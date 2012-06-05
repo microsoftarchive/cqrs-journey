@@ -76,11 +76,11 @@ namespace Infrastructure.Azure.EventSourcing
             return entity;
         }
 
-        public void Save(T eventSourced)
+        public void Save(T eventSourced, string correlationId)
         {
             // TODO: guarantee that only incremental versions of the event are stored
             var events = eventSourced.Events.ToArray();
-            var serialized = events.Select(this.Serialize);
+            var serialized = events.Select(e => this.Serialize(e, correlationId));
 
             var partitionKey = this.GetPartitionKey(eventSourced.Id);
             this.eventStore.Save(partitionKey, serialized);
@@ -93,7 +93,7 @@ namespace Infrastructure.Azure.EventSourcing
             return sourceType + "_" + id.ToString();
         }
 
-        private EventData Serialize(IVersionedEvent e)
+        private EventData Serialize(IVersionedEvent e, string correlationId)
         {
             using (var writer = new StringWriter())
             {
@@ -105,6 +105,7 @@ namespace Infrastructure.Azure.EventSourcing
                                SourceId = e.SourceId.ToString(),
                                Payload = writer.ToString(),
                                SourceType = sourceType,
+                               CorrelationId = correlationId,
                                // Standard metadata
                                AssemblyName = metadata.TryGetValue(StandardMetadata.AssemblyName),
                                Namespace = metadata.TryGetValue(StandardMetadata.Namespace),

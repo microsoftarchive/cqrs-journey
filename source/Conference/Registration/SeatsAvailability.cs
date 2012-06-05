@@ -55,6 +55,12 @@ namespace Registration
             base.Update(new AvailableSeatsChanged { Seats = new[] { new SeatQuantity(seatType, -quantity) } });
         }
 
+        /// <summary>
+        /// Requests a reservation for seats.
+        /// </summary>
+        /// <param name="reservationId">A token identifying the reservation request.</param>
+        /// <param name="wantedSeats">The list of seat requirements.</param>
+        /// <remarks>The reservation id is not the id for an aggregate root, just an opaque identifier.</remarks>
         public void MakeReservation(Guid reservationId, IEnumerable<SeatQuantity> wantedSeats)
         {
             var wantedList = wantedSeats.ToList();

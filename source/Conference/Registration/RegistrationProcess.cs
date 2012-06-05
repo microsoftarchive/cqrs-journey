@@ -16,8 +16,10 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Diagnostics;
     using System.Linq;
     using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
     using Registration.Commands;
@@ -47,6 +49,7 @@ namespace Registration
         public Guid ConferenceId { get; set; }
         public Guid OrderId { get; internal set; }
         public Guid ReservationId { get; internal set; }
+        public Guid SeatReservationCommandId { get; internal set; }
 
         // feels akward and possibly disrupting to store these properties here. Would it be better if instead of using 
         // current state values, we use event sourcing?
@@ -72,17 +75,27 @@ namespace Registration
             {
                 this.ConferenceId = message.ConferenceId;
                 this.OrderId = message.SourceId;
-                this.ReservationId = Guid.NewGuid();
+                // use the order id as the opaque reservation id for the seat reservation
+                this.ReservationId = message.SourceId;
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
-                this.AddCommand(
+                var seatReservationCommand =
                     new MakeSeatReservation
                     {
-                        ConferenceId = message.ConferenceId,
+                        ConferenceId = this.ConferenceId,
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
-                    });
+                    };
+                this.SeatReservationCommandId = seatReservationCommand.Id;
+                this.AddCommand(seatReservationCommand);
+
+                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                this.ExpirationCommandId = expirationCommand.Id;
+                this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                {
+                    Delay = message.ReservationAutoExpiration.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
+                });
             }
             else
             {
@@ -97,13 +110,15 @@ namespace Registration
             {
                 this.State = ProcessState.AwaitingReservationConfirmation;
 
-                this.AddCommand(
+                var seatReservationCommand =
                     new MakeSeatReservation
                     {
                         ConferenceId = this.ConferenceId,
                         ReservationId = this.ReservationId,
                         Seats = message.Seats.ToList()
-                    });
+                    };
+                this.SeatReservationCommandId = seatReservationCommand.Id;
+                this.AddCommand(seatReservationCommand);
             }
             else
             {
@@ -111,29 +126,28 @@ namespace Registration
             }
         }
 
-        public void Handle(SeatsReserved message)
+        public void Handle(Envelope<SeatsReserved> envelope)
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
-                var expirationTime = this.ReservationAutoExpiration.Value;
-                this.State = ProcessState.ReservationConfirmationReceived;
-
-                if (this.ExpirationCommandId == Guid.Empty)
+                if (envelope.CorrelationId != null)
                 {
-                    var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
-                    this.ExpirationCommandId = expirationCommand.Id;
-
-                    this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                    if (string.CompareOrdinal(this.SeatReservationCommandId.ToString(), envelope.CorrelationId) != 0)
                     {
-                        Delay = expirationTime.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
-                    });
+                        // skip this event
+                        Trace.TraceWarning("Seat reservation response for reservation id {0} does not match the expected correlation id.", envelope.Body.ReservationId);
+                        return;
+                    }
                 }
+
+                this.State = ProcessState.ReservationConfirmationReceived;
+                this.SeatReservationCommandId = Guid.Empty;
 
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
-                    Seats = message.ReservationDetails.ToList(),
-                    Expiration = expirationTime,
+                    Seats = envelope.Body.ReservationDetails.ToList(),
+                    Expiration = this.ReservationAutoExpiration.Value,
                 });
             }
             else

@@ -65,7 +65,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         /// <summary>
         /// Processes the message by calling the registered handler.
         /// </summary>
-        protected override void ProcessMessage(string traceIdentifier, object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload, string messageId, string correlationId)
         {
             var commandType = payload.GetType();
             ICommandHandler handler = null;

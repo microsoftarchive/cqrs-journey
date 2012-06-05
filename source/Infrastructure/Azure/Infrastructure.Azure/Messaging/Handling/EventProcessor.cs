@@ -13,10 +13,8 @@
 
 namespace Infrastructure.Azure.Messaging.Handling
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
 
@@ -28,29 +26,25 @@ namespace Infrastructure.Azure.Messaging.Handling
     // much sense to have this processor doing multi dispatch.
     public class EventProcessor : MessageProcessor, IEventHandlerRegistry
     {
-        // A simpler list just works. We don't care about two handlers for the same event 
-        // type, etc.
-        private List<IEventHandler> handlers = new List<IEventHandler>();
+        private readonly EventDispatcher eventDispatcher;
 
         public EventProcessor(IMessageReceiver receiver, ITextSerializer serializer)
             : base(receiver, serializer)
         {
+            this.eventDispatcher = new EventDispatcher();
         }
 
         public void Register(IEventHandler eventHandler)
         {
-            this.handlers.Add(eventHandler);
+            this.eventDispatcher.Register(eventHandler);
         }
 
-        protected override void ProcessMessage(string traceIdentifier, object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload, string messageId, string correlationId)
         {
-            var handlerType = typeof(IEventHandler<>).MakeGenericType(payload.GetType());
-
-            foreach (dynamic handler in this.handlers
-                .Where(x => handlerType.IsAssignableFrom(x.GetType())))
+            var @event = payload as IEvent;
+            if (@event != null)
             {
-                Trace.WriteLine("-- Handled by " + ((object)handler).GetType().FullName + traceIdentifier);
-                handler.Handle((dynamic)payload);
+                this.eventDispatcher.DispatchMessage(@event, messageId, correlationId, traceIdentifier);
             }
         }
     }

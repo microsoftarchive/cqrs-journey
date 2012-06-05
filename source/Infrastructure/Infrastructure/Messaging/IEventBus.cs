@@ -13,11 +13,11 @@
 
 namespace Infrastructure.Messaging
 {
-	using System.Collections.Generic;
-	
-	public interface IEventBus
+    using System.Collections.Generic;
+
+    public interface IEventBus
     {
-        void Publish(IEvent @event);
-		void Publish(IEnumerable<IEvent> events);
+        void Publish(Envelope<IEvent> @event);
+        void Publish(IEnumerable<Envelope<IEvent>> events);
     }
 }

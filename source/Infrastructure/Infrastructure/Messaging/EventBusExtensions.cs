@@ -11,23 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Sql.Messaging
+namespace Infrastructure.Messaging
 {
-    using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
-    public class Message
+    /// <summary>
+    /// Provides usability overloads for <see cref="IEventBus"/>
+    /// </summary>
+    public static class EventBusExtensions
     {
-        public Message(string body, DateTime? deliveryDate = null, string correlationId = null)
+        public static void Publish(this IEventBus bus, IEvent @event)
         {
-            this.Body = body;
-            this.DeliveryDate = deliveryDate;
-            this.CorrelationId = correlationId;
+            bus.Publish(new Envelope<IEvent>(@event));
         }
 
-        public string Body { get; private set; }
-
-        public string CorrelationId { get; private set; }
-
-        public DateTime? DeliveryDate { get; private set; }
+        public static void Publish(this IEventBus bus, IEnumerable<IEvent> events)
+        {
+            bus.Publish(events.Select(x => new Envelope<IEvent>(x)));
+        }
     }
 }

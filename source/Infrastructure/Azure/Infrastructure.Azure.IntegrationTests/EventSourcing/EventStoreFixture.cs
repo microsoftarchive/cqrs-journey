@@ -43,9 +43,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             this.partitionKey = Guid.NewGuid().ToString();
             this.events = new[]
                              {
-                                 new EventData { Version = 1, SourceId = sourceId, SourceType = "Source", TypeName = "Test1", Payload = "Payload1" },
-                                 new EventData { Version = 2, SourceId = sourceId, SourceType = "Source", TypeName = "Test2", Payload = "Payload2" },
-                                 new EventData { Version = 3, SourceId = sourceId, SourceType = "Source", TypeName = "Test3", Payload = "Payload3" },
+                                 new EventData { Version = 1, SourceId = sourceId, SourceType = "Source", TypeName = "Test1", Payload = "Payload1", CorrelationId = "correlation1" },
+                                 new EventData { Version = 2, SourceId = sourceId, SourceType = "Source", TypeName = "Test2", Payload = "Payload2", CorrelationId = "correlation2"  },
+                                 new EventData { Version = 3, SourceId = sourceId, SourceType = "Source", TypeName = "Test3", Payload = "Payload3", CorrelationId = "correlation3"  },
                              };
         }
 
@@ -70,6 +70,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal(events[0].SourceId, stored[0].SourceId);
             Assert.Equal(events[0].TypeName, stored[0].TypeName);
             Assert.Equal(events[0].Payload, stored[0].Payload);
+            Assert.Equal(events[0].CorrelationId, stored[0].CorrelationId);
         }
 
         [Fact]
@@ -88,6 +89,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal("Payload1", stored[0].Payload);
             Assert.Equal("Payload2", stored[1].Payload);
             Assert.Equal("Payload3", stored[2].Payload);
+            Assert.Equal("correlation1", stored[0].CorrelationId);
+            Assert.Equal("correlation2", stored[1].CorrelationId);
+            Assert.Equal("correlation3", stored[2].CorrelationId);
         }
 
         [Fact]
@@ -106,6 +110,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal("Payload1", stored[0].Payload);
             Assert.Equal("Payload2", stored[1].Payload);
             Assert.Equal("Payload3", stored[2].Payload);
+            Assert.Equal("correlation1", stored[0].CorrelationId);
+            Assert.Equal("correlation2", stored[1].CorrelationId);
+            Assert.Equal("correlation3", stored[2].CorrelationId);
         }
 
         [Fact]

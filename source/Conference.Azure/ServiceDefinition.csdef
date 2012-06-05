@@ -64,6 +64,7 @@
       <Setting name="DbContext.SqlBus" />
       <Setting name="DbContext.ConferenceManagement" />
       <Setting name="MaintenanceMode" />
+      <Setting name="DbContext.MessageLog" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

@@ -41,6 +41,7 @@
       <Setting name="DbContext.BlobStorage" value="" />
       <Setting name="DbContext.ConferenceManagement" value="" />
       <Setting name="MaintenanceMode" value="false" />
+      <Setting name="DbContext.MessageLog" value="" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

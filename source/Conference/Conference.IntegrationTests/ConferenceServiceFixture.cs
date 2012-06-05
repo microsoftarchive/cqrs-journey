@@ -14,15 +14,16 @@
 namespace Conference.IntegrationTests.ConferenceServiceFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Linq;
-    using Infrastructure.Messaging.InMemory;
+    using Infrastructure.Messaging;
+    using Moq;
     using Xunit;
 
     public class given_no_conference : IDisposable
     {
         private string dbName = "ConferenceServiceFixture_" + Guid.NewGuid().ToString();
-        private MemoryEventBus bus;
         private ConferenceService service;
 
         public given_no_conference()
@@ -35,8 +36,8 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
                 context.Database.Create();
             }
 
-            this.bus = new MemoryEventBus();
-            this.service = new ConferenceService(this.bus, this.dbName);
+            var busMock = new Mock<IEventBus>();
+            this.service = new ConferenceService(busMock.Object, this.dbName);
         }
 
         public void Dispose()
@@ -107,7 +108,7 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
     {
         protected string dbName = "ConferenceServiceTests_" + Guid.NewGuid().ToString();
         protected ConferenceInfo conference;
-        private MemoryEventBus bus;
+        protected List<IEvent> busEvents;
         private ConferenceService service;
 
         public given_an_existing_conference_with_a_seat()
@@ -120,8 +121,11 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
                 context.Database.CreateIfNotExists();
             }
 
-            this.bus = new MemoryEventBus();
-            this.service = new ConferenceService(this.bus, this.dbName);
+            this.busEvents = new List<IEvent>();
+            var busMock = new Mock<IEventBus>();
+            busMock.Setup(b => b.Publish(It.IsAny<Envelope<IEvent>>())).Callback<Envelope<IEvent>>(e => busEvents.Add(e.Body));
+            busMock.Setup(b => b.Publish(It.IsAny<IEnumerable<Envelope<IEvent>>>())).Callback<IEnumerable<Envelope<IEvent>>>(es => busEvents.AddRange(es.Select(e => e.Body)));
+            this.service = new ConferenceService(busMock.Object, this.dbName);
             this.conference = new ConferenceInfo
             {
                 OwnerEmail = "test@contoso.com",
@@ -160,7 +164,7 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         [Fact]
         public void then_conference_created_is_published()
         {
-            var e = bus.Events.OfType<ConferenceCreated>().Single();
+            var e = this.busEvents.OfType<ConferenceCreated>().Single();
 
             Assert.NotNull(e);
             Assert.Equal(this.conference.Id, e.SourceId);
@@ -169,7 +173,7 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         [Fact]
         public void then_seat_created_is_published()
         {
-            var e = bus.Events.OfType<SeatCreated>().Single();
+            var e = this.busEvents.OfType<SeatCreated>().Single();
             var seat = this.conference.Seats.Single();
 
             Assert.Equal(seat.Id, e.SourceId);
@@ -242,7 +246,7 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
 
             service.CreateSeat(this.conference.Id, seat);
 
-            var e = bus.Events.OfType<SeatCreated>().Single(x => x.SourceId == seat.Id);
+            var e = this.busEvents.OfType<SeatCreated>().Single(x => x.SourceId == seat.Id);
 
             Assert.Equal(this.conference.Id, e.ConferenceId);
             Assert.Equal(seat.Id, e.SourceId);
@@ -317,7 +321,7 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
 
             service.UpdateSeat(this.conference.Id, seat);
 
-            var e = bus.Events.OfType<SeatUpdated>().LastOrDefault();
+            var e = this.busEvents.OfType<SeatUpdated>().LastOrDefault();
 
             Assert.Equal(this.conference.Id, e.ConferenceId);
             Assert.Equal(seat.Id, e.SourceId);

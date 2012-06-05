@@ -21,9 +21,9 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
-    using Xunit;
-    using Moq.Protected;
     using Moq;
+    using Moq.Protected;
+    using Xunit;
 
     public class given_a_processor : given_a_topic_and_subscription
     {
@@ -39,14 +39,18 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
 
             processor.Start();
 
+            var messageId = Guid.NewGuid().ToString();
+            var correlationId = Guid.NewGuid().ToString();
             var stream = new MemoryStream();
             new JsonTextSerializer().Serialize(new StreamWriter(stream), "Foo");
             stream.Position = 0;
-            sender.SendAsync(() => new BrokeredMessage(stream, true));
+            sender.SendAsync(() => new BrokeredMessage(stream, true) { MessageId = messageId, CorrelationId = correlationId });
 
             waiter.Wait(5000);
 
             Assert.NotNull(processor.Payload);
+            Assert.Equal(messageId, processor.MessageId);
+            Assert.Equal(correlationId, processor.CorrelationId);
         }
 
         [Fact]
@@ -59,7 +63,7 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
                 new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer()) { CallBase = true };
 
             processor.Protected()
-                .Setup("ProcessMessage", ItExpr.IsAny<string>(), ItExpr.IsAny<object>())
+                .Setup("ProcessMessage", ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>())
                 .Callback(() =>
                 {
                     failCount++;
@@ -133,14 +137,18 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
             this.waiter = waiter;
         }
 
-        protected override void ProcessMessage(string traceIdentifier, object payload)
+        protected override void ProcessMessage(string traceIdentifier, object payload, string messageId, string correlationId)
         {
             this.Payload = payload;
+            this.MessageId = messageId;
+            this.CorrelationId = correlationId;
 
             this.waiter.Set();
         }
 
         public object Payload { get; private set; }
+        public string MessageId { get; private set; }
+        public string CorrelationId { get; private set; }
     }
 
     [Serializable]
