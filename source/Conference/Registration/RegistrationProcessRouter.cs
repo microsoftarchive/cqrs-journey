@@ -84,30 +84,12 @@ namespace Registration
             {
                 lock (lockObject)
                 {
-                    Guid correlationId;
-                    if (!Guid.TryParse(envelope.CorrelationId, out correlationId))
-                    {
-                        Trace.TraceWarning("Seat reservation response for reservation id {0} does not include message correlation id.", envelope.Body.ReservationId);
-                        return;
-                    }
-
                     var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId && x.Completed == false);
                     if (process != null)
                     {
-                        if (process.SeatReservationCommandId == correlationId)
-                        {
-                            process.Handle(envelope.Body);
+                        process.Handle(envelope);
 
-                            context.Save(process);
-                        }
-                        else
-                        {
-                            Trace.TraceWarning(
-                                "Ignoring SeatsReserved event. Correlation id {0} does not match the expected correlation id {1} for reservation with id {2}.",
-                                correlationId,
-                                process.SeatReservationCommandId,
-                                process.ReservationId);
-                        }
+                        context.Save(process);
                     }
                     else
                     {

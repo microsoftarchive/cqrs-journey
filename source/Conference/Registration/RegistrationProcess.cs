@@ -16,8 +16,10 @@ namespace Registration
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Diagnostics;
     using System.Linq;
     using Infrastructure.Messaging;
+    using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
     using Registration.Commands;
@@ -124,17 +126,27 @@ namespace Registration
             }
         }
 
-        public void Handle(SeatsReserved message)
+        public void Handle(ReceiveEnvelope<SeatsReserved> envelope)
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {
+                if (envelope.CorrelationId != null)
+                {
+                    if (string.CompareOrdinal(this.SeatReservationCommandId.ToString(), envelope.CorrelationId) != 0)
+                    {
+                        // skip this event
+                        Trace.TraceWarning("Seat reservation response for reservation id {0} does not match the expected correlation id.", envelope.Body.ReservationId);
+                        return;
+                    }
+                }
+
                 this.State = ProcessState.ReservationConfirmationReceived;
                 this.SeatReservationCommandId = Guid.Empty;
 
                 this.AddCommand(new MarkSeatsAsReserved
                 {
                     OrderId = this.OrderId,
-                    Seats = message.ReservationDetails.ToList(),
+                    Seats = envelope.Body.ReservationDetails.ToList(),
                     Expiration = this.ReservationAutoExpiration.Value,
                 });
             }

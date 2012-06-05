@@ -97,26 +97,6 @@ namespace Registration.Tests
         }
 
         [Fact]
-        public void when_reservation_accepted_for_non_current_request_then_skips()
-        {
-            var process = new RegistrationProcess
-            {
-                State = RegistrationProcess.ProcessState.AwaitingReservationConfirmation,
-                ReservationId = Guid.NewGuid(),
-                ConferenceId = Guid.NewGuid(),
-                SeatReservationCommandId = Guid.NewGuid(),
-                ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
-            };
-            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
-            var router = new RegistrationProcessRouter(() => context);
-
-            router.Handle(ReceiveEnvelope.Create(new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] }, "message", Guid.NewGuid().ToString()));
-
-            Assert.Equal(0, context.SavedProcesses.Count);
-            Assert.True(context.DisposeCalled);
-        }
-
-        [Fact]
         public void when_payment_received_then_routes_and_saves()
         {
             var process = new RegistrationProcess
