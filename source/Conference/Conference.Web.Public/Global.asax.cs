@@ -54,23 +54,27 @@ namespace Conference.Web.Public
         {
             RoleEnvironment.Changed +=
                 (s, a) =>
+                {
+                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
                     {
-                        var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
-                        if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
+                        RoleEnvironment.RequestRecycle();
+                    }
+                    else
+                    {
+                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
                         {
-                            RoleEnvironment.RequestRecycle();
+                            MaintenanceMode.RefreshIsInMaintainanceMode();
                         }
-                        else
-                        {
-                            if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
-                            {
-                                MaintenanceMode.RefreshIsInMaintainanceMode();
-                            }
-                        }
-                    };
+                    }
+                };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
+            // We need to also setup the migration in the website, as the read models are queried 
+            // from here and also need upgrade (PricedOrder in particular for V3).
+            MigrationToV3.Migration.Initialize();
 
             this.container = CreateContainer();
 
@@ -81,9 +85,6 @@ namespace Conference.Web.Public
             AreaRegistration.RegisterAllAreas();
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-            Database.SetInitializer<BlobStorageDbContext>(null);
-            Database.SetInitializer<PaymentsReadDbContext>(null);
-            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
 
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
             {

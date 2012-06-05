@@ -22,8 +22,9 @@ namespace MigrationToV3
     /// has very little impact even if it continues to be run on subsequent releases. 
     /// It is kept in a separate project so that further releases can easily detect what
     /// code paths aren't needed to run anymore.
+    /// This also means it's a no-downtime migration.
     /// </summary>
-    public class RegistrationProcessDbInitializer : IDatabaseInitializer<RegistrationProcessDbContext>
+    internal class RegistrationProcessDbInitializer : IDatabaseInitializer<RegistrationProcessDbContext>
     {
         public void InitializeDatabase(RegistrationProcessDbContext context)
         {
