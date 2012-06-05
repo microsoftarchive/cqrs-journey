@@ -15,10 +15,11 @@ namespace Conference.Web.Public.Controllers
 {
     using System;
     using System.Linq;
-    using System.Threading;
+    using System.Threading.Tasks;
     using System.Web.Mvc;
     using Conference.Web.Public.Models;
     using Infrastructure.Messaging;
+    using Infrastructure.Tasks;
     using Payments.Contracts.Commands;
     using Registration.Commands;
     using Registration.ReadModel;
@@ -28,7 +29,9 @@ namespace Conference.Web.Public.Controllers
         public const string ThirdPartyProcessorPayment = "thirdParty";
         public const string InvoicePayment = "invoice";
         private const int DraftOrderWaitTimeoutInSeconds = 5;
+        private const long DraftOrderPollPeriodInMilliseconds = 500;
         private const int PricedOrderWaitTimeoutInSeconds = 5;
+        private const long PricedOrderPollPeriodInMilliseconds = 500;
 
         private readonly ICommandBus commandBus;
         private readonly IOrderDao orderDao;
@@ -42,47 +45,61 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0, NoStore = true)]
-        public ActionResult StartRegistration(Guid? orderId = null)
+        public Task<ActionResult> StartRegistration(Guid? orderId = null)
         {
-            OrderViewModel viewModel;
-
+            var viewModelTask = Task.Factory.StartNew(() => this.CreateViewModel());
             if (!orderId.HasValue)
             {
-                viewModel = this.CreateViewModel();
-                viewModel.OrderId = Guid.NewGuid();
+                return viewModelTask
+                    .ContinueWith<ActionResult>(t =>
+                    {
+                        var viewModel = t.Result;
+                        viewModel.OrderId = Guid.NewGuid();
+                        return View(viewModel);
+                    });
             }
             else
             {
-                var order = this.WaitUntilSeatsAreConfirmed(orderId.Value, 0);
+                return Task.Factory.ContinueWhenAll<ActionResult>(
+                    new Task[] { viewModelTask, this.WaitUntilSeatsAreConfirmed(orderId.Value, 0) }, 
+                    tasks =>
+                    {
+                        var viewModel = ((Task<OrderViewModel>)tasks[0]).Result;
+                        var order = ((Task<DraftOrder>)tasks[1]).Result;
 
-                if (order == null)
-                {
-                    return View("ReservationUnknown");
-                }
+                        if (order == null)
+                        {
+                            return View("PricedOrderUnknown");
+                        }
 
-                if (order.State == DraftOrder.States.Confirmed)
-                {
-                    return View("ShowCompletedOrder");
-                }
+                        if (order.State == DraftOrder.States.Confirmed)
+                        {
+                            return View("ShowCompletedOrder");
+                        }
 
-                if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
-                {
-                    return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
-                }
+                        if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
+                        {
+                            return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
+                        }
 
-                viewModel = this.CreateViewModel(order);
+                        UpdateViewModel(viewModel, order);
+                        return View(viewModel);
+                    });
             }
-
-            return View(viewModel);
         }
 
         [HttpPost]
         public ActionResult StartRegistration(RegisterToConference command, int orderVersion)
         {
             var existingOrder = orderVersion != 0 ? this.orderDao.FindDraftOrder(command.OrderId) : null;
-            var viewModel = existingOrder == null ? this.CreateViewModel() : this.CreateViewModel(existingOrder);
+            var viewModel = this.CreateViewModel();
+            if (existingOrder != null)
+            {
+                UpdateViewModel(viewModel, existingOrder);
+            }
+
             viewModel.OrderId = command.OrderId;
-            
+
             if (!ModelState.IsValid)
             {
                 return View(viewModel);
@@ -124,34 +141,38 @@ namespace Conference.Web.Public.Controllers
 
         [HttpGet]
         [OutputCache(Duration = 0, NoStore = true)]
-        public ActionResult SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
+        public Task<ActionResult> SpecifyRegistrantAndPaymentDetails(Guid orderId, int orderVersion)
         {
-            var pricedOrder = this.WaitUntilOrderIsPriced(orderId, orderVersion);
-            if (pricedOrder == null)
+            return this.WaitUntilOrderIsPriced(orderId, orderVersion)
+            .ContinueWith<ActionResult>(t =>
             {
-                return View("PricedOrderUnknown");
-            }
-
-            if (!pricedOrder.ReservationExpirationDate.HasValue)
-            {
-                return View("ShowCompletedOrder");
-            }
-
-            if (pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
-            {
-                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
-            }
-
-            return View(
-                new RegistrationViewModel
+                var pricedOrder = t.Result;
+                if (pricedOrder == null)
                 {
-                    RegistrantDetails = new AssignRegistrantDetails { OrderId = orderId },
-                    Order = pricedOrder
-                });
+                    return View("PricedOrderUnknown");
+                }
+
+                if (!pricedOrder.ReservationExpirationDate.HasValue)
+                {
+                    return View("ShowCompletedOrder");
+                }
+
+                if (pricedOrder.ReservationExpirationDate < DateTime.UtcNow)
+                {
+                    return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
+                }
+
+                return View(
+                    new RegistrationViewModel
+                    {
+                        RegistrantDetails = new AssignRegistrantDetails { OrderId = orderId },
+                        Order = pricedOrder
+                    });
+            });
         }
 
         [HttpPost]
-        public ActionResult SpecifyRegistrantAndPaymentDetails(AssignRegistrantDetails command, string paymentType, int orderVersion)
+        public Task<ActionResult> SpecifyRegistrantAndPaymentDetails(AssignRegistrantDetails command, string paymentType, int orderVersion)
         {
             var orderId = command.OrderId;
 
@@ -166,50 +187,54 @@ namespace Conference.Web.Public.Controllers
         }
 
         [HttpPost]
-        public ActionResult StartPayment(Guid orderId, string paymentType, int orderVersion)
+        public Task<ActionResult> StartPayment(Guid orderId, string paymentType, int orderVersion)
         {
-            var order = this.WaitUntilSeatsAreConfirmed(orderId, orderVersion);
-            if (order == null)
-            {
-                return View("ReservationUnknown");
-            }
+            return this.WaitUntilSeatsAreConfirmed(orderId, orderVersion)
+                .ContinueWith<ActionResult>(t =>
+                {
+                    var order = t.Result;
+                    if (order == null)
+                    {
+                        return View("ReservationUnknown");
+                    }
 
-            if (order.State == DraftOrder.States.PartiallyReserved)
-            {
-                //TODO: have a clear message in the UI saying there was a hiccup and he actually didn't get all the seats.
-                return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
-            }
+                    if (order.State == DraftOrder.States.PartiallyReserved)
+                    {
+                        //TODO: have a clear message in the UI saying there was a hiccup and he actually didn't get all the seats.
+                        return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
+                    }
 
-            if (order.State == DraftOrder.States.Confirmed)
-            {
-                return View("ShowCompletedOrder");
-            }
+                    if (order.State == DraftOrder.States.Confirmed)
+                    {
+                        return View("ShowCompletedOrder");
+                    }
 
-            if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
-            {
-                return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
-            }
+                    if (order.ReservationExpirationDate.HasValue && order.ReservationExpirationDate < DateTime.UtcNow)
+                    {
+                        return RedirectToAction("ShowExpiredOrder", new { conferenceCode = this.ConferenceAlias.Code, orderId = orderId });
+                    }
 
-            var pricedOrder = this.orderDao.FindPricedOrder(orderId);
-            if (pricedOrder.IsFreeOfCharge)
-            {
-                return CompleteRegistrationWithoutPayment(orderId);
-            }
+                    var pricedOrder = this.orderDao.FindPricedOrder(orderId);
+                    if (pricedOrder.IsFreeOfCharge)
+                    {
+                        return CompleteRegistrationWithoutPayment(orderId);
+                    }
 
-            switch (paymentType)
-            {
-                case ThirdPartyProcessorPayment:
+                    switch (paymentType)
+                    {
+                        case ThirdPartyProcessorPayment:
 
-                    return CompleteRegistrationWithThirdPartyProcessorPayment(pricedOrder, orderVersion);
+                            return CompleteRegistrationWithThirdPartyProcessorPayment(pricedOrder, orderVersion);
 
-                case InvoicePayment:
-                    break;
+                        case InvoicePayment:
+                            break;
 
-                default:
-                    break;
-            }
+                        default:
+                            break;
+                    }
 
-            throw new InvalidOperationException();
+                    throw new InvalidOperationException();
+                });
         }
 
         [HttpGet]
@@ -302,9 +327,8 @@ namespace Conference.Web.Public.Controllers
             return viewModel;
         }
 
-        private OrderViewModel CreateViewModel(DraftOrder order)
+        private static void UpdateViewModel(OrderViewModel viewModel, DraftOrder order)
         {
-            var viewModel = this.CreateViewModel();
             viewModel.OrderId = order.OrderId;
             viewModel.OrderVersion = order.OrderVersion;
             viewModel.ReservationExpirationDate = order.ReservationExpirationDate.ToEpochMilliseconds();
@@ -319,45 +343,26 @@ namespace Conference.Web.Public.Controllers
                 seat.MaxSelectionQuantity = Math.Min(seat.AvailableQuantityForOrder, 20);
                 seat.PartiallyFulfilled = line.RequestedSeats > line.ReservedSeats;
             }
-
-            return viewModel;
         }
 
-        private DraftOrder WaitUntilSeatsAreConfirmed(Guid orderId, int lastOrderVersion)
+        private Task<DraftOrder> WaitUntilSeatsAreConfirmed(Guid orderId, int lastOrderVersion)
         {
-            var deadline = DateTime.Now.AddSeconds(DraftOrderWaitTimeoutInSeconds);
-
-            while (DateTime.Now < deadline)
-            {
-                var order = this.orderDao.FindDraftOrder(orderId);
-
-                if (order != null && order.State != DraftOrder.States.PendingReservation && order.OrderVersion > lastOrderVersion)
-                {
-                    return order;
-                }
-
-                Thread.Sleep(500);
-            }
-
-            return null;
+            return
+                TimerTaskFactory.StartNew<DraftOrder>(
+                    () => this.orderDao.FindDraftOrder(orderId),
+                    order => order != null && order.State != DraftOrder.States.PendingReservation && order.OrderVersion > lastOrderVersion,
+                    DraftOrderPollPeriodInMilliseconds,
+                    DateTime.Now.AddSeconds(DraftOrderWaitTimeoutInSeconds));
         }
 
-        private PricedOrder WaitUntilOrderIsPriced(Guid orderId, int lastOrderVersion)
+        private Task<PricedOrder> WaitUntilOrderIsPriced(Guid orderId, int lastOrderVersion)
         {
-            var deadline = DateTime.Now.AddSeconds(PricedOrderWaitTimeoutInSeconds);
-
-            while (DateTime.Now < deadline)
-            {
-                var order = this.orderDao.FindPricedOrder(orderId);
-                if (order != null && order.OrderVersion > lastOrderVersion)
-                {
-                    return order;
-                }
-
-                Thread.Sleep(500);
-            }
-
-            return null;
+            return
+                TimerTaskFactory.StartNew<PricedOrder>(
+                    () => this.orderDao.FindPricedOrder(orderId),
+                    order => order != null && order.OrderVersion > lastOrderVersion,
+                    PricedOrderPollPeriodInMilliseconds,
+                    DateTime.Now.AddSeconds(PricedOrderWaitTimeoutInSeconds));
         }
     }
 }
