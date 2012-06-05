@@ -56,7 +56,7 @@ namespace WorkerRoleCommandProcessor
             RegisterCommandHandlers(container);
 
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
-            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
             Database.SetInitializer<EventStoreDbContext>(null);
             Database.SetInitializer<MessageLogDbContext>(null);
             Database.SetInitializer<BlobStorageDbContext>(null);
