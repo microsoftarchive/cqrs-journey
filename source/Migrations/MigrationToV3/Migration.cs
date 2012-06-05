@@ -11,34 +11,16 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace WorkerRoleCommandProcessor
+namespace MigrationToV3
 {
-    using System;
     using System.Data.Entity;
-    using Conference.Common.Entity;
+    using Registration.Database;
 
-    class Program
+    public static class Migration
     {
-        static void Main(string[] args)
+        public static void Initialize()
         {
-            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
-
-            // Setup V3 migrations.
-            // In future revisions, this line will change to invoke a V4 migration (possibly)
-            // and the initialization of the V3 migration won't be needed anymore, as the 
-            // production database will already have been migrated to V3.
-            MigrationToV3.Migration.Initialize();
-
-            using (var processor = new ConferenceProcessor())
-            {
-                processor.Start();
-
-                Console.WriteLine("Host started");
-                Console.WriteLine("Press enter to finish");
-                Console.ReadLine();
-
-                processor.Stop();
-            }
+            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
         }
     }
 }
