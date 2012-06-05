@@ -82,6 +82,7 @@
     <Compile Include="Serialization\TextSerializerExtensions.cs" />
     <Compile Include="StandardMetadata.cs" />
     <Compile Include="StandardMetadataProvider.cs" />
+    <Compile Include="Tasks\TimerTaskFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
