@@ -16,7 +16,7 @@ namespace Conference.Web.Public
     using System.Web.Mvc;
     using Registration.ReadModel;
 
-    public abstract class ConferenceTenantController : Controller
+    public abstract class ConferenceTenantController : AsyncController
     {
         private ConferenceAlias conferenceAlias;
         private string conferenceCode;
