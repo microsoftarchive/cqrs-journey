@@ -18,7 +18,7 @@ namespace Conference.Specflow.Features.UserInterface.Controllers.Registration
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature : Xunit.IUseFixture<Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FixtureData>, System.IDisposable
+    public partial class Self_RegistrantScenariosForMakingARegistrationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature : Xunit.IUseFixture<Self_RegistrantScenariosForMakingARegistrationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,7 +26,7 @@ namespace Conference.Specflow.Features.UserInterface.Controllers.Registration
 #line 1 "SelfRegistrationReservationWithConcurrency.feature"
 #line hidden
         
-        public Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature()
+        public Self_RegistrantScenariosForMakingARegistrationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature()
         {
             this.TestInitialize();
         }
@@ -34,8 +34,8 @@ namespace Conference.Specflow.Features.UserInterface.Controllers.Registration
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Self-Registrant scenarios for making a Reservation for a Conference site where mu" +
-                    "ltiple Registrants make simultaneous reservations", "In order to reserve Seats for a Conference\r\nAs an Attendee\r\nI want to be able to " +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Self-Registrant scenarios for making a Registration for a Conference site where m" +
+                    "ultiple Registrants make simultaneous reservations", "In order to reserve Seats for a Conference\r\nAs an Attendee\r\nI want to be able to " +
                     "select an Order Item from one or many of the available where other Registrants m" +
                     "ay also be interested", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
@@ -83,7 +83,7 @@ namespace Conference.Specflow.Features.UserInterface.Controllers.Registration
 #line hidden
         }
         
-        public virtual void SetFixture(Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FixtureData fixtureData)
+        public virtual void SetFixture(Self_RegistrantScenariosForMakingARegistrationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FixtureData fixtureData)
         {
         }
         
@@ -93,14 +93,14 @@ namespace Conference.Specflow.Features.UserInterface.Controllers.Registration
         }
         
         [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Self-Registrant scenarios for making a Reservation for a Conference site where mu" +
-            "ltiple Registrants make simultaneous reservations")]
+        [Xunit.TraitAttribute("FeatureTitle", "Self-Registrant scenarios for making a Registration for a Conference site where m" +
+            "ultiple Registrants make simultaneous reservations")]
         [Xunit.TraitAttribute("Description", "Many Registrants try to reserve the same Order Item and not all of them get the r" +
-            "eservation")]
-        public virtual void ManyRegistrantsTryToReserveTheSameOrderItemAndNotAllOfThemGetTheReservation()
+            "egistration")]
+        public virtual void ManyRegistrantsTryToReserveTheSameOrderItemAndNotAllOfThemGetTheRegistration()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Many Registrants try to reserve the same Order Item and not all of them get the r" +
-                    "eservation", new string[] {
+                    "egistration", new string[] {
                         "NoWatiN"});
 #line 27
 this.ScenarioSetup(scenarioInfo);
@@ -116,7 +116,7 @@ this.FeatureBackground();
 #line 28
  testRunner.When("20 Registrants selects these Order Items", ((string)(null)), table2);
 #line 31
- testRunner.Then("only 10 Registrants get confirmed reservations for the selected Order Items");
+ testRunner.Then("only 10 Registrants get confirmed registrations for the selected Order Items");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -128,12 +128,12 @@ this.FeatureBackground();
             
             public FixtureData()
             {
-                Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FeatureSetup();
+                Self_RegistrantScenariosForMakingARegistrationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FeatureTearDown();
+                Self_RegistrantScenariosForMakingARegistrationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature.FeatureTearDown();
             }
         }
     }

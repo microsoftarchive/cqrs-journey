@@ -28,15 +28,15 @@ using Xunit;
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
-    public class RegistrationProcessHardeningWithDomainSteps
+    [Scope(Tag = "RegistrationProcessHardeningIntegration")]
+    public class RegistrationProcessHardeningIntegrationSteps
     {
         private readonly ICommandBus commandBus;
         private readonly IEventBus eventBus; 
         private Guid orderId;
         private RegisterToConference registerToConference;
 
-        public RegistrationProcessHardeningWithDomainSteps()
+        public RegistrationProcessHardeningIntegrationSteps()
         {
             commandBus = ConferenceHelper.BuildCommandBus();
             eventBus = ConferenceHelper.BuildEventBus();

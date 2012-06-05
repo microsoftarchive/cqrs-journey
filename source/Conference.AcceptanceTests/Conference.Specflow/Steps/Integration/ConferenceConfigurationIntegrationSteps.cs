@@ -19,14 +19,14 @@ using Xunit;
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    [Scope(Tag = "ConferenceConfigurationDomain")]
-    public class ConferenceConfigurationDomainSteps
+    [Scope(Tag = "ConferenceConfigurationIntegration")]
+    public class ConferenceConfigurationIntegrationSteps
     {
         private ConferenceService conferenceService;
         private ConferenceInfo conference;
         private ICollection<SeatType> seats;
 
-        public ConferenceConfigurationDomainSteps()
+        public ConferenceConfigurationIntegrationSteps()
         {
             conferenceService = new ConferenceService(ConferenceHelper.BuildEventBus());    
         }

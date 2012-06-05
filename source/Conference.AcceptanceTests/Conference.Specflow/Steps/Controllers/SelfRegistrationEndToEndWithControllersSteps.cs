@@ -41,8 +41,8 @@ namespace Conference.Specflow.Steps
         private bool disposed;
 
         [Given(@"the selected Order Items")]
-        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
-        [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
+        [Scope(Tag = "RegistrationProcessHardeningIntegration")]
+        [Scope(Tag = "SelfRegistrationEndToEndWithIntegration")]
         public void GivenTheSelectedOrderItems(Table table)
         {
             conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
@@ -125,7 +125,16 @@ namespace Conference.Specflow.Steps
                 registrationViewModel.RegistrantDetails,
                 RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion) as RedirectToRouteResult;
 
+            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+            while((result == null || !result.RouteValues.ContainsKey("paymentId")) &&
+                DateTime.Now < timeout)
+            {
+                result = registrationController.StartPayment(registrationViewModel.RegistrantDetails.OrderId,
+                    RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion) as RedirectToRouteResult;
+            }
+
             Assert.NotNull(result);
+            Assert.True(result.RouteValues.ContainsKey("paymentId"), "No 'paymentId' key, Checkout payment not completed");
 
             routeValues = result.RouteValues;
         }
