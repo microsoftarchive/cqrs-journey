@@ -57,7 +57,7 @@ namespace Conference.Web.Public.Controllers
 
                 if (order == null)
                 {
-                    return View("ReservationUnknown");
+                    return View("PricedOrderUnknown");
                 }
 
                 if (order.State == DraftOrder.States.Confirmed)
