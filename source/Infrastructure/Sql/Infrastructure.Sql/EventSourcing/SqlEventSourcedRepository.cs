@@ -18,6 +18,7 @@ namespace Infrastructure.Sql.EventSourcing
     using System.IO;
     using System.Linq;
     using Infrastructure.EventSourcing;
+    using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Util;
@@ -29,12 +30,12 @@ namespace Infrastructure.Sql.EventSourcing
     {
         // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
         private static readonly string sourceType = typeof(T).Name;
-        private readonly EventBus eventBus;
+        private readonly IEventBus eventBus;
         private readonly ITextSerializer serializer;
         private readonly Func<EventStoreDbContext> contextFactory;
         private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
 
-        public SqlEventSourcedRepository(EventBus eventBus, ITextSerializer serializer, Func<EventStoreDbContext> contextFactory)
+        public SqlEventSourcedRepository(IEventBus eventBus, ITextSerializer serializer, Func<EventStoreDbContext> contextFactory)
         {
             this.eventBus = eventBus;
             this.serializer = serializer;
@@ -96,7 +97,7 @@ namespace Infrastructure.Sql.EventSourcing
             }
 
             // TODO: guarantee delivery or roll back, or have a way to resume after a system crash
-            this.eventBus.Publish(events, correlationId);
+            this.eventBus.Publish(events.Select(e => new Envelope<IEvent>(e) { CorrelationId = correlationId }));
         }
 
         private Event Serialize(IVersionedEvent e, string correlationId)

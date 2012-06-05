@@ -126,7 +126,7 @@ namespace Registration
             }
         }
 
-        public void Handle(ReceiveEnvelope<SeatsReserved> envelope)
+        public void Handle(Envelope<SeatsReserved> envelope)
         {
             if (this.State == ProcessState.AwaitingReservationConfirmation)
             {

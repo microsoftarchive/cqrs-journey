@@ -15,6 +15,7 @@ namespace Registration
 {
     using System;
     using System.Diagnostics;
+    using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
@@ -78,7 +79,7 @@ namespace Registration
             }
         }
 
-        public void Handle(ReceiveEnvelope<SeatsReserved> envelope)
+        public void Handle(Envelope<SeatsReserved> envelope)
         {
             using (var context = this.contextFactory.Invoke())
             {

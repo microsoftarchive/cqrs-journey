@@ -16,6 +16,7 @@ namespace Infrastructure.Sql.IntegrationTests
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Linq;
     using Infrastructure.Database;
     using Infrastructure.Messaging;
     using Infrastructure.Sql.Database;
@@ -96,8 +97,8 @@ namespace Infrastructure.Sql.IntegrationTests
             var events = new List<IEvent>();
 
             busMock
-                .Setup(x => x.Publish(It.IsAny<IEnumerable<IEvent>>()))
-                .Callback<IEnumerable<IEvent>>(x => events.AddRange(x));
+                .Setup(x => x.Publish(It.IsAny<IEnumerable<Envelope<IEvent>>>()))
+                .Callback<IEnumerable<Envelope<IEvent>>>(x => events.AddRange(x.Select(e => e.Body)));
 
             var @event = new TestEvent();
 

@@ -95,7 +95,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
 
             this.handlerMock.As<IEnvelopedEventHandler<EventA>>()
                 .Verify(
-                    h => h.Handle(It.Is<ReceiveEnvelope<EventA>>(e => e.Body == @event && e.MessageId == "message" && e.CorrelationId == "correlation")),
+                    h => h.Handle(It.Is<Envelope<EventA>>(e => e.Body == @event && e.MessageId == "message" && e.CorrelationId == "correlation")),
                     Times.Once());
         }
 
@@ -139,7 +139,7 @@ namespace Infrastructure.Tests.Messaging.Handling.MessageDispatcherFixture
 
             this.handler1Mock.As<IEnvelopedEventHandler<EventA>>()
                 .Verify(
-                    h => h.Handle(It.Is<ReceiveEnvelope<EventA>>(e => e.Body == @event && e.MessageId == "message" && e.CorrelationId == "correlation")),
+                    h => h.Handle(It.Is<Envelope<EventA>>(e => e.Body == @event && e.MessageId == "message" && e.CorrelationId == "correlation")),
                     Times.Once());
             this.handler2Mock.As<IEventHandler<EventA>>().Verify(h => h.Handle(@event), Times.Once());
         }

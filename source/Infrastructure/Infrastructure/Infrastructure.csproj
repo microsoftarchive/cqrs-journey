@@ -61,6 +61,7 @@
     <Compile Include="ExpressionCombiner.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="Messaging\CommandBusExtensions.cs" />
+    <Compile Include="Messaging\EventBusExtensions.cs" />
     <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\Handling\EventDispatcher.cs" />
     <Compile Include="Messaging\Handling\ICommandHandler.cs" />
@@ -72,9 +73,6 @@
     <Compile Include="Messaging\IEvent.cs" />
     <Compile Include="Messaging\IEventBus.cs" />
     <Compile Include="Messaging\IEventPublisher.cs" />
-    <Compile Include="Messaging\MemoryCommandBus.cs" />
-    <Compile Include="Messaging\MemoryEventBus.cs" />
-    <Compile Include="Messaging\Handling\ReceiveEnvelope.cs" />
     <Compile Include="Processes\IProcess.cs" />
     <Compile Include="Processes\IProcessDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

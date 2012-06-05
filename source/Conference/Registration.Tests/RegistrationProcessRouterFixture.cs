@@ -17,7 +17,7 @@ namespace Registration.Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using Infrastructure.Messaging.Handling;
+    using Infrastructure.Messaging;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
     using Registration.Events;
@@ -90,7 +90,12 @@ namespace Registration.Tests
             var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => context);
 
-            router.Handle(ReceiveEnvelope.Create(new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] }, "message", process.SeatReservationCommandId.ToString()));
+            router.Handle(
+                new Envelope<SeatsReserved>(
+                    new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] })
+                    {
+                        CorrelationId = process.SeatReservationCommandId.ToString()
+                    });
 
             Assert.Equal(1, context.SavedProcesses.Count);
             Assert.True(context.DisposeCalled);

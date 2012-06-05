@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -64,9 +63,19 @@ namespace Infrastructure.Azure.Messaging
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);
-            if (!default(Guid).Equals(command.Body.Id))
+
+            if (!string.IsNullOrWhiteSpace(command.MessageId))
+            {
+                message.MessageId = command.MessageId;
+            }
+            else if (!default(Guid).Equals(command.Body.Id))
             {
                 message.MessageId = command.Body.Id.ToString();
+            }
+
+            if (!string.IsNullOrWhiteSpace(command.CorrelationId))
+            {
+                message.CorrelationId = command.CorrelationId;
             }
 
             var metadata = this.metadataProvider.GetMetadata(command.Body);
@@ -79,7 +88,9 @@ namespace Infrastructure.Azure.Messaging
             }
 
             if (command.Delay != TimeSpan.Zero)
+            {
                 message.ScheduledEnqueueTimeUtc = DateTime.UtcNow.Add(command.Delay);
+            }
 
             return message;
         }

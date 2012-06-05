@@ -52,7 +52,6 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterInstance<ICommandBus>(commandBus);
             container.RegisterInstance<IEventBus>(eventBus);
-            container.RegisterInstance(eventBus);
             container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
             container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
             container.RegisterInstance<IEventHandlerRegistry>(eventProcessor);

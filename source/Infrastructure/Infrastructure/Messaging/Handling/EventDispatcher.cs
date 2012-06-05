@@ -16,20 +16,18 @@ namespace Infrastructure.Messaging.Handling
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Infrastructure.EventSourcing;
 
     public class EventDispatcher
     {
-        private Dictionary<Type, List<Tuple<Type, Action<ReceiveEnvelope>>>> handlersByEventType;
+        private Dictionary<Type, List<Tuple<Type, Action<Envelope>>>> handlersByEventType;
         private Dictionary<Type, Action<IEvent, string, string, string>> dispatchersByEventType;
 
         public EventDispatcher()
         {
-            this.handlersByEventType = new Dictionary<Type, List<Tuple<Type, Action<ReceiveEnvelope>>>>();
+            this.handlersByEventType = new Dictionary<Type, List<Tuple<Type, Action<Envelope>>>>();
             this.dispatchersByEventType = new Dictionary<Type, Action<IEvent, string, string, string>>();
         }
 
@@ -48,15 +46,15 @@ namespace Infrastructure.Messaging.Handling
 
             foreach (var invocationTuple in this.BuildHandlerInvocations(handler))
             {
-                var envelopeType = typeof(ReceiveEnvelope<>).MakeGenericType(invocationTuple.Item1);
+                var envelopeType = typeof(Envelope<>).MakeGenericType(invocationTuple.Item1);
 
-                List<Tuple<Type, Action<ReceiveEnvelope>>> invocations;
+                List<Tuple<Type, Action<Envelope>>> invocations;
                 if (!this.handlersByEventType.TryGetValue(invocationTuple.Item1, out invocations))
                 {
-                    invocations = new List<Tuple<Type, Action<ReceiveEnvelope>>>();
+                    invocations = new List<Tuple<Type, Action<Envelope>>>();
                     this.handlersByEventType[invocationTuple.Item1] = invocations;
                 }
-                invocations.Add(new Tuple<Type, Action<ReceiveEnvelope>>(handlerType, invocationTuple.Item2));
+                invocations.Add(new Tuple<Type, Action<Envelope>>(handlerType, invocationTuple.Item2));
 
                 if (!this.dispatchersByEventType.ContainsKey(invocationTuple.Item1))
                 {
@@ -90,9 +88,11 @@ namespace Infrastructure.Messaging.Handling
         private void DoDispatchMessage<T>(T @event, string messageId, string correlationId, string traceIdentifier)
             where T : IEvent
         {
-            var envelope = ReceiveEnvelope.Create(@event, messageId, correlationId);
+            var envelope = Envelope.Create(@event);
+            envelope.MessageId = messageId;
+            envelope.CorrelationId = correlationId;
 
-            List<Tuple<Type, Action<ReceiveEnvelope>>> handlers;
+            List<Tuple<Type, Action<Envelope>>> handlers;
             if (this.handlersByEventType.TryGetValue(typeof(T), out handlers))
             {
                 foreach (var handler in handlers)
@@ -103,7 +103,7 @@ namespace Infrastructure.Messaging.Handling
             }
         }
 
-        private IEnumerable<Tuple<Type, Action<ReceiveEnvelope>>> BuildHandlerInvocations(IEventHandler handler)
+        private IEnumerable<Tuple<Type, Action<Envelope>>> BuildHandlerInvocations(IEventHandler handler)
         {
             var interfaces = handler.GetType().GetInterfaces();
 
@@ -111,22 +111,22 @@ namespace Infrastructure.Messaging.Handling
                 interfaces
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>))
                     .Select(i => new { HandlerInterface = i, EventType = i.GetGenericArguments()[0] })
-                    .Select(e => new Tuple<Type, Action<ReceiveEnvelope>>(e.EventType, this.BuildHandlerInvocation(handler, e.HandlerInterface, e.EventType)));
+                    .Select(e => new Tuple<Type, Action<Envelope>>(e.EventType, this.BuildHandlerInvocation(handler, e.HandlerInterface, e.EventType)));
 
             var envelopedEventHandlerInvocations =
                 interfaces
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnvelopedEventHandler<>))
                     .Select(i => new { HandlerInterface = i, EventType = i.GetGenericArguments()[0] })
-                    .Select(e => new Tuple<Type, Action<ReceiveEnvelope>>(e.EventType, this.BuildEnvelopeHandlerInvocation(handler, e.HandlerInterface, e.EventType)));
+                    .Select(e => new Tuple<Type, Action<Envelope>>(e.EventType, this.BuildEnvelopeHandlerInvocation(handler, e.HandlerInterface, e.EventType)));
 
             return eventHandlerInvocations.Union(envelopedEventHandlerInvocations);
         }
 
-        private Action<ReceiveEnvelope> BuildHandlerInvocation(IEventHandler handler, Type handlerType, Type messageType)
+        private Action<Envelope> BuildHandlerInvocation(IEventHandler handler, Type handlerType, Type messageType)
         {
-            var envelopeType = typeof(ReceiveEnvelope<>).MakeGenericType(messageType);
+            var envelopeType = typeof(Envelope<>).MakeGenericType(messageType);
 
-            var parameter = Expression.Parameter(typeof(ReceiveEnvelope));
+            var parameter = Expression.Parameter(typeof(Envelope));
             var invocationExpression =
                 Expression.Lambda(
                     Expression.Block(
@@ -136,14 +136,14 @@ namespace Infrastructure.Messaging.Handling
                             Expression.Property(Expression.Convert(parameter, envelopeType), "Body"))),
                     parameter);
 
-            return (Action<ReceiveEnvelope>)invocationExpression.Compile();
+            return (Action<Envelope>)invocationExpression.Compile();
         }
 
-        private Action<ReceiveEnvelope> BuildEnvelopeHandlerInvocation(IEventHandler handler, Type handlerType, Type messageType)
+        private Action<Envelope> BuildEnvelopeHandlerInvocation(IEventHandler handler, Type handlerType, Type messageType)
         {
-            var envelopeType = typeof(ReceiveEnvelope<>).MakeGenericType(messageType);
+            var envelopeType = typeof(Envelope<>).MakeGenericType(messageType);
 
-            var parameter = Expression.Parameter(typeof(ReceiveEnvelope));
+            var parameter = Expression.Parameter(typeof(Envelope));
             var invocationExpression =
                 Expression.Lambda(
                     Expression.Block(
@@ -153,7 +153,7 @@ namespace Infrastructure.Messaging.Handling
                             Expression.Convert(parameter, envelopeType))),
                     parameter);
 
-            return (Action<ReceiveEnvelope>)invocationExpression.Compile();
+            return (Action<Envelope>)invocationExpression.Compile();
         }
 
         private Action<IEvent, string, string, string> BuildDispatchInvocation(Type eventType)

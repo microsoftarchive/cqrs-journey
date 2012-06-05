@@ -13,7 +13,7 @@
 
 using System;
 using System.Linq;
-using Infrastructure.Messaging.Handling;
+using Infrastructure.Messaging;
 using Payments.Contracts.Events;
 using Registration.Commands;
 using Registration.Events;
@@ -130,7 +130,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
             this.reservationId = makeReservationCommand.ReservationId;
 
             var seatsReserved = new SeatsReserved { SourceId = this.conferenceId, ReservationId = makeReservationCommand.ReservationId, ReservationDetails = new SeatQuantity[0] };
-            sut.Handle(new ReceiveEnvelope<SeatsReserved>(seatsReserved, "", makeReservationCommand.Id.ToString()));
+            sut.Handle(new Envelope<SeatsReserved>(seatsReserved) { CorrelationId = makeReservationCommand.Id.ToString() });
         }
 
         [Fact]
@@ -158,7 +158,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
 
             var seatsReserved = new SeatsReserved { SourceId = this.conferenceId, ReservationId = makeReservationCommand.ReservationId, ReservationDetails = new SeatQuantity[0] };
             this.initialCommandCount = this.sut.Commands.Count();
-            sut.Handle(new ReceiveEnvelope<SeatsReserved>(seatsReserved, "", Guid.NewGuid().ToString()));
+            sut.Handle(new Envelope<SeatsReserved>(seatsReserved) { CorrelationId = Guid.NewGuid().ToString() });
         }
 
         [Fact]
@@ -253,15 +253,16 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
             this.reservationId = makeReservationCommand.ReservationId;
 
             this.sut.Handle(
-                new ReceiveEnvelope<SeatsReserved>(
+                new Envelope<SeatsReserved>(
                     new SeatsReserved
                     {
                         SourceId = this.conferenceId,
                         ReservationId = makeReservationCommand.ReservationId,
                         ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
-                    },
-                    "",
-                    makeReservationCommand.Id.ToString()));
+                    })
+                    {
+                        CorrelationId = makeReservationCommand.Id.ToString()
+                    });
         }
     }
 
@@ -426,15 +427,16 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_payme
             this.reservationId = makeReservationCommand.ReservationId;
 
             this.sut.Handle(
-                new ReceiveEnvelope<SeatsReserved>(
+                new Envelope<SeatsReserved>(
                     new SeatsReserved
                     {
                         SourceId = this.conferenceId,
                         ReservationId = makeReservationCommand.ReservationId,
                         ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
-                    },
-                    "",
-                    makeReservationCommand.Id.ToString()));
+                    })
+                    {
+                        CorrelationId = makeReservationCommand.Id.ToString()
+                    });
 
             this.sut.Handle(
                 new PaymentCompleted

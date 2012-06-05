@@ -11,22 +11,24 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Messaging.Handling
+namespace Infrastructure.Messaging
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     /// <summary>
-    /// Marker interface that makes it easier to discover handlers via reflection.
+    /// Provides usability overloads for <see cref="IEventBus"/>
     /// </summary>
-    public interface IEventHandler { }
-
-    public interface IEventHandler<T> : IEventHandler
-        where T : IEvent
+    public static class EventBusExtensions
     {
-        void Handle(T @event);
-    }
+        public static void Publish(this IEventBus bus, IEvent @event)
+        {
+            bus.Publish(new Envelope<IEvent>(@event));
+        }
 
-    public interface IEnvelopedEventHandler<T> : IEventHandler
-        where T : IEvent
-    {
-        void Handle(Envelope<T> envelope);
+        public static void Publish(this IEventBus bus, IEnumerable<IEvent> events)
+        {
+            bus.Publish(events.Select(x => new Envelope<IEvent>(x)));
+        }
     }
 }
