@@ -26,14 +26,24 @@ namespace Registration.Tests
     {
         private ICommandHandler handler;
         private readonly RepositoryStub repository;
+        private string expectedCorrelationid;
 
         public EventSourcingTestHelper()
         {
-            this.Events = new List<Tuple<IVersionedEvent, string>>();
-            this.repository = new RepositoryStub((eventSouced, correlationId) => this.Events.AddRange(eventSouced.Events.Select(e => new Tuple<IVersionedEvent, string>(e, correlationId))));
+            this.Events = new List<IVersionedEvent>();
+            this.repository =
+                new RepositoryStub((eventSouced, correlationId) =>
+                    {
+                        if (this.expectedCorrelationid != null)
+                        {
+                            Assert.Equal(this.expectedCorrelationid, correlationId);
+                        }
+
+                        this.Events.AddRange(eventSouced.Events);
+                    });
         }
 
-        public List<Tuple<IVersionedEvent, string>> Events { get; private set; }
+        public List<IVersionedEvent> Events { get; private set; }
 
         public IEventSourcedRepository<T> Repository { get { return this.repository; } }
 
@@ -49,7 +59,9 @@ namespace Registration.Tests
 
         public void When(ICommand command)
         {
+            this.expectedCorrelationid = command.Id.ToString();
             ((dynamic)this.handler).Handle((dynamic)command);
+            this.expectedCorrelationid = null;
         }
 
         public void When(IEvent @event)
@@ -65,15 +77,15 @@ namespace Registration.Tests
         public TEvent ThenHasSingle<TEvent>() where TEvent : IVersionedEvent
         {
             Assert.Equal(1, this.Events.Count);
-            var @event = this.Events.Single().Item1;
+            var @event = this.Events.Single();
             Assert.IsAssignableFrom<TEvent>(@event);
             return (TEvent)@event;
         }
 
         public TEvent ThenHasOne<TEvent>() where TEvent : IVersionedEvent
         {
-            Assert.Equal(1, this.Events.Select(t => t.Item1).OfType<TEvent>().Count());
-            var @event = this.Events.Select(t => t.Item1).OfType<TEvent>().Single();
+            Assert.Equal(1, this.Events.OfType<TEvent>().Count());
+            var @event = this.Events.OfType<TEvent>().Single();
             return @event;
         }
 
