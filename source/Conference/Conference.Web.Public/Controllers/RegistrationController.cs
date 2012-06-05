@@ -47,22 +47,25 @@ namespace Conference.Web.Public.Controllers
         [OutputCache(Duration = 0, NoStore = true)]
         public Task<ActionResult> StartRegistration(Guid? orderId = null)
         {
-            var viewModel = this.CreateViewModel();
+            var viewModelTask = Task.Factory.StartNew(() => this.CreateViewModel());
             if (!orderId.HasValue)
             {
-                return Task.Factory.StartNew<ActionResult>(
-                    () =>
+                return viewModelTask
+                    .ContinueWith<ActionResult>(t =>
                     {
+                        var viewModel = t.Result;
                         viewModel.OrderId = Guid.NewGuid();
                         return View(viewModel);
                     });
             }
             else
             {
-                return this.WaitUntilSeatsAreConfirmed(orderId.Value, 0)
-                    .ContinueWith<ActionResult>(t =>
+                return Task.Factory.ContinueWhenAll<ActionResult>(
+                    new Task[] { viewModelTask, this.WaitUntilSeatsAreConfirmed(orderId.Value, 0) }, 
+                    tasks =>
                     {
-                        var order = t.Result;
+                        var viewModel = ((Task<OrderViewModel>)tasks[0]).Result;
+                        var order = ((Task<DraftOrder>)tasks[1]).Result;
 
                         if (order == null)
                         {
