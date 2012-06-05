@@ -80,7 +80,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get(this.conferenceDao).Setup(r => r.GetPublishedSeatTypes(conferenceAlias.Id)).Returns(seats);
 
             // Act
-            var result = (ViewResult)this.sut.StartRegistration();
+            var result = (ViewResult)this.sut.StartRegistration().Result;
 
             // Assert
             Assert.NotNull(result);
@@ -155,7 +155,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                         Lines = { new DraftOrderItem(seatTypeId, 10) { ReservedSeats = 5 } }
                     });
 
-            var result = (RedirectToRouteResult)this.sut.StartPayment(orderId, RegistrationController.ThirdPartyProcessorPayment, orderVersion - 1);
+            var result = (RedirectToRouteResult)this.sut.StartPayment(orderId, RegistrationController.ThirdPartyProcessorPayment, orderVersion - 1).Result;
 
             Assert.Equal(null, result.RouteValues["controller"]);
             Assert.Equal("StartRegistration", result.RouteValues["action"]);
@@ -178,7 +178,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.FindPricedOrder(orderId))
                 .Returns(new PricedOrder { OrderId = orderId, Total = 100, OrderVersion = orderVersion });
-            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion);
+            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion).Result;
 
             Assert.Equal("PricedOrderUnknown", result.ViewName);
         }
@@ -205,7 +205,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
                 .Setup(r => r.FindPricedOrder(orderId))
                 .Returns(new PricedOrder { OrderId = orderId, OrderVersion = orderVersion, ReservationExpirationDate = DateTime.UtcNow.AddMinutes(1) });
 
-            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1);
+            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(orderId, orderVersion - 1).Result;
 
             Assert.Equal(string.Empty, result.ViewName);
             var model = (RegistrationViewModel)result.Model;
@@ -246,7 +246,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
 
             // Act
             var result =
-                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment, 0);
+                (RedirectToRouteResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment, 0).Result;
 
             // Assert
             Mock.Get<ICommandBus>(this.bus)
@@ -291,7 +291,7 @@ namespace Conference.Web.Public.Tests.Controllers.RegistrationControllerFixture
             Mock.Get<IOrderDao>(this.orderDao)
                 .Setup(d => d.FindPricedOrder(orderId))
                 .Returns(new PricedOrder { OrderId = orderId, Total = 100, OrderVersion = orderVersion + 1 });
-            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment, orderVersion);
+            var result = (ViewResult)this.sut.SpecifyRegistrantAndPaymentDetails(command, RegistrationController.ThirdPartyProcessorPayment, orderVersion).Result;
 
             Assert.Equal("ReservationUnknown", result.ViewName);
         }
