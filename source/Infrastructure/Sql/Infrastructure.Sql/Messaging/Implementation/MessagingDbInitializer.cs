@@ -61,6 +61,7 @@ CREATE TABLE [{0}].[Commands](
     [Id] [bigint] IDENTITY(1,1) NOT NULL,
     [Body] [nvarchar](max) NOT NULL,
     [DeliveryDate] [datetime] NULL,
+    [CorrelationId] [nvarchar](max) NULL,
  CONSTRAINT [PK_{0}.Commands] PRIMARY KEY CLUSTERED 
 (
     [Id] ASC
@@ -71,6 +72,7 @@ CREATE TABLE [{0}].[Events](
     [Id] [bigint] IDENTITY(1,1) NOT NULL,
     [Body] [nvarchar](max) NOT NULL,
     [DeliveryDate] [datetime] NULL,
+    [CorrelationId] [nvarchar](max) NULL,
  CONSTRAINT [PK_{0}.Events] PRIMARY KEY CLUSTERED 
 (
     [Id] ASC

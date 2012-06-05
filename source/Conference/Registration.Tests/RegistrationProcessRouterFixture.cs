@@ -17,6 +17,7 @@ namespace Registration.Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Infrastructure.Messaging;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
     using Registration.Events;
@@ -33,6 +34,26 @@ namespace Registration.Tests
             router.Handle(new OrderPlaced { SourceId = Guid.NewGuid(), ConferenceId = Guid.NewGuid(), Seats = new SeatQuantity[0] });
 
             Assert.Equal(1, context.SavedProcesses.Count);
+            Assert.True(context.DisposeCalled);
+        }
+
+        [Fact]
+        public void when_order_placed_is_is_reprocessed_then_discards_event()
+        {
+            var process = new RegistrationProcess
+            {
+                State = RegistrationProcess.ProcessState.AwaitingReservationConfirmation,
+                OrderId = Guid.NewGuid(),
+                ReservationId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
+                ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
+            };
+            var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
+            var router = new RegistrationProcessRouter(() => context);
+
+            router.Handle(new OrderPlaced { SourceId = process.OrderId, ConferenceId = process.ConferenceId, Seats = new SeatQuantity[0] });
+
+            Assert.Equal(0, context.SavedProcesses.Count);
             Assert.True(context.DisposeCalled);
         }
 
@@ -63,12 +84,18 @@ namespace Registration.Tests
                 State = RegistrationProcess.ProcessState.AwaitingReservationConfirmation,
                 ReservationId = Guid.NewGuid(),
                 ConferenceId = Guid.NewGuid(),
+                SeatReservationCommandId = Guid.NewGuid(),
                 ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10)
             };
             var context = new StubProcessDataContext<RegistrationProcess> { Store = { process } };
             var router = new RegistrationProcessRouter(() => context);
 
-            router.Handle(new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] });
+            router.Handle(
+                new Envelope<SeatsReserved>(
+                    new SeatsReserved { SourceId = process.ConferenceId, ReservationId = process.ReservationId, ReservationDetails = new SeatQuantity[0] })
+                    {
+                        CorrelationId = process.SeatReservationCommandId.ToString()
+                    });
 
             Assert.Equal(1, context.SavedProcesses.Count);
             Assert.True(context.DisposeCalled);

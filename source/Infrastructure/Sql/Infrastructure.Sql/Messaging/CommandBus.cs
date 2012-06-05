@@ -60,7 +60,7 @@ namespace Infrastructure.Sql.Messaging
             using (var payloadWriter = new StringWriter())
             {
                 this.serializer.Serialize(payloadWriter, command.Body);
-                return new Message(payloadWriter.ToString(), command.Delay != TimeSpan.Zero ? (DateTime?)DateTime.UtcNow.Add(command.Delay) : null);
+                return new Message(payloadWriter.ToString(), command.Delay != TimeSpan.Zero ? (DateTime?)DateTime.UtcNow.Add(command.Delay) : null, command.CorrelationId);
             }
         }
     }

@@ -19,6 +19,7 @@ namespace Infrastructure.Azure.EventSourcing
         public int Version { get; set; }
         public string SourceType { get; set; }
         public string Payload { get; set; }
+        public string CorrelationId { get; set; }
 
         // Standard metadata.
         public string AssemblyName { get; set; }

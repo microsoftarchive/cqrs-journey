@@ -46,7 +46,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
                     }
             };
 
-            sut.Save(entity);
+            sut.Save(entity, "correlation");
         }
 
         [Fact]
@@ -63,10 +63,12 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
                             && x.First().SourceType == "TestEntity"
                             && x.First().TypeName == "TestEvent"
                             && x.First().Payload.Contains("Bar")
+                            && x.First().CorrelationId == "correlation"
                             && x.Last().Version == 2
                             && x.Last().SourceId == id.ToString()
                             && x.Last().SourceType == "TestEntity"
-                            && x.Last().Payload.Contains("Baz"))));
+                            && x.Last().Payload.Contains("Baz")
+                            && x.Last().CorrelationId == "correlation")));
         }
 
         [Fact]

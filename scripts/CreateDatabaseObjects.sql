@@ -55,6 +55,7 @@ CREATE TABLE [ConferenceRegistrationProcesses].[RegistrationProcess](
 	[ConferenceId] [uniqueidentifier] NOT NULL,
 	[OrderId] [uniqueidentifier] NOT NULL,
 	[ReservationId] [uniqueidentifier] NOT NULL,
+	[SeatReservationCommandId] [uniqueidentifier] NOT NULL,
 	[ReservationAutoExpiration] [datetime] NULL,
 	[ExpirationCommandId] [uniqueidentifier] NOT NULL,
 	[StateValue] [int] NOT NULL,
@@ -127,6 +128,7 @@ CREATE TABLE [SqlBus].[Commands](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Body] [nvarchar](max) NOT NULL,
 	[DeliveryDate] [datetime] NULL,
+	[CorrelationId] [nvarchar](max) NULL,
  CONSTRAINT [PK_SqlBus.Commands] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -177,6 +179,7 @@ CREATE TABLE [SqlBus].[Events](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[Body] [nvarchar](max) NOT NULL,
 	[DeliveryDate] [datetime] NULL,
+	[CorrelationId] [nvarchar](max) NULL,
  CONSTRAINT [PK_SqlBus.Events] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -192,6 +195,7 @@ CREATE TABLE [Events].[Events](
 	[AggregateType] [nvarchar](128) NOT NULL,
 	[Version] [int] NOT NULL,
 	[Payload] [nvarchar](max) NULL,
+	[CorrelationId] [nvarchar](max) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[AggregateId] ASC,

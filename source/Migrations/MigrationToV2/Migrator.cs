@@ -289,7 +289,7 @@ namespace MigrationToV2
 
             try
             {
-                var dispatcher = new MessageDispatcher(handlers);
+                var dispatcher = new EventDispatcher(handlers);
                 var events = logReader.Query(new QueryCriteria { });
 
                 dispatcher.DispatchMessages(events);

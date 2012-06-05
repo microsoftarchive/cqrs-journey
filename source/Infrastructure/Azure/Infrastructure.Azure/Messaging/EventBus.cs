@@ -42,7 +42,7 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Sends the specified event.
         /// </summary>
-        public void Publish(IEvent @event)
+        public void Publish(Envelope<IEvent> @event)
         {
             this.sender.Send(() => BuildMessage(@event));
         }
@@ -50,7 +50,7 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Publishes the specified events.
         /// </summary>
-        public void Publish(IEnumerable<IEvent> events)
+        public void Publish(IEnumerable<Envelope<IEvent>> events)
         {
             foreach (var @event in events)
             {
@@ -58,15 +58,28 @@ namespace Infrastructure.Azure.Messaging
             }
         }
 
-        private BrokeredMessage BuildMessage(IEvent @event)
+        private BrokeredMessage BuildMessage(Envelope<IEvent> envelope)
         {
+            var @event = envelope.Body;
+
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
             this.serializer.Serialize(writer, @event);
             stream.Position = 0;
 
             var message = new BrokeredMessage(stream, true);
+
             message.SessionId = @event.SourceId.ToString();
+
+            if (!string.IsNullOrWhiteSpace(envelope.MessageId))
+            {
+                message.MessageId = envelope.MessageId;
+            }
+
+            if (!string.IsNullOrWhiteSpace(envelope.CorrelationId))
+            {
+                message.CorrelationId = envelope.CorrelationId;
+            }
 
             var metadata = this.metadataProvider.GetMetadata(@event);
             if (metadata != null)

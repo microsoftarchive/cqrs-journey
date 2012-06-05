@@ -20,6 +20,7 @@ namespace Infrastructure.Sql.EventSourcing
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
+    using Infrastructure.Sql.Messaging;
     using Infrastructure.Util;
 
     // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
@@ -80,7 +81,7 @@ namespace Infrastructure.Sql.EventSourcing
             return entity;
         }
 
-        public void Save(T eventSourced)
+        public void Save(T eventSourced, string correlationId)
         {
             // TODO: guarantee that only incremental versions of the event are stored
             var events = eventSourced.Events.ToArray();
@@ -89,17 +90,17 @@ namespace Infrastructure.Sql.EventSourcing
                 var eventsSet = context.Set<Event>();
                 foreach (var e in events)
                 {
-                    eventsSet.Add(this.Serialize(e));
+                    eventsSet.Add(this.Serialize(e, correlationId));
                 }
 
                 context.SaveChanges();
             }
 
             // TODO: guarantee delivery or roll back, or have a way to resume after a system crash
-            this.eventBus.Publish(events);
+            this.eventBus.Publish(events.Select(e => new Envelope<IEvent>(e) { CorrelationId = correlationId }));
         }
 
-        private Event Serialize(IVersionedEvent e)
+        private Event Serialize(IVersionedEvent e, string correlationId)
         {
             Event serialized;
             using (var writer = new StringWriter())
@@ -110,7 +111,8 @@ namespace Infrastructure.Sql.EventSourcing
                     AggregateId = e.SourceId,
                     AggregateType = sourceType,
                     Version = e.Version,
-                    Payload = writer.ToString()
+                    Payload = writer.ToString(),
+                    CorrelationId = correlationId
                 };
             }
             return serialized;

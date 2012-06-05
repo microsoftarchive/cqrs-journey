@@ -39,6 +39,7 @@ namespace Infrastructure.Sql.EventSourcing
         public string AggregateType { get; set; }
         public int Version { get; set; }
         public string Payload { get; set; }
+        public string CorrelationId { get; set; }
 
         // TODO: Following could be very useful for when rebuilding the read model from the event store, 
         // to avoid replaying every possible event in the system

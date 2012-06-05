@@ -116,6 +116,7 @@ namespace Infrastructure.Azure.EventSourcing
             {
                 MessageId = record.PartitionKey + "_" + version,
                 SessionId = record.SourceId,
+                CorrelationId = record.CorrelationId,
                 Properties =
                     {
                         { "Version", version },

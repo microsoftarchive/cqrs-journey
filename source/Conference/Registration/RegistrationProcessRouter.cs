@@ -15,6 +15,7 @@ namespace Registration
 {
     using System;
     using System.Diagnostics;
+    using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
@@ -24,7 +25,7 @@ namespace Registration
     public class RegistrationProcessRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
-        IEventHandler<SeatsReserved>,
+        IEnvelopedEventHandler<SeatsReserved>,
         IEventHandler<PaymentCompleted>,
         IEventHandler<OrderConfirmed>,
         ICommandHandler<ExpireRegistrationProcess>
@@ -39,14 +40,20 @@ namespace Registration
 
         public void Handle(OrderPlaced @event)
         {
-            var process = new RegistrationProcess();
-            process.Handle(@event);
-
             using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    context.Save(process);
+                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                    if (process == null)
+                    {
+                        // If the process already exists, it means that the OrderPlaced event is being reprocessed because the message 
+                        // could not be completed. No need to handle it again.
+                        process = new RegistrationProcess();
+                        process.Handle(@event);
+
+                        context.Save(process);
+                    }
                 }
             }
         }
@@ -72,22 +79,22 @@ namespace Registration
             }
         }
 
-        public void Handle(SeatsReserved @event)
+        public void Handle(Envelope<SeatsReserved> envelope)
         {
             using (var context = this.contextFactory.Invoke())
             {
                 lock (lockObject)
                 {
-                    var process = context.Find(x => x.ReservationId == @event.ReservationId && x.Completed == false);
+                    var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId && x.Completed == false);
                     if (process != null)
                     {
-                        process.Handle(@event);
+                        process.Handle(envelope);
 
                         context.Save(process);
                     }
                     else
                     {
-                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", @event.ReservationId);
+                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", envelope.Body.ReservationId);
                     }
                 }
             }
@@ -120,6 +127,7 @@ namespace Registration
             {
                 lock (lockObject)
                 {
+                    // TODO should not skip the completed processes and move them to a "manual intervention" state
                     var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.Completed == false);
                     if (process != null)
                     {

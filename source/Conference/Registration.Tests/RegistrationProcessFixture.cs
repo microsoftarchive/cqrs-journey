@@ -13,6 +13,7 @@
 
 using System;
 using System.Linq;
+using Infrastructure.Messaging;
 using Payments.Contracts.Events;
 using Registration.Commands;
 using Registration.Events;
@@ -47,9 +48,9 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
         }
 
         [Fact]
-        public void then_locks_seats()
+        public void then_sends_two_commands()
         {
-            Assert.Equal(1, sut.Commands.Count());
+            Assert.Equal(2, sut.Commands.Count());
         }
 
         [Fact]
@@ -59,6 +60,24 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
 
             Assert.Equal(orderPlaced.ConferenceId, reservation.ConferenceId);
             Assert.Equal(2, reservation.Seats[0].Quantity);
+        }
+
+        [Fact]
+        public void then_saves_reservation_command_id_for_later_use()
+        {
+            var reservation = sut.Commands.Select(x => x.Body).OfType<MakeSeatReservation>().Single();
+
+            Assert.Equal(reservation.Id, this.sut.SeatReservationCommandId);
+        }
+
+        [Fact]
+        public void then_posts_delayed_expiration_command()
+        {
+            var expirationCommandEnvelope = this.sut.Commands.Where(e => e.Body is ExpireRegistrationProcess).Single();
+
+            Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(32));
+            Assert.Equal(((ExpireRegistrationProcess)expirationCommandEnvelope.Body).ProcessId, this.sut.Id);
+            Assert.Equal(expirationCommandEnvelope.Body.Id, this.sut.ExpirationCommandId);
         }
 
         [Fact]
@@ -111,7 +130,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
             this.reservationId = makeReservationCommand.ReservationId;
 
             var seatsReserved = new SeatsReserved { SourceId = this.conferenceId, ReservationId = makeReservationCommand.ReservationId, ReservationDetails = new SeatQuantity[0] };
-            sut.Handle(seatsReserved);
+            sut.Handle(new Envelope<SeatsReserved>(seatsReserved) { CorrelationId = makeReservationCommand.Id.ToString() });
         }
 
         [Fact]
@@ -127,14 +146,31 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         {
             Assert.Equal(RegistrationProcess.ProcessState.ReservationConfirmationReceived, sut.State);
         }
+    }
+
+    public class when_reservation_confirmation_is_received_for_non_current_correlation_id : Context
+    {
+        private int initialCommandCount;
+
+        public when_reservation_confirmation_is_received_for_non_current_correlation_id()
+        {
+            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
+
+            var seatsReserved = new SeatsReserved { SourceId = this.conferenceId, ReservationId = makeReservationCommand.ReservationId, ReservationDetails = new SeatQuantity[0] };
+            this.initialCommandCount = this.sut.Commands.Count();
+            sut.Handle(new Envelope<SeatsReserved>(seatsReserved) { CorrelationId = Guid.NewGuid().ToString() });
+        }
 
         [Fact]
-        public void then_posts_delayed_expiration_command()
+        public void then_does_not_update_order_status()
         {
-            var expirationCommandEnvelope = this.sut.Commands.Where(e => e.Body is ExpireRegistrationProcess).Single();
+            Assert.Equal(this.initialCommandCount, this.sut.Commands.Count());
+        }
 
-            Assert.True(expirationCommandEnvelope.Delay > TimeSpan.FromMinutes(32));
-            Assert.Equal(((ExpireRegistrationProcess)expirationCommandEnvelope.Body).ProcessId, this.sut.Id);
+        [Fact]
+        public void then_transitions_state()
+        {
+            Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
     }
 
@@ -169,6 +205,14 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
 
             Assert.Equal(this.conferenceId, newReservation.ConferenceId);
             Assert.Equal(3, newReservation.Seats[0].Quantity);
+        }
+
+        [Fact]
+        public void then_saves_reservation_command_id_for_later_use()
+        {
+            var reservation = sut.Commands.Select(x => x.Body).OfType<MakeSeatReservation>().ElementAt(1);
+
+            Assert.Equal(reservation.Id, this.sut.SeatReservationCommandId);
         }
 
         [Fact]
@@ -209,12 +253,16 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
             this.reservationId = makeReservationCommand.ReservationId;
 
             this.sut.Handle(
-                new SeatsReserved
-                {
-                    SourceId = this.conferenceId,
-                    ReservationId = makeReservationCommand.ReservationId,
-                    ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
-                });
+                new Envelope<SeatsReserved>(
+                    new SeatsReserved
+                    {
+                        SourceId = this.conferenceId,
+                        ReservationId = makeReservationCommand.ReservationId,
+                        ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
+                    })
+                    {
+                        CorrelationId = makeReservationCommand.Id.ToString()
+                    });
         }
     }
 
@@ -280,6 +328,14 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
 
             Assert.Equal(this.conferenceId, newReservation.ConferenceId);
             Assert.Equal(3, newReservation.Seats[0].Quantity);
+        }
+
+        [Fact]
+        public void then_saves_reservation_command_id_for_later_use()
+        {
+            var reservation = sut.Commands.Select(x => x.Body).OfType<MakeSeatReservation>().ElementAt(1);
+
+            Assert.Equal(reservation.Id, this.sut.SeatReservationCommandId);
         }
 
         [Fact]
@@ -371,12 +427,16 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_payme
             this.reservationId = makeReservationCommand.ReservationId;
 
             this.sut.Handle(
-                new SeatsReserved
-                {
-                    SourceId = this.conferenceId,
-                    ReservationId = makeReservationCommand.ReservationId,
-                    ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
-                });
+                new Envelope<SeatsReserved>(
+                    new SeatsReserved
+                    {
+                        SourceId = this.conferenceId,
+                        ReservationId = makeReservationCommand.ReservationId,
+                        ReservationDetails = new[] { new SeatQuantity(seatType, 2) }
+                    })
+                    {
+                        CorrelationId = makeReservationCommand.Id.ToString()
+                    });
 
             this.sut.Handle(
                 new PaymentCompleted

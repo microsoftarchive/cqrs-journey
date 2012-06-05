@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
 {
     using System;
     using System.Threading;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
@@ -47,6 +46,62 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
                 e.Wait(TimeoutPeriod);
 
                 Assert.True(handler.Called);
+            }
+            finally
+            {
+                processor.Stop();
+            }
+        }
+
+        [Fact]
+        public void when_receiving_event_then_calls_handler_with_envelope()
+        {
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+
+            var e = new ManualResetEventSlim();
+            var handler = new FooEnvelopedEventHandler(e);
+
+            processor.Register(handler);
+
+            processor.Start();
+
+            try
+            {
+                bus.Publish(new FooEvent());
+
+                e.Wait(TimeoutPeriod);
+
+                Assert.True(handler.Called);
+            }
+            finally
+            {
+                processor.Stop();
+            }
+        }
+
+        [Fact]
+        public void when_receiving_event_published_with_message_and_correlation_ids_then_calls_handler_with_envelope()
+        {
+            var processor = new EventProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+
+            var e = new ManualResetEventSlim();
+            var handler = new FooEnvelopedEventHandler(e);
+
+            processor.Register(handler);
+
+            processor.Start();
+
+            try
+            {
+                bus.Publish(new Envelope<IEvent>(new FooEvent()) { CorrelationId = "correlation", MessageId = "message" });
+
+                e.Wait(TimeoutPeriod);
+
+                Assert.True(handler.Called);
+                Assert.Equal("correlation", handler.CorrelationId);
+                Assert.Equal("message", handler.MessageId);
             }
             finally
             {
@@ -155,6 +210,30 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
             }
 
             public bool Called { get; set; }
+        }
+
+        public class FooEnvelopedEventHandler : IEnvelopedEventHandler<FooEvent>
+        {
+            private ManualResetEventSlim e;
+
+            public FooEnvelopedEventHandler(ManualResetEventSlim e)
+            {
+                this.e = e;
+            }
+
+            public void Handle(Envelope<FooEvent> command)
+            {
+                this.Called = true;
+                this.MessageId = command.MessageId;
+                this.CorrelationId = command.CorrelationId;
+                e.Set();
+            }
+
+            public bool Called { get; set; }
+
+            public string MessageId { get; set; }
+
+            public string CorrelationId { get; set; }
         }
 
         public class BarEventHandler : IEventHandler<BarEvent>

@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0DDDA8DF-58EA-4682-887E-955C8EDB0AA5}</ProjectGuid>
+    <ProjectGuid>{449F6FFD-3817-496A-BCDE-71D5F4710811}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Conference.IntegrationTests</RootNamespace>
-    <AssemblyName>Conference.IntegrationTests</AssemblyName>
+    <RootNamespace>Infrastructure.Tests</RootNamespace>
+    <AssemblyName>Infrastructure.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,50 +31,34 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
-    </Reference>
     <Reference Include="Moq">
       <HintPath>..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Xml" />
     <Reference Include="xunit">
       <HintPath>..\..\packages\xunit.1.9.0.1566\lib\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConferenceServiceFixture.cs" />
-    <Compile Include="OrderEventHandlerFixture.cs" />
+    <Compile Include="Messaging\Handling\MessageDispatcherFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
       <Link>CQRS-journey.licenseheader</Link>
     </None>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj">
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
-      <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
-      <Name>Registration.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Conference.Contracts\Conference.Contracts.csproj">
-      <Project>{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA}</Project>
-      <Name>Conference.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Conference\Conference.csproj">
-      <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
-      <Name>Conference</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

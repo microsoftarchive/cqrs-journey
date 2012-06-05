@@ -62,8 +62,6 @@
     <Compile Include="EnumerableEventsExtensions.cs" />
     <Compile Include="EventSourcingTestHelper.cs" />
     <Compile Include="HandleGeneratorFixture.cs" />
-    <Compile Include="MemoryEventBusFixture.cs" />
-    <Compile Include="MemoryCommandBusFixture.cs" />
     <Compile Include="OrderFixture.cs" />
     <Compile Include="PersonalInfoFixture.cs" />
     <Compile Include="PricingServiceFixture.cs" />

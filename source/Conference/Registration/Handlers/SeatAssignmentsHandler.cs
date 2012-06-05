@@ -51,21 +51,21 @@ namespace Registration.Handlers
         {
             var order = this.ordersRepo.Get(@event.SourceId);
             var assignments = order.CreateSeatAssignments();
-            assignmentsRepo.Save(assignments);
+            assignmentsRepo.Save(assignments, null);
         }
 
         public void Handle(AssignSeat command)
         {
             var assignments = this.assignmentsRepo.Get(command.SeatAssignmentsId);
             assignments.AssignSeat(command.Position, command.Attendee);
-            assignmentsRepo.Save(assignments);
+            assignmentsRepo.Save(assignments, command.Id.ToString());
         }
 
         public void Handle(UnassignSeat command)
         {
             var assignments = this.assignmentsRepo.Get(command.SeatAssignmentsId);
             assignments.Unassign(command.Position);
-            assignmentsRepo.Save(assignments);
+            assignmentsRepo.Save(assignments, command.Id.ToString());
         }
     }
 }

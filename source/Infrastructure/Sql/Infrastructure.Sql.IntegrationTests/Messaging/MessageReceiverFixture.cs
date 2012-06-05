@@ -58,6 +58,23 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.MessageReceiverFixture
 
             Assert.True(this.receiver.ReceiveMessage());
             Assert.Equal("test message", message.Body);
+            Assert.Null(message.CorrelationId);
+            Assert.Null(message.DeliveryDate);
+        }
+
+        [Fact]
+        public void when_sending_message_with_correlation_id_then_receives_message()
+        {
+            Message message = null;
+
+            this.receiver.MessageReceived += (s, e) => { message = e.Message; };
+
+            this.sender.Send(new Message("test message", correlationId: "correlation"));
+
+            Assert.True(this.receiver.ReceiveMessage());
+            Assert.Equal("test message", message.Body);
+            Assert.Equal("correlation", message.CorrelationId);
+            Assert.Null(message.DeliveryDate);
         }
 
         [Fact]

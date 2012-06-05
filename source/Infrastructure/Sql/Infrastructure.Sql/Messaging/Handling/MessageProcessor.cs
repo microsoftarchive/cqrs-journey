@@ -82,7 +82,7 @@ namespace Infrastructure.Sql.Messaging.Handling
             GC.SuppressFinalize(this);
         }
 
-        protected abstract void ProcessMessage(object payload);
+        protected abstract void ProcessMessage(object payload, string correlationId);
 
         /// <summary>
         /// Disposes the resources used by the processor.
@@ -120,7 +120,7 @@ namespace Infrastructure.Sql.Messaging.Handling
                 TracePayload(body);
                 Trace.WriteLine("");
 
-                ProcessMessage(body);
+                ProcessMessage(body, args.Message.CorrelationId);
 
                 Trace.WriteLine(new string('-', 100));
             }
