@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Domain.Management
+namespace Conference.Specflow.Features.Integration.Management
 {
     using TechTalk.SpecFlow;
     
@@ -23,7 +23,7 @@ namespace Conference.Specflow.Features.Domain.Management
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "ConferenceConfigurationDomain.feature"
+#line 1 "ConferenceConfigurationWithIntegration.feature"
 #line hidden
         
         public ConferenceConfigurationScenariosForCreatingAndEditingConferenceSettingsWithEventsAndCommandsFeature()
@@ -37,7 +37,7 @@ namespace Conference.Specflow.Features.Domain.Management
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Conference configuration scenarios for creating and editing Conference settings w" +
                     "ith events and commands", "In order to create or update a Conference configuration\r\nAs a Business Customer\r\n" +
                     "I want to be able to create or update a Conference and set its properties", ProgrammingLanguage.CSharp, new string[] {
-                        "ConferenceConfigurationDomain",
+                        "ConferenceConfigurationIntegration",
                         "NoWatiN"});
             testRunner.OnFeatureStart(featureInfo);
         }

@@ -18,7 +18,7 @@ Feature: Self-Registrant scenarios for making a Reservation for a Conference sit
 	I want to be able to select an Order Item from one or many of the available where other Registrants may also be interested
 
 #This scenario with low volume is for Azure build  
-@SelfRegistrationReservationWithConcurrencyDomain
+@SelfRegistrationReservationWithConcurrencyIntegration
 Scenario: Some Registrants try to reserve the same Order Item and not all of them get the reservation	
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type     | rate | quota |
@@ -34,7 +34,7 @@ Scenario: Some Registrants try to reserve the same Order Item and not all of the
 
 #This scenario with hight volume is for Sql build (DebugLocal)  
 #Self Registrant scenario
-@SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly
+@SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly
 Scenario: Many Registrants try to reserve the same Order Item and not all of them get the reservation	
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type     | rate | quota |
@@ -50,7 +50,7 @@ Scenario: Many Registrants try to reserve the same Order Item and not all of the
 
 #This scenario with hight volume is for Sql build (DebugLocal)  
 #Group Registrant scenario with some partial and some full reservations
-@SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly
+@SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly
 Scenario: Many Registrants try to reserve many same Order Items and some of them get a partial reservation
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type         | rate | quota |

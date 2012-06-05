@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Domain.Registration
+namespace Conference.Specflow.Features.Integration.Registration
 {
     using TechTalk.SpecFlow;
     
@@ -23,7 +23,7 @@ namespace Conference.Specflow.Features.Domain.Registration
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "SelfRegistrationEndToEndWithDomain.feature"
+#line 1 "SelfRegistrationEndToEndWithIntegration.feature"
 #line hidden
         
         public SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature()
@@ -38,7 +38,7 @@ namespace Conference.Specflow.Features.Domain.Registration
                     "te with Doamin Commands and Events", "In order to register for a conference\r\nAs an Attendee\r\nI want to be able to regis" +
                     "ter for the conference, pay for the Registration Order and associate myself with" +
                     " the paid Order automatically", ProgrammingLanguage.CSharp, new string[] {
-                        "SelfRegistrationEndToEndWithDomain",
+                        "SelfRegistrationEndToEndWithIntegration",
                         "NoWatiN"});
             testRunner.OnFeatureStart(featureInfo);
         }
@@ -117,21 +117,19 @@ testRunner.Given("the list of the available Order Items for the CQRS summit 2012
                         "1"});
 #line 28
 testRunner.And("the selected Order Items", ((string)(null)), table2);
-#line 32
-testRunner.When("the Registrant proceed to make the Reservation");
-#line 34
-testRunner.Then("the command to register the selected Order Items is received");
-#line 36
-testRunner.And("the event for Order placed is emitted");
-#line 38
+#line 33
+testRunner.When("the command to register the selected Order Items is sent");
+#line 35
+testRunner.Then("the event for Order placed is emitted");
+#line 37
 testRunner.And("the command for reserving the selected Seats is received");
-#line 40
+#line 39
 testRunner.And("the event for reserving the selected Seats is emitted");
-#line 42
+#line 41
 testRunner.And("the command for marking the selected Seats as reserved is received");
-#line 44
+#line 43
 testRunner.And("the event for completing the Order reservation is emitted");
-#line 46
+#line 45
 testRunner.And("the event for calculating the total of $249 is emitted");
 #line hidden
             this.ScenarioCleanup();

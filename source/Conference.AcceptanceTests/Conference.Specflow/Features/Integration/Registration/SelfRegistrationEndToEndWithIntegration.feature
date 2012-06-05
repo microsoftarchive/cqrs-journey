@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-@SelfRegistrationEndToEndWithDomain
+@SelfRegistrationEndToEndWithIntegration
 @NoWatiN
 Feature: Self Registrant end to end scenario for making a Registration for a Conference site with Doamin Commands and Events
 	In order to register for a conference
@@ -29,11 +29,10 @@ And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-When the Registrant proceed to make the Reservation
 	# command:RegisterToConference
-Then the command to register the selected Order Items is received 
+When the command to register the selected Order Items is sent 
 	# event: OrderPlaced
-And the event for Order placed is emitted
+Then the event for Order placed is emitted
 	# command: MakeSeatReservation
 And the command for reserving the selected Seats is received
 	# event: SeatsReserved

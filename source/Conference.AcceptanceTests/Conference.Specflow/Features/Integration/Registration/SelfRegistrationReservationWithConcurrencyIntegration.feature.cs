@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Domain.Registration
+namespace Conference.Specflow.Features.Integration.Registration
 {
     using TechTalk.SpecFlow;
     
@@ -23,7 +23,7 @@ namespace Conference.Specflow.Features.Domain.Registration
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "SelfRegistrationReservationWithConcurrencyDomain.feature"
+#line 1 "SelfRegistrationReservationWithConcurrencyIntegration.feature"
 #line hidden
         
         public Self_RegistrantScenariosForMakingAReservationForAConferenceSiteWhereMultipleRegistrantsMakeSimultaneousReservationsFeature()
@@ -85,7 +85,7 @@ namespace Conference.Specflow.Features.Domain.Registration
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Some Registrants try to reserve the same Order Item and not all of them get the r" +
                     "eservation", new string[] {
-                        "SelfRegistrationReservationWithConcurrencyDomain"});
+                        "SelfRegistrationReservationWithConcurrencyIntegration"});
 #line 22
 this.ScenarioSetup(scenarioInfo);
 #line hidden
@@ -125,7 +125,7 @@ this.ScenarioSetup(scenarioInfo);
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Many Registrants try to reserve the same Order Item and not all of them get the r" +
                     "eservation", new string[] {
-                        "SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly"});
+                        "SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly"});
 #line 38
 this.ScenarioSetup(scenarioInfo);
 #line hidden
@@ -165,7 +165,7 @@ this.ScenarioSetup(scenarioInfo);
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Many Registrants try to reserve many same Order Items and some of them get a part" +
                     "ial reservation", new string[] {
-                        "SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly"});
+                        "SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly"});
 #line 54
 this.ScenarioSetup(scenarioInfo);
 #line hidden
