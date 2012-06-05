@@ -75,7 +75,8 @@ namespace Registration
             {
                 this.ConferenceId = message.ConferenceId;
                 this.OrderId = message.SourceId;
-                // use the order id as the opaque reservation id for the seat reservation
+                // Use the order id as an opaque reservation id for the seat reservation. 
+                // It could be anything else, as long as it is deterministic from the OrderPlaced event.
                 this.ReservationId = message.SourceId;
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
                 this.State = ProcessState.AwaitingReservationConfirmation;

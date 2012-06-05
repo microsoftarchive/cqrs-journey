@@ -47,13 +47,11 @@ namespace Registration
                     var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
                     if (process == null)
                     {
-                        // If the process already exists, it means that the OrderPlaced event is being reprocessed because the message 
-                        // could not be completed. No need to handle it again.
                         process = new RegistrationProcess();
-                        process.Handle(@event);
-
-                        context.Save(process);
                     }
+
+                    process.Handle(@event);
+                    context.Save(process);
                 }
             }
         }
