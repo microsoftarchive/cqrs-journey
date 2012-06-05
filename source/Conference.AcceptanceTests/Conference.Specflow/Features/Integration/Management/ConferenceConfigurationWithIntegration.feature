@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-@ConferenceConfigurationDomain
+@ConferenceConfigurationIntegration
 @NoWatiN
 Feature:  Conference configuration scenarios for creating and editing Conference settings with events and commands
 	In order to create or update a Conference configuration

@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-Feature: Self-Registrant scenarios for making a Reservation for a Conference site where multiple Registrants make simultaneous reservations
+Feature: Self-Registrant scenarios for making a Registration for a Conference site where multiple Registrants make simultaneous reservations
 	In order to reserve Seats for a Conference
 	As an Attendee
 	I want to be able to select an Order Item from one or many of the available where other Registrants may also be interested
@@ -24,8 +24,8 @@ Background:
 
 
 @NoWatiN
-Scenario: Many Registrants try to reserve the same Order Item and not all of them get the reservation	
+Scenario: Many Registrants try to reserve the same Order Item and not all of them get the registration	
 	When 20 Registrants selects these Order Items
 	| seat type     | quantity |
 	| CQRS Workshop | 1        |
-	Then only 10 Registrants get confirmed reservations for the selected Order Items
+	Then only 10 Registrants get confirmed registrations for the selected Order Items

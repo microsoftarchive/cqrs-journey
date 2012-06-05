@@ -26,13 +26,13 @@ using Xunit;
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    [Scope(Tag = "@SelfRegistrationReservationWithConcurrencyDomain")]
-    public class SelfRegistrationReservationWithConcurrencyDomainSteps
+    [Scope(Tag = "@SelfRegistrationReservationWithConcurrencyIntegration")]
+    public class SelfRegistrationReservationWithConcurrencyIntegrationSteps
     {
         private List<string> orderIds;
         private readonly ICommandBus commandBus;
 
-        public SelfRegistrationReservationWithConcurrencyDomainSteps()
+        public SelfRegistrationReservationWithConcurrencyIntegrationSteps()
         {
             commandBus = ConferenceHelper.BuildCommandBus();
         }
@@ -81,12 +81,12 @@ namespace Conference.Specflow.Steps
 
     //This steps only executes on DebugLocal (Sql bus)
     [Binding]
-    [Scope(Tag = "@SelfRegistrationReservationWithConcurrencyDomainDebugLocalOnly")]
-    public class SelfRegistrationReservationWithConcurrencyDomainStepsDebugLocal
+    [Scope(Tag = "@SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly")]
+    public class SelfRegistrationReservationWithConcurrencyIntegrationStepsDebugLocal
     {
 #if LOCAL
-        private readonly SelfRegistrationReservationWithConcurrencyDomainSteps steps =
-            new SelfRegistrationReservationWithConcurrencyDomainSteps();
+        private readonly SelfRegistrationReservationWithConcurrencyIntegrationSteps steps =
+            new SelfRegistrationReservationWithConcurrencyIntegrationSteps();
 #endif
 
         [Given(@"the list of the available Order Items for the CQRS summit 2012 conference")]

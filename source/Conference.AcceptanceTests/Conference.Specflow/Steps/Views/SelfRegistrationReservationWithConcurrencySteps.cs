@@ -70,6 +70,10 @@ namespace Conference.Specflow.Steps
                     {
                         registrant.GivenTheSelectedOrderItems(table);
                         registrant.GivenTheRegistrantProceedToMakeTheReservation();
+                        //If we get here, the reservation was successful so proceed to payment
+                        registrant.GivenTheRegistrantProceedToCheckoutPayment();
+                        registrant.WhenTheRegistrantProceedToConfirmThePayment();
+                        registrant.ThenTheOrderShouldBeCreatedWithTheFollowingOrderItems(table);
                     }
                     catch (AssertException e)
                     {
@@ -85,12 +89,12 @@ namespace Conference.Specflow.Steps
             results = tasks.Select(t => t.Result).ToList();
         }
 
-        [Then(@"only (.*) Registrants get confirmed reservations for the selected Order Items")]
-        public void ThenOnlySomeRegistrantsGetConfirmedReservationsForTheSelectedOrderItems(int registrants)
+        [Then(@"only (.*) Registrants get confirmed registrations for the selected Order Items")]
+        public void ThenOnlySomeRegistrantsGetConfirmedRegistrationsForTheSelectedOrderItems(int registrants)
         {
             int reserved = results.Count(s => s == null);
             Assert.True(registrants == reserved,
-                "Reservations expected: " + registrants + " and got reserved: " + reserved + "\n\r" + 
+                "Reservations expected: " + registrants + " and got reserved: " + reserved + "\n\r" +
                 string.Join("\r\n", results.Where(s => s != null).ToArray()));
         }
     }

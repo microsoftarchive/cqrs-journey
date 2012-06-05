@@ -94,25 +94,25 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Features\Domain\Management\ConferenceConfigurationDomain.feature.cs">
+    <Compile Include="Features\Integration\Management\ConferenceConfigurationWithIntegration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ConferenceConfigurationDomain.feature</DependentUpon>
+      <DependentUpon>ConferenceConfigurationWithIntegration.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\Domain\Registration\RegistrationProcessHardeningWithDomain.feature.cs">
+    <Compile Include="Features\Integration\Registration\RegistrationProcessHardeningIntegration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>RegistrationProcessHardeningWithDomain.feature</DependentUpon>
+      <DependentUpon>RegistrationProcessHardeningIntegration.feature</DependentUpon>
     </Compile>
-    <Compile Include="Features\Domain\Registration\SelfRegistrationReservationWithConcurrencyDomain.feature.cs">
-      <DependentUpon>SelfRegistrationReservationWithConcurrencyDomain.feature</DependentUpon>
+    <Compile Include="Features\Integration\Registration\SelfRegistrationReservationWithConcurrencyIntegration.feature.cs">
+      <DependentUpon>SelfRegistrationReservationWithConcurrencyIntegration.feature</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Features\Domain\Registration\SelfRegistrationEndToEndWithDomain.feature.cs">
+    <Compile Include="Features\Integration\Registration\SelfRegistrationEndToEndWithIntegration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SelfRegistrationEndToEndWithDomain.feature</DependentUpon>
+      <DependentUpon>SelfRegistrationEndToEndWithIntegration.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\UserInterface\Controllers\Registration\SelfRegistrationEndToEndWithControllers.feature.cs">
       <AutoGen>True</AutoGen>
@@ -221,21 +221,21 @@
       <DependentUpon>Waitlist.feature</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Steps\ConferenceConfigurationSteps.cs" />
-    <Compile Include="Steps\ConferenceConfigurationDomainSteps.cs" />
-    <Compile Include="Steps\DiscountsConfigurationSteps.cs" />
-    <Compile Include="Steps\SeatTypesConfigurationSteps.cs" />
-    <Compile Include="Steps\SeatAssignmentSteps.cs" />
-    <Compile Include="Steps\SelfRegistrationEndToEndSadSteps.cs" />
+    <Compile Include="Steps\Views\ConferenceConfigurationSteps.cs" />
+    <Compile Include="Steps\Integration\ConferenceConfigurationIntegrationSteps.cs" />
+    <Compile Include="Steps\Views\DiscountsConfigurationSteps.cs" />
+    <Compile Include="Steps\Views\SeatTypesConfigurationSteps.cs" />
+    <Compile Include="Steps\Views\SeatAssignmentSteps.cs" />
+    <Compile Include="Steps\Views\SelfRegistrationEndToEndSadSteps.cs" />
     <Compile Include="Steps\CommonSteps.cs" />
-    <Compile Include="Steps\SelfRegistrationEndToEndWithControllersSteps.cs" />
-    <Compile Include="Steps\SelfRegistrationEndToEndWithDomainSteps.cs" />
-    <Compile Include="Steps\RegistrationProcessHardeningWithDomainSteps.cs" />
-    <Compile Include="Steps\SelfRegistrationReservationWithConcurrencyDomainSteps.cs" />
-    <Compile Include="Steps\SelfRegistrationReservationWithConcurrencySteps.cs" />
-    <Compile Include="Steps\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
-    <Compile Include="Steps\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
-    <Compile Include="Steps\StepDefinition.cs" />
+    <Compile Include="Steps\Controllers\SelfRegistrationEndToEndWithControllersSteps.cs" />
+    <Compile Include="Steps\Integration\SelfRegistrationEndToEndWithIntegrationSteps.cs" />
+    <Compile Include="Steps\Integration\RegistrationProcessHardeningIntegrationSteps.cs" />
+    <Compile Include="Steps\Integration\SelfRegistrationReservationWithConcurrencyIntegrationSteps.cs" />
+    <Compile Include="Steps\Views\SelfRegistrationReservationWithConcurrencySteps.cs" />
+    <Compile Include="Steps\Views\SelfRegistrationReservationWithPartialAvailabilitySteps.cs" />
+    <Compile Include="Steps\Views\SelfRegistrationReservationWithFullAvailabilitySteps.cs" />
+    <Compile Include="Steps\Views\StepDefinition.cs" />
     <Compile Include="Support\ConferenceHelper.cs" />
     <Compile Include="Support\Constants.cs" />
     <Compile Include="Support\EventSourceHelper.cs" />
@@ -258,21 +258,21 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Features\Domain\Management\ConferenceConfigurationDomain.feature">
+    <None Include="Features\Integration\Management\ConferenceConfigurationWithIntegration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>ConferenceConfigurationDomain.feature.cs</LastGenOutput>
+      <LastGenOutput>ConferenceConfigurationWithIntegration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\Domain\Registration\RegistrationProcessHardeningWithDomain.feature">
+    <None Include="Features\Integration\Registration\RegistrationProcessHardeningIntegration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>RegistrationProcessHardeningWithDomain.feature.cs</LastGenOutput>
+      <LastGenOutput>RegistrationProcessHardeningIntegration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\Domain\Registration\SelfRegistrationReservationWithConcurrencyDomain.feature">
+    <None Include="Features\Integration\Registration\SelfRegistrationReservationWithConcurrencyIntegration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SelfRegistrationReservationWithConcurrencyDomain.feature.cs</LastGenOutput>
+      <LastGenOutput>SelfRegistrationReservationWithConcurrencyIntegration.feature.cs</LastGenOutput>
     </None>
-    <None Include="Features\Domain\Registration\SelfRegistrationEndToEndWithDomain.feature">
+    <None Include="Features\Integration\Registration\SelfRegistrationEndToEndWithIntegration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>SelfRegistrationEndToEndWithDomain.feature.cs</LastGenOutput>
+      <LastGenOutput>SelfRegistrationEndToEndWithIntegration.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\UserInterface\Controllers\Registration\SelfRegistrationReservationWithConcurrency.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

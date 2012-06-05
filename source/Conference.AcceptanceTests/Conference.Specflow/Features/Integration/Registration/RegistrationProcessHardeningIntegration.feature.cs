@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace Conference.Specflow.Features.Domain.Registration
+namespace Conference.Specflow.Features.Integration.Registration
 {
     using TechTalk.SpecFlow;
     
@@ -23,7 +23,7 @@ namespace Conference.Specflow.Features.Domain.Registration
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "RegistrationProcessHardeningWithDomain.feature"
+#line 1 "RegistrationProcessHardeningIntegration.feature"
 #line hidden
         
         public HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature()
@@ -38,7 +38,7 @@ namespace Conference.Specflow.Features.Domain.Registration
                     "ions and failures", "There are two general issues to consider\r\nMessages are handled successfully but t" +
                     "hey cannot be completed so they are handled again and\r\nthe process state is stor" +
                     "ed but the commands it generates fail to be published", ProgrammingLanguage.CSharp, new string[] {
-                        "RegistrationProcessHardeningWithDomain",
+                        "RegistrationProcessHardeningIntegration",
                         "NoWatiN"});
             testRunner.OnFeatureStart(featureInfo);
         }

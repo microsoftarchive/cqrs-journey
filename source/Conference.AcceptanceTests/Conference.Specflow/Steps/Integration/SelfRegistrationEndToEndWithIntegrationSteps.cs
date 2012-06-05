@@ -27,20 +27,20 @@ using Xunit;
 namespace Conference.Specflow.Steps
 {
     [Binding]
-    [Scope(Tag = "SelfRegistrationEndToEndWithDomain")]
-    public class SelfRegistrationEndToEndWithDomainSteps
+    [Scope(Tag = "SelfRegistrationEndToEndWithIntegration")]
+    public class SelfRegistrationEndToEndWithIntegrationSteps
     {
         private readonly ICommandBus commandBus;
         private Guid orderId;
         private RegisterToConference registerToConference;
 
-        public SelfRegistrationEndToEndWithDomainSteps()
+        public SelfRegistrationEndToEndWithIntegrationSteps()
         {
             commandBus = ConferenceHelper.BuildCommandBus();
         }
 
-        [When(@"the Registrant proceed to make the Reservation")]
-        public void WhenTheRegistrantProceedToMakeTheReservation()
+        [When(@"the command to register the selected Order Items is sent")]
+        public void WhenTheCommandToRegisterTheSelectedOrderItemsIsSent()
         {
             registerToConference = ScenarioContext.Current.Get<RegisterToConference>();
             var conferenceAlias = ScenarioContext.Current.Get<ConferenceAlias>();
@@ -51,16 +51,6 @@ namespace Conference.Specflow.Steps
 
             // Wait for event processing
             Thread.Sleep(Constants.WaitTimeout);
-        }
-
-        [Then(@"the command to register the selected Order Items is received")]
-        public void ThenTheCommandToRegisterTheSelectedOrderItemsIsReceived()
-        {
-            var orderRepo = EventSourceHelper.GetRepository<Registration.Order>();
-            Registration.Order order = orderRepo.Find(orderId);
-
-            Assert.NotNull(order);
-            Assert.Equal(orderId, order.Id);
         }
 
         [Then(@"the event for Order placed is emitted")]
@@ -74,7 +64,7 @@ namespace Conference.Specflow.Steps
         }
 
         [Then(@"the command for reserving the selected Seats is received")]
-        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
+        [Scope(Tag = "RegistrationProcessHardeningIntegration")]
         public void ThenTheCommandForReservingTheSelectedSeatsIsReceived()
         {
             var repository = EventSourceHelper.GetRepository<SeatsAvailability>();
@@ -86,7 +76,7 @@ namespace Conference.Specflow.Steps
         }
 
         [Then(@"the event for reserving the selected Seats is emitted")]
-        [Scope(Tag = "RegistrationProcessHardeningWithDomain")]
+        [Scope(Tag = "RegistrationProcessHardeningIntegration")]
         public void ThenTheEventForReservingTheSelectedSeatsIsEmitted()
         {
             registerToConference = registerToConference ?? ScenarioContext.Current.Get<RegisterToConference>();

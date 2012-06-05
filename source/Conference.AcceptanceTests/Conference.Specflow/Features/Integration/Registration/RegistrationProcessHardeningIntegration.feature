@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-@RegistrationProcessHardeningWithDomain
+@RegistrationProcessHardeningIntegration
 @NoWatiN
 Feature: Hardening the RegistrationProcess so it be able to recover from unexpected conditions and failures
 	There are two general issues to consider
