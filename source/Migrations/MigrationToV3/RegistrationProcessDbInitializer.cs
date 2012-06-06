@@ -32,14 +32,19 @@ namespace MigrationToV3
             // can safely run with already upgraded databases.
             context.Database.ExecuteSqlCommand(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[ConferenceRegistrationProcesses].[UndispatchedMessages]') AND type in (N'U'))
-CREATE TABLE [ConferenceRegistrationProcesses].[UndispatchedMessages](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Commands] [nvarchar](max) NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-) WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
+    CREATE TABLE [ConferenceRegistrationProcesses].[UndispatchedMessages]
+    (
+	    [Id] [uniqueidentifier] NOT NULL,
+	    [Commands] [nvarchar](max) NULL,
+        PRIMARY KEY CLUSTERED 
+        (
+	        [Id] ASC
+        ) WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+    )
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'ConferenceRegistrationProcesses' AND TABLE_NAME = 'RegistrationProcess' AND COLUMN_NAME = 'SeatReservationCommandId')
+    ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
+    ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'
 ");
         }
     }
