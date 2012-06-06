@@ -38,7 +38,7 @@ namespace Registration.Tests
         }
 
         [Fact]
-        public void when_order_placed_is_is_reprocessed_then_discards_event()
+        public void when_order_placed_is_is_reprocessed_then_routes_and_saves()
         {
             var process = new RegistrationProcess
             {
@@ -53,7 +53,7 @@ namespace Registration.Tests
 
             router.Handle(new OrderPlaced { SourceId = process.OrderId, ConferenceId = process.ConferenceId, Seats = new SeatQuantity[0] });
 
-            Assert.Equal(0, context.SavedProcesses.Count);
+            Assert.Equal(1, context.SavedProcesses.Count);
             Assert.True(context.DisposeCalled);
         }
 

@@ -49,5 +49,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 [assembly: InternalsVisibleTo("Registration.Tests")]
+[assembly: InternalsVisibleTo("Registration.IntegrationTests")]
 [assembly: InternalsVisibleTo("Conference.Web.Public.Tests")]
 [assembly: InternalsVisibleTo("MigrationToV2")]

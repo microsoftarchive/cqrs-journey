@@ -16,6 +16,7 @@ namespace Infrastructure.Sql.Processes
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
     using System.Linq;
     using System.Linq.Expressions;
     using Infrastructure.Messaging;
@@ -48,7 +49,7 @@ namespace Infrastructure.Sql.Processes
 
             // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
             var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
-            
+
             this.DispatchMessages(undispatchedMessages);
 
             return process;
@@ -73,7 +74,14 @@ namespace Infrastructure.Sql.Processes
                 this.context.Set<UndispatchedMessages>().Add(undispatched);
             }
 
-            this.context.SaveChanges();
+            try
+            {
+                this.context.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                throw new ConcurrencyException(e.Message, e);
+            }
 
             this.DispatchMessages(undispatched, commands);
         }
@@ -100,7 +108,7 @@ namespace Infrastructure.Sql.Processes
                     this.context.Set<UndispatchedMessages>().Remove(undispatched);
                     this.context.SaveChanges();
                 }
-                catch (Exception) 
+                catch (Exception)
                 {
                     // We catch a generic exception as we don't know what implementation of ICommandBus we might be using.
                     if (originalCommandsCount != deserializedCommands.Count)
