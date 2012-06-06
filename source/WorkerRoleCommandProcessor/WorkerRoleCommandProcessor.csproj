@@ -155,6 +155,10 @@
       <Project>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</Project>
       <Name>Infrastructure.Sql</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Migrations\MigrationToV3\MigrationToV3.csproj">
+      <Project>{8EC84BDD-9B6E-44E6-A333-A2D9C8A7C201}</Project>
+      <Name>MigrationToV3</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
