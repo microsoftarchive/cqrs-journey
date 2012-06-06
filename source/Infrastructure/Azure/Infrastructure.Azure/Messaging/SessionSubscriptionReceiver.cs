@@ -73,6 +73,7 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
+            this.client.PrefetchCount = 10;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying +=
