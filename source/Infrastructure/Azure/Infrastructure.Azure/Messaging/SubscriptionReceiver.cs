@@ -73,6 +73,7 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
+            this.client.PrefetchCount = 40;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying +=
@@ -181,7 +182,7 @@ namespace Infrastructure.Azure.Messaging
 
         protected virtual BrokeredMessage DoReceiveMessage()
         {
-            return this.client.Receive(TimeSpan.FromSeconds(10));
+            return this.client.Receive(TimeSpan.FromMinutes(1));
         }
     }
 }
