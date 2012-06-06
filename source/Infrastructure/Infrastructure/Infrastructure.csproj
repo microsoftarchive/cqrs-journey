@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlobStorage\IBlobStorage.cs" />
+    <Compile Include="ConcurrencyException.cs" />
     <Compile Include="Database\IAggregateRoot.cs" />
     <Compile Include="Database\IDataContext.cs" />
     <Compile Include="EntityNotFoundException.cs" />
