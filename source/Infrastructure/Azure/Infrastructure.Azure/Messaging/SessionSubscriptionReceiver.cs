@@ -73,6 +73,7 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
+            this.client.PrefetchCount = 10;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying +=
@@ -93,11 +94,7 @@ namespace Infrastructure.Azure.Messaging
                 if (this.cancellationSource == null)
                 {
                     this.cancellationSource = new CancellationTokenSource();
-                    Task.Factory.StartNew(() =>
-                        this.ReceiveMessages(this.cancellationSource.Token),
-                        this.cancellationSource.Token,
-                        TaskCreationOptions.LongRunning,
-                        TaskScheduler.Current);
+                    Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token);
                 }
             }
         }
@@ -164,6 +161,8 @@ namespace Infrastructure.Azure.Messaging
                     continue;
                 }
 
+                // starts a new task to process new sessions in parallel if enough threads are available
+                Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token);
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -184,7 +183,7 @@ namespace Infrastructure.Azure.Messaging
 
                         if (message == null)
                         {
-                            // If we have no more messages for this session, exit and try another.
+                            // If we have no more messages for this session, exit to close the session
                             break;
                         }
 
@@ -200,6 +199,9 @@ namespace Infrastructure.Azure.Messaging
                 }
 
                 this.receiveRetryPolicy.ExecuteAction(() => session.Close());
+                // As we have not more messages for this session, end this task, as there will already at least
+                // 1 other tasks polling for new sessions to accept.
+                return;
             }
         }
 
@@ -207,7 +209,7 @@ namespace Infrastructure.Azure.Messaging
         {
             try
             {
-                return this.client.AcceptMessageSession(TimeSpan.FromSeconds(45));
+                return this.client.AcceptMessageSession(TimeSpan.FromMinutes(1));
             }
             catch (TimeoutException)
             {
