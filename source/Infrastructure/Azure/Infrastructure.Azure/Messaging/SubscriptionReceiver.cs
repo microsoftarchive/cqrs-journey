@@ -182,7 +182,7 @@ namespace Infrastructure.Azure.Messaging
 
         protected virtual BrokeredMessage DoReceiveMessage()
         {
-            return this.client.Receive(TimeSpan.FromSeconds(10));
+            return this.client.Receive(TimeSpan.FromMinutes(1));
         }
     }
 }

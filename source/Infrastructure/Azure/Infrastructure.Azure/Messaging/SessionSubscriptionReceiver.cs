@@ -209,7 +209,7 @@ namespace Infrastructure.Azure.Messaging
         {
             try
             {
-                return this.client.AcceptMessageSession(TimeSpan.FromSeconds(45));
+                return this.client.AcceptMessageSession(TimeSpan.FromMinutes(1));
             }
             catch (TimeoutException)
             {
