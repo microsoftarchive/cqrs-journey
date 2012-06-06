@@ -27,14 +27,11 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure.Serialization;
     using Infrastructure.Sql.BlobStorage;
     using Infrastructure.Sql.Database;
-    using Infrastructure.Sql.EventSourcing;
-    using Infrastructure.Sql.MessageLog;
     using Infrastructure.Sql.Processes;
     using Microsoft.Practices.Unity;
     using Payments;
     using Payments.Database;
     using Payments.Handlers;
-    using Payments.ReadModel.Implementation;
     using Registration;
     using Registration.Database;
     using Registration.Handlers;
@@ -54,15 +51,6 @@ namespace WorkerRoleCommandProcessor
             this.cancellationTokenSource = new CancellationTokenSource();
             this.container = CreateContainer();
             RegisterCommandHandlers(container);
-
-            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
-            Database.SetInitializer<RegistrationProcessDbContext>(null);
-            Database.SetInitializer<EventStoreDbContext>(null);
-            Database.SetInitializer<MessageLogDbContext>(null);
-            Database.SetInitializer<BlobStorageDbContext>(null);
-
-            Database.SetInitializer<PaymentsDbContext>(null);
-            Database.SetInitializer<PaymentsReadDbContext>(null);
 
             this.processors = this.container.ResolveAll<IProcessor>().ToList();
         }
