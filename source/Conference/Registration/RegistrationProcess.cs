@@ -103,7 +103,11 @@ namespace Registration
             }
             else
             {
-                throw new InvalidOperationException();
+                if (message.ConferenceId != this.ConferenceId)
+                {
+                    // throw only if not reprocessing
+                    throw new InvalidOperationException();
+                }
             }
         }
 
