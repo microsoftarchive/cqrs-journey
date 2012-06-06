@@ -19,7 +19,6 @@ namespace Registration
     using System.Diagnostics;
     using System.Linq;
     using Infrastructure.Messaging;
-    using Infrastructure.Messaging.Handling;
     using Infrastructure.Processes;
     using Payments.Contracts.Events;
     using Registration.Commands;
@@ -64,6 +63,10 @@ namespace Registration
             internal set { this.StateValue = (int)value; }
         }
 
+        [ConcurrencyCheck]
+        [Timestamp]
+        public byte[] TimeStamp { get; private set; }
+
         public IEnumerable<Envelope<ICommand>> Commands
         {
             get { return this.commands; }
@@ -100,7 +103,11 @@ namespace Registration
             }
             else
             {
-                throw new InvalidOperationException();
+                if (message.ConferenceId != this.ConferenceId)
+                {
+                    // throw only if not reprocessing
+                    throw new InvalidOperationException();
+                }
             }
         }
 

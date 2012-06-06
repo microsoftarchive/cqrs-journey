@@ -14,6 +14,7 @@
 namespace Registration.IntegrationTests
 {
     using System;
+    using System.Data.Entity.Infrastructure;
     using Registration.Database;
     using Xunit;
 
@@ -53,5 +54,51 @@ namespace Registration.IntegrationTests
             }
         }
 
+        [Fact]
+        public void when_saving_process_performs_optimistic_locking()
+        {
+            var dbName = this.GetType().Name + "-" + Guid.NewGuid();
+            using (var context = new RegistrationProcessDbContext(dbName))
+            {
+                context.Database.Create();
+            }
+
+            try
+            {
+                Guid id = Guid.Empty;
+                using (var context = new RegistrationProcessDbContext(dbName))
+                {
+                    var process = new RegistrationProcess();
+                    context.RegistrationProcesses.Add(process);
+                    context.SaveChanges();
+                    id = process.Id;
+                }
+
+                using (var context = new RegistrationProcessDbContext(dbName))
+                {
+                    var process = context.RegistrationProcesses.Find(id);
+
+                    process.State = RegistrationProcess.ProcessState.PaymentConfirmationReceived;
+
+                    using (var innerContext = new RegistrationProcessDbContext(dbName))
+                    {
+                        var innerProcess = innerContext.RegistrationProcesses.Find(id);
+
+                        innerProcess.State = RegistrationProcess.ProcessState.ReservationConfirmationReceived;
+
+                        innerContext.SaveChanges();
+                    }
+
+                    Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+                }
+            }
+            finally
+            {
+                using (var context = new RegistrationProcessDbContext(dbName))
+                {
+                    context.Database.Delete();
+                }
+            }
+        }
     }
 }

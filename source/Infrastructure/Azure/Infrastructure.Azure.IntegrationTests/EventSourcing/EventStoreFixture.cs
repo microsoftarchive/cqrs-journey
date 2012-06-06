@@ -17,6 +17,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
     using Microsoft.WindowsAzure;

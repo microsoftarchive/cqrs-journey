@@ -15,6 +15,7 @@ namespace Infrastructure.Sql.IntegrationTests
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;
     using Infrastructure.Messaging;
     using Infrastructure.Processes;
@@ -87,6 +88,34 @@ namespace Infrastructure.Sql.IntegrationTests
                 var conference = context.Find(id);
 
                 Assert.Equal("CQRS Journey", conference.Title);
+            }
+        }
+
+        [Fact]
+        public void WhenSavingWithConcurrencyConflict_ThenThrowsException()
+        {
+            var id = Guid.NewGuid();
+
+            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            {
+                var conference = new OrmTestProcess(id);
+                context.Save(conference);
+            }
+
+            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            {
+                var conference = context.Find(id);
+                conference.Title = "CQRS Journey!";
+
+                using (var innerContext = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+                {
+                    var innerConference = innerContext.Find(id);
+                    innerConference.Title = "CQRS Journey!!";
+
+                    innerContext.Save(innerConference);
+                }
+
+                Assert.Throws<ConcurrencyException>(() => context.Save(conference));
             }
         }
 
@@ -278,6 +307,10 @@ namespace Infrastructure.Sql.IntegrationTests
         public bool Completed { get; set; }
 
         public string Title { get; set; }
+
+        [ConcurrencyCheck]
+        [Timestamp]
+        public byte[] TimeStamp { get; private set; }
 
         public void AddCommand(ICommand command)
         {
