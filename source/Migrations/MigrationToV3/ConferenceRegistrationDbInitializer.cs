@@ -14,6 +14,7 @@
 namespace MigrationToV3
 {
     using System.Data.Entity;
+    using System.Data.SqlClient;
     using Registration.ReadModel.Implementation;
 
     /// <summary>
@@ -29,12 +30,22 @@ namespace MigrationToV3
     {
         public void InitializeDatabase(ConferenceRegistrationDbContext context)
         {
-            // Note that we only add the column if it doesn't exist already, so this 
-            // can safely run with already upgraded databases.
-            context.Database.ExecuteSqlCommand(@"
+            try
+            {
+                // Note that we only add the column if it doesn't exist already, so this 
+                // can safely run with already upgraded databases.
+                context.Database.ExecuteSqlCommand(@"
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'ConferenceRegistration' AND TABLE_NAME = 'PricedOrders' AND COLUMN_NAME = 'ReservationExpirationDate')
 ALTER TABLE [ConferenceRegistration].[PricedOrders]
 ADD [ReservationExpirationDate] [datetime] NULL");
+            }
+            catch (SqlException e)
+            {
+                if (e.Number != 2705)
+                {
+                    throw;
+                }
+            }
         }
     }
 }

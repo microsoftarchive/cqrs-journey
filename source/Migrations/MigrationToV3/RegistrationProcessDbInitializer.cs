@@ -14,6 +14,8 @@
 namespace MigrationToV3
 {
     using System.Data.Entity;
+    using System.Data.SqlClient;
+    using Registration.Database;
 
     /// <summary>
     /// This initializer automatically creates the new UndispatchedMessages introduced in V3. 
@@ -29,6 +31,8 @@ namespace MigrationToV3
         {
             // Note that we only create the table if it doesn't exist, so this 
             // can safely run with already upgraded databases.
+            try
+            {
             context.Database.ExecuteSqlCommand(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[ConferenceRegistrationProcesses].[UndispatchedMessages]') AND type in (N'U'))
     CREATE TABLE [ConferenceRegistrationProcesses].[UndispatchedMessages]
@@ -39,17 +43,32 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Conferen
         (
 	        [Id] ASC
         ) WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-    );
+    );");
+            }
+            catch (SqlException e)
+            {
+                if (e.Number != 2714)
+                {
+                    throw;
+                }
+            }
 
+            try
+            {
+                context.Database.ExecuteSqlCommand(@"
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'ConferenceRegistrationProcesses' AND TABLE_NAME = 'RegistrationProcess' AND COLUMN_NAME = 'SeatReservationCommandId')
-    BEGIN
-        ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
-        ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'
-
-        ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
-        ADD [TimeStamp] [timestamp] NOT NULL
-    END
+    ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
+    ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
+        [TimeStamp] [timestamp] NOT NULL
 ");
+            }
+            catch (SqlException e)
+            {
+                if (e.Number != 2705)
+                {
+                    throw;
+                }
+            }
         }
     }
 }
