@@ -78,6 +78,26 @@ namespace Infrastructure.Sql.IntegrationTests.Messaging.EventProcessorFixture
             handlerBMock.As<IEventHandler<Event2>>().Verify(h => h.Handle(It.Is<Event2>(e => e.SourceId == event2.SourceId)));
         }
 
+        [Fact]
+        public void when_receives_message_then_notifies_generic_handler()
+        {
+            var handler = new Mock<IEventHandler>();
+            handler.As<IEventHandler<IEvent>>();
+
+            this.processor.Register(handler.Object);
+
+            this.processor.Start();
+
+            var event1 = new Event1 { SourceId = Guid.NewGuid() };
+            var event2 = new Event2 { SourceId = Guid.NewGuid() };
+
+            this.receiverMock.Raise(r => r.MessageReceived += null, new MessageReceivedEventArgs(new Message(Serialize(event1))));
+            this.receiverMock.Raise(r => r.MessageReceived += null, new MessageReceivedEventArgs(new Message(Serialize(event2))));
+
+            handler.As<IEventHandler<IEvent>>().Verify(h => h.Handle(It.Is<Event1>(e => e.SourceId == event1.SourceId)));
+            handler.As<IEventHandler<IEvent>>().Verify(h => h.Handle(It.Is<Event2>(e => e.SourceId == event2.SourceId)));
+        }
+
         private static string Serialize(object payload)
         {
             var serializer = CreateSerializer();
