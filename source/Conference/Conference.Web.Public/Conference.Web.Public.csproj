@@ -134,6 +134,12 @@
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="Controllers\PaymentController.cs" />
     <Compile Include="Controllers\RegistrationController.cs" />
+    <Compile Include="Global.asax.Azure.cs" Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.Local.cs" Condition=" '$(Configuration)|$(Platform)' == 'DebugLocal|AnyCPU' ">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

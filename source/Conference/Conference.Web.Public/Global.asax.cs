@@ -13,18 +13,15 @@
 
 namespace Conference.Web.Public
 {
+    using System.Data.Entity;
     using System.Linq;
     using System.Web;
-    using System.Data.Entity;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common;
     using Conference.Common.Entity;
     using Conference.Web.Utils;
-    using Infrastructure;
     using Infrastructure.BlobStorage;
-    using Infrastructure.Messaging;
-    using Infrastructure.Serialization;
     using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -32,15 +29,8 @@ namespace Conference.Web.Public
     using Payments.ReadModel.Implementation;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
-#if LOCAL
-    using Infrastructure.Sql.Messaging;
-    using Infrastructure.Sql.Messaging.Implementation;
-#else
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure;
-#endif
 
-    public class MvcApplication : HttpApplication
+    public partial class MvcApplication : HttpApplication
     {
         private IUnityContainer container;
 
@@ -54,20 +44,20 @@ namespace Conference.Web.Public
         {
             RoleEnvironment.Changed +=
                 (s, a) =>
-                {
-                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
-                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
                     {
-                        RoleEnvironment.RequestRecycle();
-                    }
-                    else
-                    {
-                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                        var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                        if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
                         {
-                            MaintenanceMode.RefreshIsInMaintainanceMode();
+                            RoleEnvironment.RequestRecycle();
                         }
-                    }
-                };
+                        else
+                        {
+                            if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                            {
+                                MaintenanceMode.RefreshIsInMaintainanceMode();
+                            }
+                        }
+                    };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
@@ -85,16 +75,19 @@ namespace Conference.Web.Public
             AreaRegistration.RegisterAllAreas();
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
             {
                 System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
                 System.Diagnostics.Trace.AutoFlush = true;
             }
+
+            this.OnStart();
         }
 
         protected void Application_Stop()
         {
+            this.OnStop();
+
             this.container.Dispose();
         }
 
@@ -102,25 +95,7 @@ namespace Conference.Web.Public
         {
             var container = new UnityContainer();
 
-            // infrastructure
-            var serializer = new JsonTextSerializer();
-            container.RegisterInstance<ITextSerializer>(serializer);
-
-#if LOCAL
-            container.RegisterType<IMessageSender, MessageSender>(
-                "Commands", new TransientLifetimeManager(), new InjectionConstructor(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"));
-            container.RegisterType<ICommandBus, CommandBus>(
-                new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
-#else
-            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
-            new ServiceBusConfig(settings).Initialize();
-
-            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new StandardMetadataProvider(), serializer);
-
-            container.RegisterInstance<ICommandBus>(commandBus);
-#endif
-
-            // repository
+            // repositories used by the application
 
             container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
@@ -130,7 +105,17 @@ namespace Conference.Web.Public
             container.RegisterType<IConferenceDao, ConferenceDao>();
             container.RegisterType<IPaymentDao, PaymentDao>();
 
+            // configuration specific settings
+
+            OnCreateContainer(container);
+
             return container;
         }
+
+        static partial void OnCreateContainer(UnityContainer container);
+
+        partial void OnStart();
+
+        partial void OnStop();
     }
 }

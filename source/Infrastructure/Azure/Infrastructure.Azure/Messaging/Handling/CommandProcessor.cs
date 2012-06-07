@@ -14,10 +14,8 @@
 namespace Infrastructure.Azure.Messaging.Handling
 {
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
 
@@ -27,7 +25,7 @@ namespace Infrastructure.Azure.Messaging.Handling
     /// </summary>
     public class CommandProcessor : MessageProcessor, ICommandHandlerRegistry
     {
-        private Dictionary<Type, ICommandHandler> handlers = new Dictionary<Type, ICommandHandler>();
+        private readonly CommandDispatcher commandDispatcher;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandProcessor"/> class.
@@ -38,6 +36,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         public CommandProcessor(IMessageReceiver receiver, ITextSerializer serializer)
             : base(receiver, serializer)
         {
+            this.commandDispatcher = new CommandDispatcher();
         }
 
         /// <summary>
@@ -45,21 +44,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         /// </summary>
         public void Register(ICommandHandler commandHandler)
         {
-            var genericHandler = typeof(ICommandHandler<>);
-            var supportedCommandTypes = commandHandler.GetType()
-                .GetInterfaces()
-                .Where(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == genericHandler)
-                .Select(iface => iface.GetGenericArguments()[0])
-                .ToList();
-
-            if (handlers.Keys.Any(registeredType => supportedCommandTypes.Contains(registeredType)))
-                throw new ArgumentException("The command handled by the received handler already has a registered handler.");
-
-            // Register this handler for each of he handled types.
-            foreach (var commandType in supportedCommandTypes)
-            {
-                this.handlers.Add(commandType, commandHandler);
-            }
+            this.commandDispatcher.Register(commandHandler);
         }
 
         /// <summary>
@@ -67,14 +52,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         /// </summary>
         protected override void ProcessMessage(string traceIdentifier, object payload, string messageId, string correlationId)
         {
-            var commandType = payload.GetType();
-            ICommandHandler handler = null;
-
-            if (this.handlers.TryGetValue(commandType, out handler))
-            {
-                Trace.WriteLine("-- Handled by " + handler.GetType().FullName + traceIdentifier);
-                ((dynamic)handler).Handle((dynamic)payload);
-            }
+            this.commandDispatcher.ProcessMessage(traceIdentifier, (ICommand)payload, messageId, correlationId);
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Infrastructure.Azure.MessageLog
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
-    public class AzureMessageLogWriter
+    public class AzureMessageLogWriter : IAzureMessageLogWriter
     {
         private readonly CloudStorageAccount account;
         private readonly string tableName;
