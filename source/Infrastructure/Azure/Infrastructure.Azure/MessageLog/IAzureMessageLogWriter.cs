@@ -13,43 +13,8 @@
 
 namespace Infrastructure.Azure.MessageLog
 {
-    using System;
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
-
-    public class AzureMessageLogListener : IProcessor, IDisposable
+    public interface IAzureMessageLogWriter
     {
-        private IAzureMessageLogWriter eventLog;
-        private IMessageReceiver receiver;
-
-        public AzureMessageLogListener(IAzureMessageLogWriter eventLog, IMessageReceiver receiver)
-        {
-            this.eventLog = eventLog;
-            this.receiver = receiver;
-            this.receiver.MessageReceived += SaveMessage;
-        }
-
-        public void SaveMessage(object sender, BrokeredMessageEventArgs args)
-        {
-            this.eventLog.Save(args.Message.ToMessageLogEntity());
-            args.Message.SafeComplete();
-        }
-
-        public void Start()
-        {
-            this.receiver.Start();
-        }
-
-        public void Stop()
-        {
-            this.receiver.Stop();
-        }
-
-        public void Dispose()
-        {
-            var disposable = this.receiver as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
-        }
+        void Save(MessageLogEntity entity);
     }
 }
