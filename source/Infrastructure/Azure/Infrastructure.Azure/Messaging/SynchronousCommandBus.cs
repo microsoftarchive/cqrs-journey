@@ -18,7 +18,6 @@ namespace Infrastructure.Azure.Messaging
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -26,13 +25,11 @@ namespace Infrastructure.Azure.Messaging
     public class SynchronousCommandBus : ICommandBus, ICommandHandlerRegistry
     {
         private readonly ICommandBus commandBus;
-        private readonly IAzureMessageLogWriter logWriter;
         private readonly CommandDispatcher commandDispatcher;
 
-        public SynchronousCommandBus(ICommandBus commandBus, IAzureMessageLogWriter logWriter)
+        public SynchronousCommandBus(ICommandBus commandBus)
         {
             this.commandBus = commandBus;
-            this.logWriter = logWriter;
             this.commandDispatcher = new CommandDispatcher();
         }
 
@@ -79,15 +76,7 @@ namespace Infrastructure.Azure.Messaging
                 var traceIdentifier = string.Format(CultureInfo.CurrentCulture, " (local handling of command with id {0})", command.Body.Id);
                 handled = this.commandDispatcher.ProcessMessage(traceIdentifier, command.Body, command.MessageId, command.CorrelationId);
 
-                //    ThreadPool.QueueUserWorkItem(_ =>
-                //    {
-                //        var messageLogEntity =
-                //            new MessageLogEntity
-                //            {
-                //            };
-
-                //        this.logWriter.Save(messageLogEntity);
-                //    });
+                // TODO try to log the command
             }
             catch (Exception e)
             {

@@ -13,7 +13,6 @@
 
 namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.given_empty_command_bus
 {
-    using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
     using Moq;
@@ -22,15 +21,13 @@ namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.give
     public class Context
     {
         protected readonly Mock<ICommandBus> wrappedBusMock;
-        protected readonly Mock<IAzureMessageLogWriter> logWriterMock;
         protected readonly SynchronousCommandBus sut;
 
         public Context()
         {
             this.wrappedBusMock = new Mock<ICommandBus>();
-            this.logWriterMock = new Mock<IAzureMessageLogWriter>();
 
-            this.sut = new SynchronousCommandBus(this.wrappedBusMock.Object, this.logWriterMock.Object);
+            this.sut = new SynchronousCommandBus(this.wrappedBusMock.Object);
         }
     }
 

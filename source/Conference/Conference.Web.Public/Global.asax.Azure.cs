@@ -55,10 +55,7 @@ namespace Conference.Web.Public
             new ServiceBusConfig(settings.ServiceBus).Initialize();
             var commandBus = new CommandBus(new TopicSender(settings.ServiceBus, "conference/commands"), metadata, serializer);
 
-            var messageLogAccount = CloudStorageAccount.Parse(settings.MessageLog.ConnectionString);
-            var logWriter = new AzureMessageLogWriter(messageLogAccount, settings.MessageLog.TableName);
-
-            var synchronousCommandBus = new SynchronousCommandBus(commandBus, logWriter);
+            var synchronousCommandBus = new SynchronousCommandBus(commandBus);
 
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
             container.RegisterInstance<ICommandHandlerRegistry>(synchronousCommandBus);
