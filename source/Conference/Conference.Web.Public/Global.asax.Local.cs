@@ -11,45 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.MessageLog
+namespace Conference.Web.Public
 {
-    using System;
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
+    using System.Data.Entity;
+    using Infrastructure.Messaging;
+    using Infrastructure.Serialization;
+    using Infrastructure.Sql.Messaging;
+    using Infrastructure.Sql.Messaging.Implementation;
+    using Microsoft.Practices.Unity;
 
-    public class AzureMessageLogListener : IProcessor, IDisposable
+    partial class MvcApplication
     {
-        private IAzureMessageLogWriter eventLog;
-        private IMessageReceiver receiver;
-
-        public AzureMessageLogListener(IAzureMessageLogWriter eventLog, IMessageReceiver receiver)
+        static partial void OnCreateContainer(UnityContainer container)
         {
-            this.eventLog = eventLog;
-            this.receiver = receiver;
-            this.receiver.MessageReceived += SaveMessage;
-        }
+            var serializer = new JsonTextSerializer();
+            container.RegisterInstance<ITextSerializer>(serializer);
 
-        public void SaveMessage(object sender, BrokeredMessageEventArgs args)
-        {
-            this.eventLog.Save(args.Message.ToMessageLogEntity());
-            args.Message.SafeComplete();
-        }
-
-        public void Start()
-        {
-            this.receiver.Start();
-        }
-
-        public void Stop()
-        {
-            this.receiver.Stop();
-        }
-
-        public void Dispose()
-        {
-            var disposable = this.receiver as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            container.RegisterType<IMessageSender, MessageSender>(
+                "Commands", new TransientLifetimeManager(), new InjectionConstructor(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"));
+            container.RegisterType<ICommandBus, CommandBus>(
+                new ContainerControlledLifetimeManager(), new InjectionConstructor(new ResolvedParameter<IMessageSender>("Commands"), serializer));
         }
     }
 }
