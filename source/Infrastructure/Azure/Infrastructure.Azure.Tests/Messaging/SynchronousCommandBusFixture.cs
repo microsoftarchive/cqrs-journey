@@ -83,7 +83,9 @@ namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.give
             this.forwarded = new List<ICommand>();
             this.handlerAMock.Setup(h => h.Handle(It.IsAny<CommandA>())).Callback<CommandA>(c => this.synchronous.Add(c));
             this.handlerBMock.Setup(h => h.Handle(It.IsAny<CommandB>())).Callback<CommandB>(c => this.synchronous.Add(c));
-            this.wrappedBusMock.Setup(b => b.Send(It.IsAny<Envelope<ICommand>>())).Callback<Envelope<ICommand>>(e => forwarded.Add(e.Body));
+            this.wrappedBusMock
+                .Setup(b => b.Send(It.IsAny<IEnumerable<Envelope<ICommand>>>()))
+                .Callback<IEnumerable<Envelope<ICommand>>>(es => forwarded.AddRange(es.Select(e => e.Body)));
         }
     }
 

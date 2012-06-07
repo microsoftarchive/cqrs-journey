@@ -16,6 +16,7 @@ namespace Infrastructure.Azure.Messaging
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
@@ -41,52 +42,52 @@ namespace Infrastructure.Azure.Messaging
 
         public void Send(Envelope<ICommand> command)
         {
-            this.DoSend(command, true);
+            if (!this.DoSend(command))
+            {
+                this.commandBus.Send(command);
+            }
         }
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
-            var attemptLocalHandling = true;
+            var handledLocally = true;
 
-            foreach (var command in commands)
+            var allCommands = commands.ToList();
+
+            int i = 0;
+            for (; i < allCommands.Count && handledLocally; i++)
             {
-                attemptLocalHandling = this.DoSend(command, attemptLocalHandling);
+                handledLocally = this.DoSend(allCommands[i]);
+            }
+
+            if (!handledLocally)
+            {
+                this.commandBus.Send(commands.Skip(i - 1));
             }
         }
 
-        private bool DoSend(Envelope<ICommand> command, bool attempLocalHandling)
+        private bool DoSend(Envelope<ICommand> command)
         {
             bool handled = false;
 
-            if (attempLocalHandling)
+            try
             {
-                try
-                {
-                    handled = this.commandDispatcher.ProcessMessage(string.Empty, command.Body, command.MessageId, command.CorrelationId);
-                }
-                catch (Exception e)
-                {
-                    Trace.TraceWarning("Exception handling command with id {0} synchronously: {1}", command.Body.Id, e.Message);
-                }
-            }
+                handled = this.commandDispatcher.ProcessMessage(string.Empty, command.Body, command.MessageId, command.CorrelationId);
 
-            if (!handled)
+                //    ThreadPool.QueueUserWorkItem(_ =>
+                //    {
+                //        var messageLogEntity =
+                //            new MessageLogEntity
+                //            {
+                //            };
+
+                //        this.logWriter.Save(messageLogEntity);
+                //    });
+            }
+            catch (Exception e)
             {
-                Trace.TraceInformation("Sending command with id {0} through the bus", command.Body.Id);
-                this.commandBus.Send(command);
+                Trace.TraceWarning("Exception handling command with id {0} synchronously: {1}", command.Body.Id, e.Message);
             }
-            //else
-            //{
-            //    ThreadPool.QueueUserWorkItem(_ =>
-            //    {
-            //        var messageLogEntity =
-            //            new MessageLogEntity
-            //            {
-            //            };
-
-            //        this.logWriter.Save(messageLogEntity);
-            //    });
-            //}
 
             return handled;
         }
