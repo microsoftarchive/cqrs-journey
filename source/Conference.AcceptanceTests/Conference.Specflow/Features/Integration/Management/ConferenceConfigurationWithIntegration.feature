@@ -27,7 +27,7 @@ Scenario: A new Conference is created and published
 	When the conference is created
 	And the conference is published
 	#ConferenceCreated
-	Then the event for creating the conference is emitted
+	Then the event for publishing the conference is emitted
 	#ConferencePublished
 	And the event for publishing the conference is emitted
 

@@ -117,7 +117,7 @@ this.FeatureBackground();
 #line 28
  testRunner.And("the conference is published");
 #line 30
- testRunner.Then("the event for creating the conference is emitted");
+ testRunner.Then("the event for publishing the conference is emitted");
 #line 32
  testRunner.And("the event for publishing the conference is emitted");
 #line hidden
