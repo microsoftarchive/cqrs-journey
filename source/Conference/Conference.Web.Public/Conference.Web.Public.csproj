@@ -261,6 +261,10 @@
       <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
       <Name>Infrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Migrations\MigrationToV3\MigrationToV3.csproj">
+      <Project>{8EC84BDD-9B6E-44E6-A333-A2D9C8A7C201}</Project>
+      <Name>MigrationToV3</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
       <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
       <Name>Registration.Contracts</Name>

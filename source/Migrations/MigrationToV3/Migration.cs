@@ -15,12 +15,14 @@ namespace MigrationToV3
 {
     using System.Data.Entity;
     using Registration.Database;
+    using Registration.ReadModel.Implementation;
 
     public static class Migration
     {
         public static void Initialize()
         {
             Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
+            Database.SetInitializer<ConferenceRegistrationDbContext>(new ConferenceRegistrationDbInitializer());
         }
     }
 }
