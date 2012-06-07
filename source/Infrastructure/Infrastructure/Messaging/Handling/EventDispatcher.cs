@@ -83,6 +83,11 @@ namespace Infrastructure.Messaging.Handling
             {
                 dispatch(@event, messageId, correlationId, traceIdentifier);
             }
+            // Invoke also the generic handlers that have registered to handle IEvent directly.
+            if (this.dispatchersByEventType.TryGetValue(typeof(IEvent), out dispatch))
+            {
+                dispatch(@event, messageId, correlationId, traceIdentifier);
+            }
         }
 
         private void DoDispatchMessage<T>(T @event, string messageId, string correlationId, string traceIdentifier)
