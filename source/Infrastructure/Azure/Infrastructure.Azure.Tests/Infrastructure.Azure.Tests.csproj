@@ -52,7 +52,7 @@
     <Compile Include="CommandProcessorFixture.cs" />
     <Compile Include="EventSourcing\EventStoreBusPublisherFixture.cs" />
     <Compile Include="EventSourcing\AzureEventSourcedRepositoryFixture.cs" />
-    <Compile Include="Messaging\SynchronousCommandBusFixture.cs" />
+    <Compile Include="Messaging\SynchronousCommandBusDecoratorFixture.cs" />
     <Compile Include="Mocks.cs" />
     <Compile Include="MessageProcessorFixture.cs" />
     <Compile Include="InfrastructureSettingsFixture.cs" />

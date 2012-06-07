@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.given_empty_command_bus
+namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusDecoratorFixture.given_empty_command_bus
 {
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Messaging;
@@ -21,13 +21,13 @@ namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.give
     public class Context
     {
         protected readonly Mock<ICommandBus> wrappedBusMock;
-        protected readonly SynchronousCommandBus sut;
+        protected readonly SynchronousCommandBusDecorator sut;
 
         public Context()
         {
             this.wrappedBusMock = new Mock<ICommandBus>();
 
-            this.sut = new SynchronousCommandBus(this.wrappedBusMock.Object);
+            this.sut = new SynchronousCommandBusDecorator(this.wrappedBusMock.Object);
         }
     }
 
@@ -50,7 +50,7 @@ namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.give
     }
 }
 
-namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.given_command_bus_with_registered_handlers
+namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusDecoratorFixture.given_command_bus_with_registered_handlers
 {
     using System;
     using System.Collections.Generic;
@@ -252,7 +252,7 @@ namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture.give
     }
 }
 
-namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusFixture
+namespace Infrastructure.Azure.Tests.Messaging.SynchronousCommandBusDecoratorFixture
 {
     using System;
     using Infrastructure.Messaging;

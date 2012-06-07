@@ -22,12 +22,12 @@ namespace Infrastructure.Azure.Messaging
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
 
-    public class SynchronousCommandBus : ICommandBus, ICommandHandlerRegistry
+    public class SynchronousCommandBusDecorator : ICommandBus, ICommandHandlerRegistry
     {
         private readonly ICommandBus commandBus;
         private readonly CommandDispatcher commandDispatcher;
 
-        public SynchronousCommandBus(ICommandBus commandBus)
+        public SynchronousCommandBusDecorator(ICommandBus commandBus)
         {
             this.commandBus = commandBus;
             this.commandDispatcher = new CommandDispatcher();
@@ -49,21 +49,24 @@ namespace Infrastructure.Azure.Messaging
 
         public void Send(IEnumerable<Envelope<ICommand>> commands)
         {
-            var handledLocally = true;
+            var pending = commands.ToList();
 
-            var allCommands = commands.ToList();
-
-            int i = 0;
-            for (; i < allCommands.Count && handledLocally; i++)
+            while (pending.Count > 0)
             {
-                handledLocally = this.DoSend(allCommands[i]);
+                if (this.DoSend(pending[0]))
+                {
+                    pending.RemoveAt(0);
+                }
+                else
+                {
+                    break;
+                }
             }
 
-            if (!handledLocally)
+            if (pending.Count > 0)
             {
-                i--;
-                Trace.TraceInformation("Command with id {0} was not handled locally. Sending it and all remaining commands through the bus.", allCommands[i].Body.Id);
-                this.commandBus.Send(commands.Skip(i));
+                Trace.TraceInformation("Command with id {0} was not handled locally. Sending it and all remaining commands through the bus.", pending[0].Body.Id);
+                this.commandBus.Send(pending);
             }
         }
 

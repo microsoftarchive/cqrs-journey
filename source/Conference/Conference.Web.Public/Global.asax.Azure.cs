@@ -22,7 +22,6 @@ namespace Conference.Web.Public
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
-    using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Database;
     using Infrastructure.EventSourcing;
@@ -55,12 +54,12 @@ namespace Conference.Web.Public
             new ServiceBusConfig(settings.ServiceBus).Initialize();
             var commandBus = new CommandBus(new TopicSender(settings.ServiceBus, "conference/commands"), metadata, serializer);
 
-            var synchronousCommandBus = new SynchronousCommandBus(commandBus);
+            var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
 
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
             container.RegisterInstance<ICommandHandlerRegistry>(synchronousCommandBus);
 
-            // support for executing commands
+            // support for inline command processing
 
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
