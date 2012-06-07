@@ -16,13 +16,14 @@ namespace Infrastructure.Azure.Messaging
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
 
-    public class SynchronousCommandBus : ICommandBus
+    public class SynchronousCommandBus : ICommandBus, ICommandHandlerRegistry
     {
         private readonly ICommandBus commandBus;
         private readonly IAzureMessageLogWriter logWriter;
@@ -44,6 +45,7 @@ namespace Infrastructure.Azure.Messaging
         {
             if (!this.DoSend(command))
             {
+                Trace.TraceInformation("Command with id {0} was not handled locally. Sending it through the bus.", command.Body.Id);
                 this.commandBus.Send(command);
             }
         }
@@ -62,7 +64,9 @@ namespace Infrastructure.Azure.Messaging
 
             if (!handledLocally)
             {
-                this.commandBus.Send(commands.Skip(i - 1));
+                i--;
+                Trace.TraceInformation("Command with id {0} was not handled locally. Sending it and all remaining commands through the bus.", allCommands[i].Body.Id);
+                this.commandBus.Send(commands.Skip(i));
             }
         }
 
@@ -72,7 +76,8 @@ namespace Infrastructure.Azure.Messaging
 
             try
             {
-                handled = this.commandDispatcher.ProcessMessage(string.Empty, command.Body, command.MessageId, command.CorrelationId);
+                var traceIdentifier = string.Format(CultureInfo.CurrentCulture, " (local handling of command with id {0})", command.Body.Id);
+                handled = this.commandDispatcher.ProcessMessage(traceIdentifier, command.Body, command.MessageId, command.CorrelationId);
 
                 //    ThreadPool.QueueUserWorkItem(_ =>
                 //    {

@@ -13,30 +13,55 @@
 
 namespace Conference.Web.Public
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data.Entity;
+    using System.Linq;
+    using System.Threading;
     using System.Web;
     using Infrastructure;
     using Infrastructure.Azure;
+    using Infrastructure.Azure.EventSourcing;
+    using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Database;
+    using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
+    using Infrastructure.Sql.Database;
     using Microsoft.Practices.Unity;
+    using Microsoft.WindowsAzure;
+    using Payments;
+    using Payments.Database;
     using Payments.Handlers;
+    using Registration;
     using Registration.Handlers;
 
     partial class MvcApplication
     {
+        private List<IProcessor> processors;
+
         static partial void OnCreateContainer(UnityContainer container)
         {
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
+            var metadata = new StandardMetadataProvider();
+            container.RegisterInstance<IMetadataProvider>(metadata);
 
-            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
-            new ServiceBusConfig(settings).Initialize();
+            // command bus
 
-            var commandBus = new CommandBus(new TopicSender(settings, "conference/commands"), new StandardMetadataProvider(), serializer);
+            var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
+            new ServiceBusConfig(settings.ServiceBus).Initialize();
+            var commandBus = new CommandBus(new TopicSender(settings.ServiceBus, "conference/commands"), metadata, serializer);
 
-            container.RegisterInstance<ICommandBus>(commandBus);
+            var messageLogAccount = CloudStorageAccount.Parse(settings.MessageLog.ConnectionString);
+            var logWriter = new AzureMessageLogWriter(messageLogAccount, settings.MessageLog.TableName);
+
+            var synchronousCommandBus = new SynchronousCommandBus(commandBus, logWriter);
+
+            container.RegisterInstance<ICommandBus>(synchronousCommandBus);
+            container.RegisterInstance<ICommandHandlerRegistry>(synchronousCommandBus);
 
             // support for executing commands
 
@@ -44,6 +69,70 @@ namespace Conference.Web.Public
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");
             container.RegisterType<ICommandHandler, SeatAssignmentsHandler>("SeatAssignmentsHandler");
 
+            container.RegisterType<DbContext, PaymentsDbContext>("payments", new TransientLifetimeManager(), new InjectionConstructor("Payments"));
+            container.RegisterType<IDataContext<ThirdPartyProcessorPayment>, SqlDataContext<ThirdPartyProcessorPayment>>(
+                new TransientLifetimeManager(),
+                new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("payments"), typeof(IEventBus)));
+
+            container.RegisterType<IPricingService, PricingService>(new ContainerControlledLifetimeManager());
+
+            var topicSender = new TopicSender(settings.ServiceBus, "conference/events");
+            container.RegisterInstance<IMessageSender>(topicSender);
+            var eventBus = new EventBus(topicSender, metadata, serializer);
+
+            container.RegisterInstance<IEventBus>(eventBus);
+
+            var eventSourcingAccount = CloudStorageAccount.Parse(settings.EventSourcing.ConnectionString);
+            var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.TableName);
+
+            container.RegisterInstance<IEventStore>(eventStore);
+            container.RegisterInstance<IPendingEventsQueue>(eventStore);
+            container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
+            container.RegisterType(typeof(IEventSourcedRepository<>), typeof(AzureEventSourcedRepository<>), new ContainerControlledLifetimeManager());
+
+            // to satisfy the IProcessor requirements.
+            container.RegisterType<IProcessor, PublisherProcessorAdapter>("EventStoreBusPublisher", new ContainerControlledLifetimeManager());
+        }
+
+        partial void OnStart()
+        {
+            var commandHandlerRegistry = this.container.Resolve<ICommandHandlerRegistry>();
+
+            foreach (var commandHandler in this.container.ResolveAll<ICommandHandler>())
+            {
+                commandHandlerRegistry.Register(commandHandler);
+            }
+
+            this.processors = this.container.ResolveAll<IProcessor>().ToList();
+            this.processors.ForEach(p => p.Start());
+        }
+
+        partial void OnStop()
+        {
+            this.processors.ForEach(p => p.Stop());
+        }
+
+        // to satisfy the IProcessor requirements.
+        private class PublisherProcessorAdapter : IProcessor
+        {
+            private IEventStoreBusPublisher publisher;
+            private CancellationTokenSource tokenSource;
+
+            public PublisherProcessorAdapter(IEventStoreBusPublisher publisher)
+            {
+                this.publisher = publisher;
+                this.tokenSource = new CancellationTokenSource();
+            }
+
+            public void Start()
+            {
+                this.publisher.Start(this.tokenSource.Token);
+            }
+
+            public void Stop()
+            {
+                this.tokenSource.Cancel();
+            }
         }
     }
 }

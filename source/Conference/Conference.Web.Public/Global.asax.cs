@@ -75,16 +75,19 @@ namespace Conference.Web.Public
             AreaRegistration.RegisterAllAreas();
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
-
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
             {
                 System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
                 System.Diagnostics.Trace.AutoFlush = true;
             }
+
+            this.OnStart();
         }
 
         protected void Application_Stop()
         {
+            this.OnStop();
+
             this.container.Dispose();
         }
 
@@ -92,9 +95,7 @@ namespace Conference.Web.Public
         {
             var container = new UnityContainer();
 
-            OnCreateContainer(container);
-
-            // repository
+            // repositories used by the application
 
             container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
@@ -104,9 +105,17 @@ namespace Conference.Web.Public
             container.RegisterType<IConferenceDao, ConferenceDao>();
             container.RegisterType<IPaymentDao, PaymentDao>();
 
+            // configuration specific settings
+
+            OnCreateContainer(container);
+
             return container;
         }
 
         static partial void OnCreateContainer(UnityContainer container);
+
+        partial void OnStart();
+
+        partial void OnStop();
     }
 }
