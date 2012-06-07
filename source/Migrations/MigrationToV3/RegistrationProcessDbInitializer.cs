@@ -14,7 +14,6 @@
 namespace MigrationToV3
 {
     using System.Data.Entity;
-    using Registration.Database;
 
     /// <summary>
     /// This initializer automatically creates the new UndispatchedMessages introduced in V3. 
@@ -40,11 +39,16 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[Conferen
         (
 	        [Id] ASC
         ) WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-    )
+    );
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'ConferenceRegistrationProcesses' AND TABLE_NAME = 'RegistrationProcess' AND COLUMN_NAME = 'SeatReservationCommandId')
-    ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
-    ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'
+    BEGIN
+        ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
+        ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'
+
+        ALTER TABLE [ConferenceRegistrationProcesses].[RegistrationProcess]
+        ADD [TimeStamp] [timestamp] NOT NULL
+    END
 ");
         }
     }
