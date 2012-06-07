@@ -44,20 +44,20 @@ namespace Conference.Web.Public
         {
             RoleEnvironment.Changed +=
                 (s, a) =>
-                {
-                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
-                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
                     {
-                        RoleEnvironment.RequestRecycle();
-                    }
-                    else
-                    {
-                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                        var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                        if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
                         {
-                            MaintenanceMode.RefreshIsInMaintainanceMode();
+                            RoleEnvironment.RequestRecycle();
                         }
-                    }
-                };
+                        else
+                        {
+                            if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                            {
+                                MaintenanceMode.RefreshIsInMaintainanceMode();
+                            }
+                        }
+                    };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
