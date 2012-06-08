@@ -210,6 +210,23 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal(1, pending.Count);
             Assert.Equal(partitionKey, pending.Single());
         }
+
+        [Fact]
+        public void can_delete_item_several_times_for_idempotency()
+        {
+            var pending = sut.GetPending(this.partitionKey).ToList();
+            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
+            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
+            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
+
+            pending = sut.GetPending(this.partitionKey).ToList();
+
+            Assert.Equal(1, pending.Count);
+            Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);
+            Assert.Equal("Payload2", pending[0].Payload);
+            Assert.Equal("Test2", pending[0].TypeName);
+            Assert.Equal("Source", pending[0].SourceType);
+        }
     }
 
     public class when_getting_pending_events_for_multiple_partitions : given_empty_store

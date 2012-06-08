@@ -14,6 +14,7 @@
 namespace Infrastructure.Azure.Tests.Mocks
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading;
     using Infrastructure.Azure.Messaging;
@@ -61,13 +62,16 @@ namespace Infrastructure.Azure.Tests.Mocks
 
     class MessageSenderMock : IMessageSender
     {
-        public readonly AutoResetEvent ResetEvent = new AutoResetEvent(false);
-        public readonly List<BrokeredMessage> Sent = new List<BrokeredMessage>();
+        public readonly AutoResetEvent SendSignal = new AutoResetEvent(false);
+        public readonly ConcurrentBag<BrokeredMessage> Sent = new ConcurrentBag<BrokeredMessage>();
+
+        public WaitHandle SendWaitHandle { get; set; }
 
         void IMessageSender.Send(Func<BrokeredMessage> messageFactory)
         {
             this.Sent.Add(messageFactory.Invoke());
-            this.ResetEvent.Set();
+            this.SendSignal.Set();
+            if (SendWaitHandle != null) SendWaitHandle.WaitOne(10000);
         }
 
         void IMessageSender.SendAsync(Func<BrokeredMessage> messageFactory)
