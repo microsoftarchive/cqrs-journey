@@ -52,7 +52,7 @@ namespace Infrastructure.Azure.EventSourcing
                             new ParallelOptions
                             {
                                 MaxDegreeOfParallelism = MaxDegreeOfParallelism,
-                                CancellationToken = cancellationToken
+                                CancellationToken = cancellationToken,
                             },
                             this.ProcessPartition);
                     }
@@ -101,6 +101,10 @@ namespace Infrastructure.Azure.EventSourcing
             catch
             {
                 // if there was ANY unhandled error, re-add the item to collection.
+                // this would allow the main Start logic to potentially have some 
+                // recovery logic and retry processing this key if needed. Currently 
+                // we're not doing that and the process will just stop and log whatever
+                // exception happened.
                 this.enqueuedKeys.Add(key);
                 throw;
             }
