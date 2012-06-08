@@ -15,6 +15,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Conference
 {
+    /// <summary>
+    /// Represents an attendee to the conference, someone who has been 
+    /// assigned to a purchased seat.
+    /// </summary>
     [ComplexType]
     public class Attendee
     {

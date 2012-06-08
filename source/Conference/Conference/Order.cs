@@ -50,13 +50,6 @@ namespace Conference
 
         [Display(Name = "Order Code")]
         public string AccessCode { get; set; }
-
-        // TODO: we don't have a way to calculate the other 
-        // dates as we don't have a When on the events...
-        // Should we just do DateTime.Now on the Conf. Mgmt. side?
-        // May be wrong since events may be delayed...
-        //public DateTime PlacedDate { get; set; }
-
         [Display(Name = "Registrant Name")]
         public string RegistrantName { get; set; }
         [Display(Name = "Registrant Email")]
@@ -64,6 +57,10 @@ namespace Conference
         [Display(Name = "Total Amount")]
         public decimal TotalAmount { get; set; }
 
+        /// <summary>
+        /// This pattern is typical for EF 4 since it does 
+        /// not support native enum persistence. EF 4.5 does.
+        /// </summary>
         [NotMapped]
         public OrderStatus Status
         {

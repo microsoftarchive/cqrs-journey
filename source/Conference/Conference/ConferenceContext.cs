@@ -15,6 +15,9 @@ namespace Conference
 {
     using System.Data.Entity;
 
+    /// <summary>
+    /// Data context for this ORM-based domain.
+    /// </summary>
     public class ConferenceContext : DbContext
     {
         public const string SchemaName = "ConferenceManagement";
@@ -32,6 +35,11 @@ namespace Conference
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // NOTE: ToTable used for all entities so that we can prepend 
+            // the schema name. This allows all pieces of the application 
+            // to be deployed to a single SQL Azure database, yet avoid 
+            // table name collisions, while reducing the deployment costs.
 
             modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences", SchemaName);
             // Make seat infos required to have a conference info associated, but without 
