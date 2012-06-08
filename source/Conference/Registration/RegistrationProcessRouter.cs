@@ -30,7 +30,6 @@ namespace Registration
         IEventHandler<OrderConfirmed>,
         ICommandHandler<ExpireRegistrationProcess>
     {
-        private readonly object lockObject = new object();
         private readonly Func<IProcessDataContext<RegistrationProcess>> contextFactory;
 
         public RegistrationProcessRouter(Func<IProcessDataContext<RegistrationProcess>> contextFactory)
@@ -42,17 +41,14 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                lock (lockObject)
+                var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                if (process == null)
                 {
-                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
-                    if (process == null)
-                    {
-                        process = new RegistrationProcess();
-                    }
-
-                    process.Handle(@event);
-                    context.Save(process);
+                    process = new RegistrationProcess();
                 }
+
+                process.Handle(@event);
+                context.Save(process);
             }
         }
 
@@ -60,19 +56,16 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                lock (lockObject)
+                var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                if (process != null)
                 {
-                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(@event);
+                    process.Handle(@event);
 
-                        context.Save(process);
-                    }
-                    else
-                    {
-                        Trace.TraceError("Failed to locate the registration process handling the order with id {0}.", @event.SourceId);
-                    }
+                    context.Save(process);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate the registration process handling the order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -81,19 +74,16 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                lock (lockObject)
+                var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId && x.Completed == false);
+                if (process != null)
                 {
-                    var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(envelope);
+                    process.Handle(envelope);
 
-                        context.Save(process);
-                    }
-                    else
-                    {
-                        Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", envelope.Body.ReservationId);
-                    }
+                    context.Save(process);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", envelope.Body.ReservationId);
                 }
             }
         }
@@ -102,19 +92,16 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                lock (lockObject)
+                var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                if (process != null)
                 {
-                    var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(@event);
+                    process.Handle(@event);
 
-                        context.Save(process);
-                    }
-                    else
-                    {
-                        Trace.TraceInformation("Failed to locate the registration process to complete with id {0}.", @event.SourceId);
-                    }
+                    context.Save(process);
+                }
+                else
+                {
+                    Trace.TraceInformation("Failed to locate the registration process to complete with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -123,20 +110,17 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                lock (lockObject)
+                // TODO should not skip the completed processes and move them to a "manual intervention" state
+                var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.Completed == false);
+                if (process != null)
                 {
-                    // TODO should not skip the completed processes and move them to a "manual intervention" state
-                    var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(@event);
+                    process.Handle(@event);
 
-                        context.Save(process);
-                    }
-                    else
-                    {
-                        Trace.TraceError("Failed to locate the registration process handling the paid order with id {0}.", @event.PaymentSourceId);
-                    }
+                    context.Save(process);
+                }
+                else
+                {
+                    Trace.TraceError("Failed to locate the registration process handling the paid order with id {0}.", @event.PaymentSourceId);
                 }
             }
         }
@@ -145,15 +129,12 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                lock (lockObject)
+                var process = context.Find(x => x.Id == command.ProcessId && x.Completed == false);
+                if (process != null)
                 {
-                    var process = context.Find(x => x.Id == command.ProcessId && x.Completed == false);
-                    if (process != null)
-                    {
-                        process.Handle(command);
+                    process.Handle(command);
 
-                        context.Save(process);
-                    }
+                    context.Save(process);
                 }
             }
         }
