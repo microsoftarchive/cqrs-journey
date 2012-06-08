@@ -20,6 +20,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Threading;
     using System.Threading.Tasks;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.Azure.Utils;
     using Infrastructure.Util;
     using Microsoft.ServiceBus.Messaging;
 
@@ -29,6 +30,7 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IPendingEventsQueue queue;
         private readonly BlockingCollection<string> enqueuedKeys;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
+        private const int MaxDegreeOfParallelism = 10;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
         {
@@ -43,16 +45,20 @@ namespace Infrastructure.Azure.EventSourcing
             Task.Factory.StartNew(
                 () =>
                 {
-                    while (!cancellationToken.IsCancellationRequested)
+                    try
                     {
-                        try
-                        {
-                            this.ProcessNewPartition(cancellationToken);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            return;
-                        }
+                        Parallel.ForEach(
+                            new BlockingCollectionPartitioner<string>(this.enqueuedKeys),
+                            new ParallelOptions
+                            {
+                                MaxDegreeOfParallelism = MaxDegreeOfParallelism,
+                                CancellationToken = cancellationToken,
+                            },
+                            this.ProcessPartition);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return;
                     }
                 },
                 TaskCreationOptions.LongRunning);
@@ -77,35 +83,30 @@ namespace Infrastructure.Azure.EventSourcing
             this.enqueuedKeys.Add(partitionKey);
         }
 
-        private void ProcessNewPartition(CancellationToken cancellationToken)
+        private void ProcessPartition(string key)
         {
-            string key = this.enqueuedKeys.Take(cancellationToken);
-            if (key != null)
+            try
             {
-                // TODO: possible optimization:
-                // Each partition could be processed in parallel. The only requirement is that each event within the same partition
-                // is sent in the correct order, so parallelization is possible, but be aware of not starting 2 tasks with same partition key.
-                try
+                var pending = this.queue.GetPending(key).AsCachedAnyEnumerable();
+                if (pending.Any())
                 {
-                    var pending = this.queue.GetPending(key).AsCachedAnyEnumerable();
-                    if (pending.Any())
+                    foreach (var record in pending)
                     {
-                        foreach (var record in pending)
-                        {
-                            var item = record;
-                            // There is no way to send all messages in a single transactional batch. Process 1 by 1 synchronously.
-                            this.sender.Send(() => BuildMessage(item));
-                            this.queue.DeletePending(item.PartitionKey, item.RowKey);
-                        }
+                        var item = record;
+                        this.sender.Send(() => BuildMessage(item));
+                        this.queue.DeletePending(item.PartitionKey, item.RowKey);
                     }
                 }
-                catch
-                {
-                    // if there was ANY unhandled error, re-add the item to collection.
-                    // TODO: Possible enhancement: Catch more specific exceptions and keep retrying after a while
-                    this.enqueuedKeys.Add(key);
-                    throw;
-                }
+            }
+            catch
+            {
+                // if there was ANY unhandled error, re-add the item to collection.
+                // this would allow the main Start logic to potentially have some 
+                // recovery logic and retry processing this key if needed. Currently 
+                // we're not doing that and the process will just stop and log whatever
+                // exception happened.
+                this.enqueuedKeys.Add(key);
+                throw;
             }
         }
 
