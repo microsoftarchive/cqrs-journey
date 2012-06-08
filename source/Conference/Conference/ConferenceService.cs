@@ -33,6 +33,15 @@ namespace Conference
 
         public ConferenceService(IEventBus eventBus, string nameOrConnectionString = "ConferenceManagement")
         {
+            // NOTE: the database storage cannot be transactionally consistent with the 
+            // event bus, so there is a chance that the conference state is saved 
+            // to the database but the events are not published. The recommended 
+            // mechanism to solve this lack of transaction support is to persist 
+            // failed events to a table in the same database as the conference, in a 
+            // queue that is retried until successfull delivery of events is 
+            // guaranteed. This mechamisn has been implemented for the AzureEventSourcedRepository
+            // and that implementation can be used as a guide to implement it here too.
+
             this.eventBus = eventBus;
             this.nameOrConnectionString = nameOrConnectionString;
         }
