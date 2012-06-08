@@ -58,14 +58,14 @@ namespace Conference
                 if (existingSlug)
                     throw new DuplicateNameException("The chosen conference slug is already taken.");
 
+                // Conference publishing is explicit. 
+                if (conference.IsPublished)
+                    conference.IsPublished = false;
+
                 context.Conferences.Add(conference);
                 context.SaveChanges();
 
                 this.PublishConferenceEvent<ConferenceCreated>(conference);
-                foreach (var seat in conference.Seats)
-                {
-                    this.PublishSeatCreated(conference.Id, seat);
-                }
             }
         }
 
@@ -80,7 +80,10 @@ namespace Conference
                 conference.Seats.Add(seat);
                 context.SaveChanges();
 
-                this.PublishSeatCreated(conferenceId, seat);
+                // Don't publish new seats if the conference was never published 
+                // (and therefore is not published either).
+                if (conference.WasEverPublished)
+                    this.PublishSeatCreated(conferenceId, seat);
             }
         }
 
@@ -156,15 +159,20 @@ namespace Conference
                 context.Entry(existing).CurrentValues.SetValues(seat);
                 context.SaveChanges();
 
-                this.eventBus.Publish(new SeatUpdated
+                // Don't publish seat updates if the conference was never published 
+                // (and therefore is not published either).
+                if (context.Conferences.Where(x => x.Id == conferenceId).Select(x => x.WasEverPublished).FirstOrDefault())
                 {
-                    ConferenceId = conferenceId,
-                    SourceId = seat.Id,
-                    Name = seat.Name,
-                    Description = seat.Description,
-                    Price = seat.Price,
-                    Quantity = seat.Quantity,
-                });
+                    this.eventBus.Publish(new SeatUpdated
+                    {
+                        ConferenceId = conferenceId,
+                        SourceId = seat.Id,
+                        Name = seat.Name,
+                        Description = seat.Description,
+                        Price = seat.Price,
+                        Quantity = seat.Quantity,
+                    });
+                }
             }
         }
 
@@ -188,10 +196,22 @@ namespace Conference
 
                 conference.IsPublished = isPublished;
                 if (isPublished && !conference.WasEverPublished)
+                {
                     // This flags prevents any further seat type deletions.
                     conference.WasEverPublished = true;
+                    context.SaveChanges();
 
-                context.SaveChanges();
+                    // We always publish events *after* saving to store.
+                    // Publish all seats that were created before.
+                    foreach (var seat in conference.Seats)
+                    {
+                        PublishSeatCreated(conference.Id, seat);
+                    }
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
 
                 if (isPublished)
                     this.eventBus.Publish(new ConferencePublished { SourceId = conferenceId });
