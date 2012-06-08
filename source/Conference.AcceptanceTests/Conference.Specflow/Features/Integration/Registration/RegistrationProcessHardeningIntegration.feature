@@ -37,7 +37,6 @@ And the selected Order Items
 	| Additional cocktail party | 1        |
 
 
-
 #- Crashes or is unable to access storage after receiving an event and before it sends any commands.
 Scenario: The Command to Register the order is lost after a crash
 When the command to register the selected Order Items is lost 
@@ -49,13 +48,38 @@ And  the event for reserving the selected Seats is emitted
 #No more events or commands are emitted
 
 
-
 #- Times-out because it is expecting a timely response from any of the commands it has sent, but for some reason the recipients of those commands fail to respond.
 Scenario: Times-out afther the reservation is completed
-	# event: OrderPlaced (1 sec expiration)
-When the event for Order placed is emitted with a short expiration time
+	# event: OrderPlaced
+When the event for Order placed get expired
 	# command: CancelSeatReservation
 Then the command for cancelling the reservation is received
 	# command: RejectOrder
 And the command for rejecting the order is received
 
+
+#- Receives an unexpected event (i.e. PaymentCompleted after the order has been expired).
+Scenario: Execute the Payment process after the order has expired
+Given the event for Order placed get expired
+	# command: InitiateThirdPartyProcessorPayment
+When the command for initiate the payment is sent
+	# command: CompleteThirdPartyProcessorPayment
+And the command for completing the payment process is sent
+	# event: PaymentCompleted
+Then the event for confirming the payment is emitted
+	# command: OrderConfirmed 
+And the event for confirming the Order is not emitted
+
+
+Scenario: Execute the Payment process after all seats are reserved
+Given these Seat Types becomes unavailable before the Registrant make the reservation
+	| seat type                 |
+	| General admission         |
+	| Additional cocktail party |
+And the command to register the selected Order Items is sent 
+	# command: InitiateThirdPartyProcessorPayment
+When the command for initiate the payment is sent
+	# command: CompleteThirdPartyProcessorPayment
+And the command for completing the payment process is sent
+	# event: OrderPartiallyReserved
+Then the event for partially confirming the order with no available seats is emitted

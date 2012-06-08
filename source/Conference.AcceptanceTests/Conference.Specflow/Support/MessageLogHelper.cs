@@ -106,6 +106,18 @@ namespace Conference.Specflow.Support
             return collected == count;
         }
 
+        public static bool CollectCommands<T>(Func<T, bool> predicate) where T : ICommand
+        {
+            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+            var criteria = new QueryCriteria { FullNames = { typeof(T).FullName } };
+            bool found;
+            while (!(found = commandLog.Query(criteria).OfType<T>().Any(predicate)) && DateTime.Now < timeout)
+            {
+                Thread.Sleep(100);
+            }
+            return found;
+        }
+
         public static bool CollectEvents<T>(ICollection<string> sourceIds, int count) where T : IEvent
         {
             var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);

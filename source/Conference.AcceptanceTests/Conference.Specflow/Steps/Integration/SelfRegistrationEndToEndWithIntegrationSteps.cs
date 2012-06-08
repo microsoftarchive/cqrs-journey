@@ -80,6 +80,9 @@ namespace Conference.Specflow.Steps
         public void ThenTheEventForReservingTheSelectedSeatsIsEmitted()
         {
             registerToConference = registerToConference ?? ScenarioContext.Current.Get<RegisterToConference>();
+
+            // Wait and Check for SeatsReserved event was emitted 
+            Assert.True(MessageLogHelper.CollectEvents<SeatsReserved>(registerToConference.ConferenceId, 1));
             var seatsReserved = MessageLogHelper.GetEvents<SeatsReserved>(registerToConference.ConferenceId).SingleOrDefault();
 
             Assert.NotNull(seatsReserved);
