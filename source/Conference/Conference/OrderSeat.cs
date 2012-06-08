@@ -28,6 +28,8 @@ namespace Conference
 
         protected OrderSeat()
         {
+            // Complex type properties can never be 
+            // null.
             this.Attendee = new Attendee();
         }
 
@@ -35,6 +37,11 @@ namespace Conference
         public Guid OrderId { get; set; }
         public Attendee Attendee { get; set; }
 
+        /// <summary>
+        /// Typical pattern for foreign key relationship 
+        /// in EF. The identifier is all that's needed 
+        /// to persist the referring entity.
+        /// </summary>
         [ForeignKey("SeatInfo")]
         public Guid SeatInfoId { get; set; }
         public SeatType SeatInfo { get; set; }

@@ -38,6 +38,8 @@ namespace Conference
     // an event notifying the listeners that a new order is ready, so they (the Conference Mgmt BC)
     // can (asynchronously) make a direct service call and get the information for the order
     // (still getting the fully denormalized order in a single service call).
+
+    // The advisors agreed that handling this many events is OK nevertheless.
     public class OrderEventHandler :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderRegistrantAssigned>,
