@@ -13,13 +13,11 @@
 
 namespace Conference.Web.Public
 {
-    using System.Data.Entity;
     using System.Linq;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common;
-    using Conference.Common.Entity;
     using Conference.Web.Utils;
     using Infrastructure.BlobStorage;
     using Infrastructure.Sql.BlobStorage;
@@ -44,23 +42,23 @@ namespace Conference.Web.Public
         {
             RoleEnvironment.Changed +=
                 (s, a) =>
+                {
+                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
+                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
                     {
-                        var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
-                        if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
+                        RoleEnvironment.RequestRecycle();
+                    }
+                    else
+                    {
+                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
                         {
-                            RoleEnvironment.RequestRecycle();
+                            MaintenanceMode.RefreshIsInMaintainanceMode();
                         }
-                        else
-                        {
-                            if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
-                            {
-                                MaintenanceMode.RefreshIsInMaintainanceMode();
-                            }
-                        }
-                    };
+                    }
+                };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
-            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+            DatabaseSetup.Initialize();
 
             // We need to also setup the migration in the website, as the read models are queried 
             // from here and also need upgrade (PricedOrder in particular for V3).

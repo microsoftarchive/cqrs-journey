@@ -13,32 +13,33 @@
 
 namespace WorkerRoleCommandProcessor
 {
-    using System;
+    using System.Data.Entity;
+    using Conference.Common.Entity;
+    using Infrastructure.Sql.BlobStorage;
+    using Infrastructure.Sql.EventSourcing;
+    using Infrastructure.Sql.MessageLog;
+    using Payments.Database;
+    using Payments.ReadModel.Implementation;
+    using Registration.Database;
+    using Registration.ReadModel.Implementation;
 
-    class Program
+    /// <summary>
+    /// Initializes the EF infrastructure.
+    /// </summary>
+    internal static class DatabaseSetup
     {
-        static void Main(string[] args)
+        public static void Initialize()
         {
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
-            // Cleanup default EF DB initializers.
-            DatabaseSetup.Initialize();
+            Database.SetInitializer<ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<EventStoreDbContext>(null);
+            Database.SetInitializer<MessageLogDbContext>(null);
+            Database.SetInitializer<BlobStorageDbContext>(null);
 
-            // Setup V3 migrations.
-            // In future revisions, this line will change to invoke a V4 migration (possibly)
-            // and the initialization of the V3 migration won't be needed anymore, as the 
-            // production database will already have been migrated to V3.
-            MigrationToV3.Migration.Initialize();
-
-            using (var processor = new ConferenceProcessor())
-            {
-                processor.Start();
-
-                Console.WriteLine("Host started");
-                Console.WriteLine("Press enter to finish");
-                Console.ReadLine();
-
-                processor.Stop();
-            }
+            Database.SetInitializer<PaymentsDbContext>(null);
+            Database.SetInitializer<PaymentsReadDbContext>(null);
         }
     }
 }
