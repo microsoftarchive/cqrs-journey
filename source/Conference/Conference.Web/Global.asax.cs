@@ -13,22 +13,20 @@
 
 namespace Conference.Web.Admin
 {
-    using System.Data.Entity;
     using System.Linq;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common;
-    using Conference.Common.Entity;
     using Conference.Web.Utils;
-    using Infrastructure;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 #if LOCAL
+    using System.Data.Entity;
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
-
 #else
+    using Infrastructure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure;
 #endif
@@ -94,11 +92,9 @@ namespace Conference.Web.Admin
                 };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
-            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+            DatabaseSetup.Initialize();
 
             AreaRegistration.RegisterAllAreas();
-
-            Database.SetInitializer<ConferenceContext>(null);
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
