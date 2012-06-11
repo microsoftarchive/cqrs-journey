@@ -63,13 +63,18 @@ namespace WorkerRoleCommandProcessor
 
             var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer);
 
-            container.RegisterInstance<ICommandBus>(commandBus);
+            var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
+            container.RegisterInstance<ICommandBus>(synchronousCommandBus);
+
             container.RegisterInstance<IEventBus>(eventBus);
             container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
             container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
 
             RegisterRepository(container);
             RegisterEventProcessors(container);
+
+            // handle order commands inline, as they do not have competition.
+            synchronousCommandBus.Register(container.Resolve<ICommandHandler>("OrderCommandHandler"));
 
             // message log
             var messageLogAccount = CloudStorageAccount.Parse(azureSettings.MessageLog.ConnectionString);
