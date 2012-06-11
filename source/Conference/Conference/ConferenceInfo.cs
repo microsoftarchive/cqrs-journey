@@ -86,6 +86,6 @@ namespace Conference
 
         public bool WasEverPublished { get; set; }
 
-        public ICollection<SeatType> Seats { get; set; }
+        public virtual ICollection<SeatType> Seats { get; set; }
     }
 }
