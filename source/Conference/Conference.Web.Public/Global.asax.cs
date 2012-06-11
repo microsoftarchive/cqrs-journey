@@ -20,7 +20,6 @@ namespace Conference.Web.Public
     using Conference.Common;
     using Conference.Web.Utils;
     using Microsoft.Practices.Unity;
-    using Microsoft.WindowsAzure.ServiceRuntime;
     using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
     using Registration.ReadModel;
@@ -39,11 +38,13 @@ namespace Conference.Web.Public
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "By design")]
         protected void Application_Start()
         {
-            RoleEnvironment.Changed +=
+#if AZURESDK
+            Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.Changed +=
                 (s, a) =>
                 {
-                    RoleEnvironment.RequestRecycle();
+                    Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.RequestRecycle();
                 };
+#endif
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
             DatabaseSetup.Initialize();
@@ -61,11 +62,13 @@ namespace Conference.Web.Public
             AreaRegistration.RegisterAllAreas();
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
+#if AZURESDK
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
             {
                 System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
                 System.Diagnostics.Trace.AutoFlush = true;
             }
+#endif
 
             this.OnStart();
         }
