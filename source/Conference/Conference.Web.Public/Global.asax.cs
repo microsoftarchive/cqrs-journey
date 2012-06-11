@@ -23,11 +23,13 @@ namespace Conference.Web.Public
     using Infrastructure.BlobStorage;
     using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
-    using Microsoft.WindowsAzure.ServiceRuntime;
     using Payments.ReadModel;
     using Payments.ReadModel.Implementation;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
+#if AZURESDK
+    using Microsoft.WindowsAzure.ServiceRuntime;
+#endif
 
     public partial class MvcApplication : HttpApplication
     {
@@ -41,6 +43,7 @@ namespace Conference.Web.Public
 
         protected void Application_Start()
         {
+#if AZURESDK
             RoleEnvironment.Changed +=
                 (s, a) =>
                 {
@@ -57,6 +60,7 @@ namespace Conference.Web.Public
                         }
                     }
                 };
+#endif
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
             DatabaseSetup.Initialize();
@@ -74,11 +78,13 @@ namespace Conference.Web.Public
             AreaRegistration.RegisterAllAreas();
             AppRoutes.RegisterRoutes(RouteTable.Routes);
 
+#if AZURESDK
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
             {
                 System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
                 System.Diagnostics.Trace.AutoFlush = true;
             }
+#endif
 
             this.OnStart();
         }
@@ -103,7 +109,7 @@ namespace Conference.Web.Public
             var cache = new MemoryCache("ReadModel");
             container.RegisterType<IOrderDao, OrderDao>();
             container.RegisterType<IConferenceDao, CachingConferenceDao>(
-                new ContainerControlledLifetimeManager(), 
+                new ContainerControlledLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<ConferenceDao>(), cache));
             container.RegisterType<IPaymentDao, PaymentDao>();
 

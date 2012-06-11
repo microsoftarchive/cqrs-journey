@@ -16,7 +16,6 @@ namespace Conference.Common.Entity
     using System.Configuration;
     using System.Data.Common;
     using System.Data.Entity.Infrastructure;
-    using Microsoft.WindowsAzure.ServiceRuntime;
 
     public class ServiceConfigurationSettingConnectionFactory : IDbConnectionFactory
     {
@@ -33,35 +32,39 @@ namespace Conference.Common.Entity
             {
                 var connectionStringName = "DbContext." + nameOrConnectionString;
 
-                if (RoleEnvironment.IsAvailable)
+#if AZURESDK
+                if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
                 {
                     try
                     {
-                        var settingValue = RoleEnvironment.GetConfigurationSettingValue(connectionStringName);
+                        var settingValue = Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.GetConfigurationSettingValue(connectionStringName);
                         if (!string.IsNullOrEmpty(settingValue))
                         {
                             nameOrConnectionString = settingValue;
                         }
                     }
-                    catch (RoleEnvironmentException)
+                    catch (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironmentException)
                     {
                         // setting does not exist, use original value
                     }
                 }
                 else
                 {
-                    try
+#endif
+                try
+                {
+                    var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
+                    if (connectionString != null)
                     {
-                        var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
-                        if (connectionString != null)
-                        {
-                            nameOrConnectionString = connectionString.ConnectionString;
-                        }
-                    }
-                    catch (ConfigurationErrorsException e)
-                    {
+                        nameOrConnectionString = connectionString.ConnectionString;
                     }
                 }
+                catch (ConfigurationErrorsException e)
+                {
+                }
+#if AZURESDK
+                }
+#endif
             }
 
             return this.parent.CreateConnection(nameOrConnectionString);
