@@ -25,6 +25,7 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
     {
         private string dbName = "ConferenceServiceFixture_" + Guid.NewGuid().ToString();
         private ConferenceService service;
+        private List<IEvent> busEvents;
 
         public given_no_conference()
         {
@@ -36,7 +37,11 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
                 context.Database.Create();
             }
 
+            this.busEvents = new List<IEvent>();
             var busMock = new Mock<IEventBus>();
+            busMock.Setup(b => b.Publish(It.IsAny<Envelope<IEvent>>())).Callback<Envelope<IEvent>>(e => busEvents.Add(e.Body));
+            busMock.Setup(b => b.Publish(It.IsAny<IEnumerable<Envelope<IEvent>>>())).Callback<IEnumerable<Envelope<IEvent>>>(es => busEvents.AddRange(es.Select(e => e.Body)));
+
             this.service = new ConferenceService(busMock.Object, this.dbName);
         }
 
@@ -102,6 +107,57 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         {
             Assert.Throws<ObjectNotFoundException>(() => service.DeleteSeat(Guid.NewGuid()));
         }
+
+        [Fact]
+        public void when_creating_conference_and_seat_then_does_not_publish_seat_created()
+        {
+            var conference = new ConferenceInfo
+            {
+                OwnerEmail = "test@contoso.com",
+                OwnerName = "test owner",
+                AccessCode = "qwerty",
+                Name = "test conference",
+                Description = "test conference description",
+                Location = "redmond",
+                Slug = "test",
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(2)),
+            };
+            service.CreateConference(conference);
+
+            var seat = new SeatType { Name = "seat", Description = "description", Price = 100, Quantity = 100 };
+            service.CreateSeat(conference.Id, seat);
+
+            Assert.Empty(busEvents.OfType<SeatCreated>());
+        }
+
+        [Fact]
+        public void when_creating_conference_and_seat_then_publishes_seat_created_on_publish()
+        {
+            var conference = new ConferenceInfo
+            {
+                OwnerEmail = "test@contoso.com",
+                OwnerName = "test owner",
+                AccessCode = "qwerty",
+                Name = "test conference",
+                Description = "test conference description",
+                Location = "redmond",
+                Slug = "test",
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.Add(TimeSpan.FromDays(2)),
+            };
+            service.CreateConference(conference);
+
+            var seat = new SeatType { Name = "seat", Description = "description", Price = 100, Quantity = 100 };
+            service.CreateSeat(conference.Id, seat);
+
+            service.Publish(conference.Id);
+
+            var e = busEvents.OfType<SeatCreated>().FirstOrDefault();
+
+            Assert.NotNull(e);
+            Assert.Equal(e.SourceId, seat.Id);
+        }
     }
 
     public class given_an_existing_conference_with_a_seat : IDisposable
@@ -153,6 +209,16 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         }
 
         [Fact]
+        public void then_conference_is_created_unpublished()
+        {
+            using (var context = new ConferenceContext(this.dbName))
+            {
+                Assert.False(context.Conferences.Find(this.conference.Id).IsPublished);
+                Assert.False(context.Conferences.Find(this.conference.Id).WasEverPublished);
+            }
+        }
+
+        [Fact]
         public void then_conference_is_persisted()
         {
             using (var context = new ConferenceContext(this.dbName))
@@ -171,9 +237,11 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         }
 
         [Fact]
-        public void then_seat_created_is_published()
+        public void then_seat_created_is_published_on_publish()
         {
-            var e = this.busEvents.OfType<SeatCreated>().Single();
+            service.Publish(this.conference.Id);
+
+            var e = busEvents.OfType<SeatCreated>().Single();
             var seat = this.conference.Seats.Single();
 
             Assert.Equal(seat.Id, e.SourceId);
@@ -236,6 +304,8 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         [Fact]
         public void when_creating_seat_then_seat_created_is_published()
         {
+            service.Publish(this.conference.Id);
+
             var seat = new SeatType
             {
                 Name = "precon",
@@ -313,6 +383,8 @@ namespace Conference.IntegrationTests.ConferenceServiceFixture
         [Fact]
         public void when_updating_seat_then_seat_updated_event_is_published()
         {
+            service.Publish(this.conference.Id);
+
             var seat = this.conference.Seats.First();
             seat.Name = "precon";
             seat.Description = "precon desc";

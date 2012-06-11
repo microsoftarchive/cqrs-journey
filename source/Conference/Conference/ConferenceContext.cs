@@ -25,7 +25,6 @@ namespace Conference
         public ConferenceContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
-            this.Configuration.LazyLoadingEnabled = false;
         }
 
         public virtual DbSet<ConferenceInfo> Conferences { get; set; }

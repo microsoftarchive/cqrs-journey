@@ -131,6 +131,8 @@ namespace Registration.Handlers
         {
             using (var repository = this.contextFactory.Invoke())
             {
+                // NOTE: Ideally this should trust the sender, and create the seat type even if the ConferenceCreated event was not
+                // yet handled (so the reference to Conference does not yet exist).
                 var dto = repository.Find<Conference>(@event.ConferenceId);
                 if (dto != null)
                 {
