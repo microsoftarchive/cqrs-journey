@@ -96,6 +96,7 @@
     <Compile Include="ConferenceProcessor.Local.cs" Condition=" '$(Configuration)|$(Platform)' == 'DebugLocal|AnyCPU' ">
       <DependentUpon>ConferenceProcessor.cs</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseSetup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBusConstants.cs">
