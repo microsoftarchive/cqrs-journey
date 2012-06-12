@@ -18,6 +18,7 @@ namespace WorkerRoleCommandProcessor
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using Conference.Common;
     using Conference.Common.Entity;
     using Microsoft.WindowsAzure;
@@ -30,6 +31,7 @@ namespace WorkerRoleCommandProcessor
 
         public override void Run()
         {
+            TaskScheduler.UnobservedTaskException += this.OnUnobservedTaskException;
             this.running = true;
 
             MaintenanceMode.RefreshIsInMaintainanceMode();
@@ -56,6 +58,13 @@ namespace WorkerRoleCommandProcessor
                     Thread.Sleep(10000);
                 }
             }
+
+            TaskScheduler.UnobservedTaskException -= this.OnUnobservedTaskException;
+        }
+
+        private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            Trace.TraceError("Unobserved task exception: \r\n{0}", e.Exception);
         }
 
         public override bool OnStart()

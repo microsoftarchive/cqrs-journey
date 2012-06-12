@@ -168,7 +168,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         }
 
         [Fact]
-        public void then_transitions_state()
+        public void then_does_not_transition_state()
         {
             Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
@@ -393,6 +393,59 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
         public void then_transitions_state()
         {
             Assert.True(this.sut.Completed);
+        }
+    }
+
+    public class when_reservation_confirmation_is_received_for_current_correlation_id : Context
+    {
+        private int initialCommandCount;
+
+        public when_reservation_confirmation_is_received_for_current_correlation_id()
+        {
+            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
+
+            var seatsReserved = new SeatsReserved { SourceId = this.conferenceId, ReservationId = makeReservationCommand.ReservationId, ReservationDetails = new SeatQuantity[0] };
+            this.initialCommandCount = this.sut.Commands.Count();
+            sut.Handle(new Envelope<SeatsReserved>(seatsReserved) { CorrelationId = makeReservationCommand.Id.ToString() });
+        }
+
+        [Fact]
+        public void then_does_not_send_new_update_to_order()
+        {
+            Assert.Equal(this.initialCommandCount, this.sut.Commands.Count());
+        }
+
+        [Fact]
+        public void then_does_not_transition_state()
+        {
+            Assert.Equal(RegistrationProcess.ProcessState.ReservationConfirmationReceived, sut.State);
+        }
+    }
+
+    public class when_reservation_confirmation_is_received_for_non_current_correlation_id : Context
+    {
+        private Exception exception;
+
+        public when_reservation_confirmation_is_received_for_non_current_correlation_id()
+        {
+            var makeReservationCommand = sut.Commands.Select(e => e.Body).OfType<MakeSeatReservation>().Single();
+
+            var seatsReserved = new SeatsReserved { SourceId = this.conferenceId, ReservationId = makeReservationCommand.ReservationId, ReservationDetails = new SeatQuantity[0] };
+
+            try
+            {
+                sut.Handle(new Envelope<SeatsReserved>(seatsReserved) { CorrelationId = Guid.NewGuid().ToString() });
+            }
+            catch (InvalidOperationException e)
+            {
+                this.exception = e;
+            }
+        }
+
+        [Fact]
+        public void then_throws()
+        {
+            Assert.NotNull(this.exception);
         }
     }
 }

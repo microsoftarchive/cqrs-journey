@@ -14,6 +14,7 @@
 namespace Infrastructure.Azure.Utils
 {
     using System;
+    using System.Diagnostics;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus.Messaging;
@@ -25,20 +26,20 @@ namespace Infrastructure.Azure.Utils
 
         public static bool SafeComplete(this BrokeredMessage message)
         {
-            return SafeMessagingAction(message.Complete);
+            return SafeMessagingAction(message.Complete, "An error occurred while completing message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
         }
 
         public static bool SafeAbandon(this BrokeredMessage message)
         {
-            return SafeMessagingAction(message.Abandon);
+            return SafeMessagingAction(message.Abandon, "An error occurred while abandoning message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
         }
 
         public static bool SafeDeadLetter(this BrokeredMessage message, string reason, string description)
         {
-            return SafeMessagingAction(() => message.DeadLetter(reason, description));
+            return SafeMessagingAction(() => message.DeadLetter(reason, description), "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
         }
 
-        private static bool SafeMessagingAction(Action action)
+        private static bool SafeMessagingAction(Action action, string actionErrorDescription, string messageId)
         {
             try
             {
@@ -48,12 +49,15 @@ namespace Infrastructure.Azure.Utils
             }
             catch (MessageLockLostException)
             {
+                Trace.TraceWarning(actionErrorDescription, messageId);
             }
             catch (MessagingException)
             {
+                Trace.TraceWarning(actionErrorDescription, messageId);
             }
             catch (TimeoutException)
             {
+                Trace.TraceWarning(actionErrorDescription, messageId);
             }
 
             return false;

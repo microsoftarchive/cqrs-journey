@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.EventSourcing
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -30,7 +31,7 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IPendingEventsQueue queue;
         private readonly BlockingCollection<string> enqueuedKeys;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
-        private const int MaxDegreeOfParallelism = 10;
+        private const int MaxDegreeOfParallelism = 5;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
         {
@@ -98,8 +99,10 @@ namespace Infrastructure.Azure.EventSourcing
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
+
                 // if there was ANY unhandled error, re-add the item to collection.
                 // this would allow the main Start logic to potentially have some 
                 // recovery logic and retry processing this key if needed. Currently 
