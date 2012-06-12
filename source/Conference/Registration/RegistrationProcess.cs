@@ -149,7 +149,6 @@ namespace Registration
                 }
 
                 this.State = ProcessState.ReservationConfirmationReceived;
-                this.SeatReservationCommandId = Guid.Empty;
 
                 this.AddCommand(new MarkSeatsAsReserved
                 {
@@ -157,6 +156,10 @@ namespace Registration
                     Seats = envelope.Body.ReservationDetails.ToList(),
                     Expiration = this.ReservationAutoExpiration.Value,
                 });
+            }
+            else if (string.CompareOrdinal(this.SeatReservationCommandId.ToString(), envelope.CorrelationId) == 0)
+            {
+                Trace.TraceInformation("Seat reservation response for request {1} for reservation id {0} was already handled. Skipping event.", envelope.Body.ReservationId, envelope.CorrelationId);
             }
             else
             {
