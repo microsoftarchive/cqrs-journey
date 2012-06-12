@@ -101,7 +101,7 @@ namespace Infrastructure.Azure.EventSourcing
             }
             catch (Exception e)
             {
-                Trace.TraceWarning("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
+                Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
 
                 // if there was ANY unhandled error, re-add the item to collection.
                 // this would allow the main Start logic to potentially have some 
