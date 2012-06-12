@@ -268,10 +268,6 @@ namespace Conference.Specflow.Steps
             string accessCode = Browser.FindText(Slug.FindBy);
             Assert.False(string.IsNullOrWhiteSpace(accessCode), "Access Code not found");
 
-            //TODO: Remove after fix
-            // Wait for order events to be digested. 
-            Thread.Sleep(Constants.WaitTimeout);
-
             // Navigate to the Seat Assignement page
             Browser.Click(Constants.UI.ProceedToSeatAssignementId);
 
@@ -302,7 +298,12 @@ namespace Conference.Specflow.Steps
 
         public void TheRegistrantProceedToCheckoutPayment()
         {
+            //TODO: May be removed after optimizations?
+            // Wait for order events to be digested. 
+            Thread.Sleep(Constants.WaitTimeout); 
+            
             Browser.Click(Constants.UI.NextStepId);
+
         }
 
         #endregion

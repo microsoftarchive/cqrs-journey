@@ -11,63 +11,47 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-Feature: Registrant workflow for partially assigning some of the purchased Order Items
+Feature: Self Registrant end to end scenario for making a Registration free of charge for a Conference site
+	In order to register for a conference
+	As an Attendee
+	I want to be able to register for the conference free of charge and associate myself with the paid Order automatically
 
 Background: 
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
-	| General admission         | $199 | 100   |
-	| CQRS Workshop             | $500 | 100   |
-	| Additional cocktail party | $50  | 100   |
+	| General admission         | $0   | 10    |
+	| Additional cocktail party | $100 | 10    |
 
-
-Scenario: Allocate some of the purchased Seats for an individual
+Scenario: Checkout all free of charge
 	Given the selected Order Items
-	| seat type                 | quantity |
-	| General admission         | 1        |
-	| Additional cocktail party | 1        |
+	| seat type         | quantity |
+	| General admission | 1        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
 	| first name | last name | email address            |
 	| Gregory    | Weber     | gregoryweber@contoso.com |
-	And the Registrant proceed to Checkout:Payment
-	And the Registrant proceed to confirm the payment
-    And the Registration process was successful
+	And the total should read $0
+	When the Registrant proceed to Checkout:Payment
+    Then the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
-	| Additional cocktail party | 1        |
-	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address            |
-	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
-	Then these seats are assigned
-	| seat type                 | quantity |
-	| General admission         | 1        |
-	| Additional cocktail party | 1        |
 
 
-Scenario: Allocate some of the purchased Seats for a group
+Scenario: Checkout partial free of charge
 	Given the selected Order Items
 	| seat type                 | quantity |
-	| General admission         | 4        |
-	| Additional cocktail party | 2        |
+	| General admission         | 2        |
+	| Additional cocktail party | 3        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
 	| first name | last name | email address            |
 	| Gregory    | Weber     | gregoryweber@contoso.com |
+	And the total should read $300
 	And the Registrant proceed to Checkout:Payment
-	And the Registrant proceed to confirm the payment
-    And the Registration process was successful
+	When the Registrant proceed to confirm the payment
+    Then the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
-	| General admission         | 4        |
-	| Additional cocktail party | 2        |
-	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address       |
-	| General admission         | William    | Weber     | William@Weber.com   |
-	| General admission         | Gregory    | Doe       | GregoryDoe@live.com |
-	| Additional cocktail party | Mani       | Kris      | Mani@Kris.com       |
-	Then these seats are assigned
-	| seat type                 | quantity |
-	| General admission         | 4        |
-	| Additional cocktail party | 2        |
+	| General admission         | 2        |
+	| Additional cocktail party | 3        |

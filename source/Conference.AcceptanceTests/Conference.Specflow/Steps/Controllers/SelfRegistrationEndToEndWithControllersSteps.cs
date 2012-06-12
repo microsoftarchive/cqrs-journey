@@ -48,7 +48,7 @@ namespace Conference.Specflow.Steps
             conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
             registrationController = RegistrationHelper.GetRegistrationController(conferenceInfo.Slug);
 
-            orderViewModel = RegistrationHelper.GetModel<OrderViewModel>(registrationController.StartRegistration());
+            orderViewModel = RegistrationHelper.GetModel<OrderViewModel>(registrationController.StartRegistration().Result);
             Assert.NotNull(orderViewModel);
 
             registration = new RegisterToConference { ConferenceId = conferenceInfo.Id, OrderId = orderViewModel.OrderId };
@@ -80,7 +80,7 @@ namespace Conference.Specflow.Steps
             {
                 //ReservationUnknown
                 var result = registrationController.SpecifyRegistrantAndPaymentDetails(
-                    (Guid)redirect.RouteValues["orderId"], orderViewModel.OrderVersion);
+                    (Guid)redirect.RouteValues["orderId"], orderViewModel.OrderVersion).Result;
 
                 Assert.IsNotType<RedirectToRouteResult>(result);
                 registrationViewModel = RegistrationHelper.GetModel<RegistrationViewModel>(result);
@@ -123,14 +123,14 @@ namespace Conference.Specflow.Steps
         {
             var result = registrationController.SpecifyRegistrantAndPaymentDetails(
                 registrationViewModel.RegistrantDetails,
-                RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion) as RedirectToRouteResult;
+                RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion).Result as RedirectToRouteResult;
 
             var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
             while((result == null || !result.RouteValues.ContainsKey("paymentId")) &&
                 DateTime.Now < timeout)
             {
                 result = registrationController.StartPayment(registrationViewModel.RegistrantDetails.OrderId,
-                    RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion) as RedirectToRouteResult;
+                    RegistrationController.ThirdPartyProcessorPayment, orderViewModel.OrderVersion).Result as RedirectToRouteResult;
             }
 
             Assert.NotNull(result);

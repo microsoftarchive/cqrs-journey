@@ -58,7 +58,15 @@
       <HintPath>..\packages\WatiN.2.1.0\lib\net40\Microsoft.mshtml.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.ServiceBus, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.ServiceBus.1.7.0.0\lib\net40-full\Microsoft.ServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Configuration, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.1.7.0.0\lib\net35-full\Microsoft.WindowsAzure.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAzure.Storage.1.7.0.0\lib\net35-full\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
@@ -71,12 +79,16 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TechTalk.SpecFlow">
       <HintPath>..\packages\SpecFlow.1.8.1\lib\net35\TechTalk.SpecFlow.dll</HintPath>
     </Reference>
@@ -98,6 +110,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceConfigurationWithIntegration.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\Integration\Registration\SelfRegistrationEndToEndWithIntegration-Business.feature.cs">
+      <DependentUpon>SelfRegistrationEndToEndWithIntegration-Business.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Features\Integration\Registration\RegistrationProcessHardeningIntegration.feature.cs">
       <AutoGen>True</AutoGen>
@@ -189,6 +206,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GroupRegistrationReservationWithPartialAvailability.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationFreeOfCharge.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SelfRegistrationFreeOfCharge.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithConcurrency.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -262,6 +284,10 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceConfigurationWithIntegration.feature.cs</LastGenOutput>
     </None>
+    <None Include="Features\Integration\Registration\SelfRegistrationEndToEndWithIntegration-Business.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SelfRegistrationEndToEndWithIntegration-Business.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\Integration\Registration\RegistrationProcessHardeningIntegration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>RegistrationProcessHardeningIntegration.feature.cs</LastGenOutput>
@@ -330,6 +356,10 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>GroupRegistrationReservationWithPartialAvailability.feature.cs</LastGenOutput>
     </None>
+    <None Include="Features\UserInterface\Views\Registration\SelfRegistrationFreeOfCharge.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>SelfRegistrationFreeOfCharge.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\UserInterface\Views\Registration\SelfRegistrationReservationWithConcurrency.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>SelfRegistrationReservationWithConcurrency.feature.cs</LastGenOutput>
@@ -380,6 +410,10 @@
     <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
       <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
       <Name>Conference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Payments.Contracts\Payments.Contracts.csproj">
+      <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
+      <Name>Payments.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Conference\Payments\Payments.csproj">
       <Project>{DB59488E-0358-468D-B074-09A3BD4721BF}</Project>

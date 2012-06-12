@@ -18,6 +18,8 @@ using System.Threading;
 using Conference.Common.Utils;
 using Conference.Specflow.Support;
 using Infrastructure.Messaging;
+using Payments.Contracts.Commands;
+using Payments.Contracts.Events;
 using Registration;
 using Registration.Commands;
 using Registration.Events;
@@ -34,12 +36,20 @@ namespace Conference.Specflow.Steps
         private readonly ICommandBus commandBus;
         private readonly IEventBus eventBus; 
         private Guid orderId;
+        private Guid paymentId;
         private RegisterToConference registerToConference;
 
         public RegistrationProcessHardeningIntegrationSteps()
         {
             commandBus = ConferenceHelper.BuildCommandBus();
             eventBus = ConferenceHelper.BuildEventBus();
+        }
+
+        [Given(@"the command to register the selected Order Items is sent")]
+        public void GivenTheCommandToRegisterTheSelectedOrderItemsIsSent()
+        {
+            WhenTheCommandToRegisterTheSelectedOrderItemsIsLost();
+            this.commandBus.Send(registerToConference); 
         }
 
         [When(@"the command to register the selected Order Items is lost")]
@@ -52,7 +62,7 @@ namespace Conference.Specflow.Steps
             orderId = registerToConference.OrderId;
 
             //Command lost because of a failure
-            //this.commandBus.Send(registerToConference);        }
+            //this.commandBus.Send(registerToConference); 
         }
 
         [When(@"the event for Order placed is emitted")]
@@ -68,9 +78,6 @@ namespace Conference.Specflow.Steps
             };
 
             eventBus.Publish(orderPlaced);
-
-            // Wait for event processing
-            Thread.Sleep(Constants.WaitTimeout); 
         }
 
         [When(@"the Registrant proceed to make the Reservation")]
@@ -84,8 +91,14 @@ namespace Conference.Specflow.Steps
             this.commandBus.Send(registerToConference);
         }
 
-        [When(@"the event for Order placed is emitted with a short expiration time")]
-        public void WhenTheEventForOrderPlacedIsEmittedWithAShortExpirationTime()
+        [Given(@"the event for Order placed get expired")]
+        public void GivenTheEventForOrderPlacedGetExpired()
+        {
+            WhenTheEventForOrderPlacedGetExpired();
+        }
+
+        [When(@"the event for Order placed get expired")]
+        public void WhenTheEventForOrderPlacedGetExpired()
         {
             //Update the registration data
             WhenTheCommandToRegisterTheSelectedOrderItemsIsLost();
@@ -100,27 +113,72 @@ namespace Conference.Specflow.Steps
             };
 
             eventBus.Publish(orderPlaced);
+        }
 
-            // Wait for event processing
-            Thread.Sleep(Constants.WaitTimeout);
+        [When(@"the command for initiate the payment is sent")]
+        public void WhenTheComandForInitiateThePaymentIsSent()
+        {
+            var paymentCommand =
+                 new InitiateThirdPartyProcessorPayment
+                 {
+                     PaymentId = Guid.NewGuid(),
+                     ConferenceId = registerToConference.ConferenceId,
+                     PaymentSourceId = orderId,
+                     Description = "test",
+                     TotalAmount = 249
+                 };
+
+            paymentId = paymentCommand.PaymentId;
+
+            commandBus.Send(paymentCommand);
+        }
+
+        [When(@"the command for completing the payment process is sent")]
+        public void WhenTheCommandForCompletingThePaymentProcessIsSent()
+        {
+            this.commandBus.Send(new CompleteThirdPartyProcessorPayment { PaymentId = paymentId });
+        }
+
+        [Then(@"the event for confirming the payment is emitted")]
+        public void ThenTheEventForConfirmingThePaymentIsEmitted()
+        {
+            Assert.True(MessageLogHelper.CollectEvents<PaymentCompleted>(paymentId, 1));
+        }
+
+        [Then(@"the event for partially confirming the order with no available seats is emitted")]
+        public void ThenTheEventForPartiallyConfirmingTheOrderWithNoAvailableSeatsIsEmitted()
+        {
+            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderId, 1));
+            var partiallyReserved = MessageLogHelper.GetEvents<OrderPartiallyReserved>(orderId).Single();
+
+            // No seats available
+            Assert.False(partiallyReserved.Seats.Any());
+        }
+
+        [Then(@"the event for confirming the Order is emitted")]
+        public void ThenTheEventForConfirmingTheOrderIsEmitted()
+        {
+            Assert.True(MessageLogHelper.CollectEvents<OrderConfirmed>(orderId, 1));
+        }
+
+        [Then(@"the event for confirming the Order is not emitted")]
+        public void ThenTheEventForConfirmingTheOrderIsNotEmitted()
+        {
+            Assert.False(MessageLogHelper.GetEvents <OrderConfirmed>(orderId).Any());
         }
 
         [Then(@"the command for cancelling the reservation is received")]
         public void ThenTheCommandForCancellingTheReservationIsReceived()
         {
-            var command = MessageLogHelper.GetCommands<CancelSeatReservation>().
-                FirstOrDefault(c => c.ConferenceId == registerToConference.ConferenceId);
-
-            Assert.NotNull(command);
+            Assert.True(MessageLogHelper.CollectCommands<CancelSeatReservation>(
+                c => c.ConferenceId == registerToConference.ConferenceId));
         }
 
         [Then(@"the command for rejecting the order is received")]
         public void ThenTheCommandForRejectingTheOrderIsReceived()
         {
-            var command = MessageLogHelper.GetCommands<RejectOrder>().
-                FirstOrDefault(c => c.OrderId == orderId);
-
-            Assert.NotNull(command);
+            Assert.True(MessageLogHelper.CollectCommands<RejectOrder>(
+                c => c.OrderId == orderId));
         }
     }
 }
