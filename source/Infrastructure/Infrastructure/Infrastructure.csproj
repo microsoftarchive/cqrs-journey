@@ -50,6 +50,7 @@
     <Compile Include="Database\IAggregateRoot.cs" />
     <Compile Include="Database\IDataContext.cs" />
     <Compile Include="EntityNotFoundException.cs" />
+    <Compile Include="EventSourcing\IMementoOriginator.cs" />
     <Compile Include="IProcessor.cs" />
     <Compile Include="MessageLog\EventLogExtensions.cs" />
     <Compile Include="MessageLog\IEventLogReader.cs" />

@@ -317,6 +317,19 @@ namespace Registration.Tests.ConferenceSeatsAvailabilityFixture
             Assert.Equal(-3, sut.SingleEvent<SeatsReserved>().AvailableSeatsChanged.Single(x => x.SeatType == OtherSeatTypeId).Quantity);
             Assert.Equal(6, sut.SingleEvent<SeatsReserved>().AvailableSeatsChanged.Single(x => x.SeatType == SeatTypeId).Quantity);
         }
+
+        [Fact]
+        public void when_regenerating_from_memento_then_can_continue()
+        {
+            var memento = sut.SaveToMemento();
+            sut = new SeatsAvailability(sut.Id, memento, Enumerable.Empty<IVersionedEvent>());
+
+            sut.MakeReservation(ReservationId, new[] { new SeatQuantity(OtherSeatTypeId, 3) });
+
+            Assert.Equal(2, sut.SingleEvent<SeatsReserved>().AvailableSeatsChanged.Count());
+            Assert.Equal(-3, sut.SingleEvent<SeatsReserved>().AvailableSeatsChanged.Single(x => x.SeatType == OtherSeatTypeId).Quantity);
+            Assert.Equal(6, sut.SingleEvent<SeatsReserved>().AvailableSeatsChanged.Single(x => x.SeatType == SeatTypeId).Quantity);
+        }
     }
 
     //public class given_a_cancelled_reservation

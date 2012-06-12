@@ -17,6 +17,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Runtime.Caching;
     using Infrastructure.EventSourcing;
     using Infrastructure.Serialization;
     using Infrastructure.Util;
@@ -31,14 +32,19 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IEventStoreBusPublisher publisher;
         private readonly ITextSerializer serializer;
         private readonly Func<Guid, IEnumerable<IVersionedEvent>, T> entityFactory;
+        private readonly Func<Guid, IMemento, IEnumerable<IVersionedEvent>, T> originatorEntityFactory;
         private readonly IMetadataProvider metadataProvider;
+        private readonly ObjectCache cache;
+        private readonly Action<T> cacheMementoIfApplicable;
+        private readonly Func<Guid, IMemento> getMementoFromCache;
 
-        public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer, IMetadataProvider metadataProvider)
+        public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer, IMetadataProvider metadataProvider, ObjectCache cache)
         {
             this.eventStore = eventStore;
             this.publisher = publisher;
             this.serializer = serializer;
             this.metadataProvider = metadataProvider;
+            this.cache = cache;
 
             // TODO: could be replaced with a compiled lambda to make it more performant
             var constructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IEnumerable<IVersionedEvent>) });
@@ -48,17 +54,58 @@ namespace Infrastructure.Azure.EventSourcing
                     "Type T must have a constructor with the following signature: .ctor(Guid, IEnumerable<IVersionedEvent>)");
             }
             this.entityFactory = (id, events) => (T)constructor.Invoke(new object[] { id, events });
+
+            if (typeof(IMementoOriginator).IsAssignableFrom(typeof(T)) && this.cache != null)
+            {
+                // TODO: could be replaced with a compiled lambda to make it more performant
+                var mementoConstructor = typeof(T).GetConstructor(new[] { typeof(Guid), typeof(IMemento), typeof(IEnumerable<IVersionedEvent>) });
+                if (mementoConstructor == null)
+                {
+                    throw new InvalidCastException(
+                        "Type T must have a constructor with the following signature: .ctor(Guid, IMemento, IEnumerable<IVersionedEvent>)");
+                }
+                this.originatorEntityFactory = (id, memento, events) => (T)mementoConstructor.Invoke(new object[] { id, memento, events });
+                this.cacheMementoIfApplicable = (T originator) => 
+                    {
+                        string key = GetPartitionKey(originator.Id);
+                        var memento = ((IMementoOriginator)originator).SaveToMemento();
+                        this.cache.Set(
+                            key,
+                            memento,
+                            new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(30) });
+                    };
+                this.getMementoFromCache = id => (IMemento)this.cache.Get(GetPartitionKey(id));
+            }
+            else
+            {
+                // if no cache object or is not a memento originator, then no-op
+                this.cacheMementoIfApplicable = o => { };
+                this.getMementoFromCache = id => { return null; };
+            }
         }
 
         public T Find(Guid id)
         {
-            var deserialized = this.eventStore.Load(GetPartitionKey(id), 0)
-                .Select(this.Deserialize)
-                .AsCachedAnyEnumerable();
-
-            if (deserialized.Any())
+            var memento = this.getMementoFromCache(id);
+            if (memento != null)
             {
-                return entityFactory.Invoke(id, deserialized);
+                // NOTE: if we had a guarantee that this is running in a single process, there is
+                // no need to check if there are new events after the cached version.
+                var deserialized = this.eventStore.Load(GetPartitionKey(id), memento.Version + 1)
+                    .Select(this.Deserialize);
+
+                return this.originatorEntityFactory.Invoke(id, memento, deserialized);
+            }
+            else
+            {
+                var deserialized = this.eventStore.Load(GetPartitionKey(id), 0)
+                    .Select(this.Deserialize)
+                    .AsCachedAnyEnumerable();
+
+                if (deserialized.Any())
+                {
+                    return this.entityFactory.Invoke(id, deserialized);
+                }
             }
 
             return null;
@@ -86,6 +133,8 @@ namespace Infrastructure.Azure.EventSourcing
             this.eventStore.Save(partitionKey, serialized);
 
             this.publisher.SendAsync(partitionKey);
+
+            this.cacheMementoIfApplicable.Invoke(eventSourced);
         }
 
         private string GetPartitionKey(Guid id)
