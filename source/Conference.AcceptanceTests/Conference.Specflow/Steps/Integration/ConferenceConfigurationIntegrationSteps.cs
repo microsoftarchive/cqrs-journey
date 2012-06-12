@@ -22,7 +22,7 @@ namespace Conference.Specflow.Steps
     [Scope(Tag = "ConferenceConfigurationIntegration")]
     public class ConferenceConfigurationIntegrationSteps
     {
-        private ConferenceService conferenceService;
+        private readonly ConferenceService conferenceService;
         private ConferenceInfo conference;
         private ICollection<SeatType> seats;
 
@@ -41,6 +41,12 @@ namespace Conference.Specflow.Steps
         public void GivenTheConferenceAlreadyExists()
         {
             WhenTheConferenceIsCreated();
+        }
+
+        [Given(@"the conference is published")]
+        public void GivenTheConferenceIsPublished()
+        {
+            WhenTheConferenceIsPublished();
         }
 
         [When(@"these Seat Types are created")]
