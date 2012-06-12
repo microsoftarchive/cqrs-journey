@@ -39,6 +39,7 @@ namespace Conference.Specflow.Steps
             commandBus = ConferenceHelper.BuildCommandBus();
         }
 
+        [When(@"the Registrant proceed to make the Reservation")]
         [When(@"the command to register the selected Order Items is sent")]
         public void WhenTheCommandToRegisterTheSelectedOrderItemsIsSent()
         {
@@ -53,12 +54,14 @@ namespace Conference.Specflow.Steps
             Thread.Sleep(Constants.WaitTimeout);
         }
 
+        [Then(@"the Reservation is confirmed for all the selected Order Items")]
         [Then(@"the event for Order placed is emitted")]
         public void ThenTheEventForOrderPlacedIsEmitted()
         {
-            var orderPlaced = MessageLogHelper.GetEvents<OrderPlaced>(orderId).SingleOrDefault();
+            Assert.True(MessageLogHelper.CollectEvents<OrderPlaced>(orderId, 1));
+
+            var orderPlaced = MessageLogHelper.GetEvents<OrderPlaced>(orderId).Single();
             
-            Assert.NotNull(orderPlaced);
             Assert.True(orderPlaced.Seats.All(
                 os => registerToConference.Seats.Count(cs => cs.SeatType == os.SeatType && cs.Quantity == os.Quantity) == 1));
         }
@@ -80,6 +83,9 @@ namespace Conference.Specflow.Steps
         public void ThenTheEventForReservingTheSelectedSeatsIsEmitted()
         {
             registerToConference = registerToConference ?? ScenarioContext.Current.Get<RegisterToConference>();
+
+            // Wait and Check for SeatsReserved event was emitted 
+            Assert.True(MessageLogHelper.CollectEvents<SeatsReserved>(registerToConference.ConferenceId, 1));
             var seatsReserved = MessageLogHelper.GetEvents<SeatsReserved>(registerToConference.ConferenceId).SingleOrDefault();
 
             Assert.NotNull(seatsReserved);
@@ -96,6 +102,39 @@ namespace Conference.Specflow.Steps
             Assert.NotNull(order);
         }
 
+        [Then(@"these Order Items should be reserved")]
+        public void ThenTheseOrderItemsShouldBeReserved(Table table)
+        {
+            var orderReservationCompleted = MessageLogHelper.GetEvents<OrderReservationCompleted>(orderId).SingleOrDefault();
+            Assert.NotNull(orderReservationCompleted);
+
+            var conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
+
+            foreach (var row in table.Rows)
+            {
+                var seat = conferenceInfo.Seats.FirstOrDefault(s => s.Description == row["seat type"]);
+                Assert.NotNull(seat);
+                Assert.True(orderReservationCompleted.Seats.Any(
+                        s => s.SeatType == seat.Id && s.Quantity == int.Parse(row["quantity"])));
+            }
+        }
+
+        [Then(@"these Order Items should not be reserved")]
+        public void ThenTheseOrderItemsShouldNotBeReserved(Table table)
+        {
+            var orderReservationCompleted = MessageLogHelper.GetEvents<OrderReservationCompleted>(orderId).SingleOrDefault();
+            Assert.NotNull(orderReservationCompleted);
+
+            var conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
+
+            foreach (var row in table.Rows)
+            {
+                var seat = conferenceInfo.Seats.FirstOrDefault(s => s.Description == row["seat type"]);
+                Assert.NotNull(seat);
+                Assert.False(orderReservationCompleted.Seats.Any(s => s.SeatType == seat.Id));
+            }
+        }
+
         [Then(@"the event for completing the Order reservation is emitted")]
         public void ThenTheEventForCompletingTheOrderReservationIsEmitted()
         {
@@ -106,6 +145,7 @@ namespace Conference.Specflow.Steps
             Assert.True(orderReservationCompleted.ReservationExpiration > DateTime.Now);
         }
 
+        [Then(@"the total should read \$(.*)")]
         [Then(@"the event for calculating the total of \$(.*) is emitted")]
         public void ThenTheEventForCalculatingTheTotalIsEmitted(decimal total)
         {

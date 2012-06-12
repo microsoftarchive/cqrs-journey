@@ -121,17 +121,17 @@ testRunner.And("the selected Order Items", ((string)(null)), table2);
         public virtual void TheCommandToRegisterTheOrderIsLostAfterACrash()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("The Command to Register the order is lost after a crash", ((string[])(null)));
-#line 42
+#line 41
 this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
-#line 43
+#line 42
 testRunner.When("the command to register the selected Order Items is lost");
-#line 44
+#line 43
 testRunner.And("the event for Order placed is emitted");
-#line 46
+#line 45
 testRunner.Then("the command for reserving the selected Seats is received");
-#line 48
+#line 47
 testRunner.And("the event for reserving the selected Seats is emitted");
 #line hidden
             this.ScenarioCleanup();
@@ -144,16 +144,73 @@ testRunner.And("the event for reserving the selected Seats is emitted");
         public virtual void Times_OutAftherTheReservationIsCompleted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Times-out afther the reservation is completed", ((string[])(null)));
-#line 54
+#line 52
 this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
+#line 54
+testRunner.When("the event for Order placed get expired");
 #line 56
-testRunner.When("the event for Order placed is emitted with a short expiration time");
-#line 58
 testRunner.Then("the command for cancelling the reservation is received");
-#line 60
+#line 58
 testRunner.And("the command for rejecting the order is received");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+            "ions and failures")]
+        [Xunit.TraitAttribute("Description", "Execute the Payment process after the order has expired")]
+        public virtual void ExecuteThePaymentProcessAfterTheOrderHasExpired()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Execute the Payment process after the order has expired", ((string[])(null)));
+#line 62
+this.ScenarioSetup(scenarioInfo);
+#line 28
+this.FeatureBackground();
+#line 63
+testRunner.Given("the event for Order placed get expired");
+#line 65
+testRunner.When("the command for initiate the payment is sent");
+#line 67
+testRunner.And("the command for completing the payment process is sent");
+#line 69
+testRunner.Then("the event for confirming the payment is emitted");
+#line 71
+testRunner.And("the event for confirming the Order is not emitted");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+            "ions and failures")]
+        [Xunit.TraitAttribute("Description", "Execute the Payment process after all seats are reserved")]
+        public virtual void ExecuteThePaymentProcessAfterAllSeatsAreReserved()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Execute the Payment process after all seats are reserved", ((string[])(null)));
+#line 74
+this.ScenarioSetup(scenarioInfo);
+#line 28
+this.FeatureBackground();
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        "seat type"});
+            table3.AddRow(new string[] {
+                        "General admission"});
+            table3.AddRow(new string[] {
+                        "Additional cocktail party"});
+#line 75
+testRunner.Given("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table3);
+#line 79
+testRunner.And("the command to register the selected Order Items is sent");
+#line 81
+testRunner.When("the command for initiate the payment is sent");
+#line 83
+testRunner.And("the command for completing the payment process is sent");
+#line 85
+testRunner.Then("the event for partially confirming the order with no available seats is emitted");
 #line hidden
             this.ScenarioCleanup();
         }

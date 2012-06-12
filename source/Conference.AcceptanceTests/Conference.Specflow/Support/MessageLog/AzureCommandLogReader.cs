@@ -43,7 +43,7 @@ namespace Conference.Specflow.Support.MessageLog
         {
             var context = this.tableClient.GetDataServiceContext();
             var query = (IQueryable<MessageLogEntity>)context.CreateQuery<MessageLogEntity>(this.tableName)
-                .Where(x => x.Kind == StandardMetadata.EventKind);
+                .Where(x => x.Kind == StandardMetadata.CommandKind);
 
             var where = criteria.ToExpression();
             if (where != null)
