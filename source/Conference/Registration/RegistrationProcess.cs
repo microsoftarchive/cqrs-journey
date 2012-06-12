@@ -202,12 +202,12 @@ namespace Registration
             {
                 this.Completed = true;
 
+                this.AddCommand(new RejectOrder { OrderId = this.OrderId });
                 this.AddCommand(new CancelSeatReservation
                 {
                     ConferenceId = this.ConferenceId,
                     ReservationId = this.ReservationId,
                 });
-                this.AddCommand(new RejectOrder { OrderId = this.OrderId });
 
                 // TODO cancel payment if any
             }
