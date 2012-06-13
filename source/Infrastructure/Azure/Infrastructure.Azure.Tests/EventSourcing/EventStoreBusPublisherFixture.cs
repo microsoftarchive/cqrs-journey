@@ -219,9 +219,9 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         }
 
         [Fact]
-        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_10()
+        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_5()
         {
-            var degreeOfParallelism = 10;
+            var degreeOfParallelism = 5;
 
             var resetEvent = new ManualResetEvent(false);
             this.sender.SendWaitHandle = resetEvent;
