@@ -33,6 +33,7 @@ Scenario: A new Conference is created and published
 
 Scenario: Adding Seats to an existing conference
 	Given the conference already exists
+	And the conference is published
 	When these Seat Types are created
 	| seat type                 | rate | quota |
 	| General admission         | $199 | 100   |
