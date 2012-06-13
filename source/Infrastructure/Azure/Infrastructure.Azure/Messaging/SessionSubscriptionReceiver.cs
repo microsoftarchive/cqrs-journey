@@ -167,6 +167,8 @@ namespace Infrastructure.Azure.Messaging
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     BrokeredMessage message = null;
+                    BrokeredMessageEventArgs args = null;
+
                     try
                     {
                         try
@@ -187,11 +189,12 @@ namespace Infrastructure.Azure.Messaging
                             break;
                         }
 
-                        this.MessageReceived(this, new BrokeredMessageEventArgs(message));
+                        args = new BrokeredMessageEventArgs(message);
+                        this.MessageReceived(this, args);
                     }
                     finally
                     {
-                        if (message != null)
+                        if (message != null && !(args != null && args.DoNotDisposeMessage))
                         {
                             message.Dispose();
                         }

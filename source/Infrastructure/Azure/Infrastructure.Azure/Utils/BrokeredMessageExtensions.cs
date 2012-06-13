@@ -39,6 +39,36 @@ namespace Infrastructure.Azure.Utils
             return SafeMessagingAction(() => message.DeadLetter(reason, description), "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
         }
 
+        public static void SafeCompleteAsync(this BrokeredMessage message)
+        {
+            SafeMessagingActionAsync(
+                ac => message.BeginComplete(ac, null),
+                message.EndComplete,
+                message,
+                "An error occurred while completing message {0}. It will be reprocessed when the peek lock expires.",
+                message.MessageId);
+        }
+
+        public static void SafeAbandonAsync(this BrokeredMessage message)
+        {
+            SafeMessagingActionAsync(
+                ac => message.BeginAbandon(ac, null),
+                message.EndAbandon,
+                message,
+                "An error occurred while abandoning message {0}. It will be reprocessed when the peek lock expires.",
+                message.MessageId);
+        }
+
+        public static void SafeDeadLetterAsync(this BrokeredMessage message, string reason, string description)
+        {
+            SafeMessagingActionAsync(
+                ac => message.BeginDeadLetter(reason, description, ac, null),
+                message.EndDeadLetter,
+                message,
+                "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.",
+                message.MessageId);
+        }
+
         private static bool SafeMessagingAction(Action action, string actionErrorDescription, string messageId)
         {
             try
@@ -61,6 +91,30 @@ namespace Infrastructure.Azure.Utils
             }
 
             return false;
+        }
+
+        private static void SafeMessagingActionAsync(Action<AsyncCallback> begin, Action<IAsyncResult> end, BrokeredMessage message, string actionErrorDescription, string messageId)
+        {
+            FastRetryPolicy.ExecuteAction(
+                begin,
+                end,
+                () =>
+                {
+                    message.Dispose();
+                },
+                e =>
+                {
+                    message.Dispose();
+
+                    if (e is MessageLockLostException || e is MessagingException || e is TimeoutException)
+                    {
+                        Trace.TraceWarning(actionErrorDescription, messageId);
+                    }
+                    else
+                    {
+                        Trace.TraceError("Unexpected error releasing message:\r\n{0}", e);
+                    }
+                });
         }
     }
 }

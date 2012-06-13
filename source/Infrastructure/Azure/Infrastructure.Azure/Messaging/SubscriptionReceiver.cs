@@ -144,6 +144,7 @@ namespace Infrastructure.Azure.Messaging
             while (!cancellationToken.IsCancellationRequested)
             {
                 BrokeredMessage message = null;
+                BrokeredMessageEventArgs args = null;
 
                 // NOTE: we don't long-poll more than a few seconds as 
                 // we're already on a background thread and we want to 
@@ -168,11 +169,12 @@ namespace Infrastructure.Azure.Messaging
                         continue;
                     }
 
-                    this.MessageReceived(this, new BrokeredMessageEventArgs(message));
+                    args = new BrokeredMessageEventArgs(message);
+                    this.MessageReceived(this, args);
                 }
                 finally
                 {
-                    if (message != null)
+                    if (message != null && !(args != null && args.DoNotDisposeMessage))
                     {
                         message.Dispose();
                     }
