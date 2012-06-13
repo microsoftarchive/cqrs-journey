@@ -61,7 +61,7 @@ namespace Infrastructure.Azure.Messaging
             this.retryPolicy.Retrying +=
                 (s, e) =>
                 {
-                    Trace.TraceError("An error occurred in attempt number {1} to send a message: {0}", e.LastException.Message, e.CurrentRetryCount);
+                    Trace.TraceWarning("An error occurred in attempt number {1} to send a message: {0}", e.LastException.Message, e.CurrentRetryCount);
                 };
 
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
