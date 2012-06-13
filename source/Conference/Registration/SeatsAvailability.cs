@@ -50,10 +50,7 @@ namespace Registration
             this.Version = state.Version;
             // make a copy of the state values to avoid concurrency problems with reusing references.
             this.remainingSeats.AddRange(state.RemainingSeats);
-            foreach (var item in state.PendingReservations)
-            {
-                this.pendingReservations.Add(item.Key, item.Value.ToList());
-            }
+            this.pendingReservations.AddRange(state.PendingReservations);
             this.LoadFrom(history);
         }
 
