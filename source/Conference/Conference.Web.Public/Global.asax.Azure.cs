@@ -17,6 +17,7 @@ namespace Conference.Web.Public
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
+    using System.Runtime.Caching;
     using System.Threading;
     using System.Web;
     using Infrastructure;
@@ -84,7 +85,11 @@ namespace Conference.Web.Public
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
-            container.RegisterType(typeof(IEventSourcedRepository<>), typeof(AzureEventSourcedRepository<>), new ContainerControlledLifetimeManager());
+            container.RegisterType(
+                typeof(IEventSourcedRepository<>),
+                typeof(AzureEventSourcedRepository<>),
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(typeof(IEventStore), typeof(IEventStoreBusPublisher), typeof(ITextSerializer), typeof(IMetadataProvider), new InjectionParameter<ObjectCache>(null)));
 
             // to satisfy the IProcessor requirements.
             container.RegisterType<IProcessor, PublisherProcessorAdapter>("EventStoreBusPublisher", new ContainerControlledLifetimeManager());
