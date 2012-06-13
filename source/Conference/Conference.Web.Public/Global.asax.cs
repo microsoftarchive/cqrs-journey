@@ -14,6 +14,7 @@
 namespace Conference.Web.Public
 {
     using System.Linq;
+    using System.Runtime.Caching;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
@@ -99,8 +100,11 @@ namespace Conference.Web.Public
             container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
             container.RegisterType<PaymentsReadDbContext>(new TransientLifetimeManager(), new InjectionConstructor("Payments"));
 
+            var cache = new MemoryCache("ReadModel");
             container.RegisterType<IOrderDao, OrderDao>();
-            container.RegisterType<IConferenceDao, ConferenceDao>();
+            container.RegisterType<IConferenceDao, CachingConferenceDao>(
+                new ContainerControlledLifetimeManager(), 
+                new InjectionConstructor(new ResolvedParameter<ConferenceDao>(), cache));
             container.RegisterType<IPaymentDao, PaymentDao>();
 
             // configuration specific settings
