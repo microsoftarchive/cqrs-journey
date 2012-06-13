@@ -62,7 +62,11 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
-            var commandProcessor = new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer);
+            var commandProcessor =
+                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer)
+                {
+                    ReleaseMessageLockAsynchronously = true
+                };
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
@@ -111,8 +115,8 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             var cache = new MemoryCache("RepositoryCache");
             container.RegisterType(
-                typeof(IEventSourcedRepository<>), 
-                typeof(AzureEventSourcedRepository<>), 
+                typeof(IEventSourcedRepository<>),
+                typeof(AzureEventSourcedRepository<>),
                 new ContainerControlledLifetimeManager(),
                 new InjectionConstructor(typeof(IEventStore), typeof(IEventStoreBusPublisher), typeof(ITextSerializer), typeof(IMetadataProvider), cache));
 

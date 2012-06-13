@@ -33,5 +33,10 @@ namespace Infrastructure.Azure.Messaging
         /// Gets the message associated with the event.
         /// </summary>
         public BrokeredMessage Message { get; private set; }
+
+        /// <summary>
+        /// Gets or sets an indication that the message should not be disposed by the originating receiver.
+        /// </summary>
+        public bool DoNotDisposeMessage { get; set; }
     }
 }

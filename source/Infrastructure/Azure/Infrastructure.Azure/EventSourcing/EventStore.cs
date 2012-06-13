@@ -128,21 +128,24 @@ namespace Infrastructure.Azure.EventSourcing
             var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
             context.AttachTo(this.tableName, item, "*");
             context.DeleteObject(item);
-            try
-            {
-                this.pendingEventsQueueRetryPolicy.ExecuteAction(() => context.SaveChanges());
-            }
-            catch (DataServiceRequestException ex)
-            {
-                var inner = ex.InnerException as DataServiceClientException;
-                if (inner != null && inner.StatusCode == (int)HttpStatusCode.NotFound)
+            this.pendingEventsQueueRetryPolicy.ExecuteAction(() =>
                 {
-                    // ignore if entity was already deleted.
-                    return;
-                }
+                    try
+                    {
+                        context.SaveChanges();
+                    }
+                    catch (DataServiceRequestException ex)
+                    {
+                        var inner = ex.InnerException as DataServiceClientException;
+                        if (inner != null && inner.StatusCode == (int)HttpStatusCode.NotFound)
+                        {
+                            // ignore if entity was already deleted.
+                            return;
+                        }
 
-                throw;
-            }
+                        throw;
+                    }
+                });
         }
 
         private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)
