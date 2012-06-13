@@ -13,6 +13,7 @@
 
 namespace WorkerRoleCommandProcessor
 {
+    using System.Runtime.Caching;
     using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
@@ -108,7 +109,12 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
-            container.RegisterType(typeof(IEventSourcedRepository<>), typeof(AzureEventSourcedRepository<>), new ContainerControlledLifetimeManager());
+            var cache = new MemoryCache("RepositoryCache");
+            container.RegisterType(
+                typeof(IEventSourcedRepository<>), 
+                typeof(AzureEventSourcedRepository<>), 
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(typeof(IEventStore), typeof(IEventStoreBusPublisher), typeof(ITextSerializer), typeof(IMetadataProvider), cache));
 
             // to satisfy the IProcessor requirements.
             container.RegisterInstance<IProcessor>("EventStoreBusPublisher", new PublisherProcessorAdapter(

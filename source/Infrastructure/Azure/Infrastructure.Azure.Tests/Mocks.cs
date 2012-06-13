@@ -53,6 +53,42 @@ namespace Infrastructure.Azure.Tests.Mocks
         IEnumerable<IVersionedEvent> IEventSourced.Events { get { return this.Events; } }
     }
 
+    class TestOriginatorEntity : IEventSourced, IMementoOriginator
+    {
+        public TestOriginatorEntity()
+        {
+            this.Events = new List<IVersionedEvent>();
+        }
+
+        public TestOriginatorEntity(Guid id, IEnumerable<IVersionedEvent> history)
+        {
+            this.Events = new List<IVersionedEvent>();
+            this.History = history;
+            this.Id = id;
+        }
+
+        public TestOriginatorEntity(Guid id, IMemento memento, IEnumerable<IVersionedEvent> history)
+        {
+            this.Events = new List<IVersionedEvent>();
+            this.Memento = memento;
+            this.History = history;
+            this.Id = id;
+        }
+
+        public IEnumerable<IVersionedEvent> History { get; set; }
+        public Guid Id { get; set; }
+        public int Version { get; set; }
+        public IMemento Memento { get; set; }
+        public List<IVersionedEvent> Events { get; set; }
+
+        IEnumerable<IVersionedEvent> IEventSourced.Events { get { return this.Events; } }
+
+        IMemento IMementoOriginator.SaveToMemento()
+        {
+            return this.Memento;
+        }
+    }
+
     class TestEvent : IVersionedEvent
     {
         public Guid SourceId { get; set; }

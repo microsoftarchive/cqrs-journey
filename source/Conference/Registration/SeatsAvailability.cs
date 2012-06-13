@@ -23,10 +23,10 @@ namespace Registration
     /// <summary>
     /// Manages the availability of conference seats.
     /// </summary>
-    public class SeatsAvailability : EventSourced
+    public class SeatsAvailability : EventSourced, IMementoOriginator
     {
-        private readonly ConcurrentDictionary<Guid, int> remainingSeats = new ConcurrentDictionary<Guid, int>();
-        private readonly ConcurrentDictionary<Guid, List<SeatQuantity>> pendingReservations = new ConcurrentDictionary<Guid, List<SeatQuantity>>();
+        private readonly Dictionary<Guid, int> remainingSeats = new Dictionary<Guid, int>();
+        private readonly Dictionary<Guid, List<SeatQuantity>> pendingReservations = new Dictionary<Guid, List<SeatQuantity>>();
 
         public SeatsAvailability(Guid id)
             : base(id)
@@ -35,13 +35,22 @@ namespace Registration
             base.Handles<SeatsReserved>(this.OnSeatsReserved);
             base.Handles<SeatsReservationCommitted>(this.OnSeatsReservationCommitted);
             base.Handles<SeatsReservationCancelled>(this.OnSeatsReservationCancelled);
-            // TODO: raise event
-            // TODO: We are assuming SeatsAvailability.Id correlates directly to ConferenceId. We should avoid re-using the same Id for different aggregates!
         }
 
         public SeatsAvailability(Guid id, IEnumerable<IVersionedEvent> history)
             : this(id)
         {
+            this.LoadFrom(history);
+        }
+
+        public SeatsAvailability(Guid id, IMemento memento, IEnumerable<IVersionedEvent> history)
+            : this(id)
+        {
+            var state = (Memento)memento;
+            this.Version = state.Version;
+            // make a copy of the state values to avoid concurrency problems with reusing references.
+            this.remainingSeats.AddRange(state.RemainingSeats);
+            this.pendingReservations.AddRange(state.PendingReservations);
             this.LoadFrom(history);
         }
 
@@ -169,7 +178,7 @@ namespace Registration
             }
             else
             {
-                this.pendingReservations.TryRemove(e.ReservationId, out details);
+                this.pendingReservations.Remove(e.ReservationId);
             }
 
             foreach (var seat in e.AvailableSeatsChanged)
@@ -180,19 +189,34 @@ namespace Registration
 
         private void OnSeatsReservationCommitted(SeatsReservationCommitted e)
         {
-            List<SeatQuantity> reservation;
-            this.pendingReservations.TryRemove(e.ReservationId, out reservation);
+            this.pendingReservations.Remove(e.ReservationId);
         }
 
         private void OnSeatsReservationCancelled(SeatsReservationCancelled e)
         {
-            List<SeatQuantity> reservation;
-            this.pendingReservations.TryRemove(e.ReservationId, out reservation);
+            this.pendingReservations.Remove(e.ReservationId);
 
             foreach (var seat in e.AvailableSeatsChanged)
             {
                 this.remainingSeats[seat.SeatType] = this.remainingSeats[seat.SeatType] + seat.Quantity;
             }
+        }
+
+        public IMemento SaveToMemento()
+        {
+            return new Memento
+            {
+                Version = this.Version,
+                RemainingSeats = this.remainingSeats.ToArray(),
+                PendingReservations = this.pendingReservations.ToArray(),
+            };
+        }
+
+        public class Memento : IMemento
+        {
+            public int Version { get; internal set; }
+            internal KeyValuePair<Guid, int>[] RemainingSeats { get; set; }
+            internal KeyValuePair<Guid, List<SeatQuantity>>[] PendingReservations { get; set; }
         }
     }
 }
