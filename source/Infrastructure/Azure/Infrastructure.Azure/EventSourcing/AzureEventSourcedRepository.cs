@@ -22,8 +22,7 @@ namespace Infrastructure.Azure.EventSourcing
     using Infrastructure.Serialization;
     using Infrastructure.Util;
 
-    // TODO: This is a basic implementation of the event store that could be optimized in the future.
-    // It does not do any snapshots, which the SeatsAvailability will probably need (even if those snapshots could just be in memory)
+    // NOTE: This is a basic implementation of the event store that could be optimized in the future.
     public class AzureEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
         // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
