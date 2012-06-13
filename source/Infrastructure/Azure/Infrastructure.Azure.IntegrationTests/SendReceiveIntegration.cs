@@ -36,13 +36,13 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
             {
                 var signal = new ManualResetEventSlim();
 
-                receiver.MessageReceived += (o, e) =>
-                {
-                    received = e.Message.GetBody<Data>();
-                    signal.Set();
-                };
-
-                receiver.Start();
+                receiver.Start(
+                    m =>
+                    {
+                        received = m.GetBody<Data>();
+                        signal.Set();
+                        return true;
+                    });
 
                 sender.SendAsync(() => new BrokeredMessage(data));
 

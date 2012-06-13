@@ -87,13 +87,18 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_message_received_without_type_then_does_not_call_process_message()
         {
+            Func<BrokeredMessage, bool> handler = null;
             var receiver = new Mock<IMessageReceiver>();
+            receiver.Setup(r => r.Start(It.IsAny<Func<BrokeredMessage, bool>>())).Callback<Func<BrokeredMessage, bool>>(h => handler = h);
+
             var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
 
+            processor.Start();
+
             var message = new BrokeredMessage("foo");
 
-            receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
+            handler(message);
 
             Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
         }
@@ -101,14 +106,19 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void when_message_received_without_assembly_then_does_not_call_process_message()
         {
+            Func<BrokeredMessage, bool> handler = null;
             var receiver = new Mock<IMessageReceiver>();
+            receiver.Setup(r => r.Start(It.IsAny<Func<BrokeredMessage, bool>>())).Callback<Func<BrokeredMessage, bool>>(h => handler = h);
+
             var serializer = new Mock<ITextSerializer>();
             var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
+
+            processor.Start();
 
             var message = new BrokeredMessage("foo");
             message.Properties["Type"] = typeof(IFormatProvider).FullName;
 
-            receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
+            handler(message);
 
             Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
         }

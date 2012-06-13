@@ -44,13 +44,6 @@ namespace Infrastructure.Azure.Messaging
         private SubscriptionClient client;
         
         /// <summary>
-        /// Event raised whenever a message is received. Consumer of 
-        /// the event is responsible for disposing the message when 
-        /// appropriate.
-        /// </summary>
-        public event EventHandler<BrokeredMessageEventArgs> MessageReceived = (sender, args) => { };
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
@@ -92,15 +85,21 @@ namespace Infrastructure.Azure.Messaging
         }
 
         /// <summary>
+        /// Handler for incoming messages. The return value indicates whether the message should be disposed.
+        /// </summary>
+        protected Func<BrokeredMessage, bool> MessageHandler { get; set; }
+
+        /// <summary>
         /// Starts the listener.
         /// </summary>
-        public void Start()
+        public void Start(Func<BrokeredMessage, bool> messageHandler)
         {
             lock (this.lockObject)
             {
                 // If it's not null, there is already a listening task.
                 if (this.cancellationSource == null)
                 {
+                    this.MessageHandler = messageHandler;
                     this.cancellationSource = new CancellationTokenSource();
                     Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
                 }
@@ -120,6 +119,7 @@ namespace Infrastructure.Azure.Messaging
                     {
                         this.cancellationSource.Cancel();
                         this.cancellationSource = null;
+                        this.MessageHandler = null;
                     }
                 }
             }
@@ -137,6 +137,11 @@ namespace Infrastructure.Azure.Messaging
         protected virtual void Dispose(bool disposing)
         {
             this.Stop();
+        }
+
+        protected virtual bool InvokeMessageHandler(BrokeredMessage message)
+        {
+            return this.MessageHandler == null || this.MessageHandler(message);
         }
 
         ~SessionSubscriptionReceiver()
@@ -221,19 +226,19 @@ namespace Infrastructure.Azure.Messaging
                     msg =>
                     {
                         // Process the message once it was successfully received
-                        BrokeredMessageEventArgs args = null;
 
                         // Check if we actually received any messages.
                         if (msg != null)
                         {
+                            bool disposeMessage = true;
+
                             // Make sure we are not told to stop receiving while we were waiting for a new message.
                             if (!cancellationToken.IsCancellationRequested)
                             {
                                 try
                                 {
                                     // Process the received message.
-                                    args = new BrokeredMessageEventArgs(msg);
-                                    this.MessageReceived(this, args);
+                                    disposeMessage = this.InvokeMessageHandler(msg);
 
                                     // TODO: code commented out because the IMessageProcessor is in charge of Completing the message
                                     //// With PeekLock mode, we should mark the processed message as completed.
@@ -256,7 +261,7 @@ namespace Infrastructure.Azure.Messaging
                                 finally
                                 {
                                     // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                    if (args == null || !args.DoNotDisposeMessage)
+                                    if (disposeMessage)
                                     {
                                         // Ensure that any resources allocated by a BrokeredMessage instance are released.
                                         msg.Dispose();

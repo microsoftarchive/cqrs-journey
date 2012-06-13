@@ -60,8 +60,7 @@ namespace Infrastructure.Azure.Messaging.Handling
             {
                 if (!this.started)
                 {
-                    this.receiver.MessageReceived += OnMessageReceived;
-                    this.receiver.Start();
+                    this.receiver.Start(this.OnMessageReceived);
                     this.started = true;
                 }
             }
@@ -77,7 +76,6 @@ namespace Infrastructure.Azure.Messaging.Handling
                 if (this.started)
                 {
                     this.receiver.Stop();
-                    this.receiver.MessageReceived -= OnMessageReceived;
                     this.started = false;
                 }
             }
@@ -126,12 +124,11 @@ namespace Infrastructure.Azure.Messaging.Handling
             Dispose(false);
         }
 
-        private void OnMessageReceived(object sender, BrokeredMessageEventArgs args)
+        private bool OnMessageReceived(BrokeredMessage message)
         {
             // NOTE: type information does not belong here. It's a responsibility 
             // of the serializer to be self-contained and put any information it 
             // might need for rehydration.
-            var message = args.Message;
 
             object payload;
             using (var stream = message.GetBody<Stream>())
@@ -144,13 +141,12 @@ namespace Infrastructure.Azure.Messaging.Handling
                 catch (SerializationException e)
                 {
                     message.SafeDeadLetter(e.Message, e.ToString());
-                    return;
+                    return true;
                 }
             }
 
             // TODO: have a better trace correlation mechanism (that is used in both the sender and receiver).
             string traceIdentifier = BuildTraceIdentifier(message);
-            args.DoNotDisposeMessage = this.ReleaseMessageLockAsynchronously;
 
             try
             {
@@ -158,15 +154,13 @@ namespace Infrastructure.Azure.Messaging.Handling
             }
             catch (Exception e)
             {
-                HandleProcessingException(args, message, traceIdentifier, e);
-
-                return;
+                return HandleProcessingException(message, traceIdentifier, e);
             }
 
-            CompleteMessage(message, traceIdentifier);
+            return CompleteMessage(message, traceIdentifier);
         }
 
-        private void CompleteMessage(BrokeredMessage message, string traceIdentifier)
+        private bool CompleteMessage(BrokeredMessage message, string traceIdentifier)
         {
 
             // Trace.WriteLine("The message" + traceIdentifier + " has been processed and will be completed.");
@@ -178,11 +172,13 @@ namespace Infrastructure.Azure.Messaging.Handling
             {
                 message.SafeComplete();
             }
+
+            return !this.ReleaseMessageLockAsynchronously;
         }
 
-        private void HandleProcessingException(BrokeredMessageEventArgs args, BrokeredMessage message, string traceIdentifier, Exception e)
+        private bool HandleProcessingException(BrokeredMessage message, string traceIdentifier, Exception e)
         {
-            if (args.Message.DeliveryCount > MaxProcessingRetries)
+            if (message.DeliveryCount > MaxProcessingRetries)
             {
                 Trace.TraceError("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
                 if (this.ReleaseMessageLockAsynchronously)
@@ -206,6 +202,8 @@ namespace Infrastructure.Azure.Messaging.Handling
                     message.SafeAbandon();
                 }
             }
+
+            return !this.ReleaseMessageLockAsynchronously;
         }
 
         // TODO: remove once we have a better trace correlation mechanism (that is used in both the sender and receiver).

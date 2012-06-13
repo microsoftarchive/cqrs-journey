@@ -14,10 +14,7 @@
 namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
-    using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging;
@@ -25,6 +22,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
     using Moq;
+    using Moq.Protected;
     using Xunit;
 
     public class given_an_azure_command_bus : given_a_topic_and_subscription
@@ -92,14 +90,14 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         [Fact]
         public void when_receiving_not_registered_command_then_ignores()
         {
-            var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
-            var processor = new CommandProcessor(receiver, new JsonTextSerializer());
+            var receiverMock = new Mock<SubscriptionReceiver>(this.Settings, this.Topic, this.Subscription);
+            var processor = new CommandProcessor(receiverMock.Object, new JsonTextSerializer());
             var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
 
-            receiver.MessageReceived += (sender, args) => e.Set();
+            receiverMock.Protected().Setup("InvokeMessageHandler", ItExpr.IsAny<BrokeredMessage>()).Callback(() => e.Set());
 
             processor.Register(handler);
 

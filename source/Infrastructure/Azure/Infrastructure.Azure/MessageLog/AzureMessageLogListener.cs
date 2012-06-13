@@ -16,6 +16,7 @@ namespace Infrastructure.Azure.MessageLog
     using System;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Utils;
+    using Microsoft.ServiceBus.Messaging;
 
     public class AzureMessageLogListener : IProcessor, IDisposable
     {
@@ -26,18 +27,17 @@ namespace Infrastructure.Azure.MessageLog
         {
             this.eventLog = eventLog;
             this.receiver = receiver;
-            this.receiver.MessageReceived += SaveMessage;
         }
 
-        public void SaveMessage(object sender, BrokeredMessageEventArgs args)
+        public void SaveMessage(BrokeredMessage brokeredMessage)
         {
-            this.eventLog.Save(args.Message.ToMessageLogEntity());
-            args.Message.SafeComplete();
+            this.eventLog.Save(brokeredMessage.ToMessageLogEntity());
+            brokeredMessage.SafeComplete();
         }
 
         public void Start()
         {
-            this.receiver.Start();
+            this.receiver.Start(m => { this.SaveMessage(m); return true; });
         }
 
         public void Stop()
