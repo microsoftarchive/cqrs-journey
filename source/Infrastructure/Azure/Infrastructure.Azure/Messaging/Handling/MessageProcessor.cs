@@ -46,6 +46,8 @@ namespace Infrastructure.Azure.Messaging.Handling
             this.serializer = serializer;
         }
 
+        public bool ReleaseMessageLockAsynchronously { get; set; }
+
         protected ITextSerializer Serializer { get { return this.serializer; } }
 
         /// <summary>
@@ -148,28 +150,62 @@ namespace Infrastructure.Azure.Messaging.Handling
 
             // TODO: have a better trace correlation mechanism (that is used in both the sender and receiver).
             string traceIdentifier = BuildTraceIdentifier(message);
+            args.DoNotDisposeMessage = this.ReleaseMessageLockAsynchronously;
+
             try
             {
                 ProcessMessage(traceIdentifier, payload, message.MessageId, message.CorrelationId);
             }
             catch (Exception e)
             {
-                if (args.Message.DeliveryCount > MaxProcessingRetries)
-                {
-                    Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
-                    message.SafeDeadLetter(e.Message, e.ToString());
-                }
-                else
-                {
-                    Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be abandoned:\r\n{0}", e);
-                    message.SafeAbandon();
-                }
+                HandleProcessingException(args, message, traceIdentifier, e);
 
                 return;
             }
 
+            CompleteMessage(message, traceIdentifier);
+        }
+
+        private void CompleteMessage(BrokeredMessage message, string traceIdentifier)
+        {
+
             Trace.WriteLine("The message" + traceIdentifier + " has been processed and will be completed.");
-            message.SafeComplete();
+            if (this.ReleaseMessageLockAsynchronously)
+            {
+                message.SafeCompleteAsync();
+            }
+            else
+            {
+                message.SafeComplete();
+            }
+        }
+
+        private void HandleProcessingException(BrokeredMessageEventArgs args, BrokeredMessage message, string traceIdentifier, Exception e)
+        {
+            if (args.Message.DeliveryCount > MaxProcessingRetries)
+            {
+                Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
+                if (this.ReleaseMessageLockAsynchronously)
+                {
+                    message.SafeDeadLetterAsync(e.Message, e.ToString());
+                }
+                else
+                {
+                    message.SafeDeadLetter(e.Message, e.ToString());
+                }
+            }
+            else
+            {
+                Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be abandoned:\r\n{0}", e);
+                if (this.ReleaseMessageLockAsynchronously)
+                {
+                    message.SafeAbandonAsync();
+                }
+                else
+                {
+                    message.SafeAbandon();
+                }
+            }
         }
 
         // TODO: remove once we have a better trace correlation mechanism (that is used in both the sender and receiver).
