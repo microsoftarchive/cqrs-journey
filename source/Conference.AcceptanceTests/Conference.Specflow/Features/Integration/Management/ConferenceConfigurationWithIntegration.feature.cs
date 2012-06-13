@@ -137,6 +137,8 @@ this.ScenarioSetup(scenarioInfo);
 this.FeatureBackground();
 #line 35
  testRunner.Given("the conference already exists");
+#line 36
+ testRunner.And("the conference is published");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -154,9 +156,9 @@ this.FeatureBackground();
                         "Additional cocktail party",
                         "$50",
                         "100"});
-#line 36
+#line 37
  testRunner.When("these Seat Types are created", ((string)(null)), table2);
-#line 42
+#line 43
  testRunner.Then("the events for creating the Seat Type are emitted");
 #line hidden
             this.ScenarioCleanup();

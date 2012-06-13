@@ -12,6 +12,7 @@
 // ==============================================================================================================
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -43,35 +44,40 @@ namespace Conference.Specflow.Support
 
         public static ConferenceInfo PopulateConfereceData(Table table)
         {
-            string conferenceSlug = Slug.CreateNew().Value;
             var svc = new ConferenceService(BuildEventBus());
-            var conference = BuildConferenceInfoWithSeats(table, conferenceSlug);
+            var conference = BuildInternalConferenceInfo(table);
             svc.CreateConference(conference);
             svc.Publish(conference.Id);
+            // publish seats
+            ICollection<SeatType> createdSeats = CreateSeats(table);
+            foreach (var seat in createdSeats)
+            {
+                svc.CreateSeat(conference.Id, seat);
+            }
 
             Registration.ReadModel.Conference published = null;
-            while(published == null || 
+            var timeout = DateTime.Now.Add(Constants.WaitTimeout);
+            while((published == null || 
                 !published.IsPublished || 
                 published.Seats.Count != table.Rows.Count ||
-                published.Seats.Any(s => s.AvailableQuantity != conference.Seats.First(c => c.Id == s.Id).Quantity))
+                published.Seats.Any(s => s.AvailableQuantity != createdSeats.First(c => c.Id == s.Id).Quantity)) && DateTime.Now < timeout)
             {
                 published = RegistrationHelper.FindConference(conference.Id);
                 Thread.Sleep(100);
             }
+
+            // Update the confInfo with the created seats
+            conference.Seats.AddRange(createdSeats);
 
             return conference;
         }
 
         public static ConferenceInfo FindConference(string conferenceSlug)
         {
-            var svc = new ConferenceService(BuildEventBus());
-            var conference = svc.FindConference(conferenceSlug);
-            if (null != conference)
+            using (var context = new ConferenceContext("ConferenceManagement"))
             {
-                if (conference.Seats.Count == 0)
-                    svc.FindSeatTypes(conference.Id).ToList().ForEach(s => conference.Seats.Add(s));
+                return context.Conferences.Include(x => x.Seats).FirstOrDefault(x => x.Slug == conferenceSlug);
             }
-            return conference;
         }
 
         public static Order FindOrder(Guid conferenceId, Guid orderId)
@@ -170,8 +176,10 @@ namespace Conference.Specflow.Support
 
             return createdSeats;
         }
-        public static ConferenceInfo BuildConferenceInfoWithSeats(Table seats, string conferenceSlug)
+
+        private static ConferenceInfo BuildInternalConferenceInfo(Table seats)
         {
+            string conferenceSlug = Slug.CreateNew().Value;
             var conference = new ConferenceInfo()
             {
                 Description = Constants.UI.ConferenceDescription +  " (" + conferenceSlug + ")",
@@ -187,8 +195,6 @@ namespace Conference.Specflow.Support
                 IsPublished = true,
                 WasEverPublished = true
             };
-
-            conference.Seats.AddRange(CreateSeats(seats));
 
             return conference;
         }
