@@ -28,9 +28,6 @@ namespace Infrastructure.Azure.Messaging
     /// </summary>
     public class TopicSender : IMessageSender
     {
-        private readonly TokenProvider tokenProvider;
-        private readonly Uri serviceUri;
-        private readonly ServiceBusSettings settings;
         private readonly string topic;
         private readonly RetryPolicy retryPolicy;
         private readonly TopicClient topicClient;
@@ -39,8 +36,8 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
         /// automatically creating the given topic if it does not exist.
         /// </summary>
-        public TopicSender(ServiceBusSettings settings, string topic)
-            : this(settings, topic, new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
+        public TopicSender(MessagingFactory messagingFactory, string topic)
+            : this(messagingFactory, topic, new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
 
@@ -48,13 +45,9 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="TopicSender"/> class, 
         /// automatically creating the given topic if it does not exist.
         /// </summary>
-        protected TopicSender(ServiceBusSettings settings, string topic, RetryStrategy retryStrategy)
+        protected TopicSender(MessagingFactory messagingFactory, string topic, RetryStrategy retryStrategy)
         {
-            this.settings = settings;
             this.topic = topic;
-
-            this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
-            this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
 
             // TODO: This could be injected.
             this.retryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(retryStrategy);
@@ -64,8 +57,7 @@ namespace Infrastructure.Azure.Messaging
                     Trace.TraceWarning("An error occurred in attempt number {1} to send a message: {0}", e.LastException.Message, e.CurrentRetryCount);
                 };
 
-            var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
-            this.topicClient = factory.CreateTopicClient(this.topic);
+            this.topicClient = messagingFactory.CreateTopicClient(this.topic);
         }
 
         /// <summary>

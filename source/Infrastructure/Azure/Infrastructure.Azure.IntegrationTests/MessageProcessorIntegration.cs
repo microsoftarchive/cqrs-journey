@@ -31,10 +31,10 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
         public void when_message_received_then_calls_process_message()
         {
             var waiter = new ManualResetEventSlim();
-            var sender = new TopicSender(this.Settings, this.Topic);
+            var sender = new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic);
             var processor = new FakeProcessor(
                 waiter,
-                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription),
+                new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription),
                 new JsonTextSerializer());
 
             processor.Start();
@@ -58,9 +58,9 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
         {
             var failCount = 0;
             var waiter = new ManualResetEventSlim();
-            var sender = new TopicSender(this.Settings, this.Topic);
+            var sender = new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic);
             var processor = new Mock<MessageProcessor>(
-                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer()) { CallBase = true };
+                new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription), new JsonTextSerializer()) { CallBase = true };
 
             processor.Protected()
                 .Setup("ProcessMessage", ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>())
@@ -98,10 +98,10 @@ namespace Infrastructure.Azure.IntegrationTests.MessageProcessorIntegration
         public void when_message_fails_to_deserialize_then_dead_letters_message()
         {
             var waiter = new ManualResetEventSlim();
-            var sender = new TopicSender(this.Settings, this.Topic);
+            var sender = new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic);
             var processor = new FakeProcessor(
                 waiter,
-                new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription),
+                new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription),
                 new JsonTextSerializer());
 
             processor.Start();

@@ -145,7 +145,7 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
 
             processor.Start();
 
-            var sender = new TopicSender(this.settings, this.settings.Topics.First(t => t.Path.StartsWith("conference/events")).Path);
+            var sender = new TopicSender(this.settings.CreateMessagingFactory(), this.settings.Topics.First(t => t.Path.StartsWith("conference/events")).Path);
             var bus = new EventBus(sender, new StandardMetadataProvider(), serializer);
             bus.Publish(ev);
 

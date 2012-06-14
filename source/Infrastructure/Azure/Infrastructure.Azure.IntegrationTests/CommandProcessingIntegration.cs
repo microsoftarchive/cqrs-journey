@@ -34,8 +34,8 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         [Fact]
         public void when_receiving_command_then_calls_handler()
         {
-            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
@@ -61,8 +61,8 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         [Fact]
         public void when_same_handler_handles_multiple_commands_then_gets_called_for_all()
         {
-            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var fooWaiter = new ManualResetEventSlim();
             var barWaiter = new ManualResetEventSlim();
@@ -92,9 +92,9 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         [Fact]
         public void when_receiving_not_registered_command_then_ignores()
         {
-            var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
             var processor = new CommandProcessor(receiver, new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooCommandHandler(e);
@@ -124,8 +124,8 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         [Fact]
         public void when_sending_multiple_commands_then_calls_all_handlers()
         {
-            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription), new JsonTextSerializer());
-            var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
+            var processor = new CommandProcessor(new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription), new JsonTextSerializer());
+            var bus = new CommandBus(new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var fooEvent = new ManualResetEventSlim();
             var fooHandler = new FooCommandHandler(fooEvent);

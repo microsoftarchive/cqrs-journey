@@ -21,7 +21,7 @@ namespace Infrastructure.Azure.IntegrationTests.SubscriptionReceiverIntegration
         [Fact]
         public void when_starting_twice_then_ignores_second_request()
         {
-            var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             receiver.Start();
 
@@ -31,7 +31,7 @@ namespace Infrastructure.Azure.IntegrationTests.SubscriptionReceiverIntegration
         [Fact]
         public void when_stopping_without_starting_then_ignores_request()
         {
-            var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             receiver.Stop();
         }
@@ -39,7 +39,7 @@ namespace Infrastructure.Azure.IntegrationTests.SubscriptionReceiverIntegration
         [Fact]
         public void when_disposing_not_started_then_no_op()
         {
-            var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             receiver.Dispose();
         }

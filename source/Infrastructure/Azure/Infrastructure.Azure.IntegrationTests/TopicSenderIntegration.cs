@@ -29,8 +29,6 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 
         public given_a_topic_sender()
         {
-            this.sut = new TestableTopicSender(this.Settings, this.Topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
-
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(this.Settings.TokenIssuer, this.Settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(this.Settings.ServiceUriScheme, this.Settings.ServiceNamespace, this.Settings.ServicePath);
 
@@ -38,8 +36,10 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
             manager.CreateSubscription(this.Topic, "Test");
 
             var messagingFactory = MessagingFactory.Create(serviceUri, tokenProvider);
-            this.subscriptionClient = messagingFactory.CreateSubscriptionClient(this.Topic, "Test");
 
+            this.sut = new TestableTopicSender(messagingFactory, this.Topic, new Incremental(1, TimeSpan.Zero, TimeSpan.Zero));
+
+            this.subscriptionClient = messagingFactory.CreateSubscriptionClient(this.Topic, "Test");
         }
 
         [Fact]
@@ -125,8 +125,8 @@ namespace Infrastructure.Azure.IntegrationTests.TopicSenderIntegration
 
     public class TestableTopicSender : TopicSender
     {
-        public TestableTopicSender(ServiceBusSettings settings, string topic, RetryStrategy retryStrategy)
-            : base(settings, topic, retryStrategy)
+        public TestableTopicSender(MessagingFactory messagingFactory, string topic, RetryStrategy retryStrategy)
+            : base(messagingFactory, topic, retryStrategy)
         {
             this.DoBeginSendMessageDelegate = base.DoBeginSendMessage;
             this.DoEndSendMessageDelegate = base.DoEndSendMessage;
