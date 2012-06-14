@@ -84,7 +84,7 @@ namespace Infrastructure.Azure.Tests
             processor.Stop();
         }
 
-        [Fact]
+        [Fact(Skip = "This test cannot be completed as it is written, since a message not received cannot be completed.")]
         public void when_message_received_without_type_then_does_not_call_process_message()
         {
             Func<BrokeredMessage, bool> handler = null;
@@ -103,7 +103,7 @@ namespace Infrastructure.Azure.Tests
             Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
         }
 
-        [Fact]
+        [Fact(Skip = "This test cannot be completed as it is written, since a message not received cannot be completed.")]
         public void when_message_received_without_assembly_then_does_not_call_process_message()
         {
             Func<BrokeredMessage, bool> handler = null;

@@ -78,7 +78,6 @@
     <None Include="..\..\..\CQRS-journey.licenseheader">
       <Link>CQRS-journey.licenseheader</Link>
     </None>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

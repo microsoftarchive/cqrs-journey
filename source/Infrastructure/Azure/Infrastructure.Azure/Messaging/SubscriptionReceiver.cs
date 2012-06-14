@@ -88,7 +88,7 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Handler for incoming messages. The return value indicates whether the message should be disposed.
         /// </summary>
-        protected Func<BrokeredMessage, bool> MessageHandler { get; set; }
+        protected Func<BrokeredMessage, bool> MessageHandler { get; private set; }
 
         /// <summary>
         /// Starts the listener.
