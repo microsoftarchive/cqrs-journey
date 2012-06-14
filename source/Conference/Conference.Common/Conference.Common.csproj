@@ -31,10 +31,10 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Azure.properties))\Azure.properties" />
-    <PropertyGroup Condition="$(IsAzureInstalled) == 'true'">
+    <PropertyGroup Condition="$(AzureRuntimeAvailable) == 'true'">
         <DefineConstants>$(DefineConstants);AZURESDK</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="$(IsAzureInstalled) == 'true'">
+    <ItemGroup Condition="$(AzureRuntimeAvailable) == 'true'">
         <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     </ItemGroup>
     <ItemGroup>
