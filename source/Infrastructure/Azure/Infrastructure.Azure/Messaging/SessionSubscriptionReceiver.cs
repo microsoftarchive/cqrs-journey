@@ -64,7 +64,7 @@ namespace Infrastructure.Azure.Messaging
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
+        /// Initializes a new instance of the <see cref="SessionSubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
         protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy)
@@ -78,19 +78,16 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
-            this.client.PrefetchCount = 10;
+            this.client.PrefetchCount = 50;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
                 {
-                    if (!(e.LastException is TimeoutException))
-                    {
-                        Trace.TraceWarning(
-                            "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
-                            e.LastException.Message,
-                            e.CurrentRetryCount,
-                            this.subscription);
-                    }
+                    Trace.TraceWarning(
+                        "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
+                        e.LastException.Message,
+                        e.CurrentRetryCount,
+                        this.subscription);
                 };
         }
 
@@ -166,12 +163,31 @@ namespace Infrastructure.Azure.Messaging
 
                 this.receiveRetryPolicy.ExecuteAction(
                     cb => this.client.BeginAcceptMessageSession(AcceptSessionLongPollingTimeout, cb, null),
-                    this.client.EndAcceptMessageSession,
+                    ar =>
+                    {
+                        // Complete the asynchronous operation. This may throw an exception that will be handled internally by retry policy.
+                        try
+                        {
+                            return this.client.EndAcceptMessageSession(ar);
+                        }
+                        catch (TimeoutException)
+                        {
+                            // TimeoutException is not just transient but completely expected in this case, so not relying on Topaz to retry
+                            return null;
+                        }
+                    },
                     session =>
                     {
-                        // starts a new task to process new sessions in parallel when enough threads are available
-                        Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
-                        this.ReceiveMessagesAndCloseSession(session, cancellationToken);
+                        if (session != null)
+                        {
+                            // starts a new task to process new sessions in parallel when enough threads are available
+                            Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
+                            this.ReceiveMessagesAndCloseSession(session, cancellationToken);
+                        }
+                        else
+                        {
+                            this.AcceptSession(this.cancellationSource.Token);
+                        }
                     },
                     recoverAcceptSession);
             }

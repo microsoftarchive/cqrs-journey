@@ -78,19 +78,16 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
-            this.client.PrefetchCount = 40;
+            this.client.PrefetchCount = 50;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
             {
-                if (!(e.LastException is TimeoutException))
-                {
-                    Trace.TraceWarning(
-                        "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
-                        e.LastException.Message,
-                        e.CurrentRetryCount,
-                        this.subscription);
-                }
+                Trace.TraceWarning(
+                    "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
+                    e.LastException.Message,
+                    e.CurrentRetryCount,
+                    this.subscription);
             };
         }
 
@@ -167,8 +164,19 @@ namespace Infrastructure.Azure.Messaging
                         // Start receiving a new message asynchronously.
                         this.client.BeginReceive(ReceiveLongPollingTimeout, cb, null);
                     },
-                    // Complete the asynchronous operation. This may throw an exception that will be handled internally by retry policy.
-                    this.client.EndReceive,
+                    ar => 
+                        {
+                            // Complete the asynchronous operation. This may throw an exception that will be handled internally by retry policy.
+                            try
+                            {
+                                return this.client.EndReceive(ar);
+                            }
+                            catch(TimeoutException)
+                            {
+                                // TimeoutException is not just transient but completely expected in this case, so not relying on Topaz to retry
+                                return null;
+                            }
+                        },
                     msg =>
                     {
                         // Process the message once it was successfully received
