@@ -11,12 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+// Based on http://windowsazurecat.com/2011/09/best-practices-leveraging-windows-azure-service-bus-brokered-messaging-api/
+
 namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+    using Infrastructure.Azure.Utils;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
     using Microsoft.ServiceBus;
@@ -28,6 +31,8 @@ namespace Infrastructure.Azure.Messaging
     /// </summary>
     public class SessionSubscriptionReceiver : IMessageReceiver, IDisposable
     {
+        private static readonly TimeSpan AcceptSessionLongPollingTimeout = TimeSpan.FromMinutes(1);
+
         private readonly TokenProvider tokenProvider;
         private readonly Uri serviceUri;
         private readonly ServiceBusSettings settings;
@@ -37,7 +42,7 @@ namespace Infrastructure.Azure.Messaging
         private readonly RetryPolicy receiveRetryPolicy;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
-
+        
         /// <summary>
         /// Event raised whenever a message is received. Consumer of 
         /// the event is responsible for disposing the message when 
@@ -59,7 +64,7 @@ namespace Infrastructure.Azure.Messaging
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
+        /// Initializes a new instance of the <see cref="SessionSubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
         protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy)
@@ -73,14 +78,17 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
-            this.client.PrefetchCount = 10;
+            this.client.PrefetchCount = 50;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
-            this.receiveRetryPolicy.Retrying += (s, e) => Trace.TraceWarning(
-                "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}", 
-                e.LastException.Message, 
-                e.CurrentRetryCount, 
-                this.subscription);
+            this.receiveRetryPolicy.Retrying += (s, e) =>
+                {
+                    Trace.TraceWarning(
+                        "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
+                        e.LastException.Message,
+                        e.CurrentRetryCount,
+                        this.subscription);
+                };
         }
 
         /// <summary>
@@ -94,7 +102,7 @@ namespace Infrastructure.Azure.Messaging
                 if (this.cancellationSource == null)
                 {
                     this.cancellationSource = new CancellationTokenSource();
-                    Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token);
+                    Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
                 }
             }
         }
@@ -136,88 +144,189 @@ namespace Infrastructure.Azure.Messaging
             Dispose(false);
         }
 
-        /// <summary>
-        /// Receives the messages in an endless loop.
-        /// </summary>
-        private void ReceiveMessages(CancellationToken cancellationToken)
+        private void AcceptSession(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested)
             {
-                MessageSession session;
-                try
+                // Initialize a custom action acting as a callback whenever a non-transient exception occurs while accepting a session.
+                Action<Exception> recoverAcceptSession = ex =>
                 {
-                    session = this.receiveRetryPolicy.ExecuteAction<MessageSession>(this.DoAcceptMessageSession);
-                }
-                catch (Exception e)
-                {
-                    Trace.TraceError("An unrecoverable error occurred while trying to accept a new message session:\r\n{0}", e);
+                    // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
+                    Trace.TraceError("An unrecoverable error occurred while trying to accept a session in subscription {1}:\r\n{0}", ex, this.subscription);
 
-                    throw;
-                }
-
-                if (session == null)
-                {
-                    Thread.Sleep(100);
-                    continue;
-                }
-
-                // starts a new task to process new sessions in parallel if enough threads are available
-                Task.Factory.StartNew(() => this.ReceiveMessages(this.cancellationSource.Token), this.cancellationSource.Token);
-
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    BrokeredMessage message = null;
-                    BrokeredMessageEventArgs args = null;
-
-                    try
+                    if (!cancellationToken.IsCancellationRequested)
                     {
+                        // Continue accepting new sessions until we are told to stop regardless of any exceptions.
+                        AcceptSession(cancellationToken);
+                    }
+                };
+
+                this.receiveRetryPolicy.ExecuteAction(
+                    cb => this.client.BeginAcceptMessageSession(AcceptSessionLongPollingTimeout, cb, null),
+                    ar =>
+                    {
+                        // Complete the asynchronous operation. This may throw an exception that will be handled internally by retry policy.
                         try
                         {
-                            // Long polling is used when accepting session and not here. If there are no messages left in session we continue.
-                            message = this.receiveRetryPolicy.ExecuteAction(() => session.Receive(TimeSpan.Zero));
+                            return this.client.EndAcceptMessageSession(ar);
                         }
-                        catch (Exception e)
+                        catch (TimeoutException)
                         {
-                            Trace.TraceError("An unrecoverable error occurred while trying to receive a new message:\r\n{0}", e);
-
-                            throw;
+                            // TimeoutException is not just transient but completely expected in this case, so not relying on Topaz to retry
+                            return null;
                         }
-
-                        if (message == null)
-                        {
-                            // If we have no more messages for this session, exit to close the session
-                            break;
-                        }
-
-                        args = new BrokeredMessageEventArgs(message);
-                        this.MessageReceived(this, args);
-                    }
-                    finally
+                    },
+                    session =>
                     {
-                        if (message != null && !(args != null && args.DoNotDisposeMessage))
+                        if (session != null)
                         {
-                            message.Dispose();
+                            // starts a new task to process new sessions in parallel when enough threads are available
+                            Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
+                            this.ReceiveMessagesAndCloseSession(session, cancellationToken);
                         }
-                    }
-                }
-
-                this.receiveRetryPolicy.ExecuteAction(() => session.Close());
-                // As we have not more messages for this session, end this task, as there will already at least
-                // 1 other tasks polling for new sessions to accept.
-                return;
+                        else
+                        {
+                            this.AcceptSession(this.cancellationSource.Token);
+                        }
+                    },
+                    recoverAcceptSession);
             }
         }
 
-        private MessageSession DoAcceptMessageSession()
+        /// <summary>
+        /// Receives the messages in an asynchronous loop and closes the session once there are no more messages.
+        /// </summary>
+        private void ReceiveMessagesAndCloseSession(MessageSession session, CancellationToken cancellationToken)
         {
-            try
+            // Declare an action acting as a callback whenever a message arrives on a queue.
+            Action completeReceive = null;
+
+            // Declare an action acting as a callback whenever a non-transient exception occurs while receiving or processing messages.
+            Action<Exception> recoverReceive = null;
+
+            // Declare an action responsible for the core operations in the message receive loop.
+            Action receiveMessage = (() =>
             {
-                return this.client.AcceptMessageSession(TimeSpan.FromMinutes(1));
-            }
-            catch (TimeoutException)
+                // Use a retry policy to execute the Receive action in an asynchronous and reliable fashion.
+                this.receiveRetryPolicy.ExecuteAction
+                (
+                    cb =>
+                    {
+                        // Start receiving a new message asynchronously.
+                        // Does not wait for new messages to arrive in a session. If no further messages we will just close the session.
+                        session.BeginReceive(TimeSpan.Zero, cb, null);
+                    },
+                    // Complete the asynchronous operation. This may throw an exception that will be handled internally by retry policy.
+                    session.EndReceive,
+                    msg =>
+                    {
+                        // Process the message once it was successfully received
+                        BrokeredMessageEventArgs args = null;
+
+                        // Check if we actually received any messages.
+                        if (msg != null)
+                        {
+                            // Make sure we are not told to stop receiving while we were waiting for a new message.
+                            if (!cancellationToken.IsCancellationRequested)
+                            {
+                                try
+                                {
+                                    // Process the received message.
+                                    args = new BrokeredMessageEventArgs(msg);
+                                    this.MessageReceived(this, args);
+
+                                    // TODO: code commented out because the IMessageProcessor is in charge of Completing the message
+                                    //// With PeekLock mode, we should mark the processed message as completed.
+                                    //if (this.client.Mode == ReceiveMode.PeekLock)
+                                    //{
+                                    //    // Mark brokered message as completed at which point it's removed from the queue.
+                                    //    msg.SafeComplete();
+                                    //}
+                                }
+                                //catch
+                                //{
+                                //    // With PeekLock mode, we should mark the failed message as abandoned.
+                                //    if (this.client.Mode == ReceiveMode.PeekLock)
+                                //    {
+                                //        // Abandons a brokered message. This will cause Service Bus to unlock the message and make it available 
+                                //        // to be received again, either by the same consumer or by another completing consumer.
+                                //        msg.SafeAbandon();
+                                //    }
+                                //}
+                                finally
+                                {
+                                    // Ensure that any resources allocated by a BrokeredMessage instance are released.
+                                    if (args == null || !args.DoNotDisposeMessage)
+                                    {
+                                        // Ensure that any resources allocated by a BrokeredMessage instance are released.
+                                        msg.Dispose();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // If we were told to stop processing, the current message needs to be unlocked and return back to the queue.
+                                if (this.client.Mode == ReceiveMode.PeekLock)
+                                {
+                                    msg.SafeAbandon();
+                                }
+                            }
+
+                            // Continue receiving and processing new messages until there are no more messages in the session.
+                            completeReceive.Invoke();
+                        }
+                        else
+                        {
+                            // no more messages in the session, close it and do not continue receiving
+                            this.CloseSession(session);
+                        }
+                    },
+                    ex =>
+                    {
+                        // Invoke a custom action to indicate that we have encountered an exception and
+                        // need further decision as to whether to continue receiving messages.
+                        recoverReceive.Invoke(ex);
+                    });
+            });
+
+            // Initialize a custom action acting as a callback whenever a message arrives on a queue.
+            completeReceive = () =>
             {
-                return null;
-            }
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    // Continue receiving and processing new messages until we are told to stop.
+                    receiveMessage.Invoke();
+                }
+            };
+
+            // Initialize a custom action acting as a callback whenever a non-transient exception occurs while receiving or processing messages.
+            recoverReceive = ex =>
+            {
+                // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
+                Trace.TraceError("An unrecoverable error occurred while trying to receive a new message from subscription {1}:\r\n{0}", ex, this.subscription);
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    // Continue receiving and processing new messages until we are told to stop regardless of any exceptions.
+                    receiveMessage.Invoke();
+                }
+                else
+                {
+                    this.CloseSession(session);
+                }
+            };
+
+            // Start receiving messages asynchronously.
+            receiveMessage.Invoke();
+        }
+
+        private void CloseSession(MessageSession session)
+        {
+            this.receiveRetryPolicy.ExecuteAction(
+                cb => session.BeginClose(cb, null),
+                session.EndClose,
+                null,
+                ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
         }
     }
 }
