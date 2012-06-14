@@ -76,11 +76,11 @@ namespace Infrastructure.Azure.Messaging
             this.client.PrefetchCount = 10;
 
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
-            this.receiveRetryPolicy.Retrying +=
-                (s, e) =>
-                {
-                    Trace.TraceError("An error occurred in attempt number {1} to receive a message: {0}", e.LastException.Message, e.CurrentRetryCount);
-                };
+            this.receiveRetryPolicy.Retrying += (s, e) => Trace.TraceWarning(
+                "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}", 
+                e.LastException.Message, 
+                e.CurrentRetryCount, 
+                this.subscription);
         }
 
         /// <summary>

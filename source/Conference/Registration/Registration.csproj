@@ -46,6 +46,7 @@
     <Reference Include="System.Data.Entity" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +82,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ReadModel\ConferenceAlias.cs" />
+    <Compile Include="ReadModel\Implementation\CachingConferenceDao.cs" />
     <Compile Include="ReadModel\PricedOrderLineSeatTypeDescription.cs" />
     <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs" />

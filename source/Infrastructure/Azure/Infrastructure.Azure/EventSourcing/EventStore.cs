@@ -17,6 +17,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Data.Services.Client;
+    using System.Diagnostics;
     using System.Linq;
     using System.Net;
     using System.Threading;
@@ -58,7 +59,15 @@ namespace Infrastructure.Azure.EventSourcing
             var backgroundRetryStrategy = new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1));
             var blockingRetryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
             this.pendingEventsQueueRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(backgroundRetryStrategy);
+            this.pendingEventsQueueRetryPolicy.Retrying += (s, e) => Trace.TraceWarning(
+                "An error occurred in attempt number {1} to access table storage (PendingEventsQueue): {0}",
+                e.LastException.Message,
+                e.CurrentRetryCount);
             this.eventStoreRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(blockingRetryStrategy);
+            this.eventStoreRetryPolicy.Retrying += (s, e) => Trace.TraceWarning(
+                "An error occurred in attempt number {1} to access table storage (EventStore): {0}",
+                e.LastException.Message,
+                e.CurrentRetryCount);
 
             this.eventStoreRetryPolicy.ExecuteAction(() => tableClient.CreateTableIfNotExist(tableName));
         }
