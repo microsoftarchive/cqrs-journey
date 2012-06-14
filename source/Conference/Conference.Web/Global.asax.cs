@@ -21,6 +21,7 @@ namespace Conference.Web.Admin
     using Conference.Web.Utils;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
+    using Microsoft.WindowsAzure.ServiceRuntime;
 #if LOCAL
     using System.Data.Entity;
     using Infrastructure.Sql.Messaging;
@@ -29,8 +30,8 @@ namespace Conference.Web.Admin
     using Infrastructure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure;
+
 #endif
-    using Microsoft.WindowsAzure.ServiceRuntime;
 
     public class MvcApplication : HttpApplication
     {
@@ -104,9 +105,10 @@ namespace Conference.Web.Admin
             EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
             var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
-            new ServiceBusConfig(settings).Initialize();
+            var serviceBusConfig = new ServiceBusConfig(settings);
+            serviceBusConfig.Initialize();
 
-            EventBus = new EventBus(new TopicSender(settings, "conference/events"), new StandardMetadataProvider(), serializer);
+            EventBus = new EventBus(new TopicSender(serviceBusConfig.MessagingFactory, "conference/events"), new StandardMetadataProvider(), serializer);
 #endif
 
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)

@@ -31,6 +31,8 @@ namespace Conference.Web.Public
     using Infrastructure.Serialization;
     using Infrastructure.Sql.Database;
     using Microsoft.Practices.Unity;
+    using Microsoft.ServiceBus;
+    using Microsoft.ServiceBus.Messaging;
     using Microsoft.WindowsAzure;
     using Payments;
     using Payments.Database;
@@ -52,8 +54,11 @@ namespace Conference.Web.Public
             // command bus
 
             var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
-            new ServiceBusConfig(settings.ServiceBus).Initialize();
-            var commandBus = new CommandBus(new TopicSender(settings.ServiceBus, "conference/commands"), metadata, serializer);
+            var serviceBusConfig = new ServiceBusConfig(settings.ServiceBus);
+            
+            serviceBusConfig.Initialize();
+
+            var commandBus = new CommandBus(new TopicSender(serviceBusConfig.MessagingFactory, "conference/commands"), metadata, serializer);
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
 
@@ -73,7 +78,7 @@ namespace Conference.Web.Public
 
             container.RegisterType<IPricingService, PricingService>(new ContainerControlledLifetimeManager());
 
-            var topicSender = new TopicSender(settings.ServiceBus, "conference/events");
+            var topicSender = new TopicSender(serviceBusConfig.MessagingFactory, "conference/events");
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 

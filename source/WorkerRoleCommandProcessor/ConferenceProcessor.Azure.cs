@@ -57,13 +57,13 @@ namespace WorkerRoleCommandProcessor
             var metadata = container.Resolve<IMetadataProvider>();
             var serializer = container.Resolve<ITextSerializer>();
 
-            var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
-            var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
+            var commandBus = new CommandBus(new TopicSender(this.busConfig.MessagingFactory, Topics.Commands.Path), metadata, serializer);
+            var topicSender = new TopicSender(this.busConfig.MessagingFactory, Topics.Events.Path);
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
             var commandProcessor =
-                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer)
+                new CommandProcessor(new SubscriptionReceiver(this.busConfig.MessagingFactory, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer)
                 {
                     ReleaseMessageLockAsynchronously = true
                 };
@@ -86,11 +86,11 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterInstance<IProcessor>("EventLogger", new AzureMessageLogListener(
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
-                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Events.Path, Topics.Events.Subscriptions.Log)));
+                new SubscriptionReceiver(this.busConfig.MessagingFactory, Topics.Events.Path, Topics.Events.Subscriptions.Log)));
 
             container.RegisterInstance<IProcessor>("CommandLogger", new AzureMessageLogListener(
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
-                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Log)));
+                new SubscriptionReceiver(this.busConfig.MessagingFactory, Topics.Commands.Path, Topics.Commands.Subscriptions.Log)));
         }
 
         private void RegisterEventProcessors(UnityContainer container)

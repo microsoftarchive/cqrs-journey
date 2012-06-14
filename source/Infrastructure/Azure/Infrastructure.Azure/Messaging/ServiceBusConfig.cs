@@ -27,10 +27,16 @@ namespace Infrastructure.Azure.Messaging
     {
         private bool initialized;
         private ServiceBusSettings settings;
+        private MessagingFactory messagingFactory;
 
         public ServiceBusConfig(ServiceBusSettings settings)
         {
             this.settings = settings;
+        }
+
+        public MessagingFactory MessagingFactory
+        {
+            get { return this.messagingFactory; }
         }
 
         public void Initialize()
@@ -40,6 +46,8 @@ namespace Infrastructure.Azure.Messaging
             var tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
             var namespaceManager = new NamespaceManager(serviceUri, tokenProvider);
+
+            this.messagingFactory = MessagingFactory.Create(serviceUri, tokenProvider);
 
             foreach (var topic in this.settings.Topics)
             {
@@ -72,8 +80,8 @@ namespace Infrastructure.Azure.Messaging
                     subscription, topicSettings.Path));
 
             var receiver = subscriptionSettings.RequiresSession ?
-                (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription) :
-                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription);
+                (IMessageReceiver)new SessionSubscriptionReceiver(this.messagingFactory, topicSettings.Path, subscription) :
+                (IMessageReceiver)new SubscriptionReceiver(this.messagingFactory, topicSettings.Path, subscription);
 
             var processor = new EventProcessor(receiver, serializer);
             processor.Register(handler);

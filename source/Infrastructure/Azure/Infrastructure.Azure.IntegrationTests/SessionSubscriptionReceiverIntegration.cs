@@ -47,7 +47,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             var signal = new ManualResetEventSlim();
             var body = Guid.NewGuid().ToString();
 
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             sender.Send(new BrokeredMessage(Guid.NewGuid().ToString()));
             sender.Send(new BrokeredMessage(body) { SessionId = "foo" });
@@ -79,7 +79,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             var body2 = Guid.NewGuid().ToString();
             var stopWatch = new Stopwatch();
 
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
             sender.Send(new BrokeredMessage(body2) { SessionId = "bar" });
@@ -116,7 +116,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             var body2 = Guid.NewGuid().ToString();
             var body3 = Guid.NewGuid().ToString();
 
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
             var stopWatch = new Stopwatch();
             var received = new ConcurrentBag<string>();
 
@@ -151,7 +151,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         [Fact]
         public void when_starting_twice_then_ignores_second_request()
         {
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             receiver.Start();
             receiver.Start();
@@ -162,7 +162,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         [Fact]
         public void when_stopping_without_starting_then_ignores_request()
         {
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             receiver.Stop();
         }
@@ -170,7 +170,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         [Fact]
         public void when_disposing_not_started_then_no_op()
         {
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
 
             receiver.Dispose();
         }
@@ -184,7 +184,7 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             var body1 = Guid.NewGuid().ToString();
             var body2 = Guid.NewGuid().ToString();
 
-            var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
+            var receiver = new SessionSubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription);
             var stopWatch = new Stopwatch();
 
             receiver.MessageReceived += (s, e) =>

@@ -29,10 +29,10 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
         [Fact]
         public void when_sending_message_then_can_receive_it()
         {
-            var sender = new TopicSender(this.Settings, this.Topic);
+            var sender = new TopicSender(this.Settings.CreateMessagingFactory(), this.Topic);
             Data data = new Data { Id = Guid.NewGuid(), Title = "Foo" };
             Data received = null;
-            using (var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription))
+            using (var receiver = new SubscriptionReceiver(this.Settings.CreateMessagingFactory(), this.Topic, this.Subscription))
             {
                 var signal = new ManualResetEventSlim();
 
