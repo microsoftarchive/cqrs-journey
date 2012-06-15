@@ -16,6 +16,7 @@ namespace Infrastructure.Azure.Messaging.Handling
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -63,7 +64,7 @@ namespace Infrastructure.Azure.Messaging.Handling
 
             if (this.handlers.TryGetValue(commandType, out handler))
             {
-                Trace.WriteLine("-- Handled by " + handler.GetType().FullName + traceIdentifier);
+                Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Command{0} handled by {1}.", traceIdentifier, handler.GetType().FullName));
                 ((dynamic)handler).Handle((dynamic)payload);
                 return true;
             }
