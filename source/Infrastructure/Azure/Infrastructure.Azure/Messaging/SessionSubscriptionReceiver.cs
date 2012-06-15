@@ -42,13 +42,6 @@ namespace Infrastructure.Azure.Messaging
         private readonly RetryPolicy receiveRetryPolicy;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
-        
-        /// <summary>
-        /// Event raised whenever a message is received. Consumer of 
-        /// the event is responsible for disposing the message when 
-        /// appropriate.
-        /// </summary>
-        public event EventHandler<BrokeredMessageEventArgs> MessageReceived = (sender, args) => { };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
@@ -92,15 +85,21 @@ namespace Infrastructure.Azure.Messaging
         }
 
         /// <summary>
+        /// Handler for incoming messages. The return value indicates whether the message should be disposed.
+        /// </summary>
+        protected Func<BrokeredMessage, MessageReleaseAction> MessageHandler { get; private set; }
+
+        /// <summary>
         /// Starts the listener.
         /// </summary>
-        public void Start()
+        public void Start(Func<BrokeredMessage, MessageReleaseAction> messageHandler)
         {
             lock (this.lockObject)
             {
                 // If it's not null, there is already a listening task.
                 if (this.cancellationSource == null)
                 {
+                    this.MessageHandler = messageHandler;
                     this.cancellationSource = new CancellationTokenSource();
                     Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
                 }
@@ -120,6 +119,7 @@ namespace Infrastructure.Azure.Messaging
                     {
                         this.cancellationSource.Cancel();
                         this.cancellationSource = null;
+                        this.MessageHandler = null;
                     }
                 }
             }
@@ -137,6 +137,11 @@ namespace Infrastructure.Azure.Messaging
         protected virtual void Dispose(bool disposing)
         {
             this.Stop();
+        }
+
+        protected virtual MessageReleaseAction InvokeMessageHandler(BrokeredMessage message)
+        {
+            return this.MessageHandler != null ? this.MessageHandler(message) : MessageReleaseAction.AbandonMessage;
         }
 
         ~SessionSubscriptionReceiver()
@@ -221,19 +226,19 @@ namespace Infrastructure.Azure.Messaging
                     msg =>
                     {
                         // Process the message once it was successfully received
-                        BrokeredMessageEventArgs args = null;
 
                         // Check if we actually received any messages.
                         if (msg != null)
                         {
-                            // Make sure we are not told to stop receiving while we were waiting for a new message.
-                            if (!cancellationToken.IsCancellationRequested)
+                            var releaseAction = MessageReleaseAction.AbandonMessage;
+
+                            try
                             {
-                                try
+                                // Make sure we are not told to stop receiving while we were waiting for a new message.
+                                if (!cancellationToken.IsCancellationRequested)
                                 {
                                     // Process the received message.
-                                    args = new BrokeredMessageEventArgs(msg);
-                                    this.MessageReceived(this, args);
+                                    releaseAction = this.InvokeMessageHandler(msg);
 
                                     // TODO: code commented out because the IMessageProcessor is in charge of Completing the message
                                     //// With PeekLock mode, we should mark the processed message as completed.
@@ -243,33 +248,21 @@ namespace Infrastructure.Azure.Messaging
                                     //    msg.SafeComplete();
                                     //}
                                 }
-                                //catch
-                                //{
-                                //    // With PeekLock mode, we should mark the failed message as abandoned.
-                                //    if (this.client.Mode == ReceiveMode.PeekLock)
-                                //    {
-                                //        // Abandons a brokered message. This will cause Service Bus to unlock the message and make it available 
-                                //        // to be received again, either by the same consumer or by another completing consumer.
-                                //        msg.SafeAbandon();
-                                //    }
-                                //}
-                                finally
-                                {
-                                    // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                    if (args == null || !args.DoNotDisposeMessage)
-                                    {
-                                        // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                        msg.Dispose();
-                                    }
-                                }
                             }
-                            else
+                            //catch
+                            //{
+                            //    // With PeekLock mode, we should mark the failed message as abandoned.
+                            //    if (this.client.Mode == ReceiveMode.PeekLock)
+                            //    {
+                            //        // Abandons a brokered message. This will cause Service Bus to unlock the message and make it available 
+                            //        // to be received again, either by the same consumer or by another completing consumer.
+                            //        msg.SafeAbandon();
+                            //    }
+                            //}
+                            finally
                             {
-                                // If we were told to stop processing, the current message needs to be unlocked and return back to the queue.
-                                if (this.client.Mode == ReceiveMode.PeekLock)
-                                {
-                                    msg.SafeAbandon();
-                                }
+                                // Ensure that any resources allocated by a BrokeredMessage instance are released.
+                                this.ReleaseMessage(msg, releaseAction);
                             }
 
                             // Continue receiving and processing new messages until there are no more messages in the session.
@@ -318,6 +311,31 @@ namespace Infrastructure.Azure.Messaging
 
             // Start receiving messages asynchronously.
             receiveMessage.Invoke();
+        }
+
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction)
+        {
+            try
+            {
+                switch (releaseAction.Kind)
+                {
+                    case MessageReleaseActionKind.Complete:
+                        msg.SafeComplete();
+                        break;
+                    case MessageReleaseActionKind.Abandon:
+                        msg.SafeAbandon();
+                        break;
+                    case MessageReleaseActionKind.DeadLetter:
+                        msg.SafeDeadLetter(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            finally
+            {
+                msg.Dispose();
+            }
         }
 
         private void CloseSession(MessageSession session)

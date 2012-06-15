@@ -23,9 +23,9 @@ namespace Infrastructure.Azure.IntegrationTests.SubscriptionReceiverIntegration
         {
             var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
 
-            receiver.Start();
+            receiver.Start(m => MessageReleaseAction.CompleteMessage);
 
-            receiver.Start();
+            receiver.Start(m => MessageReleaseAction.CompleteMessage);
         }
 
         [Fact]

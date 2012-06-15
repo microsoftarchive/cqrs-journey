@@ -39,32 +39,35 @@ namespace Infrastructure.Azure.Utils
             return SafeMessagingAction(() => message.DeadLetter(reason, description), "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
         }
 
-        public static void SafeCompleteAsync(this BrokeredMessage message)
+        public static void SafeCompleteAsync(this BrokeredMessage message, Action<bool> callback)
         {
             SafeMessagingActionAsync(
                 ac => message.BeginComplete(ac, null),
                 message.EndComplete,
                 message,
+                callback,
                 "An error occurred while completing message {0}. It will be reprocessed when the peek lock expires.",
                 message.MessageId);
         }
 
-        public static void SafeAbandonAsync(this BrokeredMessage message)
+        public static void SafeAbandonAsync(this BrokeredMessage message, Action<bool> callback)
         {
             SafeMessagingActionAsync(
                 ac => message.BeginAbandon(ac, null),
                 message.EndAbandon,
                 message,
+                callback,
                 "An error occurred while abandoning message {0}. It will be reprocessed when the peek lock expires.",
                 message.MessageId);
         }
 
-        public static void SafeDeadLetterAsync(this BrokeredMessage message, string reason, string description)
+        public static void SafeDeadLetterAsync(this BrokeredMessage message, string reason, string description, Action<bool> callback)
         {
             SafeMessagingActionAsync(
                 ac => message.BeginDeadLetter(reason, description, ac, null),
                 message.EndDeadLetter,
                 message,
+                callback,
                 "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.",
                 message.MessageId);
         }
@@ -93,19 +96,17 @@ namespace Infrastructure.Azure.Utils
             return false;
         }
 
-        private static void SafeMessagingActionAsync(Action<AsyncCallback> begin, Action<IAsyncResult> end, BrokeredMessage message, string actionErrorDescription, string messageId)
+        private static void SafeMessagingActionAsync(Action<AsyncCallback> begin, Action<IAsyncResult> end, BrokeredMessage message, Action<bool> callback, string actionErrorDescription, string messageId)
         {
             FastRetryPolicy.ExecuteAction(
                 begin,
                 end,
                 () =>
                 {
-                    message.Dispose();
+                    callback(true);
                 },
                 e =>
                 {
-                    message.Dispose();
-
                     if (e is MessageLockLostException || e is MessagingException || e is TimeoutException)
                     {
                         Trace.TraceWarning(actionErrorDescription, messageId);
@@ -114,6 +115,8 @@ namespace Infrastructure.Azure.Utils
                     {
                         Trace.TraceError("Unexpected error releasing message:\r\n{0}", e);
                     }
+
+                    callback(false);
                 });
         }
     }
