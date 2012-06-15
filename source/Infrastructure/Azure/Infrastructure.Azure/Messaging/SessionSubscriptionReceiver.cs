@@ -262,11 +262,8 @@ namespace Infrastructure.Azure.Messaging
                             finally
                             {
                                 // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                this.ReleaseMessage(msg, releaseAction);
+                                this.ReleaseMessage(msg, releaseAction, completeReceive, session);
                             }
-
-                            // Continue receiving and processing new messages until there are no more messages in the session.
-                            completeReceive.Invoke();
                         }
                         else
                         {
@@ -289,6 +286,10 @@ namespace Infrastructure.Azure.Messaging
                 {
                     // Continue receiving and processing new messages until we are told to stop.
                     receiveMessage.Invoke();
+                }
+                else
+                {
+                    this.CloseSession(session);
                 }
             };
 
@@ -313,28 +314,52 @@ namespace Infrastructure.Azure.Messaging
             receiveMessage.Invoke();
         }
 
-        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction)
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, MessageSession session)
         {
-            try
+            switch (releaseAction.Kind)
             {
-                switch (releaseAction.Kind)
-                {
-                    case MessageReleaseActionKind.Complete:
-                        msg.SafeComplete();
-                        break;
-                    case MessageReleaseActionKind.Abandon:
-                        msg.SafeAbandon();
-                        break;
-                    case MessageReleaseActionKind.DeadLetter:
-                        msg.SafeDeadLetter(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            finally
-            {
-                msg.Dispose();
+                case MessageReleaseActionKind.Complete:
+                    msg.SafeCompleteAsync(
+                        operationCompleted =>
+                        {
+                            msg.Dispose();
+                            if (operationCompleted)
+                            {
+                                completeReceive();
+                            }
+                            else
+                            {
+                                this.CloseSession(session);
+                            }
+                        });
+                    break;
+                case MessageReleaseActionKind.Abandon:
+                    msg.SafeAbandonAsync(
+                        operationCompleted =>
+                        {
+                            msg.Dispose();
+                            this.CloseSession(session);
+                        });
+                    break;
+                case MessageReleaseActionKind.DeadLetter:
+                    msg.SafeDeadLetterAsync(
+                        releaseAction.DeadLetterReason,
+                        releaseAction.DeadLetterDescription,
+                        operationCompleted =>
+                        {
+                            msg.Dispose();
+                            if (operationCompleted)
+                            {
+                                completeReceive();
+                            }
+                            else
+                            {
+                                this.CloseSession(session);
+                            }
+                        });
+                    break;
+                default:
+                    break;
             }
         }
 
