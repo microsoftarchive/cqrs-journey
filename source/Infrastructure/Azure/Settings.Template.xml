@@ -15,13 +15,13 @@
             </Topic>
             <Topic Path="conference/events" IsEventBus="true">
                 <Subscription Name="log" RequiresSession="false"/>
-                <Subscription Name="Registration.RegistrationProcessRouter" RequiresSession="true"/>
-                <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true"/>
-                <Subscription Name="Registration.PricedOrderViewModelGenerator" RequiresSession="true"/>
-                <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true"/>
-                <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true"/>
-                <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true"/>
-                <Subscription Name="Conference.OrderEventHandler" RequiresSession="true"/>
+                <Subscription Name="Registration.RegistrationProcessRouter" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','SeatsReserved','PaymentCompleted','OrderConfirmed')"/>
+                <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed','OrderTotalsCalculated')"/>
+                <Subscription Name="Registration.PricedOrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatCreated','SeatUpdated')"/>
+                <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('ConferenceCreated','ConferenceUpdated','ConferencePublished','ConferenceUnpublished','SeatCreated','SeatUpdated','AvailableSeatsChanged','SeatsReserved','SeatsReservationCancelled')"/>
+                <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
+                <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderConfirmed','OrderPaymentConfirmed')"/>
+                <Subscription Name="Conference.OrderEventHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderRegistrantAssigned','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatAssigned','SeatAssignmentUpdated','SeatUnassigned')"/>
             </Topic>
         </Topics>
     </ServiceBus>

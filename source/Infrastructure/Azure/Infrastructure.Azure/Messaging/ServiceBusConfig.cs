@@ -15,6 +15,8 @@ namespace Infrastructure.Azure.Messaging
 {
     using System;
     using System.Globalization;
+    using System.Linq;
+    using System.Text;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
@@ -47,6 +49,7 @@ namespace Infrastructure.Azure.Messaging
                 foreach (var subscription in topic.Subscriptions)
                 {
                     retryPolicy.ExecuteAction(() => CreateSubscriptionIfNotExists(namespaceManager, topic, subscription));
+                    retryPolicy.ExecuteAction(() => UpdateRules(namespaceManager, topic, subscription));
                 }
             }
 
@@ -102,7 +105,7 @@ namespace Infrastructure.Azure.Messaging
             var subscriptionDescription =
                 new SubscriptionDescription(topic.Path, subscription.Name)
                 {
-                    RequiresSession = subscription.RequiresSession
+                    RequiresSession = subscription.RequiresSession,
                 };
 
             try
@@ -110,6 +113,107 @@ namespace Infrastructure.Azure.Messaging
                 namespaceManager.CreateSubscription(subscriptionDescription);
             }
             catch (MessagingEntityAlreadyExistsException) { }
+        }
+
+        private static void UpdateRules(NamespaceManager namespaceManager, TopicSettings topic, SubscriptionSettings subscription)
+        {
+            const string ruleName = "Custom";
+            string sqlExpression = null;
+            if (!string.IsNullOrWhiteSpace(subscription.SqlFilter))
+            {
+                sqlExpression = subscription.SqlFilter;
+            }
+
+            bool needsReset = false;
+            var existingRules = namespaceManager.GetRules(topic.Path, subscription.Name).ToList();
+            if (existingRules.Count != 1)
+            {
+                needsReset = true;
+            }
+            else
+            {
+                var existingRule = existingRules.First();
+                if (sqlExpression != null && existingRule.Name == RuleDescription.DefaultRuleName)
+                {
+                    needsReset = true;
+                }
+                else if (sqlExpression == null && existingRule.Name != RuleDescription.DefaultRuleName)
+                {
+                    needsReset = true;
+                }
+                else if (sqlExpression != null && existingRule.Name != ruleName)
+                {
+                    needsReset = true;
+                }
+                else if (sqlExpression != null && existingRule.Name == ruleName)
+                {
+                    var filter = existingRule.Filter as SqlFilter;
+                    if (filter == null || filter.SqlExpression != sqlExpression)
+                    {
+                        needsReset = true;
+                    }
+                }
+            }
+
+            if (needsReset)
+            {
+                MessagingFactory factory = null;
+                try
+                {
+                    factory = MessagingFactory.Create(namespaceManager.Address, namespaceManager.Settings.TokenProvider);
+                    SubscriptionClient client = null;
+                    try
+                    {
+                        client = factory.CreateSubscriptionClient(topic.Path, subscription.Name);
+
+                        // first add the default rule, so no new messages are lost while we are updating the subscription
+                        TryAddRule(client, new RuleDescription(RuleDescription.DefaultRuleName, new TrueFilter()));
+
+                        // then delete every rule but the Default one
+                        foreach (var existing in existingRules.Where(x => x.Name != RuleDescription.DefaultRuleName))
+                        {
+                            TryRemoveRule(client, existing.Name);
+                        }
+
+                        if (sqlExpression != null)
+                        {
+                            // Add the desired rule.
+                            TryAddRule(client, new RuleDescription(ruleName, new SqlFilter(sqlExpression)));
+                            
+                            // once the desired rule was added, delete the default rule.
+                            TryRemoveRule(client, RuleDescription.DefaultRuleName);
+                        }
+                    }
+                    finally
+                    {
+                        if (client != null) client.Close();
+                    }
+                }
+                finally
+                {
+                    if (factory != null) factory.Close();
+                }
+            }
+        }
+
+        private static void TryAddRule(SubscriptionClient client, RuleDescription rule)
+        {
+            // try / catch is because there could be other processes initializing at the same time.
+            try
+            {
+                client.AddRule(rule);
+            }
+            catch (MessagingEntityAlreadyExistsException) { }
+        }
+
+        private static void TryRemoveRule(SubscriptionClient client, string ruleName)
+        {
+            // try / catch is because there could be other processes initializing at the same time.
+            try
+            {
+                client.RemoveRule(ruleName);
+            }
+            catch (MessagingEntityNotFoundException) { }
         }
     }
 }
