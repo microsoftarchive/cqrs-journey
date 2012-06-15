@@ -16,6 +16,7 @@ namespace Infrastructure.Messaging.Handling
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -102,7 +103,7 @@ namespace Infrastructure.Messaging.Handling
             {
                 foreach (var handler in handlers)
                 {
-                    Trace.WriteLine("-- Handled by " + handler.Item1.FullName + traceIdentifier);
+                    Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Event{0} handled by {1}.", traceIdentifier, handler.Item1.FullName));
                     handler.Item2(envelope);
                 }
             }

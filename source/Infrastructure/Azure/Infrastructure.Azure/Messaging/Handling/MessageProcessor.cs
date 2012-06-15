@@ -169,7 +169,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         private void CompleteMessage(BrokeredMessage message, string traceIdentifier)
         {
 
-            Trace.WriteLine("The message" + traceIdentifier + " has been processed and will be completed.");
+            // Trace.WriteLine("The message" + traceIdentifier + " has been processed and will be completed.");
             if (this.ReleaseMessageLockAsynchronously)
             {
                 message.SafeCompleteAsync();
@@ -184,7 +184,7 @@ namespace Infrastructure.Azure.Messaging.Handling
         {
             if (args.Message.DeliveryCount > MaxProcessingRetries)
             {
-                Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
+                Trace.TraceError("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
                 if (this.ReleaseMessageLockAsynchronously)
                 {
                     message.SafeDeadLetterAsync(e.Message, e.ToString());
@@ -214,16 +214,7 @@ namespace Infrastructure.Azure.Messaging.Handling
             try
             {
                 var messageId = message.MessageId;
-                var sourceId = message.Properties.TryGetValue(StandardMetadata.SourceId) as string;
-
-                if (!string.IsNullOrEmpty(sourceId))
-                {
-                    return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0} with SourceId: {1})", messageId, sourceId);
-                }
-                else
-                {
-                    return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0})", messageId);
-                }
+                return string.Format(CultureInfo.InvariantCulture, " (MessageId: {0})", messageId);
             }
             catch (ObjectDisposedException)
             {
