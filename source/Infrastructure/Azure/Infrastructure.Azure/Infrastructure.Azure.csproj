@@ -104,6 +104,7 @@
     <Compile Include="Messaging\Handling\CommandDispatcher.cs" />
     <Compile Include="Messaging\Handling\CommandProcessor.cs" />
     <Compile Include="Messaging\Handling\EventProcessor.cs" />
+    <Compile Include="Messaging\MessageReleaseAction.cs" />
     <Compile Include="Messaging\ServiceBusConfig.cs" />
     <Compile Include="Messaging\SessionSubscriptionReceiver.cs">
       <SubType>Code</SubType>

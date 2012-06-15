@@ -25,8 +25,8 @@ namespace Infrastructure.Azure.Messaging
         /// <summary>
         /// Starts the listener.
         /// </summary>
-        /// <param name="messageHandler">Handler for incoming messages. The return value indicates whether the message should be disposed.</param>
-        void Start(Func<BrokeredMessage, bool> messageHandler);
+        /// <param name="messageHandler">Handler for incoming messages. The return value indicates how to release the message lock.</param>
+        void Start(Func<BrokeredMessage, MessageReleaseAction> messageHandler);
 
         /// <summary>
         /// Stops the listener.

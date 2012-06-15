@@ -63,10 +63,7 @@ namespace WorkerRoleCommandProcessor
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
             var commandProcessor =
-                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer)
-                {
-                    ReleaseMessageLockAsynchronously = true
-                };
+                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer);
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);

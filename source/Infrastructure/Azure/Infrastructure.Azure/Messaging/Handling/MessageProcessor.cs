@@ -14,13 +14,11 @@
 namespace Infrastructure.Azure.Messaging.Handling
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
 
@@ -45,8 +43,6 @@ namespace Infrastructure.Azure.Messaging.Handling
             this.receiver = receiver;
             this.serializer = serializer;
         }
-
-        public bool ReleaseMessageLockAsynchronously { get; set; }
 
         protected ITextSerializer Serializer { get { return this.serializer; } }
 
@@ -124,7 +120,7 @@ namespace Infrastructure.Azure.Messaging.Handling
             Dispose(false);
         }
 
-        private bool OnMessageReceived(BrokeredMessage message)
+        private MessageReleaseAction OnMessageReceived(BrokeredMessage message)
         {
             // NOTE: type information does not belong here. It's a responsibility 
             // of the serializer to be self-contained and put any information it 
@@ -140,8 +136,7 @@ namespace Infrastructure.Azure.Messaging.Handling
                 }
                 catch (SerializationException e)
                 {
-                    message.SafeDeadLetter(e.Message, e.ToString());
-                    return true;
+                    return MessageReleaseAction.DeadLetterMessage(e.Message, e.ToString());
                 }
             }
 
@@ -160,50 +155,24 @@ namespace Infrastructure.Azure.Messaging.Handling
             return CompleteMessage(message, traceIdentifier);
         }
 
-        private bool CompleteMessage(BrokeredMessage message, string traceIdentifier)
+        private MessageReleaseAction CompleteMessage(BrokeredMessage message, string traceIdentifier)
         {
-
             // Trace.WriteLine("The message" + traceIdentifier + " has been processed and will be completed.");
-            if (this.ReleaseMessageLockAsynchronously)
-            {
-                message.SafeCompleteAsync();
-            }
-            else
-            {
-                message.SafeComplete();
-            }
-
-            return !this.ReleaseMessageLockAsynchronously;
+            return MessageReleaseAction.CompleteMessage;
         }
 
-        private bool HandleProcessingException(BrokeredMessage message, string traceIdentifier, Exception e)
+        private MessageReleaseAction HandleProcessingException(BrokeredMessage message, string traceIdentifier, Exception e)
         {
             if (message.DeliveryCount > MaxProcessingRetries)
             {
                 Trace.TraceError("An error occurred while processing the message" + traceIdentifier + " and will be dead-lettered:\r\n{0}", e);
-                if (this.ReleaseMessageLockAsynchronously)
-                {
-                    message.SafeDeadLetterAsync(e.Message, e.ToString());
-                }
-                else
-                {
-                    message.SafeDeadLetter(e.Message, e.ToString());
-                }
+                return MessageReleaseAction.DeadLetterMessage(e.Message, e.ToString());
             }
             else
             {
                 Trace.TraceWarning("An error occurred while processing the message" + traceIdentifier + " and will be abandoned:\r\n{0}", e);
-                if (this.ReleaseMessageLockAsynchronously)
-                {
-                    message.SafeAbandonAsync();
-                }
-                else
-                {
-                    message.SafeAbandon();
-                }
+                return MessageReleaseAction.AbandonMessage;
             }
-
-            return !this.ReleaseMessageLockAsynchronously;
         }
 
         // TODO: remove once we have a better trace correlation mechanism (that is used in both the sender and receiver).

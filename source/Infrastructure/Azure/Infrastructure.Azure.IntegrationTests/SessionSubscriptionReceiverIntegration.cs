@@ -58,9 +58,8 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
                 m =>
                 {
                     received = m.GetBody<string>();
-                    m.Complete();
                     signal.Set();
-                    return true;
+                    return MessageReleaseAction.CompleteMessage;
                 });
 
             signal.Wait();
@@ -90,9 +89,8 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
                 m =>
                 {
                     received.Add(m.GetBody<string>());
-                    m.Complete();
                     signal.Set();
-                    return true;
+                    return MessageReleaseAction.CompleteMessage;
                 });
 
             signal.WaitOne();
@@ -124,9 +122,8 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
                 m =>
                 {
                     received.Add(m.GetBody<string>());
-                    m.Complete();
                     signal.Set();
-                    return true;
+                    return MessageReleaseAction.CompleteMessage;
                 });
 
             sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
@@ -153,8 +150,8 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         {
             var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
 
-            receiver.Start(m => true);
-            receiver.Start(m => true);
+            receiver.Start(m => MessageReleaseAction.CompleteMessage);
+            receiver.Start(m => MessageReleaseAction.CompleteMessage);
 
             receiver.Stop();
         }
@@ -201,9 +198,8 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
                     {
                         message2received.Set();
                     }
-                    m.Complete();
 
-                    return true;
+                    return MessageReleaseAction.CompleteMessage;
                 });
 
             sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });

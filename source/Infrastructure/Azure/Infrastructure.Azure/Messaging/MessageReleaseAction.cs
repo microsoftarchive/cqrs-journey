@@ -11,44 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Infrastructure.Azure.MessageLog
+namespace Infrastructure.Azure.Messaging
 {
-    using System;
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
-    using Microsoft.ServiceBus.Messaging;
-
-    public class AzureMessageLogListener : IProcessor, IDisposable
+    public class MessageReleaseAction
     {
-        private IAzureMessageLogWriter eventLog;
-        private IMessageReceiver receiver;
+        public static readonly MessageReleaseAction CompleteMessage = new MessageReleaseAction(MessageReleaseActionKind.Complete);
+        public static readonly MessageReleaseAction AbandonMessage = new MessageReleaseAction(MessageReleaseActionKind.Abandon);
 
-        public AzureMessageLogListener(IAzureMessageLogWriter eventLog, IMessageReceiver receiver)
+        protected MessageReleaseAction(MessageReleaseActionKind kind)
         {
-            this.eventLog = eventLog;
-            this.receiver = receiver;
+            this.Kind = kind;
         }
 
-        public void SaveMessage(BrokeredMessage brokeredMessage)
-        {
-            this.eventLog.Save(brokeredMessage.ToMessageLogEntity());
-        }
+        public MessageReleaseActionKind Kind { get; private set; }
 
-        public void Start()
-        {
-            this.receiver.Start(m => { this.SaveMessage(m); return MessageReleaseAction.CompleteMessage; });
-        }
+        public string DeadLetterReason { get; private set; }
 
-        public void Stop()
-        {
-            this.receiver.Stop();
-        }
+        public string DeadLetterDescription { get; private set; }
 
-        public void Dispose()
+        public static MessageReleaseAction DeadLetterMessage(string reason, string description)
         {
-            var disposable = this.receiver as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            return new MessageReleaseAction(MessageReleaseActionKind.DeadLetter) { DeadLetterReason = reason, DeadLetterDescription = description };
         }
+    }
+
+    public enum MessageReleaseActionKind
+    {
+        Complete,
+        Abandon,
+        DeadLetter
     }
 }

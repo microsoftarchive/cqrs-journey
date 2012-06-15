@@ -41,7 +41,7 @@ namespace Infrastructure.Azure.IntegrationTests.SendReceiveIntegration
                     {
                         received = m.GetBody<Data>();
                         signal.Set();
-                        return true;
+                        return MessageReleaseAction.CompleteMessage;
                     });
 
                 sender.SendAsync(() => new BrokeredMessage(data));
