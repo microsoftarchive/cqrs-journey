@@ -28,9 +28,9 @@ Feature: Hardening the RegistrationProcess so it be able to recover from unexpec
 Background: 
 Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
-	| General admission         | $199 | 100   |
-	| CQRS Workshop             | $500 | 100   |
-	| Additional cocktail party | $50  | 100   |
+	| General admission         | $199 | 20    |
+	| CQRS Workshop             | $500 | 20    |
+	| Additional cocktail party | $50  | 20    |
 And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
@@ -71,15 +71,3 @@ Then the event for confirming the payment is emitted
 And the event for confirming the Order is not emitted
 
 
-Scenario: Execute the Payment process after all seats are reserved
-Given these Seat Types becomes unavailable before the Registrant make the reservation
-	| seat type                 |
-	| General admission         |
-	| Additional cocktail party |
-And the command to register the selected Order Items is sent 
-	# command: InitiateThirdPartyProcessorPayment
-When the command for initiate the payment is sent
-	# command: CompleteThirdPartyProcessorPayment
-And the command for completing the payment process is sent
-	# event: OrderPartiallyReserved
-Then the event for partially confirming the order with no available seats is emitted

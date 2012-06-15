@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
 using System.Text.RegularExpressions;
-using Conference.Common.Utils;
 
 namespace Conference.Specflow.Support
 {
@@ -29,7 +29,7 @@ namespace Conference.Specflow.Support
 
         public static Slug CreateNew()
         {
-            return new Slug(HandleGenerator.Generate(10));
+            return new Slug(TestHandleGenerator.Generate(10));
         }
 
         public static Regex FindBy
@@ -43,6 +43,26 @@ namespace Conference.Specflow.Support
             {
                 return !string.IsNullOrWhiteSpace(Value) &&
                         validation.IsMatch(Value);
+            }
+        }
+
+        static class TestHandleGenerator
+        {
+            private static readonly Random rnd = new Random();
+            private static readonly char[] allowableChars = "ABCDEFGHJKMNPQRSTUVWXYZ123456789".ToCharArray();
+
+            public static string Generate(int length)
+            {
+                var result = new char[length];
+                lock (rnd)
+                {
+                    for (int i = 0; i < length; i++)
+                    {
+                        result[i] = allowableChars[rnd.Next(0, allowableChars.Length)];
+                    }
+                }
+
+                return new string(result);
             }
         }
     }

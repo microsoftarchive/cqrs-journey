@@ -20,9 +20,9 @@ Feature: Self Registrant scenarios for making a Reservation for a Conference sit
 Background: 
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
-	| General admission         | $199 | 100   |
-	| CQRS Workshop             | $500 | 100   |
-	| Additional cocktail party | $50  | 100   |
+	| General admission         | $199 | 20    |
+	| CQRS Workshop             | $500 | 20    |
+	| Additional cocktail party | $50  | 20    |
 	And the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |

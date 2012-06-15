@@ -22,6 +22,7 @@ using Infrastructure;
 using Infrastructure.Azure;
 using Infrastructure.Azure.EventSourcing;
 using Microsoft.WindowsAzure;
+using System.Runtime.Caching;
 #endif
 
 namespace Conference.Specflow.Support
@@ -46,7 +47,7 @@ namespace Conference.Specflow.Support
             var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.TableName);
             var publisher = new EventStoreBusPublisher(ConferenceHelper.GetTopicSender("events"), eventStore);
             var metadata = new StandardMetadataProvider();
-            return new AzureEventSourcedRepository<T>(eventStore, publisher, serializer, metadata);
+            return new AzureEventSourcedRepository<T>(eventStore, publisher, serializer, metadata, new MemoryCache("RepositoryCache"));
 #endif
         }
     }
