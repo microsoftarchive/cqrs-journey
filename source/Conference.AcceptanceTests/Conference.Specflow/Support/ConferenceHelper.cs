@@ -16,11 +16,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Threading;
 using Conference.Common.Entity;
-using Infrastructure;
-using Registration;
-using Registration.Commands;
 using TechTalk.SpecFlow;
 using Infrastructure.Messaging;
 using Infrastructure.Serialization;
@@ -28,6 +24,7 @@ using Infrastructure.Serialization;
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
 #else
+    using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.Messaging;
 #endif
@@ -55,16 +52,10 @@ namespace Conference.Specflow.Support
                 svc.CreateSeat(conference.Id, seat);
             }
 
-            Registration.ReadModel.Conference published = null;
-            var timeout = DateTime.Now.Add(Constants.WaitTimeout);
-            while((published == null || 
-                !published.IsPublished || 
-                published.Seats.Count != table.Rows.Count ||
-                published.Seats.Any(s => s.AvailableQuantity != createdSeats.First(c => c.Id == s.Id).Quantity)) && DateTime.Now < timeout)
-            {
-                published = RegistrationHelper.FindConference(conference.Id);
-                Thread.Sleep(100);
-            }
+            var created = MessageLogHelper.CollectEvents<SeatCreated>(createdSeats.Select(s => s.Id.ToString()).ToList(), createdSeats.Count);
+
+            if(!created)
+                throw new TimeoutException("Conference creation error");
 
             // Update the confInfo with the created seats
             conference.Seats.AddRange(createdSeats);
@@ -101,40 +92,6 @@ namespace Conference.Specflow.Support
                                                 Price = decimal.Parse(row["Price"])
                                             });
             }
-        }
-
-        public static Guid ReserveSeats(ConferenceInfo conference, Table table)
-        {
-            var seats = new List<SeatQuantity>();
-
-            foreach (var row in table.Rows)
-            {
-                var seatInfo = conference.Seats.FirstOrDefault(s => s.Name == row["seat type"]);
-                if (seatInfo == null) 
-                    throw new InvalidOperationException("seat type not found");
-                
-                int qt;
-                if (!row.ContainsKey("quantity") ||
-                    !Int32.TryParse(row["quantity"], out qt))
-                    qt = seatInfo.Quantity;
-                
-                seats.Add(new SeatQuantity(seatInfo.Id, qt));
-            }
-
-            var seatReservation = new MakeSeatReservation
-            {
-                ConferenceId = conference.Id,
-                ReservationId = Guid.NewGuid(),
-                Seats = seats
-            };
-
-            var commandBus = BuildCommandBus();
-            commandBus.Send(seatReservation);
-
-            // Wait for the events to be processed
-            Thread.Sleep(Constants.WaitTimeout);
-
-            return seatReservation.ReservationId;
         }
 
         public static ConferenceInfo BuildConferenceInfo(Table conference)

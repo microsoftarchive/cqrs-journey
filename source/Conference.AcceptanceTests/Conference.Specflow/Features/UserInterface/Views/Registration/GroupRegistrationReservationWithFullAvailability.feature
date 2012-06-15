@@ -20,9 +20,9 @@ Feature: Registrant scenarios for registering a group of Attendees for a confere
 Background: 
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type                 | rate | quota |
-	| General admission         | $199 | 100   |
-	| CQRS Workshop             | $500 | 100   |
-	| Additional cocktail party | $50  | 100   |
+	| General admission         | $199 | 20    |
+	| CQRS Workshop             | $500 | 20    |
+	| Additional cocktail party | $50  | 20    |
 
 #1
 #Initial state	: 3 available items, 3 selected
@@ -83,8 +83,8 @@ Scenario: All the Order Items are available, 1 becomes partially available, 1 be
 	| Additional cocktail party | 2        |
 	And these Seat Types becomes unavailable before the Registrant make the reservation
 	| seat type                 | quantity |
-	| General admission         | 99       |
-	| Additional cocktail party | 100      |
+	| General admission         | 19       |
+	| Additional cocktail party | 20       |
 	When the Registrant proceed to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message                                    |

@@ -61,7 +61,12 @@ namespace Conference.Specflow.Steps
         [Given(@"these Seat Types becomes unavailable before the Registrant make the reservation")]
         public void GivenTheseSeatTypesBecomesUnavailableBeforeTheRegistrantMakeTheReservation(Table table)
         {
-            ConferenceHelper.ReserveSeats(conferenceInfo, table);
+            var controllerSteps = new SelfRegistrationEndToEndWithControllersSteps();
+            controllerSteps.GivenTheSelectedOrderItems(table);
+            controllerSteps.GivenTheRegistrantProceedToMakeTheReservation();
+            controllerSteps.GivenTheRegistrantEnterTheseDetails("first", "last", "email@m.com");
+            controllerSteps.GivenTheRegistrantProceedToCheckoutPayment();
+            controllerSteps.WhenTheRegistrantProceedToConfirmThePayment();
         }
 
         [Given(@"the Registrant proceed to make the Reservation")]
@@ -260,6 +265,7 @@ namespace Conference.Specflow.Steps
         private void TheRegistrantProceedToConfirmThePayment()
         {
             Browser.Click(Constants.UI.AcceptPaymentInputValue);
+            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
         }
 
         private void TheOrderShouldBeCreatedWithTheFollowingOrderItems(Table table)
@@ -270,6 +276,7 @@ namespace Conference.Specflow.Steps
 
             // Navigate to the Seat Assignement page
             Browser.Click(Constants.UI.ProceedToSeatAssignementId);
+            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
 
             TheseOrderItemsShouldBeReserved(table);
         }
@@ -298,12 +305,11 @@ namespace Conference.Specflow.Steps
 
         public void TheRegistrantProceedToCheckoutPayment()
         {
-            //TODO: May be removed after optimizations?
             // Wait for order events to be digested. 
-            Thread.Sleep(Constants.WaitTimeout); 
+            //Thread.Sleep(Constants.WaitTimeout); 
             
             Browser.Click(Constants.UI.NextStepId);
-
+            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
         }
 
         #endregion

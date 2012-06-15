@@ -145,15 +145,15 @@ namespace Conference.Specflow.Steps
             Assert.True(MessageLogHelper.CollectEvents<PaymentCompleted>(paymentId, 1));
         }
 
-        [Then(@"the event for partially confirming the order with no available seats is emitted")]
-        public void ThenTheEventForPartiallyConfirmingTheOrderWithNoAvailableSeatsIsEmitted()
-        {
-            Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderId, 1));
-            var partiallyReserved = MessageLogHelper.GetEvents<OrderPartiallyReserved>(orderId).Single();
+        //[Then(@"the event for partially confirming the order with no available seats is emitted")]
+        //public void ThenTheEventForPartiallyConfirmingTheOrderWithNoAvailableSeatsIsEmitted()
+        //{
+        //    Assert.True(MessageLogHelper.CollectEvents<OrderPartiallyReserved>(orderId, 1));
+        //    var partiallyReserved = MessageLogHelper.GetEvents<OrderPartiallyReserved>(orderId).Single();
 
-            // No seats available
-            Assert.False(partiallyReserved.Seats.Any());
-        }
+        //    // No seats available
+        //    Assert.False(partiallyReserved.Seats.Any());
+        //}
 
         [Then(@"the event for confirming the Order is emitted")]
         public void ThenTheEventForConfirmingTheOrderIsEmitted()
@@ -164,7 +164,7 @@ namespace Conference.Specflow.Steps
         [Then(@"the event for confirming the Order is not emitted")]
         public void ThenTheEventForConfirmingTheOrderIsNotEmitted()
         {
-            Assert.False(MessageLogHelper.GetEvents <OrderConfirmed>(orderId).Any());
+            Assert.False(MessageLogHelper.GetEvents<OrderConfirmed>(orderId).ToList().Any());
         }
 
         [Then(@"the command for cancelling the reservation is received")]

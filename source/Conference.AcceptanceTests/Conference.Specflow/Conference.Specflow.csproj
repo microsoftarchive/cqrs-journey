@@ -82,6 +82,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
@@ -145,16 +146,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceConfiguration.feature</DependentUpon>
-    </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\ConferenceEndToEndHappy.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ConferenceEndToEndHappy.feature</DependentUpon>
-    </Compile>
-    <Compile Include="Features\UserInterface\Views\Management\ConferenceEndToEndSad.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ConferenceEndToEndSad.feature</DependentUpon>
     </Compile>
     <Compile Include="Features\UserInterface\Views\Management\SeatTypesConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
@@ -307,14 +298,6 @@
     <None Include="Features\UserInterface\Views\Management\ConferenceConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceConfiguration.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\UserInterface\Views\Management\ConferenceEndToEndHappy.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>ConferenceEndToEndHappy.feature.cs</LastGenOutput>
-    </None>
-    <None Include="Features\UserInterface\Views\Management\ConferenceEndToEndSad.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>ConferenceEndToEndSad.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\UserInterface\Views\Management\SeatTypesConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
