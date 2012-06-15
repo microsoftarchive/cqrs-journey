@@ -14,6 +14,7 @@
 namespace Infrastructure.Azure.Messaging
 {
     using System;
+    using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
     /// Abstracts the behavior of a receiving component that raises 
@@ -22,16 +23,10 @@ namespace Infrastructure.Azure.Messaging
     public interface IMessageReceiver
     {
         /// <summary>
-        /// Event raised whenever a message is received. Consumer of 
-        /// the event is responsible for disposing the message when 
-        /// appropriate.
-        /// </summary>
-        event EventHandler<BrokeredMessageEventArgs> MessageReceived;
-
-        /// <summary>
         /// Starts the listener.
         /// </summary>
-        void Start();
+        /// <param name="messageHandler">Handler for incoming messages. The return value indicates how to release the message lock.</param>
+        void Start(Func<BrokeredMessage, MessageReleaseAction> messageHandler);
 
         /// <summary>
         /// Stops the listener.

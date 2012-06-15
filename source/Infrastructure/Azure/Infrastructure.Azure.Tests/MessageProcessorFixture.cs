@@ -83,34 +83,5 @@ namespace Infrastructure.Azure.Tests
 
             processor.Stop();
         }
-
-        [Fact]
-        public void when_message_received_without_type_then_does_not_call_process_message()
-        {
-            var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ITextSerializer>();
-            var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
-
-            var message = new BrokeredMessage("foo");
-
-            receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
-
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
-        }
-
-        [Fact]
-        public void when_message_received_without_assembly_then_does_not_call_process_message()
-        {
-            var receiver = new Mock<IMessageReceiver>();
-            var serializer = new Mock<ITextSerializer>();
-            var processor = new Mock<MessageProcessor>(receiver.Object, serializer.Object) { CallBase = true }.Object;
-
-            var message = new BrokeredMessage("foo");
-            message.Properties["Type"] = typeof(IFormatProvider).FullName;
-
-            receiver.Raise(x => x.MessageReceived += null, new BrokeredMessageEventArgs(message));
-
-            Mock.Get(processor).Protected().Verify("ProcessMessage", Times.Never(), ItExpr.IsAny<string>(), ItExpr.IsAny<object>(), ItExpr.IsAny<string>(), ItExpr.IsAny<string>());
-        }
     }
 }

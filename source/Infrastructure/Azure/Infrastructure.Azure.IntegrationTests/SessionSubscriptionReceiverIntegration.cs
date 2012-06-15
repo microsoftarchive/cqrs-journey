@@ -54,14 +54,13 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
 
             var received = "";
 
-            receiver.MessageReceived += (s, e) =>
-            {
-                received = e.Message.GetBody<string>();
-                e.Message.Complete();
-                signal.Set();
-            };
-
-            receiver.Start();
+            receiver.Start(
+                m =>
+                {
+                    received = m.GetBody<string>();
+                    signal.Set();
+                    return MessageReleaseAction.CompleteMessage;
+                });
 
             signal.Wait();
 
@@ -86,14 +85,13 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
 
             var received = new ConcurrentBag<string>();
 
-            receiver.MessageReceived += (s, e) =>
-            {
-                received.Add(e.Message.GetBody<string>());
-                e.Message.Complete();
-                signal.Set();
-            };
-
-            receiver.Start();
+            receiver.Start(
+                m =>
+                {
+                    received.Add(m.GetBody<string>());
+                    signal.Set();
+                    return MessageReleaseAction.CompleteMessage;
+                });
 
             signal.WaitOne();
             stopWatch.Start();
@@ -120,14 +118,13 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             var stopWatch = new Stopwatch();
             var received = new ConcurrentBag<string>();
 
-            receiver.MessageReceived += (s, e) =>
-            {
-                received.Add(e.Message.GetBody<string>());
-                e.Message.Complete();
-                signal.Set();
-            };
-
-            receiver.Start();
+            receiver.Start(
+                m =>
+                {
+                    received.Add(m.GetBody<string>());
+                    signal.Set();
+                    return MessageReleaseAction.CompleteMessage;
+                });
 
             sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
             stopWatch.Start();
@@ -153,8 +150,8 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
         {
             var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
 
-            receiver.Start();
-            receiver.Start();
+            receiver.Start(m => MessageReleaseAction.CompleteMessage);
+            receiver.Start(m => MessageReleaseAction.CompleteMessage);
 
             receiver.Stop();
         }
@@ -187,23 +184,23 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
             var receiver = new SessionSubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
             var stopWatch = new Stopwatch();
 
-            receiver.MessageReceived += (s, e) =>
-            {
-                var msg = e.Message.GetBody<string>();
-                if (msg == body1)
+            receiver.Start(
+                m =>
                 {
-                    message1received.Set();
-                    // do not continue until we verify that the 2nd message is received, hence implying parallelism
-                    message2received.WaitOne();
-                }
-                else
-                {
-                    message2received.Set();
-                }
-                e.Message.Complete();
-            };
+                    var msg = m.GetBody<string>();
+                    if (msg == body1)
+                    {
+                        message1received.Set();
+                        // do not continue until we verify that the 2nd message is received, hence implying parallelism
+                        message2received.WaitOne();
+                    }
+                    else
+                    {
+                        message2received.Set();
+                    }
 
-            receiver.Start();
+                    return MessageReleaseAction.CompleteMessage;
+                });
 
             sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
             stopWatch.Start();

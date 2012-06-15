@@ -20,6 +20,9 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
+    using Microsoft.ServiceBus.Messaging;
+    using Moq;
+    using Moq.Protected;
     using Xunit;
 
     public class given_an_azure_event_bus : given_a_topic_and_subscription
@@ -112,14 +115,14 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         [Fact]
         public void when_receiving_not_registered_event_then_ignores()
         {
-            var receiver = new SubscriptionReceiver(this.Settings, this.Topic, this.Subscription);
-            var processor = new EventProcessor(receiver, new JsonTextSerializer());
+            var receiverMock = new Mock<SubscriptionReceiver>(this.Settings, this.Topic, this.Subscription);
+            var processor = new EventProcessor(receiverMock.Object, new JsonTextSerializer());
             var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 
             var e = new ManualResetEventSlim();
             var handler = new FooEventHandler(e);
 
-            receiver.MessageReceived += (sender, args) => e.Set();
+            receiverMock.Protected().Setup("InvokeMessageHandler", ItExpr.IsAny<BrokeredMessage>()).Callback(() => e.Set());
 
             processor.Register(handler);
 
