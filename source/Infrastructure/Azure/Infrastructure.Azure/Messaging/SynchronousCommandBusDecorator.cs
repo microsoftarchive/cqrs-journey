@@ -42,7 +42,7 @@ namespace Infrastructure.Azure.Messaging
         {
             if (!this.DoSend(command))
             {
-                Trace.TraceInformation("Command with id {0} was not handled locally. Sending it through the bus.", command.Body.Id);
+                // Trace.TraceInformation("Command with id {0} was not handled locally. Sending it through the bus.", command.Body.Id);
                 this.commandBus.Send(command);
             }
         }
@@ -65,7 +65,7 @@ namespace Infrastructure.Azure.Messaging
 
             if (pending.Count > 0)
             {
-                Trace.TraceInformation("Command with id {0} was not handled locally. Sending it and all remaining commands through the bus.", pending[0].Body.Id);
+                // Trace.TraceInformation("Command with id {0} was not handled locally. Sending it and all remaining commands through the bus.", pending[0].Body.Id);
                 this.commandBus.Send(pending);
             }
         }
@@ -83,7 +83,7 @@ namespace Infrastructure.Azure.Messaging
             }
             catch (Exception e)
             {
-                Trace.TraceWarning("Exception handling command with id {0} synchronously: {1}", command.Body.Id, e.Message);
+                Trace.TraceWarning("Exception handling command with id {0} synchronously: {1}. Command will be sent through the bus.", command.Body.Id, e.Message);
             }
 
             return handled;
