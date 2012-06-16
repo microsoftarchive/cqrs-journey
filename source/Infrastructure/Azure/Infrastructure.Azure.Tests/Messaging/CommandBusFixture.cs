@@ -36,6 +36,36 @@ namespace Infrastructure.Azure.Tests.Messaging
             Assert.Equal(command.Id.ToString(), sender.Sent.Single().MessageId);
         }
 
+        [Fact]
+        public void when_specifying_time_to_live_then_sets_in_message()
+        {
+            var sender = new MessageSenderMock();
+            var sut = new CommandBus(sender, Mock.Of<IMetadataProvider>(), new JsonTextSerializer());
+
+            var command = new Envelope<ICommand>(new FooCommand { Id = Guid.NewGuid() })
+            {
+                TimeToLive = TimeSpan.FromMinutes(15)
+            };
+            sut.Send(command);
+
+            Assert.InRange(sender.Sent.Single().TimeToLive, TimeSpan.FromMinutes(14.9), TimeSpan.FromMinutes(15.1));
+        }
+
+        [Fact]
+        public void when_specifying_delay_then_sets_in_message()
+        {
+            var sender = new MessageSenderMock();
+            var sut = new CommandBus(sender, Mock.Of<IMetadataProvider>(), new JsonTextSerializer());
+
+            var command = new Envelope<ICommand>(new FooCommand { Id = Guid.NewGuid() })
+            {
+                Delay = TimeSpan.FromMinutes(15)
+            };
+            sut.Send(command);
+
+            Assert.InRange(sender.Sent.Single().ScheduledEnqueueTimeUtc, DateTime.UtcNow.AddMinutes(14.9), DateTime.UtcNow.AddMinutes(15.1));
+        }
+
         class FooCommand : ICommand
         {
             public Guid Id { get; set; }
