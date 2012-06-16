@@ -119,5 +119,10 @@ namespace Infrastructure.Azure.Tests.Mocks
         {
             throw new NotImplementedException();
         }
+
+        public void SendAsync(Func<BrokeredMessage> messageFactory, Action successCallback, Action<Exception> exceptionCallback)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -157,6 +157,34 @@ namespace Infrastructure.Azure.EventSourcing
                 });
         }
 
+        public void DeletePendingAsync(string partitionKey, string rowKey, Action successCallback, Action<Exception> exceptionCallback)
+        {
+            var context = this.tableClient.GetDataServiceContext();
+            var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
+            context.AttachTo(this.tableName, item, "*");
+            context.DeleteObject(item);
+
+            this.pendingEventsQueueRetryPolicy.ExecuteAction(
+                ac => context.BeginSaveChanges(ac, null),
+                context.EndSaveChanges,
+                r => successCallback(),
+                e =>
+                {
+                    var ex = e as DataServiceRequestException;
+                    if (ex != null)
+                    {
+                        var inner = ex.InnerException as DataServiceClientException;
+                        if (inner != null && inner.StatusCode == (int)HttpStatusCode.NotFound)
+                        {
+                            // ignore if entity was already deleted.
+                            return;
+                        }
+                    }
+
+                    exceptionCallback(e);
+                });
+        }
+
         private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)
         {
             var context = this.tableClient.GetDataServiceContext();

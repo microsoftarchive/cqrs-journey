@@ -33,6 +33,11 @@ namespace Infrastructure.Azure.Messaging
         void SendAsync(Func<BrokeredMessage> messageFactory);
 
         /// <summary>
+        /// Sends the specified message asynchronously.
+        /// </summary>
+        void SendAsync(Func<BrokeredMessage> messageFactory, Action successCallback, Action<Exception> exceptionCallback);
+
+        /// <summary>
         /// Sends a batch of messages asynchronously.
         /// </summary>
         void SendAsync(IEnumerable<Func<BrokeredMessage>> messageFactories);

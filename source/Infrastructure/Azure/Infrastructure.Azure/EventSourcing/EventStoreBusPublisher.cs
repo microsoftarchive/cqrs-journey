@@ -15,6 +15,7 @@ namespace Infrastructure.Azure.EventSourcing
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Text;
@@ -22,7 +23,6 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Threading.Tasks;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Utils;
-    using Infrastructure.Util;
     using Microsoft.ServiceBus.Messaging;
 
     public class EventStoreBusPublisher : IEventStoreBusPublisher
@@ -86,18 +86,11 @@ namespace Infrastructure.Azure.EventSourcing
 
         private void ProcessPartition(string key)
         {
+            IEnumerable<IEventRecord> pending;
+
             try
             {
-                var pending = this.queue.GetPending(key).AsCachedAnyEnumerable();
-                if (pending.Any())
-                {
-                    foreach (var record in pending)
-                    {
-                        var item = record;
-                        this.sender.Send(() => BuildMessage(item));
-                        this.queue.DeletePending(item.PartitionKey, item.RowKey);
-                    }
-                }
+                pending = this.queue.GetPending(key);
             }
             catch (Exception e)
             {
@@ -111,6 +104,66 @@ namespace Infrastructure.Azure.EventSourcing
                 this.enqueuedKeys.Add(key);
                 throw;
             }
+
+            var enumerator = pending.GetEnumerator();
+
+            Action sendNextEvent = null;
+            Action deletePending = null;
+            Action disposeEnumerator = () => { using (enumerator as IDisposable) { } };
+            Action<Exception> handleException =
+                ex =>
+                {
+                    disposeEnumerator();
+                    Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
+
+                    // if there was ANY unhandled error, re-add the item to collection.
+                    // this would allow the main Start logic to potentially have some 
+                    // recovery logic and retry processing this key if needed. Currently 
+                    // we're not doing that and the process will just stop and log whatever
+                    // exception happened.
+                    this.enqueuedKeys.Add(key);
+
+                    // TODO shutdown?
+                };
+
+            sendNextEvent =
+                () =>
+                {
+                    try
+                    {
+                        if (enumerator.MoveNext())
+                        {
+                            var item = enumerator.Current;
+
+                            this.sender.SendAsync(
+                                () => BuildMessage(item),
+                                deletePending,
+                                handleException);
+                        }
+                        else
+                        {
+                            // no more elements
+                            disposeEnumerator();
+                        }
+                    }
+                    catch
+                    {
+                        disposeEnumerator();
+                    }
+                };
+
+            deletePending =
+                () =>
+                {
+                    var item = enumerator.Current;
+                    this.queue.DeletePendingAsync(
+                        item.PartitionKey,
+                        item.RowKey,
+                        sendNextEvent,
+                        handleException);
+                };
+
+            sendNextEvent();
         }
 
         private static BrokeredMessage BuildMessage(IEventRecord record)
