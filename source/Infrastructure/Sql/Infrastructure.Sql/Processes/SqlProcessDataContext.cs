@@ -38,21 +38,25 @@ namespace Infrastructure.Sql.Processes
 
         public T Find(Guid id)
         {
-            return Find(process => process.Id == id);
+            return Find(process => process.Id == id, true);
         }
 
-        public T Find(Expression<Func<T, bool>> predicate)
+        public T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false)
         {
             var process = this.context.Set<T>().Where(predicate).FirstOrDefault();
-            if (process == null)
-                return default(T);
+            if (process != null)
+            {
+                // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
+                var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+                this.DispatchMessages(undispatchedMessages);
 
-            // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
-            var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+                if (includeCompleted || !process.Completed)
+                {
+                    return process;
+                }
+            }
 
-            this.DispatchMessages(undispatchedMessages);
-
-            return process;
+            return default(T);
         }
 
         public void Save(T process)
