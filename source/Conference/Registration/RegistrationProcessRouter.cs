@@ -83,7 +83,8 @@ namespace Registration
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}.", envelope.Body.ReservationId);
+                    // TODO: should Cancel seat reservation!
+                    Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}. TODO: should Cancel seat reservation!", envelope.Body.ReservationId);
                 }
             }
         }
