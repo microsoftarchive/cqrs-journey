@@ -111,5 +111,8 @@ namespace Infrastructure.Azure.Messaging
 
         [XmlAttribute]
         public bool RequiresSession { get; set; }
+
+        [XmlAttribute]
+        public string SqlFilter { get; set; }
     }
 }

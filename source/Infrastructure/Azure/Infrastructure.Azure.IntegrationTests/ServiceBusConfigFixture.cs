@@ -81,13 +81,13 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
                 {
                     Topic = topic,
                     Description = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetTopic(topic.Path))
-                });
+                }).ToList();
 
             Assert.False(topics.Any(tuple => tuple.Description == null));
         }
 
         [Fact]
-        public void when_initialized_then_creates_subscriptions()
+        public void when_initialized_then_creates_subscriptions_with_filters()
         {
             this.sut.Initialize();
 
@@ -95,12 +95,36 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
                 .SelectMany(topic => topic.Subscriptions.Select(subscription => new { Topic = topic, Subscription = subscription }))
                 .Select(tuple => new
                     {
-                        Subscription = tuple,
-                        Description = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetSubscription(tuple.Topic.Path, tuple.Subscription.Name))
-                    });
+                        Subscription = tuple.Subscription,
+                        Description = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetSubscription(tuple.Topic.Path, tuple.Subscription.Name)),
+                        Rule = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetRules(tuple.Topic.Path, tuple.Subscription.Name).FirstOrDefault(x => x.Name == "Custom"))
+                    }).ToList();
 
-            Assert.False(subscriptions.Any(tuple => tuple.Description == null));
-            Assert.False(subscriptions.Any(tuple => tuple.Subscription.Subscription.RequiresSession != tuple.Description.RequiresSession));
+            Assert.True(subscriptions.All(tuple => tuple.Description != null));
+            Assert.True(subscriptions.All(tuple => tuple.Subscription.RequiresSession == tuple.Description.RequiresSession));
+            Assert.True(subscriptions.All(tuple =>
+                (string.IsNullOrWhiteSpace(tuple.Subscription.SqlFilter) && tuple.Rule == null)
+                || (!string.IsNullOrWhiteSpace(tuple.Subscription.SqlFilter) && ((SqlFilter)tuple.Rule.Filter).SqlExpression == tuple.Subscription.SqlFilter)));
+        }
+
+        [Fact]
+        public void when_initialized_then_subscriptions_updates_existing_filters()
+        {
+            settings.Topics = settings.Topics.Take(1).ToList();
+            var topic = settings.Topics.First();
+            topic.Subscriptions = topic.Subscriptions.Take(1).ToList();
+            var subscription = topic.Subscriptions.First();
+            subscription.SqlFilter = "TypeName='MyTypeA'";
+            this.sut.Initialize();
+
+            var rule = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetRules(topic.Path, subscription.Name).Single());
+            Assert.Equal("TypeName='MyTypeA'", ((SqlFilter)rule.Filter).SqlExpression);
+
+            subscription.SqlFilter = "TypeName='MyTypeB'";
+            this.sut.Initialize();
+
+            rule = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetRules(topic.Path, subscription.Name).Single());
+            Assert.Equal("TypeName='MyTypeB'", ((SqlFilter)rule.Filter).SqlExpression);
         }
 
         [Fact]
@@ -162,6 +186,5 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             }
             public Guid SourceId { get; set; }
         }
-
     }
 }

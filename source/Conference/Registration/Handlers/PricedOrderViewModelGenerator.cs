@@ -25,13 +25,13 @@ namespace Registration.Handlers
     using Registration.ReadModel.Implementation;
 
     public class PricedOrderViewModelGenerator :
+        IEventHandler<OrderPlaced>,
         IEventHandler<OrderTotalsCalculated>,
+        IEventHandler<OrderConfirmed>,
         IEventHandler<OrderExpired>,
         IEventHandler<SeatAssignmentsCreated>,
         IEventHandler<SeatCreated>,
-        IEventHandler<SeatUpdated>,
-        IEventHandler<OrderPlaced>,
-        IEventHandler<OrderConfirmed>
+        IEventHandler<SeatUpdated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
