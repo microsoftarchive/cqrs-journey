@@ -209,7 +209,7 @@ namespace Infrastructure.Azure.Messaging
                 null,
                 ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
 
-            // Declare an action acting as a callback whenever a message arrives on a queue.
+            // Declare an action to receive the next message in the queue or closes the session if cancelled.
             Action receiveNext = null;
 
             // Declare an action acting as a callback whenever a non-transient exception occurs while receiving or processing messages.
@@ -266,7 +266,7 @@ namespace Infrastructure.Azure.Messaging
                     });
             });
 
-            // Initialize a custom action acting as a callback whenever a message arrives on a queue.
+            // Initialize an action to receive the next message in the queue or closes the session if cancelled.
             receiveNext = () =>
             {
                 if (!cancellationToken.IsCancellationRequested)
@@ -286,15 +286,8 @@ namespace Infrastructure.Azure.Messaging
                 // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
                 Trace.TraceError("An unrecoverable error occurred while trying to receive a new message from subscription {1}:\r\n{0}", ex, this.subscription);
 
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    // Continue receiving and processing new messages until we are told to stop regardless of any exceptions.
-                    receiveMessage.Invoke();
-                }
-                else
-                {
-                    closeSession.Invoke();
-                }
+                // Cannot continue to receive messages from this session.
+                closeSession.Invoke();
             };
 
             // Start receiving messages asynchronously for the session.
