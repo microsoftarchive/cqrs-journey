@@ -153,8 +153,8 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         private void ReceiveMessages(CancellationToken cancellationToken)
         {
-            // Declare an action acting as a callback whenever a message arrives on a queue.
-            Action completeReceive = null;
+            // Declare an action to receive the next message in the queue or end if cancelled.
+            Action receiveNext = null;
 
             // Declare an action acting as a callback whenever a non-transient exception occurs while receiving or processing messages.
             Action<Exception> recoverReceive = null;
@@ -199,25 +199,7 @@ namespace Infrastructure.Azure.Messaging
                                 {
                                     // Process the received message.
                                     releaseAction = this.InvokeMessageHandler(msg);
-
-                                    // TODO: code commented out because the IMessageProcessor is in charge of Completing the message
-                                    //// With PeekLock mode, we should mark the processed message as completed.
-                                    //if (this.client.Mode == ReceiveMode.PeekLock)
-                                    //{
-                                    //    // Mark brokered message as completed at which point it's removed from the queue.
-                                    //    msg.SafeComplete();
-                                    //}
                                 }
-                                //catch
-                                //{
-                                //    // With PeekLock mode, we should mark the failed message as abandoned.
-                                //    if (this.client.Mode == ReceiveMode.PeekLock)
-                                //    {
-                                //        // Abandons a brokered message. This will cause Service Bus to unlock the message and make it available 
-                                //        // to be received again, either by the same consumer or by another completing consumer.
-                                //        msg.SafeAbandon();
-                                //    }
-                                //}
                             }
                             finally
                             {
@@ -227,7 +209,7 @@ namespace Infrastructure.Azure.Messaging
                         }
 
                         // Continue receiving and processing new messages until we are told to stop.
-                        completeReceive.Invoke();
+                        receiveNext.Invoke();
                     },
                     ex =>
                     {
@@ -237,8 +219,8 @@ namespace Infrastructure.Azure.Messaging
                     });
             });
 
-            // Initialize a custom action acting as a callback whenever a message arrives on a queue.
-            completeReceive = () =>
+            // Initialize an action to receive the next message in the queue or end if cancelled.
+            receiveNext = () =>
             {
                 if (!cancellationToken.IsCancellationRequested)
                 {
@@ -261,7 +243,7 @@ namespace Infrastructure.Azure.Messaging
             };
 
             // Start receiving messages asynchronously.
-            receiveMessage.Invoke();
+            receiveNext.Invoke();
         }
 
         private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction)

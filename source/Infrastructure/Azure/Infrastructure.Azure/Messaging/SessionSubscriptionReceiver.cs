@@ -203,8 +203,14 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         private void ReceiveMessagesAndCloseSession(MessageSession session, CancellationToken cancellationToken)
         {
-            // Declare an action acting as a callback whenever a message arrives on a queue.
-            Action completeReceive = null;
+            Action closeSession = () => this.receiveRetryPolicy.ExecuteAction(
+                cb => session.BeginClose(cb, null),
+                session.EndClose,
+                null,
+                ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
+
+            // Declare an action to receive the next message in the queue or closes the session if cancelled.
+            Action receiveNext = null;
 
             // Declare an action acting as a callback whenever a non-transient exception occurs while receiving or processing messages.
             Action<Exception> recoverReceive = null;
@@ -226,7 +232,6 @@ namespace Infrastructure.Azure.Messaging
                     msg =>
                     {
                         // Process the message once it was successfully received
-
                         // Check if we actually received any messages.
                         if (msg != null)
                         {
@@ -239,39 +244,18 @@ namespace Infrastructure.Azure.Messaging
                                 {
                                     // Process the received message.
                                     releaseAction = this.InvokeMessageHandler(msg);
-
-                                    // TODO: code commented out because the IMessageProcessor is in charge of Completing the message
-                                    //// With PeekLock mode, we should mark the processed message as completed.
-                                    //if (this.client.Mode == ReceiveMode.PeekLock)
-                                    //{
-                                    //    // Mark brokered message as completed at which point it's removed from the queue.
-                                    //    msg.SafeComplete();
-                                    //}
                                 }
                             }
-                            //catch
-                            //{
-                            //    // With PeekLock mode, we should mark the failed message as abandoned.
-                            //    if (this.client.Mode == ReceiveMode.PeekLock)
-                            //    {
-                            //        // Abandons a brokered message. This will cause Service Bus to unlock the message and make it available 
-                            //        // to be received again, either by the same consumer or by another completing consumer.
-                            //        msg.SafeAbandon();
-                            //    }
-                            //}
                             finally
                             {
                                 // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                this.ReleaseMessage(msg, releaseAction);
+                                this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
                             }
-
-                            // Continue receiving and processing new messages until there are no more messages in the session.
-                            completeReceive.Invoke();
                         }
                         else
                         {
                             // no more messages in the session, close it and do not continue receiving
-                            this.CloseSession(session);
+                            closeSession.Invoke();
                         }
                     },
                     ex =>
@@ -282,13 +266,17 @@ namespace Infrastructure.Azure.Messaging
                     });
             });
 
-            // Initialize a custom action acting as a callback whenever a message arrives on a queue.
-            completeReceive = () =>
+            // Initialize an action to receive the next message in the queue or closes the session if cancelled.
+            receiveNext = () =>
             {
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     // Continue receiving and processing new messages until we are told to stop.
                     receiveMessage.Invoke();
+                }
+                else
+                {
+                    closeSession.Invoke();
                 }
             };
 
@@ -298,53 +286,61 @@ namespace Infrastructure.Azure.Messaging
                 // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
                 Trace.TraceError("An unrecoverable error occurred while trying to receive a new message from subscription {1}:\r\n{0}", ex, this.subscription);
 
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    // Continue receiving and processing new messages until we are told to stop regardless of any exceptions.
-                    receiveMessage.Invoke();
-                }
-                else
-                {
-                    this.CloseSession(session);
-                }
+                // Cannot continue to receive messages from this session.
+                closeSession.Invoke();
             };
 
-            // Start receiving messages asynchronously.
-            receiveMessage.Invoke();
+            // Start receiving messages asynchronously for the session.
+            receiveNext.Invoke();
         }
 
-        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction)
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action closeSession)
         {
-            try
+            switch (releaseAction.Kind)
             {
-                switch (releaseAction.Kind)
-                {
-                    case MessageReleaseActionKind.Complete:
-                        msg.SafeComplete();
-                        break;
-                    case MessageReleaseActionKind.Abandon:
-                        msg.SafeAbandon();
-                        break;
-                    case MessageReleaseActionKind.DeadLetter:
-                        msg.SafeDeadLetter(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription);
-                        break;
-                    default:
-                        break;
-                }
+                case MessageReleaseActionKind.Complete:
+                    msg.SafeCompleteAsync(
+                        operationSucceeded =>
+                        {
+                            msg.Dispose();
+                            if (operationSucceeded)
+                            {
+                                completeReceive();
+                            }
+                            else
+                            {
+                                closeSession.Invoke();
+                            }
+                        });
+                    break;
+                case MessageReleaseActionKind.Abandon:
+                    msg.SafeAbandonAsync(
+                        operationSucceeded =>
+                        {
+                            msg.Dispose();
+                            closeSession.Invoke();
+                        });
+                    break;
+                case MessageReleaseActionKind.DeadLetter:
+                    msg.SafeDeadLetterAsync(
+                        releaseAction.DeadLetterReason,
+                        releaseAction.DeadLetterDescription,
+                        operationSucceeded =>
+                        {
+                            msg.Dispose();
+                            if (operationSucceeded)
+                            {
+                                completeReceive();
+                            }
+                            else
+                            {
+                                closeSession.Invoke();
+                            }
+                        });
+                    break;
+                default:
+                    break;
             }
-            finally
-            {
-                msg.Dispose();
-            }
-        }
-
-        private void CloseSession(MessageSession session)
-        {
-            this.receiveRetryPolicy.ExecuteAction(
-                cb => session.BeginClose(cb, null),
-                session.EndClose,
-                null,
-                ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
         }
     }
 }
