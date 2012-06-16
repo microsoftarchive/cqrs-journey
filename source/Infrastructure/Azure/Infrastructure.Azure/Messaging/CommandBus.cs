@@ -87,9 +87,14 @@ namespace Infrastructure.Azure.Messaging
                 }
             }
 
-            if (command.Delay != TimeSpan.Zero)
+            if (command.Delay > TimeSpan.Zero)
             {
                 message.ScheduledEnqueueTimeUtc = DateTime.UtcNow.Add(command.Delay);
+            }
+
+            if (command.TimeToLive > TimeSpan.Zero)
+            {
+                message.TimeToLive = command.TimeToLive;
             }
 
             return message;
