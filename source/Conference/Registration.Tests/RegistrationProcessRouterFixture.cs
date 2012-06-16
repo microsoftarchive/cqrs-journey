@@ -176,9 +176,9 @@ namespace Registration.Tests
             this.SavedProcesses.Add(process);
         }
 
-        public T Find(Expression<Func<T, bool>> predicate)
+        public T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false)
         {
-            return this.Store.AsQueryable().SingleOrDefault(predicate);
+            return this.Store.AsQueryable().Where(x => includeCompleted || !x.Completed).SingleOrDefault(predicate);
         }
 
         public void Dispose()

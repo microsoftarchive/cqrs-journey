@@ -38,21 +38,37 @@ namespace Infrastructure.Sql.Processes
 
         public T Find(Guid id)
         {
-            return Find(process => process.Id == id);
+            return Find(process => process.Id == id, true);
         }
 
-        public T Find(Expression<Func<T, bool>> predicate)
+        public T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false)
         {
-            var process = this.context.Set<T>().Where(predicate).FirstOrDefault();
+            T process = null;
+            if (!includeCompleted)
+            {
+                // first try to get the non-completed, in case the table is indexed by Completed, or there is more
+                // than one process that fulfills the predicate but only 1 is not completed.
+                process = this.context.Set<T>().Where(predicate.And(x => x.Completed == false)).FirstOrDefault();
+            }
+
             if (process == null)
-                return default(T);
+            {
+                process = this.context.Set<T>().Where(predicate).FirstOrDefault();
+            }
 
-            // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
-            var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+            if (process != null)
+            {
+                // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
+                var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+                this.DispatchMessages(undispatchedMessages);
 
-            this.DispatchMessages(undispatchedMessages);
+                if (!process.Completed || includeCompleted)
+                {
+                    return process;
+                }
+            }
 
-            return process;
+            return null;
         }
 
         public void Save(T process)
