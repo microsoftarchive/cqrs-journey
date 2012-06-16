@@ -82,24 +82,37 @@ namespace Registration
                 // It could be anything else, as long as it is deterministic from the OrderPlaced event.
                 this.ReservationId = message.SourceId;
                 this.ReservationAutoExpiration = message.ReservationAutoExpiration;
-                this.State = ProcessState.AwaitingReservationConfirmation;
+                var expirationWindow = message.ReservationAutoExpiration.Subtract(DateTime.UtcNow);
 
-                var seatReservationCommand =
-                    new MakeSeatReservation
-                    {
-                        ConferenceId = this.ConferenceId,
-                        ReservationId = this.ReservationId,
-                        Seats = message.Seats.ToList()
-                    };
-                this.SeatReservationCommandId = seatReservationCommand.Id;
-                this.AddCommand(seatReservationCommand);
-
-                var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
-                this.ExpirationCommandId = expirationCommand.Id;
-                this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                if (expirationWindow > TimeSpan.Zero)
                 {
-                    Delay = message.ReservationAutoExpiration.Subtract(DateTime.UtcNow).Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
-                });
+                    this.State = ProcessState.AwaitingReservationConfirmation;
+                    var seatReservationCommand =
+                        new MakeSeatReservation
+                        {
+                            ConferenceId = this.ConferenceId,
+                            ReservationId = this.ReservationId,
+                            Seats = message.Seats.ToList()
+                        };
+                    this.SeatReservationCommandId = seatReservationCommand.Id;
+
+                    this.AddCommand(new Envelope<ICommand>(seatReservationCommand)
+                    {
+                        TimeToLive = expirationWindow.Add(TimeSpan.FromMinutes(1)),
+                    });
+
+                    var expirationCommand = new ExpireRegistrationProcess { ProcessId = this.Id };
+                    this.ExpirationCommandId = expirationCommand.Id;
+                    this.AddCommand(new Envelope<ICommand>(expirationCommand)
+                    {
+                        Delay = expirationWindow.Add(BufferTimeBeforeReleasingSeatsAfterExpiration),
+                    });
+                }
+                else
+                {
+                    this.AddCommand(new RejectOrder { OrderId = this.OrderId });
+                    this.Completed = true;
+                }
             }
             else
             {

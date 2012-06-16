@@ -93,6 +93,37 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
             Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
     }
+
+    public class when_order_is_placed_but_already_expired : Context
+    {
+        private OrderPlaced orderPlaced;
+
+        public when_order_is_placed_but_already_expired()
+        {
+            this.orderPlaced = new OrderPlaced
+            {
+                SourceId = Guid.NewGuid(),
+                ConferenceId = Guid.NewGuid(),
+                Seats = new[] { new SeatQuantity(Guid.NewGuid(), 2) },
+                ReservationAutoExpiration = DateTime.UtcNow.Add(TimeSpan.FromMinutes(-1))
+            };
+            sut.Handle(orderPlaced);
+        }
+
+        [Fact]
+        public void then_order_is_rejected()
+        {
+            var command = sut.Commands.Select(x => x.Body).Cast<RejectOrder>().Single();
+
+            Assert.Equal(orderPlaced.SourceId, command.OrderId);
+        }
+
+        [Fact]
+        public void then_process_manager_is_completed()
+        {
+            Assert.True(sut.Completed);
+        }
+    }
 }
 
 namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_for_reservation_confirmation

@@ -53,6 +53,11 @@ namespace Infrastructure.Messaging
         public TimeSpan Delay { get; set; }
 
         /// <summary>
+        /// Gets or sets the time to live for the message in the queue.
+        /// </summary>
+        public TimeSpan TimeToLive { get; set; }
+
+        /// <summary>
         /// Gets the correlation id.
         /// </summary>
         public string CorrelationId { get; set; }
