@@ -131,32 +131,6 @@ namespace Infrastructure.Azure.EventSourcing
             return this.pendingEventsQueueRetryPolicy.ExecuteAction(() => query.Execute());
         }
 
-        public void DeletePending(string partitionKey, string rowKey)
-        {
-            var context = this.tableClient.GetDataServiceContext();
-            var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
-            context.AttachTo(this.tableName, item, "*");
-            context.DeleteObject(item);
-            this.pendingEventsQueueRetryPolicy.ExecuteAction(() =>
-                {
-                    try
-                    {
-                        context.SaveChanges();
-                    }
-                    catch (DataServiceRequestException ex)
-                    {
-                        var inner = ex.InnerException as DataServiceClientException;
-                        if (inner != null && inner.StatusCode == (int)HttpStatusCode.NotFound)
-                        {
-                            // ignore if entity was already deleted.
-                            return;
-                        }
-
-                        throw;
-                    }
-                });
-        }
-
         public void DeletePendingAsync(string partitionKey, string rowKey, Action successCallback, Action<Exception> exceptionCallback)
         {
             var context = this.tableClient.GetDataServiceContext();
@@ -166,23 +140,24 @@ namespace Infrastructure.Azure.EventSourcing
 
             this.pendingEventsQueueRetryPolicy.ExecuteAction(
                 ac => context.BeginSaveChanges(ac, null),
-                context.EndSaveChanges,
-                r => successCallback(),
-                e =>
-                {
-                    var ex = e as DataServiceRequestException;
-                    if (ex != null)
+                ar => 
                     {
-                        var inner = ex.InnerException as DataServiceClientException;
-                        if (inner != null && inner.StatusCode == (int)HttpStatusCode.NotFound)
+                        try
+                        {
+                            context.EndSaveChanges(ar);
+                        }
+                        catch (DataServiceRequestException ex)
                         {
                             // ignore if entity was already deleted.
-                            return;
+                            var inner = ex.InnerException as DataServiceClientException;
+                            if (inner == null || inner.StatusCode != (int)HttpStatusCode.NotFound)
+                            {
+                                throw;
+                            }
                         }
-                    }
-
-                    exceptionCallback(e);
-                });
+                    },
+                successCallback,
+                exceptionCallback);
         }
 
         private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)
