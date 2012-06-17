@@ -120,10 +120,10 @@ namespace Infrastructure.Azure.Tests.Mocks
             ThreadPool.QueueUserWorkItem(
                 _ =>
                 {
-                    this.Sent.Add(messageFactory.Invoke());
-                    successCallback();
-                    this.SendSignal.Set();
                     if (SendWaitHandle != null) SendWaitHandle.WaitOne(10000);
+                    this.Sent.Add(messageFactory.Invoke());
+                    this.SendSignal.Set();
+                    successCallback();
                 });
         }
     }

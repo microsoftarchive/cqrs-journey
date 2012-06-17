@@ -49,9 +49,17 @@ namespace Infrastructure.Azure.EventSourcing
                 {
                     try
                     {
-                        foreach (var key in GetThrottlingEnumerable(this.enqueuedKeys.GetConsumingEnumerable(cancellationToken), this.throttlingSemaphore))
+                        foreach (var key in GetThrottlingEnumerable(this.enqueuedKeys.GetConsumingEnumerable(cancellationToken), this.throttlingSemaphore, cancellationToken))
                         {
-                            ProcessPartition(key);
+                            if (!cancellationToken.IsCancellationRequested)
+                            {
+                                ProcessPartition(key);
+                            }
+                            else
+                            {
+                                this.enqueuedKeys.Add(key);
+                                return;
+                            }
                         }
                     }
                     catch (OperationCanceledException)
@@ -93,21 +101,19 @@ namespace Infrastructure.Azure.EventSourcing
             {
                 try
                 {
-                    Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
+                    Trace.TraceError("An error occurred while getting the events pending for publishing for partition {0}:\r\n{1}", key, e);
 
                     // if there was ANY unhandled error, re-add the item to collection.
-                    // this would allow the main Start logic to potentially have some 
-                    // recovery logic and retry processing this key if needed. Currently 
-                    // we're not doing that and the process will just stop and log whatever
-                    // exception happened.
                     this.enqueuedKeys.Add(key);
+
+                    // TODO: throttle for some time so we do not retry immediately? shutdown?
                 }
                 finally
                 {
                     this.throttlingSemaphore.Release();
                 }
 
-                throw;
+                return;
             }
 
             var enumerator = pending.GetEnumerator();
@@ -124,10 +130,6 @@ namespace Infrastructure.Azure.EventSourcing
                         Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
 
                         // if there was ANY unhandled error, re-add the item to collection.
-                        // this would allow the main Start logic to potentially have some 
-                        // recovery logic and retry processing this key if needed. Currently 
-                        // we're not doing that and the process will just stop and log whatever
-                        // exception happened.
                         this.enqueuedKeys.Add(key);
                     }
                     finally
@@ -135,7 +137,7 @@ namespace Infrastructure.Azure.EventSourcing
                         this.throttlingSemaphore.Release();
                     }
 
-                    // TODO shutdown?
+                    // TODO: throttle for some time so we do not retry immediately? shutdown?
                 };
 
             sendNextEvent =
@@ -154,15 +156,9 @@ namespace Infrastructure.Azure.EventSourcing
                         }
                         else
                         {
-                            try
-                            {
-                                // no more elements
-                                disposeEnumerator();
-                            }
-                            finally
-                            {
-                                this.throttlingSemaphore.Release();
-                            }
+                            // no more elements
+                            disposeEnumerator();
+                            this.throttlingSemaphore.Release();
                         }
                     }
                     catch (Exception e)
@@ -207,12 +203,18 @@ namespace Infrastructure.Azure.EventSourcing
             };
         }
 
-        private static IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, Semaphore throttlingSemaphore)
+        private static IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, Semaphore throttlingSemaphore, CancellationToken cancellationToken)
         {
+            throttlingSemaphore.WaitOne();
+
             foreach (var item in enumerable)
             {
-                throttlingSemaphore.WaitOne();
                 yield return item;
+                throttlingSemaphore.WaitOne();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    yield break;
+                }
             }
         }
     }
