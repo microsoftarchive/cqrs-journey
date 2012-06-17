@@ -22,7 +22,6 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Threading;
     using System.Threading.Tasks;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
     using Microsoft.ServiceBus.Messaging;
 
     public class EventStoreBusPublisher : IEventStoreBusPublisher
@@ -32,6 +31,7 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly BlockingCollection<string> enqueuedKeys;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
         private const int MaxDegreeOfParallelism = 5;
+        private readonly Semaphore throttlingSemaphore;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
         {
@@ -39,6 +39,7 @@ namespace Infrastructure.Azure.EventSourcing
             this.queue = queue;
 
             this.enqueuedKeys = new BlockingCollection<string>();
+            this.throttlingSemaphore = new Semaphore(MaxDegreeOfParallelism, MaxDegreeOfParallelism);
         }
 
         public void Start(CancellationToken cancellationToken)
@@ -48,14 +49,10 @@ namespace Infrastructure.Azure.EventSourcing
                 {
                     try
                     {
-                        Parallel.ForEach(
-                            new BlockingCollectionPartitioner<string>(this.enqueuedKeys),
-                            new ParallelOptions
-                            {
-                                MaxDegreeOfParallelism = MaxDegreeOfParallelism,
-                                CancellationToken = cancellationToken,
-                            },
-                            this.ProcessPartition);
+                        foreach (var key in GetThrottlingEnumerable(this.enqueuedKeys.GetConsumingEnumerable(cancellationToken), this.throttlingSemaphore))
+                        {
+                            ProcessPartition(key);
+                        }
                     }
                     catch (OperationCanceledException)
                     {
@@ -94,14 +91,22 @@ namespace Infrastructure.Azure.EventSourcing
             }
             catch (Exception e)
             {
-                Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
+                try
+                {
+                    Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
 
-                // if there was ANY unhandled error, re-add the item to collection.
-                // this would allow the main Start logic to potentially have some 
-                // recovery logic and retry processing this key if needed. Currently 
-                // we're not doing that and the process will just stop and log whatever
-                // exception happened.
-                this.enqueuedKeys.Add(key);
+                    // if there was ANY unhandled error, re-add the item to collection.
+                    // this would allow the main Start logic to potentially have some 
+                    // recovery logic and retry processing this key if needed. Currently 
+                    // we're not doing that and the process will just stop and log whatever
+                    // exception happened.
+                    this.enqueuedKeys.Add(key);
+                }
+                finally
+                {
+                    this.throttlingSemaphore.Release();
+                }
+
                 throw;
             }
 
@@ -113,15 +118,22 @@ namespace Infrastructure.Azure.EventSourcing
             Action<Exception> handleException =
                 ex =>
                 {
-                    disposeEnumerator();
-                    Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
+                    try
+                    {
+                        disposeEnumerator();
+                        Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
 
-                    // if there was ANY unhandled error, re-add the item to collection.
-                    // this would allow the main Start logic to potentially have some 
-                    // recovery logic and retry processing this key if needed. Currently 
-                    // we're not doing that and the process will just stop and log whatever
-                    // exception happened.
-                    this.enqueuedKeys.Add(key);
+                        // if there was ANY unhandled error, re-add the item to collection.
+                        // this would allow the main Start logic to potentially have some 
+                        // recovery logic and retry processing this key if needed. Currently 
+                        // we're not doing that and the process will just stop and log whatever
+                        // exception happened.
+                        this.enqueuedKeys.Add(key);
+                    }
+                    finally
+                    {
+                        this.throttlingSemaphore.Release();
+                    }
 
                     // TODO shutdown?
                 };
@@ -142,13 +154,20 @@ namespace Infrastructure.Azure.EventSourcing
                         }
                         else
                         {
-                            // no more elements
-                            disposeEnumerator();
+                            try
+                            {
+                                // no more elements
+                                disposeEnumerator();
+                            }
+                            finally
+                            {
+                                this.throttlingSemaphore.Release();
+                            }
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        disposeEnumerator();
+                        handleException(e);
                     }
                 };
 
@@ -186,6 +205,15 @@ namespace Infrastructure.Azure.EventSourcing
                         { StandardMetadata.TypeName, record.TypeName },
                     }
             };
+        }
+
+        private static IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, Semaphore throttlingSemaphore)
+        {
+            foreach (var item in enumerable)
+            {
+                throttlingSemaphore.WaitOne();
+                yield return item;
+            }
         }
     }
 }
