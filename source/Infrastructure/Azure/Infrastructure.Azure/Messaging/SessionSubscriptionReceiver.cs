@@ -186,12 +186,12 @@ namespace Infrastructure.Azure.Messaging
                         if (session != null)
                         {
                             // starts a new task to process new sessions in parallel when enough threads are available
-                            Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
+                            Task.Factory.StartNew(() => this.AcceptSession(cancellationToken), cancellationToken);
                             this.ReceiveMessagesAndCloseSession(session, cancellationToken);
                         }
                         else
                         {
-                            this.AcceptSession(this.cancellationSource.Token);
+                            this.AcceptSession(cancellationToken);
                         }
                     },
                     recoverAcceptSession);
