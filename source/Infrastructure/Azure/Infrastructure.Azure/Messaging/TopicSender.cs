@@ -120,7 +120,6 @@ namespace Infrastructure.Azure.Messaging
                 () => resetEvent.Set(),
                 ex =>
                 {
-                    Trace.TraceError("An unrecoverable error occurred while trying to send a message:\r\n{0}", ex);
                     exception = ex;
                     resetEvent.Set();
                 });
