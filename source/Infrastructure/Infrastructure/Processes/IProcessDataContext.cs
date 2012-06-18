@@ -28,7 +28,6 @@ namespace Infrastructure.Processes
         // TODO: queryability to reload processes from correlation ids, etc. 
         // Is this appropriate? How do others reload processes? (MassTransit 
         // uses this kind of queryable thinghy, apparently).
-        //IEnumerable<T> Query(Expression<Func<T, bool>> predicate)
-        T Find(Expression<Func<T, bool>> predicate);
+        T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false);
     }
 }

@@ -41,7 +41,7 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                var process = context.Find(x => x.OrderId == @event.SourceId);
                 if (process == null)
                 {
                     process = new RegistrationProcess();
@@ -56,7 +56,7 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                var process = context.Find(x => x.OrderId == @event.SourceId);
                 if (process != null)
                 {
                     process.Handle(@event);
@@ -74,7 +74,7 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId && x.Completed == false);
+                var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId);
                 if (process != null)
                 {
                     process.Handle(envelope);
@@ -93,7 +93,7 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.OrderId == @event.SourceId && x.Completed == false);
+                var process = context.Find(x => x.OrderId == @event.SourceId);
                 if (process != null)
                 {
                     process.Handle(@event);
@@ -112,7 +112,7 @@ namespace Registration
             using (var context = this.contextFactory.Invoke())
             {
                 // TODO should not skip the completed processes and move them to a "manual intervention" state
-                var process = context.Find(x => x.OrderId == @event.PaymentSourceId && x.Completed == false);
+                var process = context.Find(x => x.OrderId == @event.PaymentSourceId);
                 if (process != null)
                 {
                     process.Handle(@event);
@@ -130,7 +130,7 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.Id == command.ProcessId && x.Completed == false);
+                var process = context.Find(x => x.Id == command.ProcessId);
                 if (process != null)
                 {
                     process.Handle(command);
