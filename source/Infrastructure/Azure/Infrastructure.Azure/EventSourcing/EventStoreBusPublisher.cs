@@ -15,14 +15,13 @@ namespace Infrastructure.Azure.EventSourcing
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
-    using Infrastructure.Util;
     using Microsoft.ServiceBus.Messaging;
 
     public class EventStoreBusPublisher : IEventStoreBusPublisher
@@ -32,6 +31,7 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly BlockingCollection<string> enqueuedKeys;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
         private const int MaxDegreeOfParallelism = 5;
+        private readonly Semaphore throttlingSemaphore;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
         {
@@ -39,6 +39,7 @@ namespace Infrastructure.Azure.EventSourcing
             this.queue = queue;
 
             this.enqueuedKeys = new BlockingCollection<string>();
+            this.throttlingSemaphore = new Semaphore(MaxDegreeOfParallelism, MaxDegreeOfParallelism);
         }
 
         public void Start(CancellationToken cancellationToken)
@@ -48,14 +49,18 @@ namespace Infrastructure.Azure.EventSourcing
                 {
                     try
                     {
-                        Parallel.ForEach(
-                            new BlockingCollectionPartitioner<string>(this.enqueuedKeys),
-                            new ParallelOptions
+                        foreach (var key in GetThrottlingEnumerable(this.enqueuedKeys.GetConsumingEnumerable(cancellationToken), this.throttlingSemaphore, cancellationToken))
+                        {
+                            if (!cancellationToken.IsCancellationRequested)
                             {
-                                MaxDegreeOfParallelism = MaxDegreeOfParallelism,
-                                CancellationToken = cancellationToken,
-                            },
-                            this.ProcessPartition);
+                                ProcessPartition(key);
+                            }
+                            else
+                            {
+                                this.enqueuedKeys.Add(key);
+                                return;
+                            }
+                        }
                     }
                     catch (OperationCanceledException)
                     {
@@ -86,31 +91,94 @@ namespace Infrastructure.Azure.EventSourcing
 
         private void ProcessPartition(string key)
         {
+            IEnumerable<IEventRecord> pending;
+
             try
             {
-                var pending = this.queue.GetPending(key).AsCachedAnyEnumerable();
-                if (pending.Any())
-                {
-                    foreach (var record in pending)
-                    {
-                        var item = record;
-                        this.sender.Send(() => BuildMessage(item));
-                        this.queue.DeletePending(item.PartitionKey, item.RowKey);
-                    }
-                }
+                pending = this.queue.GetPending(key);
             }
             catch (Exception e)
             {
-                Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, e);
+                try
+                {
+                    Trace.TraceError("An error occurred while getting the events pending for publishing for partition {0}:\r\n{1}", key, e);
 
-                // if there was ANY unhandled error, re-add the item to collection.
-                // this would allow the main Start logic to potentially have some 
-                // recovery logic and retry processing this key if needed. Currently 
-                // we're not doing that and the process will just stop and log whatever
-                // exception happened.
-                this.enqueuedKeys.Add(key);
-                throw;
+                    // if there was ANY unhandled error, re-add the item to collection.
+                    this.enqueuedKeys.Add(key);
+
+                    // TODO: throttle for some time so we do not retry immediately? shutdown?
+                }
+                finally
+                {
+                    this.throttlingSemaphore.Release();
+                }
+
+                return;
             }
+
+            var enumerator = pending.GetEnumerator();
+
+            Action sendNextEvent = null;
+            Action deletePending = null;
+            Action disposeEnumerator = () => { using (enumerator as IDisposable) { } };
+            Action<Exception> handleException =
+                ex =>
+                {
+                    try
+                    {
+                        disposeEnumerator();
+                        Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
+
+                        // if there was ANY unhandled error, re-add the item to collection.
+                        this.enqueuedKeys.Add(key);
+                    }
+                    finally
+                    {
+                        this.throttlingSemaphore.Release();
+                    }
+
+                    // TODO: throttle for some time so we do not retry immediately? shutdown?
+                };
+
+            sendNextEvent =
+                () =>
+                {
+                    try
+                    {
+                        if (enumerator.MoveNext())
+                        {
+                            var item = enumerator.Current;
+
+                            this.sender.SendAsync(
+                                () => BuildMessage(item),
+                                deletePending,
+                                handleException);
+                        }
+                        else
+                        {
+                            // no more elements
+                            disposeEnumerator();
+                            this.throttlingSemaphore.Release();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        handleException(e);
+                    }
+                };
+
+            deletePending =
+                () =>
+                {
+                    var item = enumerator.Current;
+                    this.queue.DeletePendingAsync(
+                        item.PartitionKey,
+                        item.RowKey,
+                        sendNextEvent,
+                        handleException);
+                };
+
+            sendNextEvent();
         }
 
         private static BrokeredMessage BuildMessage(IEventRecord record)
@@ -133,6 +201,21 @@ namespace Infrastructure.Azure.EventSourcing
                         { StandardMetadata.TypeName, record.TypeName },
                     }
             };
+        }
+
+        private static IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, Semaphore throttlingSemaphore, CancellationToken cancellationToken)
+        {
+            throttlingSemaphore.WaitOne();
+
+            foreach (var item in enumerable)
+            {
+                yield return item;
+                throttlingSemaphore.WaitOne();
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    yield break;
+                }
+            }
         }
     }
 }

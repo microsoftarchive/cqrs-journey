@@ -82,7 +82,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         [Fact]
         public void then_deletes_message_after_publishing()
         {
-            queue.Verify(q => q.DeletePending(partitionKey, testEvent.RowKey));
+            queue.Verify(q => q.DeletePendingAsync(partitionKey, testEvent.RowKey, It.IsAny<Action>(), It.IsAny<Action<Exception>>()));
         }
     }
 
@@ -153,7 +153,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         {
             for (int i = 0; i < pendingKeys.Length; i++)
             {
-                queue.Verify(q => q.DeletePending(pendingKeys[i], rowKey));
+                queue.Verify(q => q.DeletePendingAsync(pendingKeys[i], rowKey, It.IsAny<Action>(), It.IsAny<Action<Exception>>()));
             }
         }
     }
@@ -187,6 +187,14 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                                         && x.Payload == "serialized event")
                            });
             queue.Setup(x => x.GetPartitionsWithPendingEvents()).Returns(Enumerable.Empty<string>());
+            queue
+                .Setup(x =>
+                    x.DeletePendingAsync(
+                        It.IsAny<string>(),
+                        It.IsAny<string>(),
+                        It.IsAny<Action>(),
+                        It.IsAny<Action<Exception>>()))
+                .Callback<string, string, Action, Action<Exception>>((p, r, s, e) => s());
             this.sender = new MessageSenderMock();
             this.sut = new EventStoreBusPublisher(sender, queue.Object);
             this.cancellationTokenSource = new CancellationTokenSource();

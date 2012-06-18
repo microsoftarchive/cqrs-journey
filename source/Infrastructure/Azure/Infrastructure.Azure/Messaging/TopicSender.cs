@@ -76,20 +76,7 @@ namespace Infrastructure.Azure.Messaging
             // TODO: SendAsync is not currently being used by the app or infrastructure.
             // Consider removing or have a callback notifying the result.
             // Always send async.
-            this.retryPolicy.ExecuteAction(
-                ac =>
-                {
-                    this.DoBeginSendMessage(messageFactory(), ac);
-                },
-                ar =>
-                {
-                    this.DoEndSendMessage(ar);
-                },
-                () => { },
-                ex =>
-                {
-                    Trace.TraceError("An unrecoverable error occurred while trying to send a message:\r\n{0}", ex);
-                });
+            this.SendAsync(messageFactory, () => { }, ex => { });
         }
 
         public void SendAsync(IEnumerable<Func<BrokeredMessage>> messageFactories)
@@ -101,10 +88,8 @@ namespace Infrastructure.Azure.Messaging
             }
         }
 
-        public void Send(Func<BrokeredMessage> messageFactory)
+        public void SendAsync(Func<BrokeredMessage> messageFactory, Action successCallback, Action<Exception> exceptionCallback)
         {
-            var resetEvent = new ManualResetEvent(false);
-            Exception exception = null;
             this.retryPolicy.ExecuteAction(
                 ac =>
                 {
@@ -114,10 +99,27 @@ namespace Infrastructure.Azure.Messaging
                 {
                     this.DoEndSendMessage(ar);
                 },
-                () => resetEvent.Set(),
+                () =>
+                {
+                    successCallback();
+                },
                 ex =>
                 {
                     Trace.TraceError("An unrecoverable error occurred while trying to send a message:\r\n{0}", ex);
+                    exceptionCallback(ex);
+                });
+        }
+
+        public void Send(Func<BrokeredMessage> messageFactory)
+        {
+            var resetEvent = new ManualResetEvent(false);
+            Exception exception = null;
+
+            this.SendAsync(
+                messageFactory,
+                () => resetEvent.Set(),
+                ex =>
+                {
                     exception = ex;
                     resetEvent.Set();
                 });
