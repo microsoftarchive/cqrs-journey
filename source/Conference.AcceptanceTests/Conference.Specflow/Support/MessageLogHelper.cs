@@ -88,6 +88,31 @@ namespace Conference.Specflow.Support
             return CollectEvents<T>(new[] { sourceId.ToString() }, count);
         }
 
+        public static bool CollectEvents<T>(ICollection<string> sourceIds, int count) where T : IEvent
+        {
+            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+            int collected;
+            do
+            {
+                collected = GetEvents<T>(sourceIds).Count();
+                Thread.Sleep(100);
+            } while (collected != count && DateTime.Now < timeout);
+
+            return collected == count;
+        }
+
+        public static bool CollectEvents<T>(Func<T, bool> predicate) where T : IEvent
+        {
+            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
+            var criteria = new QueryCriteria { FullNames = { typeof(T).FullName } };
+            bool found;
+            while (!(found = eventLog.Query(criteria).OfType<T>().ToList().Any(predicate)) && DateTime.Now < timeout)
+            {
+                Thread.Sleep(100);
+            }
+            return found;
+        }
+
         public static bool CollectCommands<T>(Guid sourceId, int count) where T : ICommand
         {
             return CollectCommands<T>(new[] { sourceId.ToString() }, count);
@@ -116,19 +141,6 @@ namespace Conference.Specflow.Support
                 Thread.Sleep(100);
             }
             return found;
-        }
-
-        public static bool CollectEvents<T>(ICollection<string> sourceIds, int count) where T : IEvent
-        {
-            var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);
-            int collected;
-            do
-            {
-                collected = GetEvents<T>(sourceIds).Count();
-                Thread.Sleep(100);
-            } while (collected != count && DateTime.Now < timeout);
-
-            return collected == count;
         }
     }
 }

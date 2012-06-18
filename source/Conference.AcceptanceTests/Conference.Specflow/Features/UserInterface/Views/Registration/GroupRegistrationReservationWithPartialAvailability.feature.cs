@@ -77,15 +77,15 @@ namespace Conference.Specflow.Features.UserInterface.Views.Registration
             table1.AddRow(new string[] {
                         "General admission",
                         "$199",
-                        "100"});
+                        "20"});
             table1.AddRow(new string[] {
                         "CQRS Workshop",
                         "$500",
-                        "100"});
+                        "20"});
             table1.AddRow(new string[] {
                         "Additional cocktail party",
                         "$50",
-                        "100"});
+                        "20"});
 #line 21
   testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
@@ -196,7 +196,7 @@ this.FeatureBackground();
                         "quantity"});
             table6.AddRow(new string[] {
                         "CQRS Workshop",
-                        "90"});
+                        "10"});
             table6.AddRow(new string[] {
                         "Additional cocktail party",
                         ""});
@@ -272,13 +272,13 @@ this.FeatureBackground();
                         "quantity"});
             table10.AddRow(new string[] {
                         "General admission",
-                        "100"});
+                        "20"});
             table10.AddRow(new string[] {
                         "CQRS Workshop",
-                        "90"});
+                        "10"});
             table10.AddRow(new string[] {
                         "Additional cocktail party",
-                        "90"});
+                        "10"});
 #line 80
  testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table10);
 #line 85

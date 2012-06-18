@@ -30,3 +30,6 @@ When the Business Customer proceed to create the Seat Types
 Then the new Seat Types with this information are created
 | Name   | Description       | Quantity | Price |
 | GENADM | General admission | 100      | 199   |
+
+
+
