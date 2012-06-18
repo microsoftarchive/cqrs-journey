@@ -62,7 +62,7 @@ namespace Conference.Specflow.Support
             var controller = new RegistrationController(ConferenceHelper.BuildCommandBus(), orderDao, conferenceDao);
             controller.ControllerContext = new ControllerContext(context, routeData, controller);
             controller.Url = new UrlHelper(new RequestContext(context, routeData), routes);
-
+            
             return controller;
         }
 

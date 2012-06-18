@@ -72,3 +72,5 @@ When the Business Customer proceed to save the new information
 Then an error message will show up describing that the quota value exceeds the total seats for the specified Seat Type
 
 
+
+

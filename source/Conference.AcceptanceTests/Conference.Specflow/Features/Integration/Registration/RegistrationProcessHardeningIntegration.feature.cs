@@ -79,15 +79,15 @@ namespace Conference.Specflow.Features.Integration.Registration
             table1.AddRow(new string[] {
                         "General admission",
                         "$199",
-                        "100"});
+                        "20"});
             table1.AddRow(new string[] {
                         "CQRS Workshop",
                         "$500",
-                        "100"});
+                        "20"});
             table1.AddRow(new string[] {
                         "Additional cocktail party",
                         "$50",
-                        "100"});
+                        "20"});
 #line 29
 testRunner.Given("the list of the available Order Items for the CQRS summit 2012 conference", ((string)(null)), table1);
 #line hidden
@@ -179,38 +179,6 @@ testRunner.And("the command for completing the payment process is sent");
 testRunner.Then("the event for confirming the payment is emitted");
 #line 71
 testRunner.And("the event for confirming the Order is not emitted");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
-            "ions and failures")]
-        [Xunit.TraitAttribute("Description", "Execute the Payment process after all seats are reserved")]
-        public virtual void ExecuteThePaymentProcessAfterAllSeatsAreReserved()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Execute the Payment process after all seats are reserved", ((string[])(null)));
-#line 74
-this.ScenarioSetup(scenarioInfo);
-#line 28
-this.FeatureBackground();
-#line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
-                        "seat type"});
-            table3.AddRow(new string[] {
-                        "General admission"});
-            table3.AddRow(new string[] {
-                        "Additional cocktail party"});
-#line 75
-testRunner.Given("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table3);
-#line 79
-testRunner.And("the command to register the selected Order Items is sent");
-#line 81
-testRunner.When("the command for initiate the payment is sent");
-#line 83
-testRunner.And("the command for completing the payment process is sent");
-#line 85
-testRunner.Then("the event for partially confirming the order with no available seats is emitted");
 #line hidden
             this.ScenarioCleanup();
         }

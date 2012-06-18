@@ -20,6 +20,16 @@ Feature:  Conference configuration scenarios for creating and editing Conference
 Background: 
 Given the Business Customer selected the Create Conference option
 
+Scenario: A new Conference is created with the required information
+Given this conference information
+| Owner         | Email                    | Name      | Description                          | Slug   | Start      | End        |
+| Gregory Weber | gregoryweber@contoso.com | CQRS2012P | CQRS summit 2012 conference (Create) | random | 05/02/2012 | 05/12/2012 |
+When the Business Customer proceed to create the Conference
+Then following details will be shown for the created Conference
+| Owner         | Email                    | AccessCode |
+| Gregory Weber | gregoryweber@contoso.com | random     |
+
+
 Scenario: An existing unpublished Conference is selected and published
 Given this conference information
 | Owner         | Email                    | Name      | Description                             | Slug   | Start      | End        |
@@ -27,6 +37,7 @@ Given this conference information
 And the Business Customer proceed to create the Conference
 When the Business Customer proceed to publish the Conference
 Then the state of the Conference change to Published
+
 
 Scenario: An existing Conference is edited and updated
 Given an existing published conference with this information

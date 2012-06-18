@@ -83,10 +83,10 @@ testRunner.Given("the Business Customer selected the Create Conference option");
         
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings")]
-        [Xunit.TraitAttribute("Description", "An existing unpublished Conference is selected and published")]
-        public virtual void AnExistingUnpublishedConferenceIsSelectedAndPublished()
+        [Xunit.TraitAttribute("Description", "A new Conference is created with the required information")]
+        public virtual void ANewConferenceIsCreatedWithTheRequiredInformation()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("An existing unpublished Conference is selected and published", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("A new Conference is created with the required information", ((string[])(null)));
 #line 23
 this.ScenarioSetup(scenarioInfo);
 #line 20
@@ -104,17 +104,63 @@ this.FeatureBackground();
                         "Gregory Weber",
                         "gregoryweber@contoso.com",
                         "CQRS2012P",
-                        "CQRS summit 2012 conference (Published)",
+                        "CQRS summit 2012 conference (Create)",
                         "random",
                         "05/02/2012",
                         "05/12/2012"});
 #line 24
 testRunner.Given("this conference information", ((string)(null)), table1);
 #line 27
-testRunner.And("the Business Customer proceed to create the Conference");
+testRunner.When("the Business Customer proceed to create the Conference");
+#line hidden
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Owner",
+                        "Email",
+                        "AccessCode"});
+            table2.AddRow(new string[] {
+                        "Gregory Weber",
+                        "gregoryweber@contoso.com",
+                        "random"});
 #line 28
+testRunner.Then("following details will be shown for the created Conference", ((string)(null)), table2);
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [Xunit.FactAttribute()]
+        [Xunit.TraitAttribute("FeatureTitle", "Conference configuration scenarios for creating and editing Conference settings")]
+        [Xunit.TraitAttribute("Description", "An existing unpublished Conference is selected and published")]
+        public virtual void AnExistingUnpublishedConferenceIsSelectedAndPublished()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("An existing unpublished Conference is selected and published", ((string[])(null)));
+#line 33
+this.ScenarioSetup(scenarioInfo);
+#line 20
+this.FeatureBackground();
+#line hidden
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Owner",
+                        "Email",
+                        "Name",
+                        "Description",
+                        "Slug",
+                        "Start",
+                        "End"});
+            table3.AddRow(new string[] {
+                        "Gregory Weber",
+                        "gregoryweber@contoso.com",
+                        "CQRS2012P",
+                        "CQRS summit 2012 conference (Published)",
+                        "random",
+                        "05/02/2012",
+                        "05/12/2012"});
+#line 34
+testRunner.Given("this conference information", ((string)(null)), table3);
+#line 37
+testRunner.And("the Business Customer proceed to create the Conference");
+#line 38
 testRunner.When("the Business Customer proceed to publish the Conference");
-#line 29
+#line 39
 testRunner.Then("the state of the Conference change to Published");
 #line hidden
             this.ScenarioCleanup();
@@ -126,12 +172,12 @@ testRunner.Then("the state of the Conference change to Published");
         public virtual void AnExistingConferenceIsEditedAndUpdated()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("An existing Conference is edited and updated", ((string[])(null)));
-#line 31
+#line 42
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
-            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "Owner",
                         "Email",
                         "Name",
@@ -139,7 +185,7 @@ this.FeatureBackground();
                         "Slug",
                         "Start",
                         "End"});
-            table2.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "Gregory Weber",
                         "gregoryweber@contoso.com",
                         "CQRS2012U",
@@ -147,25 +193,25 @@ this.FeatureBackground();
                         "random",
                         "05/02/2012",
                         "05/12/2012"});
-#line 32
-testRunner.Given("an existing published conference with this information", ((string)(null)), table2);
+#line 43
+testRunner.Given("an existing published conference with this information", ((string)(null)), table4);
 #line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "Description"});
-            table3.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "CQRS summit 2012 conference (Updated)"});
-#line 35
+#line 46
 testRunner.And("the Business Customer proceed to edit the existing settigns with this information" +
-                    "", ((string)(null)), table3);
-#line 38
+                    "", ((string)(null)), table5);
+#line 49
 testRunner.When("the Business Customer proceed to save the changes");
 #line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "Description"});
-            table4.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "CQRS summit 2012 conference (Updated)"});
-#line 39
-testRunner.Then("this information is show up in the Conference settings", ((string)(null)), table4);
+#line 50
+testRunner.Then("this information is show up in the Conference settings", ((string)(null)), table6);
 #line hidden
             this.ScenarioCleanup();
         }
@@ -176,12 +222,12 @@ testRunner.Then("this information is show up in the Conference settings", ((stri
         public virtual void AccessAnExistingConference()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Access an existing Conference", ((string[])(null)));
-#line 44
+#line 55
 this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
-            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "Owner",
                         "Email",
                         "Name",
@@ -189,7 +235,7 @@ this.FeatureBackground();
                         "Slug",
                         "Start",
                         "End"});
-            table5.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "Gregory Weber",
                         "gregoryweber@contoso.com",
                         "CQRS2012A",
@@ -197,12 +243,12 @@ this.FeatureBackground();
                         "random",
                         "05/02/2012",
                         "05/12/2012"});
-#line 45
-testRunner.Given("an existing published conference with this information", ((string)(null)), table5);
-#line 48
+#line 56
+testRunner.Given("an existing published conference with this information", ((string)(null)), table7);
+#line 59
 testRunner.When("the Business Customer proceed to get access to the conference settings");
 #line hidden
-            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                         "Owner",
                         "Email",
                         "Name",
@@ -210,7 +256,7 @@ testRunner.When("the Business Customer proceed to get access to the conference s
                         "Slug",
                         "Start",
                         "End"});
-            table6.AddRow(new string[] {
+            table8.AddRow(new string[] {
                         "Gregory Weber",
                         "gregoryweber@contoso.com",
                         "CQRS2012A",
@@ -218,8 +264,8 @@ testRunner.When("the Business Customer proceed to get access to the conference s
                         "random",
                         "05/02/2012",
                         "05/12/2012"});
-#line 49
-testRunner.Then("this information is show up in the Conference settings", ((string)(null)), table6);
+#line 60
+testRunner.Then("this information is show up in the Conference settings", ((string)(null)), table8);
 #line hidden
             this.ScenarioCleanup();
         }

@@ -57,7 +57,9 @@ namespace Conference.Specflow.Steps
             {
                 var orderItemViewModel = orderViewModel.Items.FirstOrDefault(s => s.SeatType.Description == row["seat type"]);
                 Assert.NotNull(orderItemViewModel);
-                registration.Seats.Add(new SeatQuantity(orderItemViewModel.SeatType.Id, Int32.Parse(row["quantity"])));
+                int qt;
+                if (!row.ContainsKey("quantity") || !Int32.TryParse(row["quantity"], out qt)) qt = orderItemViewModel.SeatType.Quantity;
+                registration.Seats.Add(new SeatQuantity(orderItemViewModel.SeatType.Id, qt));
             }
 
             // Store for sharing between steps implementations
@@ -113,9 +115,15 @@ namespace Conference.Specflow.Steps
         [Given(@"the Registrant enter these details")]  
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
-            registrationViewModel.RegistrantDetails.FirstName = table.Rows[0]["first name"];
-            registrationViewModel.RegistrantDetails.LastName = table.Rows[0]["last name"];
-            registrationViewModel.RegistrantDetails.Email = table.Rows[0]["email address"];
+            GivenTheRegistrantEnterTheseDetails(table.Rows[0]["first name"], table.Rows[0]["last name"],
+                                                table.Rows[0]["email address"]);
+        }
+
+        public void GivenTheRegistrantEnterTheseDetails(string firstName, string lastName, string email)
+        {
+            registrationViewModel.RegistrantDetails.FirstName = firstName;
+            registrationViewModel.RegistrantDetails.LastName = lastName;
+            registrationViewModel.RegistrantDetails.Email = email;
         }
 
         [Given(@"the Registrant proceed to Checkout:Payment")]

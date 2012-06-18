@@ -95,11 +95,7 @@ namespace Conference.Specflow.Steps
         [Then(@"the command for marking the selected Seats as reserved is received")]
         public void ThenTheCommandForMarkingTheSelectedSeatsAsReservedIsReceived()
         {
-            //MarkSeatsAsReserved
-            var repository = EventSourceHelper.GetRepository<Registration.Order>();
-            var order = repository.Find(orderId);
-
-            Assert.NotNull(order);
+            Assert.True(MessageLogHelper.CollectCommands<MarkSeatsAsReserved>(c => c.OrderId == orderId));
         }
 
         [Then(@"these Order Items should be reserved")]
