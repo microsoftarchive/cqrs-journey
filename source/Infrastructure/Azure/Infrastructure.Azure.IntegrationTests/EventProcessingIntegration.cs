@@ -115,7 +115,7 @@ namespace Infrastructure.Azure.IntegrationTests.EventBusIntegration
         [Fact]
         public void when_receiving_not_registered_event_then_ignores()
         {
-            var receiverMock = new Mock<SubscriptionReceiver>(this.Settings, this.Topic, this.Subscription);
+            var receiverMock = new Mock<SubscriptionReceiver>(this.Settings, this.Topic, this.Subscription, false);
             var processor = new EventProcessor(receiverMock.Object, new JsonTextSerializer());
             var bus = new EventBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 

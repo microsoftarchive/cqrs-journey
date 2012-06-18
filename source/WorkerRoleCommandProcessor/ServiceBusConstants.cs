@@ -51,7 +51,7 @@ namespace WorkerRoleCommandProcessor
 				/// <summary>
 				/// Registration.RegistrationProcessRouter
 				/// </summary>
-				public const string RegistrationProcessRouter = "Registration.RegistrationProcessRouter";
+				public const string RegistrationProcessRouterV3 = "Registration.RegistrationProcessRouterV3";
 				/// <summary>
 				/// Registration.OrderViewModelGenerator
 				/// </summary>

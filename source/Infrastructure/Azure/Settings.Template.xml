@@ -2,38 +2,39 @@
 <!-- Copy this template file as Settings.xml and replace the 
     placeholders with your Azure access information -->
 <InfrastructureSettings xmlns="urn:microsoft-patterns-and-practices-cqrsjourney">
-    <ServiceBus>
-        <ServiceUriScheme>sb</ServiceUriScheme>
-        <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
-        <ServicePath></ServicePath>
-        <TokenIssuer>owner</TokenIssuer>
-        <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
-        <Topics>
-            <Topic Path="conference/commands">
-                <Subscription Name="all" RequiresSession="false"/>
-                <Subscription Name="log" RequiresSession="false"/>
-            </Topic>
-            <Topic Path="conference/events" IsEventBus="true">
-                <Subscription Name="log" RequiresSession="false"/>
-                <Subscription Name="Registration.RegistrationProcessRouter" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','SeatsReserved','PaymentCompleted','OrderConfirmed')"/>
-                <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed','OrderTotalsCalculated')"/>
-                <Subscription Name="Registration.PricedOrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatCreated','SeatUpdated')"/>
-                <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('ConferenceCreated','ConferenceUpdated','ConferencePublished','ConferenceUnpublished','SeatCreated','SeatUpdated','AvailableSeatsChanged','SeatsReserved','SeatsReservationCancelled')"/>
-                <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
-                <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderConfirmed','OrderPaymentConfirmed')"/>
-                <Subscription Name="Conference.OrderEventHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderRegistrantAssigned','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatAssigned','SeatAssignmentUpdated','SeatUnassigned')"/>
-            </Topic>
-        </Topics>
-    </ServiceBus>
-    <EventSourcing>
-        <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
-        <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
-        <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
-        <TableName>ConferenceEventStore</TableName>
-    </EventSourcing>
-    <MessageLog>
-        <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
-        <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
-        <TableName>ConferenceMessageLog</TableName>
-    </MessageLog>
+  <ServiceBus>
+    <ServiceUriScheme>sb</ServiceUriScheme>
+    <ServiceNamespace>[YOUR_NAMESPACE]</ServiceNamespace>
+    <ServicePath></ServicePath>
+    <TokenIssuer>owner</TokenIssuer>
+    <TokenAccessKey>[YOUR_TOKEN_ACCESS_KEY]</TokenAccessKey>
+    <Topics>
+      <Topic Path="conference/commands">
+        <Subscription Name="all" RequiresSession="false"/>
+        <Subscription Name="log" RequiresSession="false"/>
+      </Topic>
+      <Topic Path="conference/events" IsEventBus="true">
+        <Subscription Name="log" RequiresSession="false"/>
+        <!-- stop using this subscription --><Subscription Name="Registration.RegistrationProcessRouter" RequiresSession="true" SqlFilter="1=0"/>
+        <Subscription Name="Registration.RegistrationProcessRouterV3" RequiresSession="false" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','SeatsReserved','PaymentCompleted','OrderConfirmed')"/>
+        <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed','OrderTotalsCalculated')"/>
+        <Subscription Name="Registration.PricedOrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatCreated','SeatUpdated')"/>
+        <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('ConferenceCreated','ConferenceUpdated','ConferencePublished','ConferenceUnpublished','SeatCreated','SeatUpdated','AvailableSeatsChanged','SeatsReserved','SeatsReservationCancelled')"/>
+        <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
+        <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderConfirmed','OrderPaymentConfirmed')"/>
+        <Subscription Name="Conference.OrderEventHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderRegistrantAssigned','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatAssigned','SeatAssignmentUpdated','SeatUnassigned')"/>
+      </Topic>
+    </Topics>
+  </ServiceBus>
+  <EventSourcing>
+    <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
+    <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+    <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
+    <TableName>ConferenceEventStore</TableName>
+  </EventSourcing>
+  <MessageLog>
+    <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+    <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
+    <TableName>ConferenceMessageLog</TableName>
+  </MessageLog>
 </InfrastructureSettings>
