@@ -115,9 +115,16 @@ namespace Infrastructure.Azure.Tests.Mocks
             throw new NotImplementedException();
         }
 
-        void IMessageSender.SendAsync(IEnumerable<Func<BrokeredMessage>> messageFactories)
+        void IMessageSender.SendAsync(Func<BrokeredMessage> messageFactory, Action successCallback, Action<Exception> exceptionCallback)
         {
-            throw new NotImplementedException();
+            ThreadPool.QueueUserWorkItem(
+                _ =>
+                {
+                    if (SendWaitHandle != null) SendWaitHandle.WaitOne(10000);
+                    this.Sent.Add(messageFactory.Invoke());
+                    this.SendSignal.Set();
+                    successCallback();
+                });
         }
     }
 }

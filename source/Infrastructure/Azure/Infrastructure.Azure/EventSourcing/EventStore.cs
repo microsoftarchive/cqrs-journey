@@ -131,30 +131,33 @@ namespace Infrastructure.Azure.EventSourcing
             return this.pendingEventsQueueRetryPolicy.ExecuteAction(() => query.Execute());
         }
 
-        public void DeletePending(string partitionKey, string rowKey)
+        public void DeletePendingAsync(string partitionKey, string rowKey, Action successCallback, Action<Exception> exceptionCallback)
         {
             var context = this.tableClient.GetDataServiceContext();
             var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
             context.AttachTo(this.tableName, item, "*");
             context.DeleteObject(item);
-            this.pendingEventsQueueRetryPolicy.ExecuteAction(() =>
-                {
-                    try
+
+            this.pendingEventsQueueRetryPolicy.ExecuteAction(
+                ac => context.BeginSaveChanges(ac, null),
+                ar => 
                     {
-                        context.SaveChanges();
-                    }
-                    catch (DataServiceRequestException ex)
-                    {
-                        var inner = ex.InnerException as DataServiceClientException;
-                        if (inner != null && inner.StatusCode == (int)HttpStatusCode.NotFound)
+                        try
+                        {
+                            context.EndSaveChanges(ar);
+                        }
+                        catch (DataServiceRequestException ex)
                         {
                             // ignore if entity was already deleted.
-                            return;
+                            var inner = ex.InnerException as DataServiceClientException;
+                            if (inner == null || inner.StatusCode != (int)HttpStatusCode.NotFound)
+                            {
+                                throw;
+                            }
                         }
-
-                        throw;
-                    }
-                });
+                    },
+                successCallback,
+                exceptionCallback);
         }
 
         private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)

@@ -17,6 +17,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
@@ -191,7 +192,8 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         public void when_deleting_pending_then_can_get_list_without_item()
         {
             var pending = sut.GetPending(this.partitionKey).ToList();
-            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
+
+            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
 
             pending = sut.GetPending(this.partitionKey).ToList();
 
@@ -215,9 +217,9 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         public void can_delete_item_several_times_for_idempotency()
         {
             var pending = sut.GetPending(this.partitionKey).ToList();
-            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
-            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
-            sut.DeletePending(pending[0].PartitionKey, pending[0].RowKey);
+            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
+            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
+            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
 
             pending = sut.GetPending(this.partitionKey).ToList();
 
@@ -226,6 +228,13 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal("Payload2", pending[0].Payload);
             Assert.Equal("Test2", pending[0].TypeName);
             Assert.Equal("Source", pending[0].SourceType);
+        }
+
+        private void DeletePendingAndWait(EventStore sut, string partitionKey, string rowKey)
+        {
+            var resetEvent = new AutoResetEvent(false);
+            sut.DeletePendingAsync(partitionKey, rowKey, () => resetEvent.Set(), Assert.Null);
+            Assert.True(resetEvent.WaitOne(5000));
         }
     }
 
