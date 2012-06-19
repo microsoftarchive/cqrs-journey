@@ -43,15 +43,15 @@ namespace Infrastructure.Azure.Messaging
             var serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
             var namespaceManager = new NamespaceManager(serviceUri, tokenProvider);
 
-            foreach (var topic in this.settings.Topics)
+            this.settings.Topics.AsParallel().ForAll(topic =>
             {
                 retryPolicy.ExecuteAction(() => CreateTopicIfNotExists(namespaceManager, topic));
-                foreach (var subscription in topic.Subscriptions)
+                topic.Subscriptions.AsParallel().ForAll(subscription =>
                 {
                     retryPolicy.ExecuteAction(() => CreateSubscriptionIfNotExists(namespaceManager, topic, subscription));
                     retryPolicy.ExecuteAction(() => UpdateRules(namespaceManager, topic, subscription));
-                }
-            }
+                });
+            });
 
             this.initialized = true;
         }
