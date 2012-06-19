@@ -78,6 +78,12 @@ namespace Infrastructure.Azure.Messaging
                 message.CorrelationId = command.CorrelationId;
             }
 
+            var sessionProvider = command.Body as IMessageSessionProvider;
+            if (sessionProvider != null)
+            {
+                message.SessionId = sessionProvider.SessionId;
+            }
+
             var metadata = this.metadataProvider.GetMetadata(command.Body);
             if (metadata != null)
             {

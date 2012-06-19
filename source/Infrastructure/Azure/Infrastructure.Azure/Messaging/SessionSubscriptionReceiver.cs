@@ -37,7 +37,8 @@ namespace Infrastructure.Azure.Messaging
         private readonly Uri serviceUri;
         private readonly ServiceBusSettings settings;
         private readonly string topic;
-        private string subscription;
+        private readonly string subscription;
+        private readonly bool requiresSequentialProcessing;
         private readonly object lockObject = new object();
         private readonly RetryPolicy receiveRetryPolicy;
         private CancellationTokenSource cancellationSource;
@@ -47,11 +48,12 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        public SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription)
+        public SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool requiresSequentialProcessing = true)
             : this(
                 settings,
                 topic,
                 subscription,
+                requiresSequentialProcessing,
                 new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
@@ -60,11 +62,12 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SessionSubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy)
+        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool requiresSequentialProcessing, RetryStrategy backgroundRetryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
             this.subscription = subscription;
+            this.requiresSequentialProcessing = requiresSequentialProcessing;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -249,7 +252,15 @@ namespace Infrastructure.Azure.Messaging
                             finally
                             {
                                 // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
+                                if (requiresSequentialProcessing)
+                                {
+                                    this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
+                                }
+                                else
+                                {
+                                    this.ReleaseMessage(msg, releaseAction, () => { }, () => { });
+                                    receiveNext.Invoke(); // TODO: make sure that if there are no more messages, the session is closed only after completing the release of the message.
+                                }
                             }
                         }
                         else

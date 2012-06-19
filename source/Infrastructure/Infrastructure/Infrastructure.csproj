@@ -63,6 +63,7 @@
     <Compile Include="ExpressionCombiner.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="Messaging\CommandBusExtensions.cs" />
+    <Compile Include="Messaging\IMessageSessionProvider.cs" />
     <Compile Include="Messaging\EventBusExtensions.cs" />
     <Compile Include="Messaging\Envelope.cs" />
     <Compile Include="Messaging\Handling\EventDispatcher.cs" />

@@ -50,7 +50,6 @@ namespace WorkerRoleCommandProcessor
 
             this.cancellationTokenSource = new CancellationTokenSource();
             this.container = CreateContainer();
-            RegisterCommandHandlers(container);
 
             this.processors = this.container.ResolveAll<IProcessor>().ToList();
         }
@@ -113,15 +112,7 @@ namespace WorkerRoleCommandProcessor
             return container;
         }
 
-        private static void RegisterCommandHandlers(IUnityContainer unityContainer)
-        {
-            var commandHandlerRegistry = unityContainer.Resolve<ICommandHandlerRegistry>();
 
-            foreach (var commandHandler in unityContainer.ResolveAll<ICommandHandler>())
-            {
-                commandHandlerRegistry.Register(commandHandler);
-            }
-        }
 
         partial void OnCreating();
         partial void OnCreateContainer(UnityContainer container);

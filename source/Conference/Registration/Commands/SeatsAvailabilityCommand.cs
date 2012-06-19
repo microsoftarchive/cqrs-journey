@@ -14,21 +14,22 @@
 namespace Registration.Commands
 {
     using System;
+    using System.Collections.Generic;
     using Infrastructure.Messaging;
 
-    /// <summary>
-    /// Adds seats to an existing seat type.
-    /// </summary>
-    public class AddSeats : SeatsAvailabilityCommand
+    public abstract class SeatsAvailabilityCommand : ICommand, IMessageSessionProvider
     {
-        /// <summary>
-        /// Gets or sets the type of the seat.
-        /// </summary>
-        public Guid SeatType { get; set; }
+        public SeatsAvailabilityCommand()
+        {
+            this.Id = Guid.NewGuid();
+        }
 
-        /// <summary>
-        /// Gets or sets the quantity of seats added.
-        /// </summary>
-        public int Quantity { get; set; }
+        public Guid Id { get; set; }
+        public Guid ConferenceId { get; set; }
+
+        string IMessageSessionProvider.SessionId
+        {
+            get { return "SeatsAvailability_" + this.ConferenceId.ToString(); }
+        }
     }
 }

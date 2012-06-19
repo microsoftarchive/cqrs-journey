@@ -24,10 +24,14 @@ namespace WorkerRoleCommandProcessor
 
 			public static class Subscriptions
 			{
-				/// <summary>
-				/// all
-				/// </summary>
-				public const string All = "all";
+                /// <summary>
+                /// sessionless
+                /// </summary>
+                public const string Sessionless = "sessionless";
+                /// <summary>
+                /// seatsavailability
+                /// </summary>
+                public const string SeatsAvailability = "seatsavailability";
 				/// <summary>
 				/// log
 				/// </summary>

@@ -13,6 +13,7 @@
 
 namespace WorkerRoleCommandProcessor
 {
+    using System.Linq;
     using System.Runtime.Caching;
     using System.Threading;
     using Infrastructure;
@@ -62,18 +63,21 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
-            var commandProcessor =
-                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All), serializer);
+            var sessionlessCommandProcessor =
+                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Sessionless), serializer);
+            var seatsAvailabilityCommandProcessor =
+                new CommandProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.SeatsAvailability, false), serializer);
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
 
             container.RegisterInstance<IEventBus>(eventBus);
-            container.RegisterInstance<ICommandHandlerRegistry>(commandProcessor);
-            container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
+            container.RegisterInstance<IProcessor>("SessionlessCommandProcessor", sessionlessCommandProcessor);
+            container.RegisterInstance<IProcessor>("SeatsAvailabilityCommandProcessor", seatsAvailabilityCommandProcessor);
 
             RegisterRepository(container);
             RegisterEventProcessors(container);
+            RegisterCommandHandlers(container, sessionlessCommandProcessor, seatsAvailabilityCommandProcessor);
 
             // handle order commands inline, as they do not have competition.
             synchronousCommandBus.Register(container.Resolve<ICommandHandler>("OrderCommandHandler"));
@@ -99,6 +103,18 @@ namespace WorkerRoleCommandProcessor
             container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator);
             container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler);
             container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler);
+        }
+
+        private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry sessionlessRegistry, ICommandHandlerRegistry seatsAvailabilityRegistry)
+        {
+            var commandHandlers = unityContainer.ResolveAll<ICommandHandler>().ToList();
+            var seatsAvailabilityHandler = commandHandlers.First(x => x.GetType().IsAssignableFrom(typeof(SeatsAvailabilityHandler)));
+
+            seatsAvailabilityRegistry.Register(seatsAvailabilityHandler);
+            foreach (var commandHandler in commandHandlers.Where(x => x != seatsAvailabilityHandler))
+            {
+                sessionlessRegistry.Register(commandHandler);
+            }
         }
 
         private void RegisterRepository(UnityContainer container)
