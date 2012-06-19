@@ -23,26 +23,25 @@ namespace Conference.Specflow.Support
         public static void Click(this Browser browser, string controlId)
         {
             var element = browser.Link(Find.ById(controlId)) as Element;
-
             if (!element.Exists)
             {
-                element = browser.Link(Find.ByText(t => t.Contains(controlId)));
+                element = browser.Button(Find.ById(controlId));
                 if (!element.Exists)
                 {
-                    element = browser.Button(Find.ById(controlId));
+                    element = browser.Button(b =>
+                                             (b.OuterText != null && b.OuterText.Contains(controlId)) ||
+                                             (b.Value != null && b.Value.Contains(controlId)));
                     if (!element.Exists)
                     {
-                        element = browser.Button(b => 
-                            (b.OuterText != null && b.OuterText.Contains(controlId)) ||
-                            (b.Value != null && b.Value.Contains(controlId)));
+                        element = browser.Link(Find.ByText(t => t.Contains(controlId)));
                         if (!element.Exists)
                         {
-                            throw new InvalidOperationException(string.Format("Could not find {0} link on the page", controlId));
+                            throw new InvalidOperationException(string.Format(
+                                "Could not find {0} link on the page", controlId));
                         }
                     }
                 }
             }
-
             element.Click();
         }
 

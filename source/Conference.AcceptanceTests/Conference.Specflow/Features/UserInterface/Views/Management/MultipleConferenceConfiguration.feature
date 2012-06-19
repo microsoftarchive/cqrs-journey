@@ -11,26 +11,21 @@
 # See the License for the specific language governing permissions and limitations under the License.
 # ==============================================================================================================
 
-Feature:  Seat Types configuration scenarios for creating and editing Seat Types settings
-	In order to create or update a Seat Type
+Feature:  Multiple Conference configuration scenarios for creating and editing many Conferences
+	In order to create multiple Conferences
 	As a Business Customer
-	I want to be able to create or update a Seat Type and set its properties
+	I want to be able to create multiple Conferences and set its properties
 
 
-Scenario: Seat Types are created and assigned to an existing Conference
-Given an existing unpublished conference with this information
-| Owner         | Email                    | Name      | Description                                   | Slug   | Start      | End        |
-| Gregory Weber | gregoryweber@contoso.com | CQRS2012S | CQRS summit 2012 conference (Seat Assignment) | random | 05/02/2012 | 07/12/2012 |
-And the Business Customer selects the Seat Types opcion
-And the Business Customer proceed to create new Seat Types
-When the Business Customer proceed to create the Seat Types
-| Name   | Description       | Quantity | Price |
-| GENADM | General admission | 100      | 199   | 
-Then the new Seat Types with this information are created
-| Name   | Description       | Quantity | Price |
-| GENADM | General admission | 100      | 199   |
-
-
-
-
-
+#Multiple creation scenario
+#The %1 placeholder will be replaced with an ordinal counter.
+Scenario: Multiple Seat Types are created and assigned to a new existing Conference
+Given this base conference information
+| Owner   | Email           | Name    | Description              | Slug    | Start      | End        |
+| Neuro%1 | neuro@neuro.com | NEURO%1 | Neuro Test conference %1 | neuro%1 | 05/02/2012 | 07/12/2012 |
+And these Seat Types
+| Name  | Description      | Quantity | Price |
+| TEST1 | Test seat type 1 | 100000   | 0     |
+| TEST2 | Test seat type 2 | 100000   | 1     | 
+When the Business Customer proceed to create 10 'random' conferences
+Then all the conferences are created

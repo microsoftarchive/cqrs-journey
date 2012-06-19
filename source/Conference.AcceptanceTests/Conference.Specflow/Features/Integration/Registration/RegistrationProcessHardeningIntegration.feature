@@ -52,10 +52,8 @@ And  the event for reserving the selected Seats is emitted
 Scenario: Times-out afther the reservation is completed
 	# event: OrderPlaced
 When the event for Order placed get expired
-	# command: CancelSeatReservation
-Then the command for cancelling the reservation is received
 	# command: RejectOrder
-And the command for rejecting the order is received
+Then the command for rejecting the order is received
 
 
 #- Receives an unexpected event (i.e. PaymentCompleted after the order has been expired).

@@ -128,7 +128,7 @@ namespace Conference.Specflow.Steps
 
         private void CreateTheConference()
         {
-            ScenarioContext.Current.Browser().Click(Constants.UI.CreateConferenceId);
+            Browser.Click(Constants.UI.CreateConferenceId);
         }
         
         private void NavigateToCreateConferenceOption()
