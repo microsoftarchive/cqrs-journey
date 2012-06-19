@@ -167,13 +167,6 @@ namespace Conference.Specflow.Steps
             Assert.False(MessageLogHelper.GetEvents<OrderConfirmed>(orderId).ToList().Any());
         }
 
-        [Then(@"the command for cancelling the reservation is received")]
-        public void ThenTheCommandForCancellingTheReservationIsReceived()
-        {
-            Assert.True(MessageLogHelper.CollectCommands<CancelSeatReservation>(
-                c => c.ConferenceId == registerToConference.ConferenceId));
-        }
-
         [Then(@"the command for rejecting the order is received")]
         public void ThenTheCommandForRejectingTheOrderIsReceived()
         {
