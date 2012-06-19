@@ -131,7 +131,7 @@ namespace Infrastructure.Azure.EventSourcing
             return this.pendingEventsQueueRetryPolicy.ExecuteAction(() => query.Execute());
         }
 
-        public void DeletePendingAsync(string partitionKey, string rowKey, Action successCallback, Action<Exception> exceptionCallback)
+        public void DeletePendingAsync(string partitionKey, string rowKey, Action<bool> successCallback, Action<Exception> exceptionCallback)
         {
             var context = this.tableClient.GetDataServiceContext();
             var item = new EventTableServiceEntity { PartitionKey = partitionKey, RowKey = rowKey };
@@ -145,6 +145,7 @@ namespace Infrastructure.Azure.EventSourcing
                         try
                         {
                             context.EndSaveChanges(ar);
+                            return true;
                         }
                         catch (DataServiceRequestException ex)
                         {
@@ -154,6 +155,8 @@ namespace Infrastructure.Azure.EventSourcing
                             {
                                 throw;
                             }
+
+                            return false;
                         }
                     },
                 successCallback,
