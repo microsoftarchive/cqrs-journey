@@ -42,6 +42,7 @@
       <Setting name="DbContext.ConferenceManagement" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
       <Setting name="MaintenanceMode" value="false" />
       <Setting name="DbContext.MessageLog" value="Data Source=.\sqlexpress;Initial Catalog=conference;Integrated Security=True" />
+      <Setting name="InstrumentationEnabled" value="false" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

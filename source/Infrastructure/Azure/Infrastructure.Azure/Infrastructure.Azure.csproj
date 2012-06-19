@@ -68,10 +68,12 @@
       <HintPath>..\..\..\packages\WindowsAzure.Storage.1.7.0.0\lib\net35-full\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -81,6 +83,17 @@
   <ItemGroup>
     <Compile Include="AsyncExtensions.cs" />
     <Compile Include="DictionaryExtensions.cs" />
+    <Compile Include="Instrumentation\AzureInstrumentationInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Instrumentation\AzureInstrumentationInstaller.Designer.cs">
+      <DependentUpon>AzureInstrumentationInstaller.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Instrumentation\Constants.cs" />
+    <Compile Include="Instrumentation\ISubscriptionReceiverInstrumentation.cs" />
+    <Compile Include="Instrumentation\SubscriptionReceiverInstrumentation.cs" />
+    <Compile Include="Instrumentation\SessionSubscriptionReceiverInstrumentation.cs" />
+    <Compile Include="Instrumentation\ISessionSubscriptionReceiverInstrumentation.cs" />
     <Compile Include="MessageLog\AzureMessageLogWriter.cs" />
     <Compile Include="MessageLog\AzureMessageLogListener.cs" />
     <Compile Include="MessageLog\AzureEventLogReader.cs" />

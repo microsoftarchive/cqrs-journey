@@ -11,33 +11,37 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace WorkerRoleCommandProcessor
+namespace Infrastructure.Azure.Instrumentation
 {
-    using System;
+    using System.Diagnostics;
 
-    class Program
+    public class SessionSubscriptionReceiverInstrumentation : SubscriptionReceiverInstrumentation, ISessionSubscriptionReceiverInstrumentation
     {
-        static void Main(string[] args)
+        public const string TotalSessionsCounterName = "Total sessions";
+
+        private readonly PerformanceCounter totalSessionsCounter;
+
+        public SessionSubscriptionReceiverInstrumentation(string instanceName, bool instrumentationEnabled)
+            : base(instanceName, instrumentationEnabled)
         {
-
-            // Cleanup default EF DB initializers.
-            DatabaseSetup.Initialize();
-
-            // Setup V3 migrations.
-            // In future revisions, this line will change to invoke a V4 migration (possibly)
-            // and the initialization of the V3 migration won't be needed anymore, as the 
-            // production database will already have been migrated to V3.
-            MigrationToV3.Migration.Initialize();
-
-            using (var processor = new ConferenceProcessor(true))
+            if (this.InstrumentationEnabled)
             {
-                processor.Start();
+                this.totalSessionsCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalSessionsCounterName, this.InstanceName, false);
+            }
+        }
 
-                Console.WriteLine("Host started");
-                Console.WriteLine("Press enter to finish");
-                Console.ReadLine();
+        public void SessionStarted()
+        {
+            if (this.InstrumentationEnabled)
+            {
+                this.totalSessionsCounter.Increment();
+            }
+        }
 
-                processor.Stop();
+        public void SessionEnded()
+        {
+            if (this.InstrumentationEnabled)
+            {
             }
         }
     }

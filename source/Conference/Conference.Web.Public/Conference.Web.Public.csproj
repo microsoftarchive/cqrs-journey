@@ -262,6 +262,7 @@
     <Content Include="..\..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>

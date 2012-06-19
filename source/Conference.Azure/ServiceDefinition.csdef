@@ -65,6 +65,16 @@
       <Setting name="DbContext.ConferenceManagement" />
       <Setting name="MaintenanceMode" />
       <Setting name="DbContext.MessageLog" />
+      <Setting name="InstrumentationEnabled" />
     </ConfigurationSettings>
+    <Startup>
+      <Task taskType="simple" executionContext="elevated" commandLine="setup\install.cmd">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
   </WorkerRole>
 </ServiceDefinition>

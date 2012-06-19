@@ -11,34 +11,39 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace WorkerRoleCommandProcessor
+namespace Infrastructure.Azure.Instrumentation
 {
-    using System;
-
-    class Program
+    partial class AzureInstrumentationInstaller
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
         {
-
-            // Cleanup default EF DB initializers.
-            DatabaseSetup.Initialize();
-
-            // Setup V3 migrations.
-            // In future revisions, this line will change to invoke a V4 migration (possibly)
-            // and the initialization of the V3 migration won't be needed anymore, as the 
-            // production database will already have been migrated to V3.
-            MigrationToV3.Migration.Initialize();
-
-            using (var processor = new ConferenceProcessor(true))
+            if (disposing && (components != null))
             {
-                processor.Start();
-
-                Console.WriteLine("Host started");
-                Console.WriteLine("Press enter to finish");
-                Console.ReadLine();
-
-                processor.Stop();
+                components.Dispose();
             }
+            base.Dispose(disposing);
         }
+
+        #region Component Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+        }
+
+        #endregion
     }
 }

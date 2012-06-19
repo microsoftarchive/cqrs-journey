@@ -42,6 +42,7 @@
       <Setting name="DbContext.ConferenceManagement" value="" />
       <Setting name="MaintenanceMode" value="false" />
       <Setting name="DbContext.MessageLog" value="" />
+      <Setting name="InstrumentationEnabled" value="false" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

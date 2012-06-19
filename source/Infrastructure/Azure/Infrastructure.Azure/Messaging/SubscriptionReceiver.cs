@@ -19,6 +19,7 @@ namespace Infrastructure.Azure.Messaging
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+    using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Utils;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
@@ -37,13 +38,13 @@ namespace Infrastructure.Azure.Messaging
         private readonly Uri serviceUri;
         private readonly ServiceBusSettings settings;
         private readonly string topic;
+        private readonly ISubscriptionReceiverInstrumentation instrumentation;
         private string subscription;
         private readonly object lockObject = new object();
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy receiveRetryPolicy;
         private readonly bool processInParallel;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
@@ -55,6 +56,7 @@ namespace Infrastructure.Azure.Messaging
                 topic,
                 subscription,
                 processInParallel,
+                new SubscriptionReceiverInstrumentation(subscription, false),
                 new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
@@ -63,12 +65,28 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        protected SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool processInParallel, RetryStrategy backgroundRetryStrategy)
+        public SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool processInParallel, ISubscriptionReceiverInstrumentation instrumentation)
+            : this(
+                settings,
+                topic,
+                subscription,
+                processInParallel,
+                instrumentation,
+                new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
+        /// automatically creating the topic and subscription if they don't exist.
+        /// </summary>
+        protected SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool processInParallel, ISubscriptionReceiverInstrumentation instrumentation, RetryStrategy backgroundRetryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
             this.subscription = subscription;
             this.processInParallel = processInParallel;
+            this.instrumentation = instrumentation;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -202,11 +220,32 @@ namespace Infrastructure.Azure.Messaging
 
                             try
                             {
+                                this.instrumentation.MessageReceived();
+
                                 // Make sure we are not told to stop receiving while we were waiting for a new message.
                                 if (!cancellationToken.IsCancellationRequested)
                                 {
-                                    // Process the received message.
-                                    releaseAction = this.InvokeMessageHandler(msg);
+                                    var stopwatch = Stopwatch.StartNew();
+                                    try
+                                    {
+                                        try
+                                        {
+                                            // Process the received message.
+                                            releaseAction = this.InvokeMessageHandler(msg);
+
+                                            this.instrumentation.MessageProcessed(true, stopwatch.ElapsedMilliseconds);
+                                        }
+                                        catch
+                                        {
+                                            this.instrumentation.MessageProcessed(false, stopwatch.ElapsedMilliseconds);
+
+                                            throw;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        stopwatch.Stop();
+                                    }
                                 }
                             }
                             finally
@@ -262,13 +301,13 @@ namespace Infrastructure.Azure.Messaging
             switch (releaseAction.Kind)
             {
                 case MessageReleaseActionKind.Complete:
-                    msg.SafeCompleteAsync(r => msg.Dispose());
+                    msg.SafeCompleteAsync(r => { msg.Dispose(); this.instrumentation.MessageCompleted(r); });
                     break;
                 case MessageReleaseActionKind.Abandon:
-                    msg.SafeAbandonAsync(r => msg.Dispose());
+                    msg.SafeAbandonAsync(r => { msg.Dispose(); this.instrumentation.MessageCompleted(false); });
                     break;
                 case MessageReleaseActionKind.DeadLetter:
-                    msg.SafeDeadLetterAsync(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, r => msg.Dispose());
+                    msg.SafeDeadLetterAsync(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, r => { msg.Dispose(); this.instrumentation.MessageCompleted(false); });
                     break;
                 default:
                     break;

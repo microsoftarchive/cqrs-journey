@@ -38,7 +38,7 @@ namespace WorkerRoleCommandProcessor
             if (!MaintenanceMode.IsInMaintainanceMode)
             {
                 Trace.WriteLine("Starting the command processor", "Information");
-                using (var processor = new ConferenceProcessor())
+                using (var processor = new ConferenceProcessor(this.InstrumentationEnabled))
                 {
                     processor.Start();
 
@@ -108,6 +108,58 @@ namespace WorkerRoleCommandProcessor
                     CounterSpecifier = @"\Processor(_Total)\% Processor Time",
                     SampleRate = sampleRate
                 });
+
+#if !LOCAL
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesCompletedCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesNotCompletedCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.AverageMessageProcessingTimeCounterName,
+                    SampleRate = sampleRate
+                });
+            config.PerformanceCounters.DataSources.Add(
+                new PerformanceCounterConfiguration
+                {
+                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.MessagesReceivedPerSecondCounterName,
+                    SampleRate = sampleRate
+                });
+#endif
+
             config.PerformanceCounters.ScheduledTransferPeriod = transferPeriod;
 
             // Setup logs
@@ -134,6 +186,20 @@ namespace WorkerRoleCommandProcessor
         {
             this.running = false;
             base.OnStop();
+        }
+
+        private bool InstrumentationEnabled
+        {
+            get
+            {
+                bool instrumentationEnabled;
+                if (!bool.TryParse(RoleEnvironment.GetConfigurationSettingValue("InstrumentationEnabled"), out instrumentationEnabled))
+                {
+                    instrumentationEnabled = false;
+                }
+
+                return instrumentationEnabled;
+            }
         }
     }
 }

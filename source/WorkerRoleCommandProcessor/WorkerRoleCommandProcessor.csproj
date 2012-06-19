@@ -118,6 +118,12 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ServiceBusConstants.cs</LastGenOutput>
     </None>
+    <None Include="setup\install.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="setup\install.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' != 'DebugLocal|AnyCPU' ">
     <Content Include="..\Infrastructure\Azure\Settings.xml">

@@ -19,6 +19,7 @@ namespace WorkerRoleCommandProcessor
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
+    using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
@@ -64,9 +65,9 @@ namespace WorkerRoleCommandProcessor
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
             var sessionlessCommandProcessor =
-                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Sessionless), serializer);
+                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Sessionless, false, new SubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.Sessionless, this.instrumentationEnabled)), serializer);
             var seatsAvailabilityCommandProcessor =
-                new CommandProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Seatsavailability, false), serializer);
+                new CommandProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Seatsavailability, false, new SessionSubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.Seatsavailability, this.instrumentationEnabled)), serializer);
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
@@ -96,13 +97,13 @@ namespace WorkerRoleCommandProcessor
 
         private void RegisterEventProcessors(UnityContainer container)
         {
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationProcessRouterV3);
-            container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGenerator);
-            container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGenerator);
-            container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator);
-            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator);
-            container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler);
-            container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler);
+            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationProcessRouterV3, this.instrumentationEnabled);
+            container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGenerator, this.instrumentationEnabled);
+            container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGenerator, this.instrumentationEnabled);
+            container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator, this.instrumentationEnabled);
+            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator, this.instrumentationEnabled);
+            container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler, this.instrumentationEnabled);
+            container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler, this.instrumentationEnabled);
         }
 
         private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry sessionlessRegistry, ICommandHandlerRegistry seatsAvailabilityRegistry)
