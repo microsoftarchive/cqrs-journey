@@ -173,7 +173,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             this.version = "0001";
             this.rowKey = "Unpublished_" + version;
 
-            this.partitionKeys = Enumerable.Range(0, 100).Select(i => "Key" + i).ToArray();
+            this.partitionKeys = Enumerable.Range(0, 230).Select(i => "Key" + i).ToArray();
             this.queue = new Mock<IPendingEventsQueue>();
             queue.Setup(x => x.GetPending(It.IsAny<string>())).Returns<string>(
                 key => new[]
@@ -204,15 +204,13 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         [Fact]
         public void when_sending_multiple_partitions_immediately_then_publishes_all_events()
         {
-            this.sender.SendWaitHandle = null;
             for (int i = 0; i < partitionKeys.Length; i++)
             {
                 this.sut.SendAsync(partitionKeys[i]);
             }
 
-            var stopwatch = new Stopwatch();
             var timeout = TimeSpan.FromSeconds(20);
-            stopwatch.Start();
+            var stopwatch = Stopwatch.StartNew();
             while (sender.Sent.Count < partitionKeys.Length && stopwatch.Elapsed < timeout)
             {
                 Thread.Sleep(300);
@@ -227,28 +225,31 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         }
 
         [Fact]
-        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_5()
+        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_100()
         {
-            var degreeOfParallelism = 5;
+            var degreeOfParallelism = 100;
 
-            var resetEvent = new ManualResetEvent(false);
-            this.sender.SendWaitHandle = resetEvent;
+            this.sender.ShouldWaitForCallback = true;
             for (int i = 0; i < partitionKeys.Length; i++)
             {
                 this.sut.SendAsync(partitionKeys[i]);
             }
 
-            var stopwatch = new Stopwatch();
             var timeout = TimeSpan.FromSeconds(20);
-            stopwatch.Start();
+            var stopwatch = Stopwatch.StartNew();
             while (sender.Sent.Count < degreeOfParallelism && stopwatch.Elapsed < timeout)
             {
                 Thread.Sleep(500);
             }
 
             Assert.Equal(degreeOfParallelism, sender.Sent.Count);
+            Assert.Equal(degreeOfParallelism, sender.AsyncSuccessCallbacks.Count);
 
-            resetEvent.Set();
+            this.sender.ShouldWaitForCallback = false;
+            foreach (var callback in sender.AsyncSuccessCallbacks)
+            {
+                callback.Invoke();
+            }
 
             // once all events can be sent, verify that it sends all.
             stopwatch.Restart();

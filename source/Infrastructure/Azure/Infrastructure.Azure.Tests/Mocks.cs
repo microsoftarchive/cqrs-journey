@@ -16,7 +16,9 @@ namespace Infrastructure.Azure.Tests.Mocks
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
+    using System.Threading.Tasks;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.EventSourcing;
     using Microsoft.ServiceBus.Messaging;
@@ -100,14 +102,14 @@ namespace Infrastructure.Azure.Tests.Mocks
     {
         public readonly AutoResetEvent SendSignal = new AutoResetEvent(false);
         public readonly ConcurrentBag<BrokeredMessage> Sent = new ConcurrentBag<BrokeredMessage>();
+        public readonly ConcurrentBag<Action> AsyncSuccessCallbacks = new ConcurrentBag<Action>();
 
-        public WaitHandle SendWaitHandle { get; set; }
+        public bool ShouldWaitForCallback { get; set; }
 
         void IMessageSender.Send(Func<BrokeredMessage> messageFactory)
         {
             this.Sent.Add(messageFactory.Invoke());
             this.SendSignal.Set();
-            if (SendWaitHandle != null) SendWaitHandle.WaitOne(10000);
         }
 
         void IMessageSender.SendAsync(Func<BrokeredMessage> messageFactory)
@@ -117,14 +119,23 @@ namespace Infrastructure.Azure.Tests.Mocks
 
         void IMessageSender.SendAsync(Func<BrokeredMessage> messageFactory, Action successCallback, Action<Exception> exceptionCallback)
         {
-            ThreadPool.QueueUserWorkItem(
-                _ =>
+            Task.Factory.StartNew(
+                () =>
                 {
-                    if (SendWaitHandle != null) SendWaitHandle.WaitOne(10000);
                     this.Sent.Add(messageFactory.Invoke());
                     this.SendSignal.Set();
-                    successCallback();
-                });
+                    if (!this.ShouldWaitForCallback)
+                    {
+                        successCallback();
+                    }
+                    else
+                    {
+                        AsyncSuccessCallbacks.Add(successCallback);
+                    }
+                },
+                TaskCreationOptions.AttachedToParent);
         }
+
+        public event EventHandler Retrying;
     }
 }
