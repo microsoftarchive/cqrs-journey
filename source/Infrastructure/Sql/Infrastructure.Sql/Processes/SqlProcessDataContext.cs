@@ -17,23 +17,31 @@ namespace Infrastructure.Sql.Processes
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using Infrastructure.Messaging;
     using Infrastructure.Processes;
     using Infrastructure.Serialization;
+    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.SqlAzure;
+    using Microsoft.Practices.TransientFaultHandling;
 
     public class SqlProcessDataContext<T> : IProcessDataContext<T> where T : class, IProcess
     {
         private readonly ICommandBus commandBus;
         private readonly DbContext context;
         private readonly ITextSerializer serializer;
+        private readonly RetryPolicy<SqlAzureTransientErrorDetectionStrategy> retryPolicy;
 
         public SqlProcessDataContext(Func<DbContext> contextFactory, ICommandBus commandBus, ITextSerializer serializer)
         {
             this.commandBus = commandBus;
             this.context = contextFactory.Invoke();
             this.serializer = serializer;
+
+            this.retryPolicy = new RetryPolicy<SqlAzureTransientErrorDetectionStrategy>(new Incremental(3, TimeSpan.Zero, TimeSpan.FromSeconds(1)) { FastFirstRetry = true });
+            this.retryPolicy.Retrying += (s, e) => 
+                Trace.TraceWarning("An error occurred in attempt number {1} to save the process manager state: {0}", e.LastException.Message, e.CurrentRetryCount);
         }
 
         public T Find(Guid id)
@@ -48,12 +56,14 @@ namespace Infrastructure.Sql.Processes
             {
                 // first try to get the non-completed, in case the table is indexed by Completed, or there is more
                 // than one process that fulfills the predicate but only 1 is not completed.
-                process = this.context.Set<T>().Where(predicate.And(x => x.Completed == false)).FirstOrDefault();
+                process = this.retryPolicy.ExecuteAction(() => 
+                    this.context.Set<T>().Where(predicate.And(x => x.Completed == false)).FirstOrDefault());
             }
 
             if (process == null)
             {
-                process = this.context.Set<T>().Where(predicate).FirstOrDefault();
+                process = this.retryPolicy.ExecuteAction(() => 
+                    this.context.Set<T>().Where(predicate).FirstOrDefault());
             }
 
             if (process != null)
@@ -92,7 +102,7 @@ namespace Infrastructure.Sql.Processes
 
             try
             {
-                this.context.SaveChanges();
+                this.retryPolicy.ExecuteAction(() => this.context.SaveChanges());
             }
             catch (DbUpdateConcurrencyException e)
             {
@@ -122,7 +132,7 @@ namespace Infrastructure.Sql.Processes
 
                     // we remove all the undispatched messages for this process
                     this.context.Set<UndispatchedMessages>().Remove(undispatched);
-                    this.context.SaveChanges();
+                    this.retryPolicy.ExecuteAction(() => this.context.SaveChanges());
                 }
                 catch (Exception)
                 {
