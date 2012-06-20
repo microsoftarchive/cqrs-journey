@@ -233,7 +233,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         private void DeletePendingAndWait(EventStore sut, string partitionKey, string rowKey)
         {
             var resetEvent = new AutoResetEvent(false);
-            sut.DeletePendingAsync(partitionKey, rowKey, () => resetEvent.Set(), Assert.Null);
+            sut.DeletePendingAsync(partitionKey, rowKey, (deleted) => { resetEvent.Set(); Assert.True(deleted); }, Assert.Null);
             Assert.True(resetEvent.WaitOne(5000));
         }
     }

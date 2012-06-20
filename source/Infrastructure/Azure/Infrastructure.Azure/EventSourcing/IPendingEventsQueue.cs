@@ -19,7 +19,7 @@ namespace Infrastructure.Azure.EventSourcing
     public interface IPendingEventsQueue
     {
         IEnumerable<IEventRecord> GetPending(string partitionKey);
-        void DeletePendingAsync(string partitionKey, string rowKey, Action successCallback, Action<Exception> exceptionCallback);
+        void DeletePendingAsync(string partitionKey, string rowKey, Action<bool> successCallback, Action<Exception> exceptionCallback);
         IEnumerable<string> GetPartitionsWithPendingEvents();
     }
 }

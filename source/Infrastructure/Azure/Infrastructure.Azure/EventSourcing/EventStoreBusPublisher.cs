@@ -18,6 +18,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -86,7 +87,19 @@ namespace Infrastructure.Azure.EventSourcing
 
         public void SendAsync(string partitionKey)
         {
-            this.enqueuedKeys.Add(partitionKey);
+            if (string.IsNullOrEmpty(partitionKey)) 
+                throw new ArgumentNullException(partitionKey);
+
+            EnqueueIfNotExists(partitionKey);
+        }
+
+        private void EnqueueIfNotExists(string partitionKey)
+        {
+            if (!this.enqueuedKeys.Any(partitionKey.Equals))
+            {
+                // if the key is not already in the queue, add it.
+                this.enqueuedKeys.Add(partitionKey);
+            }
         }
 
         private void ProcessPartition(string key)
@@ -130,7 +143,7 @@ namespace Infrastructure.Azure.EventSourcing
                         Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
 
                         // if there was ANY unhandled error, re-add the item to collection.
-                        this.enqueuedKeys.Add(key);
+                        EnqueueIfNotExists(key);
                     }
                     finally
                     {
@@ -174,7 +187,22 @@ namespace Infrastructure.Azure.EventSourcing
                     this.queue.DeletePendingAsync(
                         item.PartitionKey,
                         item.RowKey,
-                        sendNextEvent,
+                        (bool rowDeleted) =>
+                            {
+                                if (rowDeleted)
+                                {
+                                    sendNextEvent.Invoke();
+                                }
+                                else
+                                {
+                                    // another thread or process has already sent this event.
+                                    // stop competing for the same partition and try to send it at the end of the queue if there are any
+                                    // events still pending.
+                                    disposeEnumerator();
+                                    this.EnqueueIfNotExists(key);
+                                    this.throttlingSemaphore.Release();
+                                }
+                            },
                         handleException);
                 };
 
