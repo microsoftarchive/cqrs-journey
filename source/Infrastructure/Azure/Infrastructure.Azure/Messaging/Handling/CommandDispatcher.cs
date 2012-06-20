@@ -64,7 +64,7 @@ namespace Infrastructure.Azure.Messaging.Handling
 
             if (this.handlers.TryGetValue(commandType, out handler))
             {
-                Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Command{0} handled by {1}.", traceIdentifier, handler.GetType().FullName));
+                // Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Command{0} handled by {1}.", traceIdentifier, handler.GetType().FullName));
                 ((dynamic)handler).Handle((dynamic)payload);
                 return true;
             }

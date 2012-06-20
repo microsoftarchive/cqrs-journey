@@ -103,7 +103,7 @@ namespace Infrastructure.Messaging.Handling
             {
                 foreach (var handler in handlers)
                 {
-                    Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Event{0} handled by {1}.", traceIdentifier, handler.Item1.FullName));
+                    // Trace.WriteLine(string.Format(CultureInfo.InvariantCulture, "Event{0} handled by {1}.", traceIdentifier, handler.Item1.FullName));
                     handler.Item2(envelope);
                 }
             }
