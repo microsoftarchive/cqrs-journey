@@ -206,11 +206,25 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         private void ReceiveMessagesAndCloseSession(MessageSession session, CancellationToken cancellationToken)
         {
-            Action closeSession = () => this.receiveRetryPolicy.ExecuteAction(
-                cb => session.BeginClose(cb, null),
-                session.EndClose,
-                null,
-                ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
+            Action closeSession = () =>
+            {
+                Action doClose = () =>
+                    this.receiveRetryPolicy.ExecuteAction(
+                    cb => session.BeginClose(cb, null),
+                    session.EndClose,
+                    null,
+                    ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
+
+                if (this.requiresSequentialProcessing)
+                {
+                    doClose.Invoke();
+                }
+                else
+                {
+                    // Allow some time for releasing the messages before closing.
+                    TaskEx.Delay(3000).ContinueWith(t => doClose());
+                }
+            };
 
             // Declare an action to receive the next message in the queue or closes the session if cancelled.
             Action receiveNext = null;
@@ -252,14 +266,14 @@ namespace Infrastructure.Azure.Messaging
                             finally
                             {
                                 // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                if (requiresSequentialProcessing)
+                                if (this.requiresSequentialProcessing)
                                 {
                                     this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
                                 }
                                 else
                                 {
                                     this.ReleaseMessage(msg, releaseAction, () => { }, () => { });
-                                    receiveNext.Invoke(); // TODO: make sure that if there are no more messages, the session is closed only after completing the release of the message.
+                                    receiveNext.Invoke();
                                 }
                             }
                         }
