@@ -16,23 +16,8 @@ namespace Registration.Commands
     using System;
     using Infrastructure.Messaging;
 
-    public class RemoveSeats : ICommand
+    public class RemoveSeats : SeatsAvailabilityCommand
     {
-        public RemoveSeats()
-        {
-            this.Id = Guid.NewGuid();
-        }
-
-        /// <summary>
-        /// Gets the command identifier.
-        /// </summary>
-        public Guid Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the conference identifier.
-        /// </summary>
-        public Guid ConferenceId { get; set; }
-
         /// <summary>
         /// Gets or sets the type of the seat.
         /// </summary>

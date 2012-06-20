@@ -54,6 +54,7 @@
     <Compile Include="Commands\CommitSeatReservation.cs" />
     <Compile Include="Commands\CancelSeatReservation.cs" />
     <Compile Include="Commands\ConfirmOrder.cs" />
+    <Compile Include="Commands\SeatsAvailabilityCommand.cs" />
     <Compile Include="Commands\UnassignSeat.cs" />
     <Compile Include="Commands\AssignSeat.cs" />
     <Compile Include="Commands\ExpireRegistrationProcess.cs" />
