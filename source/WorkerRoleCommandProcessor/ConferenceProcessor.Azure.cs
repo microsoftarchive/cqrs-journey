@@ -66,7 +66,7 @@ namespace WorkerRoleCommandProcessor
             var sessionlessCommandProcessor =
                 new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Sessionless), serializer);
             var seatsAvailabilityCommandProcessor =
-                new CommandProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.SeatsAvailability, false), serializer);
+                new CommandProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Seatsavailability, false), serializer);
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
