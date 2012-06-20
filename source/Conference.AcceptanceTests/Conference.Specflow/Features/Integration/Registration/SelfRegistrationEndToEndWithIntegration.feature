@@ -13,7 +13,7 @@
 
 @SelfRegistrationEndToEndWithIntegration
 @NoWatiN
-Feature: Self Registrant end to end scenario for making a Registration for a Conference site with Doamin Commands and Events
+Feature: Self Registrant end to end scenario for making a Registration for a Conference site with Domain Commands and Events
 	In order to register for a conference
 	As an Attendee
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
@@ -37,8 +37,6 @@ Then the event for Order placed is emitted
 And the command for reserving the selected Seats is received
 	# event: SeatsReserved
 And the event for reserving the selected Seats is emitted
-	# command: MarkSeatsAsReserved
-And the command for marking the selected Seats as reserved is received
 	# event: OrderReservationCompleted 
 And the event for completing the Order reservation is emitted
 	# event: OrderTotalsCalculated

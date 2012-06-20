@@ -147,6 +147,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>ConferenceConfiguration.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\UserInterface\Views\Management\MultipleConferenceConfiguration.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MultipleConferenceConfiguration.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\UserInterface\Views\Management\SeatTypesConfiguration.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -237,6 +242,7 @@
     <Compile Include="Steps\Views\ConferenceConfigurationSteps.cs" />
     <Compile Include="Steps\Integration\ConferenceConfigurationIntegrationSteps.cs" />
     <Compile Include="Steps\Views\DiscountsConfigurationSteps.cs" />
+    <Compile Include="Steps\Views\MultipleConferenceConfigurationSteps.cs" />
     <Compile Include="Steps\Views\SeatTypesConfigurationSteps.cs" />
     <Compile Include="Steps\Views\SeatAssignmentSteps.cs" />
     <Compile Include="Steps\Views\SelfRegistrationEndToEndSadSteps.cs" />
@@ -298,6 +304,10 @@
     <None Include="Features\UserInterface\Views\Management\ConferenceConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>ConferenceConfiguration.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\UserInterface\Views\Management\MultipleConferenceConfiguration.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>MultipleConferenceConfiguration.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\UserInterface\Views\Management\SeatTypesConfiguration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
@@ -421,10 +431,6 @@
     <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
       <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
       <Name>Registration.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\WorkerRoleCommandProcessor\WorkerRoleCommandProcessor.csproj">
-      <Project>{8D856E0A-17CC-42FC-9F18-32D20EF0C53A}</Project>
-      <Name>WorkerRoleCommandProcessor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

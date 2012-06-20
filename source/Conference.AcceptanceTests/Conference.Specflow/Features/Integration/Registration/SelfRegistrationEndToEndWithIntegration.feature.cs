@@ -18,7 +18,7 @@ namespace Conference.Specflow.Features.Integration.Registration
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature : Xunit.IUseFixture<SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature.FixtureData>, System.IDisposable
+    public partial class SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDomainCommandsAndEventsFeature : Xunit.IUseFixture<SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDomainCommandsAndEventsFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,7 +26,7 @@ namespace Conference.Specflow.Features.Integration.Registration
 #line 1 "SelfRegistrationEndToEndWithIntegration.feature"
 #line hidden
         
-        public SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature()
+        public SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDomainCommandsAndEventsFeature()
         {
             this.TestInitialize();
         }
@@ -35,7 +35,7 @@ namespace Conference.Specflow.Features.Integration.Registration
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Self Registrant end to end scenario for making a Registration for a Conference si" +
-                    "te with Doamin Commands and Events", "In order to register for a conference\r\nAs an Attendee\r\nI want to be able to regis" +
+                    "te with Domain Commands and Events", "In order to register for a conference\r\nAs an Attendee\r\nI want to be able to regis" +
                     "ter for the conference, pay for the Registration Order and associate myself with" +
                     " the paid Order automatically", ProgrammingLanguage.CSharp, new string[] {
                         "SelfRegistrationEndToEndWithIntegration",
@@ -68,7 +68,7 @@ namespace Conference.Specflow.Features.Integration.Registration
             testRunner.CollectScenarioErrors();
         }
         
-        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature.FixtureData fixtureData)
+        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDomainCommandsAndEventsFeature.FixtureData fixtureData)
         {
         }
         
@@ -79,7 +79,7 @@ namespace Conference.Specflow.Features.Integration.Registration
         
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference si" +
-            "te with Doamin Commands and Events")]
+            "te with Domain Commands and Events")]
         [Xunit.TraitAttribute("Description", "Make a reservation with the selected Order Items")]
         public virtual void MakeAReservationWithTheSelectedOrderItems()
         {
@@ -126,10 +126,8 @@ testRunner.And("the command for reserving the selected Seats is received");
 #line 39
 testRunner.And("the event for reserving the selected Seats is emitted");
 #line 41
-testRunner.And("the command for marking the selected Seats as reserved is received");
-#line 43
 testRunner.And("the event for completing the Order reservation is emitted");
-#line 45
+#line 43
 testRunner.And("the event for calculating the total of $249 is emitted");
 #line hidden
             this.ScenarioCleanup();
@@ -142,12 +140,12 @@ testRunner.And("the event for calculating the total of $249 is emitted");
             
             public FixtureData()
             {
-                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature.FeatureSetup();
+                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDomainCommandsAndEventsFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDoaminCommandsAndEventsFeature.FeatureTearDown();
+                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteWithDomainCommandsAndEventsFeature.FeatureTearDown();
             }
         }
     }

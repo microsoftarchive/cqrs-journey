@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using Conference.Common.Entity;
+using Registration.Events;
 using TechTalk.SpecFlow;
 using Infrastructure.Messaging;
 using Infrastructure.Serialization;
@@ -52,7 +53,7 @@ namespace Conference.Specflow.Support
                 svc.CreateSeat(conference.Id, seat);
             }
 
-            var created = MessageLogHelper.CollectEvents<SeatCreated>(createdSeats.Select(s => s.Id.ToString()).ToList(), createdSeats.Count);
+            var created = MessageLogHelper.CollectEvents<AvailableSeatsChanged>(conference.Id, createdSeats.Count);
 
             if(!created)
                 throw new TimeoutException("Conference creation error");

@@ -150,10 +150,8 @@ this.ScenarioSetup(scenarioInfo);
 this.FeatureBackground();
 #line 54
 testRunner.When("the event for Order placed get expired");
-#line 56
-testRunner.Then("the command for cancelling the reservation is received");
-#line 58
-testRunner.And("the command for rejecting the order is received");
+#line 55
+testRunner.Then("the event for confirming the Order is not emitted");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -165,19 +163,19 @@ testRunner.And("the command for rejecting the order is received");
         public virtual void ExecuteThePaymentProcessAfterTheOrderHasExpired()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Execute the Payment process after the order has expired", ((string[])(null)));
-#line 62
+#line 58
 this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
-#line 63
+#line 59
 testRunner.Given("the event for Order placed get expired");
-#line 65
+#line 61
 testRunner.When("the command for initiate the payment is sent");
-#line 67
+#line 63
 testRunner.And("the command for completing the payment process is sent");
-#line 69
+#line 65
 testRunner.Then("the event for confirming the payment is emitted");
-#line 71
+#line 67
 testRunner.And("the event for confirming the Order is not emitted");
 #line hidden
             this.ScenarioCleanup();

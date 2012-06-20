@@ -275,8 +275,7 @@ namespace Conference.Specflow.Steps
             Assert.False(string.IsNullOrWhiteSpace(accessCode), "Access Code not found");
 
             // Navigate to the Seat Assignement page
-            Browser.Click(Constants.UI.ProceedToSeatAssignementId);
-            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
+            Browser.ClickAndWait(Constants.UI.ProceedToSeatAssignementId, Constants.UI.FindOrderSuccessfull);
 
             TheseOrderItemsShouldBeReserved(table);
         }

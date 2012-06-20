@@ -18,15 +18,15 @@ namespace Conference.Specflow.Features.UserInterface.Views.Management
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class SeatTypesConfigurationScenariosForCreatingAndEditingSeatTypesSettingsFeature : Xunit.IUseFixture<SeatTypesConfigurationScenariosForCreatingAndEditingSeatTypesSettingsFeature.FixtureData>, System.IDisposable
+    public partial class MultipleConferenceConfigurationScenariosForCreatingAndEditingManyConferencesFeature : Xunit.IUseFixture<MultipleConferenceConfigurationScenariosForCreatingAndEditingManyConferencesFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "SeatTypesConfiguration.feature"
+#line 1 "MultipleConferenceConfiguration.feature"
 #line hidden
         
-        public SeatTypesConfigurationScenariosForCreatingAndEditingSeatTypesSettingsFeature()
+        public MultipleConferenceConfigurationScenariosForCreatingAndEditingManyConferencesFeature()
         {
             this.TestInitialize();
         }
@@ -34,8 +34,9 @@ namespace Conference.Specflow.Features.UserInterface.Views.Management
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Seat Types configuration scenarios for creating and editing Seat Types settings", "In order to create or update a Seat Type\r\nAs a Business Customer\r\nI want to be ab" +
-                    "le to create or update a Seat Type and set its properties", ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Multiple Conference configuration scenarios for creating and editing many Confere" +
+                    "nces", "In order to create multiple Conferences\r\nAs a Business Customer\r\nI want to be abl" +
+                    "e to create multiple Conferences and set its properties", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -64,7 +65,7 @@ namespace Conference.Specflow.Features.UserInterface.Views.Management
             testRunner.CollectScenarioErrors();
         }
         
-        public virtual void SetFixture(SeatTypesConfigurationScenariosForCreatingAndEditingSeatTypesSettingsFeature.FixtureData fixtureData)
+        public virtual void SetFixture(MultipleConferenceConfigurationScenariosForCreatingAndEditingManyConferencesFeature.FixtureData fixtureData)
         {
         }
         
@@ -74,12 +75,13 @@ namespace Conference.Specflow.Features.UserInterface.Views.Management
         }
         
         [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Seat Types configuration scenarios for creating and editing Seat Types settings")]
-        [Xunit.TraitAttribute("Description", "Seat Types are created and assigned to an existing Conference")]
-        public virtual void SeatTypesAreCreatedAndAssignedToAnExistingConference()
+        [Xunit.TraitAttribute("FeatureTitle", "Multiple Conference configuration scenarios for creating and editing many Confere" +
+            "nces")]
+        [Xunit.TraitAttribute("Description", "Multiple Seat Types are created and assigned to a new existing Conference")]
+        public virtual void MultipleSeatTypesAreCreatedAndAssignedToANewExistingConference()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Seat Types are created and assigned to an existing Conference", ((string[])(null)));
-#line 20
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Multiple Seat Types are created and assigned to a new existing Conference", ((string[])(null)));
+#line 22
 this.ScenarioSetup(scenarioInfo);
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
@@ -91,19 +93,15 @@ this.ScenarioSetup(scenarioInfo);
                         "Start",
                         "End"});
             table1.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
-                        "CQRS2012S",
-                        "CQRS summit 2012 conference (Seat Assignment)",
-                        "random",
+                        "Neuro%1",
+                        "neuro@neuro.com",
+                        "NEURO%1",
+                        "Neuro Test conference %1",
+                        "neuro%1",
                         "05/02/2012",
                         "07/12/2012"});
-#line 21
-testRunner.Given("an existing unpublished conference with this information", ((string)(null)), table1);
-#line 24
-testRunner.And("the Business Customer selects the Seat Types opcion");
-#line 25
-testRunner.And("the Business Customer proceed to create new Seat Types");
+#line 23
+testRunner.Given("this base conference information", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
@@ -111,25 +109,21 @@ testRunner.And("the Business Customer proceed to create new Seat Types");
                         "Quantity",
                         "Price"});
             table2.AddRow(new string[] {
-                        "GENADM",
-                        "General admission",
-                        "100",
-                        "199"});
+                        "TEST1",
+                        "Test seat type 1",
+                        "100000",
+                        "0"});
+            table2.AddRow(new string[] {
+                        "TEST2",
+                        "Test seat type 2",
+                        "100000",
+                        "1"});
 #line 26
-testRunner.When("the Business Customer proceed to create the Seat Types", ((string)(null)), table2);
-#line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Name",
-                        "Description",
-                        "Quantity",
-                        "Price"});
-            table3.AddRow(new string[] {
-                        "GENADM",
-                        "General admission",
-                        "100",
-                        "199"});
-#line 29
-testRunner.Then("the new Seat Types with this information are created", ((string)(null)), table3);
+testRunner.And("these Seat Types", ((string)(null)), table2);
+#line 30
+testRunner.When("the Business Customer proceed to create 10 \'random\' conferences");
+#line 31
+testRunner.Then("all the conferences are created");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -141,12 +135,12 @@ testRunner.Then("the new Seat Types with this information are created", ((string
             
             public FixtureData()
             {
-                SeatTypesConfigurationScenariosForCreatingAndEditingSeatTypesSettingsFeature.FeatureSetup();
+                MultipleConferenceConfigurationScenariosForCreatingAndEditingManyConferencesFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                SeatTypesConfigurationScenariosForCreatingAndEditingSeatTypesSettingsFeature.FeatureTearDown();
+                MultipleConferenceConfigurationScenariosForCreatingAndEditingManyConferencesFeature.FeatureTearDown();
             }
         }
     }
