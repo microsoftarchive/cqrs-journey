@@ -88,7 +88,7 @@ namespace Infrastructure.Azure.Instrumentation
                     this.totalMessagesUnsuccessfullyProcessedCounter.Increment();
                 }
 
-                this.averageMessageProcessingTimeCounter.IncrementBy(elapsedMilliseconds);
+                this.averageMessageProcessingTimeCounter.IncrementBy(elapsedMilliseconds / 100);
                 this.averageMessageProcessingTimeBaseCounter.Increment();
             }
         }
