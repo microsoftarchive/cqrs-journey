@@ -22,7 +22,7 @@ namespace Infrastructure.Azure.Utils
     public static class BrokeredMessageExtensions
     {
         private static readonly RetryPolicy FastRetryPolicy =
-            new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(new Incremental(1, TimeSpan.Zero, TimeSpan.Zero) { FastFirstRetry = true });
+            new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(new FixedInterval(2, TimeSpan.FromSeconds(.5d)) { FastFirstRetry = true });
 
         public static bool SafeComplete(this BrokeredMessage message)
         {

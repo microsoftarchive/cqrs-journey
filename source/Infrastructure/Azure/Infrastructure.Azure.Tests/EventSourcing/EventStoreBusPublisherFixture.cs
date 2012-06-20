@@ -194,7 +194,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                         It.IsAny<string>(),
                         It.IsAny<Action<bool>>(),
                         It.IsAny<Action<Exception>>()))
-                .Callback<string, string, Action, Action<Exception>>((p, r, s, e) => s());
+                .Callback<string, string, Action<bool>, Action<Exception>>((p, r, s, e) => s(true));
             this.sender = new MessageSenderMock();
             this.sut = new EventStoreBusPublisher(sender, queue.Object);
             this.cancellationTokenSource = new CancellationTokenSource();
