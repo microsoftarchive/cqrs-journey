@@ -70,22 +70,23 @@ namespace Conference.Specflow.Steps
         [Given(@"the Registrant proceed to make the Reservation")]
         public void GivenTheRegistrantProceedToMakeTheReservation()
         {
-            var redirect = registrationController.StartRegistration(
-                registration, orderViewModel.OrderVersion) as RedirectToRouteResult;
-
-            Assert.True(redirect != null, "Reservation not accepted. May be waitlisted.");
+            //Assert.True(redirect != null, "Reservation not accepted. May be waitlisted.");
 
             // Perform external redirection
             var timeout =  DateTime.Now.Add(Constants.UI.WaitTimeout);
 
             while (DateTime.Now < timeout && registrationViewModel == null)
             {
-                //ReservationUnknown
-                var result = registrationController.SpecifyRegistrantAndPaymentDetails(
-                    (Guid)redirect.RouteValues["orderId"], orderViewModel.OrderVersion).Result;
+                var redirect = registrationController.StartRegistration(registration, orderViewModel.OrderVersion) as RedirectToRouteResult;
+                if (redirect != null)
+                {
+                    //ReservationUnknown
+                    var result = registrationController.SpecifyRegistrantAndPaymentDetails(
+                        (Guid) redirect.RouteValues["orderId"], orderViewModel.OrderVersion).Result;
 
-                Assert.IsNotType<RedirectToRouteResult>(result);
-                registrationViewModel = RegistrationHelper.GetModel<RegistrationViewModel>(result);
+                    Assert.IsNotType<RedirectToRouteResult>(result);
+                    registrationViewModel = RegistrationHelper.GetModel<RegistrationViewModel>(result);
+                }
             }
 
             Assert.False(registrationViewModel == null, "Could not make the reservation and get the RegistrationViewModel");
