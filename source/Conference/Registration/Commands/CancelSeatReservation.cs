@@ -16,16 +16,8 @@ namespace Registration.Commands
     using System;
     using Infrastructure.Messaging;
 
-    public class CancelSeatReservation : ICommand
+    public class CancelSeatReservation : SeatsAvailabilityCommand
     {
-        public CancelSeatReservation()
-        {
-            this.Id = Guid.NewGuid();
-        }
-
-        public Guid Id { get; set; }
-
-        public Guid ConferenceId { get; set; }
         public Guid ReservationId { get; set; }
     }
 }

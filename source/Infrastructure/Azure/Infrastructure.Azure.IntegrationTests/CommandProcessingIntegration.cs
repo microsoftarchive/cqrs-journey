@@ -90,7 +90,7 @@ namespace Infrastructure.Azure.IntegrationTests.CommandProcessingIntegration
         [Fact]
         public void when_receiving_not_registered_command_then_ignores()
         {
-            var receiverMock = new Mock<SubscriptionReceiver>(this.Settings, this.Topic, this.Subscription);
+            var receiverMock = new Mock<SubscriptionReceiver>(this.Settings, this.Topic, this.Subscription, false);
             var processor = new CommandProcessor(receiverMock.Object, new JsonTextSerializer());
             var bus = new CommandBus(new TopicSender(this.Settings, this.Topic), new StandardMetadataProvider(), new JsonTextSerializer());
 

@@ -16,16 +16,8 @@ namespace Registration.Commands
     using System;
     using Infrastructure.Messaging;
 
-    public class CommitSeatReservation : ICommand
+    public class CommitSeatReservation : SeatsAvailabilityCommand
     {
-        public CommitSeatReservation()
-        {
-            this.Id = Guid.NewGuid();
-        }
-
-        public Guid Id { get; private set; }
-
-        public Guid ConferenceId { get; set; }
         public Guid ReservationId { get; set; }
     }
 }

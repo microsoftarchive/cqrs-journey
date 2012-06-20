@@ -25,6 +25,14 @@ namespace WorkerRoleCommandProcessor
 			public static class Subscriptions
 			{
 				/// <summary>
+				/// sessionless
+				/// </summary>
+				public const string Sessionless = "sessionless";
+				/// <summary>
+				/// seatsavailability
+				/// </summary>
+				public const string Seatsavailability = "seatsavailability";
+				/// <summary>
 				/// all
 				/// </summary>
 				public const string All = "all";
@@ -52,6 +60,10 @@ namespace WorkerRoleCommandProcessor
 				/// Registration.RegistrationProcessRouter
 				/// </summary>
 				public const string RegistrationProcessRouter = "Registration.RegistrationProcessRouter";
+				/// <summary>
+				/// Registration.RegistrationProcessRouterV3
+				/// </summary>
+				public const string RegistrationProcessRouterV3 = "Registration.RegistrationProcessRouterV3";
 				/// <summary>
 				/// Registration.OrderViewModelGenerator
 				/// </summary>

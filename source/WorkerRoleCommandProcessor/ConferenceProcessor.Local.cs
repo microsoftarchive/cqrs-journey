@@ -64,6 +64,7 @@ namespace WorkerRoleCommandProcessor
 
             RegisterRepository(container);
             RegisterEventHandlers(container, eventProcessor);
+            RegisterCommandHandlers(container);
         }
 
         private void RegisterEventHandlers(UnityContainer container, EventProcessor eventProcessor)
@@ -85,5 +86,14 @@ namespace WorkerRoleCommandProcessor
             container.RegisterType(typeof(IEventSourcedRepository<>), typeof(SqlEventSourcedRepository<>), new ContainerControlledLifetimeManager());
         }
 
+        private static void RegisterCommandHandlers(IUnityContainer unityContainer)
+        {
+            var commandHandlerRegistry = unityContainer.Resolve<ICommandHandlerRegistry>();
+
+            foreach (var commandHandler in unityContainer.ResolveAll<ICommandHandler>())
+            {
+                commandHandlerRegistry.Register(commandHandler);
+            }
+        }
     }
 }

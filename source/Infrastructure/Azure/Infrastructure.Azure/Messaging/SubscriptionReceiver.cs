@@ -40,6 +40,7 @@ namespace Infrastructure.Azure.Messaging
         private string subscription;
         private readonly object lockObject = new object();
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy receiveRetryPolicy;
+        private readonly bool processInParallel;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
 
@@ -48,11 +49,12 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        public SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription)
+        public SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool processInParallel = false)
             : this(
                 settings,
                 topic,
                 subscription,
+                processInParallel,
                 new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
@@ -61,11 +63,12 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        protected SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, RetryStrategy backgroundRetryStrategy)
+        protected SubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool processInParallel, RetryStrategy backgroundRetryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
             this.subscription = subscription;
+            this.processInParallel = processInParallel;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -186,6 +189,11 @@ namespace Infrastructure.Azure.Messaging
                     msg =>
                     {
                         // Process the message once it was successfully received
+                        if (this.processInParallel)
+                        {
+                            // Continue receiving and processing new messages asynchrnously
+                            Task.Factory.StartNew(receiveNext);
+                        }
 
                         // Check if we actually received any messages.
                         if (msg != null)
@@ -208,8 +216,11 @@ namespace Infrastructure.Azure.Messaging
                             }
                         }
 
-                        // Continue receiving and processing new messages until we are told to stop.
-                        receiveNext.Invoke();
+                        if (!this.processInParallel)
+                        {
+                            // Continue receiving and processing new messages until we are told to stop.
+                            receiveNext.Invoke();
+                        }
                     },
                     ex =>
                     {

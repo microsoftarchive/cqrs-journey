@@ -76,7 +76,7 @@ namespace Infrastructure.Azure.Messaging
 
             var receiver = subscriptionSettings.RequiresSession ?
                 (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription) :
-                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription);
+                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription, true);
 
             var processor = new EventProcessor(receiver, serializer);
             processor.Register(handler);
