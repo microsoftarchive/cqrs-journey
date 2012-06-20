@@ -91,12 +91,6 @@ namespace Conference.Specflow.Steps
             Assert.Equal(registerToConference.Seats.Count, seatsReserved.AvailableSeatsChanged.Count());
         }
 
-        [Then(@"the command for marking the selected Seats as reserved is received")]
-        public void ThenTheCommandForMarkingTheSelectedSeatsAsReservedIsReceived()
-        {
-            Assert.True(MessageLogHelper.CollectCommands<MarkSeatsAsReserved>(c => c.OrderId == orderId));
-        }
-
         [Then(@"these Order Items should be reserved")]
         public void ThenTheseOrderItemsShouldBeReserved(Table table)
         {

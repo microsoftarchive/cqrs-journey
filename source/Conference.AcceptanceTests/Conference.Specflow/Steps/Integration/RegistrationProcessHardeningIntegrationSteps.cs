@@ -166,12 +166,5 @@ namespace Conference.Specflow.Steps
         {
             Assert.False(MessageLogHelper.GetEvents<OrderConfirmed>(orderId).ToList().Any());
         }
-
-        [Then(@"the command for rejecting the order is received")]
-        public void ThenTheCommandForRejectingTheOrderIsReceived()
-        {
-            Assert.True(MessageLogHelper.CollectCommands<RejectOrder>(
-                c => c.OrderId == orderId));
-        }
     }
 }

@@ -24,13 +24,15 @@ namespace Conference.Specflow.Steps
         [When(@"the Registrant assign these seats")]
         public void WhenTheRegistrantAssignTheseSeats(Table table)
         {
+            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
             try
             {
-                Browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage);
+                Browser.ClickAndWait(Constants.UI.SeatAssignementId, Constants.UI.SeatAssignmentPage, Constants.WaitTimeout);
             }
-            catch(Exception e)
+            catch (WatiN.Core.Exceptions.TimeoutException)
             {
-                Assert.Throws(e.GetType(), () => { });
+                // Retry in case the click was missed
+                Browser.Click(Constants.UI.SeatAssignementId);
             }
 
             foreach (var row in table.Rows)

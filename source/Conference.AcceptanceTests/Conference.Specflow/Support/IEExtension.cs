@@ -22,33 +22,50 @@ namespace Conference.Specflow.Support
     {
         public static void Click(this Browser browser, string controlId)
         {
-            var element = browser.Link(Find.ById(controlId)) as Element;
+            var element = FindButton(browser, controlId);
             if (!element.Exists)
             {
-                element = browser.Button(Find.ById(controlId));
+                element = FindLink(browser, controlId);
                 if (!element.Exists)
                 {
-                    element = browser.Button(b =>
-                                             (b.OuterText != null && b.OuterText.Contains(controlId)) ||
-                                             (b.Value != null && b.Value.Contains(controlId)));
-                    if (!element.Exists)
-                    {
-                        element = browser.Link(Find.ByText(t => t.Contains(controlId)));
-                        if (!element.Exists)
-                        {
-                            throw new InvalidOperationException(string.Format(
-                                "Could not find {0} link on the page", controlId));
-                        }
-                    }
+                    throw new InvalidOperationException(string.Format(
+                        "Could not find {0} link on the page", controlId));
                 }
             }
             element.Click();
         }
 
+        private static Element FindLink(Browser browser, string value)
+        {
+            Element element = browser.Link(Find.ById(value));
+            if(!element.Exists)
+            {
+                element = browser.Link(l => l.OuterHtml.Contains(value)); //element = browser.Link(Find.ByText(t => t.Contains(value)));
+            }
+            return element;
+        }
+
+        private static Element FindButton(Browser browser, string value)
+        {
+            Element element = browser.Button(Find.ById(value));
+            if (!element.Exists)
+            {
+                return browser.Button(b =>
+                                         (b.OuterText != null && b.OuterText.Contains(value)) ||
+                                         (b.Value != null && b.Value.Contains(value)));
+            }
+            return element;
+        }
+
         public static void ClickAndWait(this Browser browser, string controlId, string untilContainsText)
         {
+            ClickAndWait(browser, controlId, untilContainsText, Constants.UI.WaitTimeout);
+        }
+
+        public static void ClickAndWait(this Browser browser, string controlId, string untilContainsText, TimeSpan timeout)
+        {
             Click(browser, controlId);
-            browser.WaitUntilContainsText(untilContainsText, (int)Constants.UI.WaitTimeout.TotalSeconds);
+            browser.WaitUntilContainsText(untilContainsText, (int)timeout.TotalSeconds);
         }
 
         public static void SelectListInTableRow(this Browser browser, string rowName, string value)

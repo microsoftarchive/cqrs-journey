@@ -27,7 +27,7 @@ namespace Conference.Specflow.Steps.Views
     {
         private Table conferenceInfo;
         private Table seatsInfo;
-        private List<string> tags = new List<string>();
+        private readonly List<string> slugs = new List<string>();
 
         [Given(@"this base conference information")]
         public void GivenThisBaseConferenceInformation(Table table)
@@ -61,13 +61,15 @@ namespace Conference.Specflow.Steps.Views
         [Then(@"all the conferences are created")]
         public void ThenAllTheConferencesAreCreated()
         {
-            Parallel.ForEach(tags,
-                             t => Assert.True(MessageLogHelper.CollectEvents<ConferenceCreated>(c => c.Tagline == t)));
+            Parallel.ForEach(slugs,
+                             s => Assert.NotNull(ConferenceHelper.FindConference(s)));
         }
 
         private void PopulateConferenceInformation(int number)
         {
             var row = conferenceInfo.Rows[0];
+            var slug = ToOrdinal(row["Slug"], number);
+            slugs.Add(slug);
 
             Browser.SetInput("Name", ToOrdinal(row["Name"], number));
             Browser.SetInput("Description", ToOrdinal(row["Description"], number));
@@ -76,11 +78,8 @@ namespace Conference.Specflow.Steps.Views
             Browser.SetInput("OwnerName", ToOrdinal(row["Owner"],number));
             Browser.SetInput("OwnerEmail", row["Email"]);
             Browser.SetInput("name", row["Email"], "ConfirmEmail");
-            Browser.SetInput("Slug", ToOrdinal(row["Slug"], number));
+            Browser.SetInput("Slug", slug);
             Browser.SetInput("Location", Constants.UI.Location);
-            string tag = Slug.CreateNew().Value;
-            Browser.SetInput("Tagline", tag);
-            tags.Add(tag);
         }
 
         private void CreateSeats()
@@ -88,7 +87,7 @@ namespace Conference.Specflow.Steps.Views
             foreach(var row in seatsInfo.Rows)
             {
                 Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
-                for(int i =0 ; i < Browser.TextFields.Count; i++)
+                for (int i = 0; i < 4; i++) //Browser.TextFields.Count
                 {
                     Browser.TextFields[i].Value = row[i];
                 }
