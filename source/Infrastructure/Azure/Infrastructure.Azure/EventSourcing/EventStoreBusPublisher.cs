@@ -31,8 +31,7 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IPendingEventsQueue queue;
         private readonly BlockingCollection<string> enqueuedKeys;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
-        private const int MaxDegreeOfParallelism = 5;
-        private readonly Semaphore throttlingSemaphore;
+        private readonly DynamicThrottling dynamicThrottling = new DynamicThrottling();
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
         {
@@ -40,7 +39,8 @@ namespace Infrastructure.Azure.EventSourcing
             this.queue = queue;
 
             this.enqueuedKeys = new BlockingCollection<string>();
-            this.throttlingSemaphore = new Semaphore(MaxDegreeOfParallelism, MaxDegreeOfParallelism);
+            this.queue.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
+            this.sender.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
         }
 
         public void Start(CancellationToken cancellationToken)
@@ -50,15 +50,16 @@ namespace Infrastructure.Azure.EventSourcing
                 {
                     try
                     {
-                        foreach (var key in GetThrottlingEnumerable(this.enqueuedKeys.GetConsumingEnumerable(cancellationToken), this.throttlingSemaphore, cancellationToken))
+                        foreach (var key in GetThrottlingEnumerable(this.enqueuedKeys.GetConsumingEnumerable(cancellationToken), cancellationToken))
                         {
                             if (!cancellationToken.IsCancellationRequested)
                             {
+                                // TODO: verify if not using Task.Factory.StartNew to process new partition makes this process extremely eager, and consumes all resources when stressed.
                                 ProcessPartition(key);
                             }
                             else
                             {
-                                this.enqueuedKeys.Add(key);
+                                this.EnqueueIfNotExists(key);
                                 return;
                             }
                         }
@@ -80,9 +81,12 @@ namespace Infrastructure.Azure.EventSourcing
                         if (cancellationToken.IsCancellationRequested)
                             return;
 
-                        this.enqueuedKeys.Add(partitionKey);
+                        this.EnqueueIfNotExists(partitionKey);
                     }
-                });
+                },
+                TaskCreationOptions.LongRunning);
+
+            this.dynamicThrottling.Start(cancellationToken);
         }
 
         public void SendAsync(string partitionKey)
@@ -104,54 +108,55 @@ namespace Infrastructure.Azure.EventSourcing
 
         private void ProcessPartition(string key)
         {
-            IEnumerable<IEventRecord> pending;
-
-            try
-            {
-                pending = this.queue.GetPending(key);
-            }
-            catch (Exception e)
-            {
-                try
+            this.queue.GetPendingAsync(
+                key,
+                (results, hasMoreResults) =>
                 {
-                    Trace.TraceError("An error occurred while getting the events pending for publishing for partition {0}:\r\n{1}", key, e);
+                    var enumerator = results.GetEnumerator();
+                    this.SendAndDeletePending(
+                        enumerator,
+                        allElementWereProcessed =>
+                        {
+                            enumerator.Dispose();
+                            if (!allElementWereProcessed)
+                            {
+                                this.EnqueueIfNotExists(key);
+                            }
+                            else if (hasMoreResults)
+                            {
+                                // if there are more events in this partition, then continue processing and do not mark work as completed.
+                                ProcessPartition(key);
+                                return;
+                            }
+
+                            // all elements were processed or should be retried later. Mark this job as done.
+                            this.dynamicThrottling.NotifyWorkCompleted();
+                        },
+                        ex =>
+                        {
+                            enumerator.Dispose();
+                            Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
+
+                            // if there was ANY unhandled error, re-add the item to collection.
+                            this.EnqueueIfNotExists(key);
+                            this.dynamicThrottling.NotifyWorkCompletedWithError();
+                        });
+                },
+                ex =>
+                {
+                    Trace.TraceError("An error occurred while getting the events pending for publishing for partition {0}:\r\n{1}", key, ex);
 
                     // if there was ANY unhandled error, re-add the item to collection.
-                    this.enqueuedKeys.Add(key);
+                    this.EnqueueIfNotExists(key);
+                    this.dynamicThrottling.NotifyWorkCompletedWithError();
+                });
+        }
 
-                    // TODO: throttle for some time so we do not retry immediately? shutdown?
-                }
-                finally
-                {
-                    this.throttlingSemaphore.Release();
-                }
-
-                return;
-            }
-
-            var enumerator = pending.GetEnumerator();
+        private void SendAndDeletePending(IEnumerator<IEventRecord> enumerator, Action<bool> successCallback, Action<Exception> errorCallback)
+        {
 
             Action sendNextEvent = null;
             Action deletePending = null;
-            Action disposeEnumerator = () => { using (enumerator as IDisposable) { } };
-            Action<Exception> handleException =
-                ex =>
-                {
-                    try
-                    {
-                        disposeEnumerator();
-                        Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
-
-                        // if there was ANY unhandled error, re-add the item to collection.
-                        EnqueueIfNotExists(key);
-                    }
-                    finally
-                    {
-                        this.throttlingSemaphore.Release();
-                    }
-
-                    // TODO: throttle for some time so we do not retry immediately? shutdown?
-                };
 
             sendNextEvent =
                 () =>
@@ -165,18 +170,17 @@ namespace Infrastructure.Azure.EventSourcing
                             this.sender.SendAsync(
                                 () => BuildMessage(item),
                                 deletePending,
-                                handleException);
+                                errorCallback);
                         }
                         else
                         {
                             // no more elements
-                            disposeEnumerator();
-                            this.throttlingSemaphore.Release();
+                            successCallback(true);
                         }
                     }
                     catch (Exception e)
                     {
-                        handleException(e);
+                        errorCallback(e);
                     }
                 };
 
@@ -198,12 +202,10 @@ namespace Infrastructure.Azure.EventSourcing
                                     // another thread or process has already sent this event.
                                     // stop competing for the same partition and try to send it at the end of the queue if there are any
                                     // events still pending.
-                                    disposeEnumerator();
-                                    this.EnqueueIfNotExists(key);
-                                    this.throttlingSemaphore.Release();
+                                    successCallback(false);
                                 }
                             },
-                        handleException);
+                        errorCallback);
                 };
 
             sendNextEvent();
@@ -231,18 +233,114 @@ namespace Infrastructure.Azure.EventSourcing
             };
         }
 
-        private static IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, Semaphore throttlingSemaphore, CancellationToken cancellationToken)
+        private IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, CancellationToken cancellationToken)
         {
-            throttlingSemaphore.WaitOne();
-
             foreach (var item in enumerable)
             {
+                this.dynamicThrottling.NotifyWorkStarted();
                 yield return item;
-                throttlingSemaphore.WaitOne();
+
+                this.dynamicThrottling.WaitUntilAllowedParallelism(cancellationToken);
+
                 if (cancellationToken.IsCancellationRequested)
                 {
                     yield break;
                 }
+            }
+        }
+
+        public class DynamicThrottling
+        {
+            // configuration
+            private const int MaxDegreeOfParallelism = 800;
+            private const int MinDegreeOfParallelism = 30;
+            private const double ParallelTokenRatio = 0.1;
+            private const int IntervalForRestoringParallelToken = 7500;
+
+            //values derived from the previous ones
+            private const int MaxAmountOfTokens = (int)(MaxDegreeOfParallelism * ParallelTokenRatio);
+            private const int MinAmountOfTokens = (int)(MinDegreeOfParallelism * ParallelTokenRatio);
+
+            private readonly AutoResetEvent waitHandle = new AutoResetEvent(true);
+            private readonly Timer tokenRestoringTimer;
+
+            private int currentParallelJobs = 0;
+            private int availableParallelTokens = MaxAmountOfTokens;
+
+            public DynamicThrottling()
+            {
+                this.tokenRestoringTimer = new Timer(s => this.IncrementParallelTokens());
+            }
+
+            public void NotifyWorkCompleted()
+            {
+                Interlocked.Decrement(ref this.currentParallelJobs);
+                // Trace.WriteLine("Job finished. Parallel jobs are now: " + this.currentParallelJobs);
+                this.waitHandle.Set();
+            }
+
+            public void NotifyWorkStarted()
+            {
+                Interlocked.Increment(ref this.currentParallelJobs);
+                // Trace.WriteLine("Job started. Parallel jobs are now: " + this.currentParallelJobs);
+            }
+            
+            public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
+            {
+                while (this.currentParallelJobs * ParallelTokenRatio >= this.availableParallelTokens)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    // Trace.WriteLine("Waiting for tokens. Available: " + this.availableParallelTokens + ". In use: " + this.currentParallelJobs * ParallelTokenRatio);
+
+                    this.waitHandle.WaitOne();
+                }
+            }
+
+            public void OnRetrying()
+            {
+                // Slightly penalize with removal of 1 token (more than 1 degree of parallelism).
+                this.DecrementParallelTokens(1);
+            }
+
+            public void NotifyWorkCompletedWithError()
+            {
+                // Largely penalize with removal of several tokens.
+                this.DecrementParallelTokens(3);
+                this.NotifyWorkCompleted();
+            }
+
+            public void Start(CancellationToken cancellationToken)
+            {
+                if (cancellationToken.CanBeCanceled)
+                {
+                    cancellationToken.Register(() => this.tokenRestoringTimer.Change(Timeout.Infinite, Timeout.Infinite));
+                }
+
+                this.tokenRestoringTimer.Change(IntervalForRestoringParallelToken, IntervalForRestoringParallelToken);
+            }
+
+            private void IncrementParallelTokens()
+            {
+                if (this.availableParallelTokens < MaxAmountOfTokens)
+                {
+                    this.availableParallelTokens++;
+                    this.waitHandle.Set();
+                    // Trace.WriteLine("Incremented tokens. Available: " + this.availableParallelTokens);
+                }
+            }
+
+            private void DecrementParallelTokens(int count)
+            {
+                this.availableParallelTokens -= count;
+                if (this.availableParallelTokens < MinAmountOfTokens)
+                {
+                    this.availableParallelTokens = MinAmountOfTokens;
+                }
+                // Trace.WriteLine("Decremented tokens. Available: " + this.availableParallelTokens);
             }
         }
     }
