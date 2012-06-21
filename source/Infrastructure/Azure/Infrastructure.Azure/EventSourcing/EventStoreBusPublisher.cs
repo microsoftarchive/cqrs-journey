@@ -39,6 +39,7 @@ namespace Infrastructure.Azure.EventSourcing
             this.queue = queue;
 
             this.enqueuedKeys = new BlockingCollection<string>();
+            this.queue.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
             this.sender.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
         }
 
@@ -53,6 +54,7 @@ namespace Infrastructure.Azure.EventSourcing
                         {
                             if (!cancellationToken.IsCancellationRequested)
                             {
+                                // TODO: verify if not using Task.Factory.StartNew to process new partition makes this process extremely eager, and consumes all resources when stressed.
                                 ProcessPartition(key);
                             }
                             else
@@ -79,9 +81,10 @@ namespace Infrastructure.Azure.EventSourcing
                         if (cancellationToken.IsCancellationRequested)
                             return;
 
-                        this.enqueuedKeys.Add(partitionKey);
+                        this.EnqueueIfNotExists(partitionKey);
                     }
-                });
+                },
+                TaskCreationOptions.LongRunning);
 
             this.dynamicThrottling.Start(cancellationToken);
         }
@@ -105,49 +108,55 @@ namespace Infrastructure.Azure.EventSourcing
 
         private void ProcessPartition(string key)
         {
-            IEnumerable<IEventRecord> pending;
-
-            try
-            {
-                pending = this.queue.GetPending(key);
-            }
-            catch (Exception e)
-            {
-                try
+            this.queue.GetPendingAsync(
+                key,
+                (results, hasMoreResults) =>
                 {
-                    Trace.TraceError("An error occurred while getting the events pending for publishing for partition {0}:\r\n{1}", key, e);
+                    var enumerator = results.GetEnumerator();
+                    this.SendAndDeletePending(
+                        enumerator,
+                        allElementWereProcessed =>
+                        {
+                            enumerator.Dispose();
+                            if (!allElementWereProcessed)
+                            {
+                                this.EnqueueIfNotExists(key);
+                            }
+                            else if (hasMoreResults)
+                            {
+                                // if there are more events in this partition, then continue processing and do not mark work as completed.
+                                ProcessPartition(key);
+                                return;
+                            }
+
+                            // all elements were processed or should be retried later. Mark this job as done.
+                            this.dynamicThrottling.NotifyWorkCompleted();
+                        },
+                        ex =>
+                        {
+                            enumerator.Dispose();
+                            Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
+
+                            // if there was ANY unhandled error, re-add the item to collection.
+                            this.EnqueueIfNotExists(key);
+                            this.dynamicThrottling.NotifyWorkCompletedWithError();
+                        });
+                },
+                ex =>
+                {
+                    Trace.TraceError("An error occurred while getting the events pending for publishing for partition {0}:\r\n{1}", key, ex);
 
                     // if there was ANY unhandled error, re-add the item to collection.
                     this.EnqueueIfNotExists(key);
-                }
-                finally
-                {
                     this.dynamicThrottling.NotifyWorkCompletedWithError();
-                }
+                });
+        }
 
-                return;
-            }
-
-            var enumerator = pending.GetEnumerator();
+        private void SendAndDeletePending(IEnumerator<IEventRecord> enumerator, Action<bool> successCallback, Action<Exception> errorCallback)
+        {
 
             Action sendNextEvent = null;
             Action deletePending = null;
-            Action<Exception> handleException =
-                ex =>
-                {
-                    try
-                    {
-                        enumerator.Dispose();
-                        Trace.TraceError("An error occurred while publishing events for partition {0}:\r\n{1}", key, ex);
-
-                        // if there was ANY unhandled error, re-add the item to collection.
-                        this.EnqueueIfNotExists(key);
-                    }
-                    finally
-                    {
-                        this.dynamicThrottling.NotifyWorkCompletedWithError();
-                    }
-                };
 
             sendNextEvent =
                 () =>
@@ -161,18 +170,17 @@ namespace Infrastructure.Azure.EventSourcing
                             this.sender.SendAsync(
                                 () => BuildMessage(item),
                                 deletePending,
-                                handleException);
+                                errorCallback);
                         }
                         else
                         {
                             // no more elements
-                            enumerator.Dispose();
-                            this.dynamicThrottling.NotifyWorkCompleted();
+                            successCallback(true);
                         }
                     }
                     catch (Exception e)
                     {
-                        handleException(e);
+                        errorCallback(e);
                     }
                 };
 
@@ -194,12 +202,10 @@ namespace Infrastructure.Azure.EventSourcing
                                     // another thread or process has already sent this event.
                                     // stop competing for the same partition and try to send it at the end of the queue if there are any
                                     // events still pending.
-                                    enumerator.Dispose();
-                                    this.EnqueueIfNotExists(key);
-                                    this.dynamicThrottling.NotifyWorkCompleted();
+                                    successCallback(false);
                                 }
                             },
-                        handleException);
+                        errorCallback);
                 };
 
             sendNextEvent();
@@ -247,9 +253,9 @@ namespace Infrastructure.Azure.EventSourcing
         {
             // configuration
             private const int MaxDegreeOfParallelism = 800;
-            private const int MinDegreeOfParallelism = 20;
+            private const int MinDegreeOfParallelism = 30;
             private const double ParallelTokenRatio = 0.1;
-            private const int IntervalForRestoringParallelToken = 5000;
+            private const int IntervalForRestoringParallelToken = 7500;
 
             //values derived from the previous ones
             private const int MaxAmountOfTokens = (int)(MaxDegreeOfParallelism * ParallelTokenRatio);

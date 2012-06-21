@@ -14,6 +14,7 @@
 namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
@@ -47,7 +48,8 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                 && x.Namespace == "Namespace"
                 && x.FullName == "Namespace.TestEventType");
             this.queue = new Mock<IPendingEventsQueue>();
-            queue.Setup(x => x.GetPending(partitionKey)).Returns(new[] { testEvent });
+            queue.Setup(x => x.GetPendingAsync(partitionKey, It.IsAny<Action<IEnumerable<IEventRecord>, bool>>(), It.IsAny<Action<Exception>>()))
+                .Callback<string, Action<IEnumerable<IEventRecord>, bool>, Action<Exception>>((key, success, error) => success(new[] { testEvent }, false));
             this.sender = new MessageSenderMock();
             var sut = new EventStoreBusPublisher(sender, queue.Object);
             var cancellationTokenSource = new CancellationTokenSource();
@@ -101,8 +103,10 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
 
             this.pendingKeys = new[] { "Key1", "Key2", "Key3" };
             this.queue = new Mock<IPendingEventsQueue>();
-            queue.Setup(x => x.GetPending(It.IsAny<string>())).Returns<string>(
-                key => new[]
+            queue.Setup(x => x.GetPendingAsync(It.IsAny<string>(), It.IsAny<Action<IEnumerable<IEventRecord>, bool>>(), It.IsAny<Action<Exception>>()))
+                .Callback<string, Action<IEnumerable<IEventRecord>, bool>, Action<Exception>>(
+                (key, success, error) => 
+                    success(new[]
                            {
                                Mock.Of<IEventRecord>(
                                    x => x.PartitionKey == key
@@ -111,7 +115,10 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                                         && x.SourceId == "TestId"
                                         && x.SourceType == "TestSourceType"
                                         && x.Payload == "serialized event")
-                           });
+                           },
+                    false));
+            
+                
             queue.Setup(x => x.GetPartitionsWithPendingEvents()).Returns(pendingKeys);
             this.sender = new MessageSenderMock();
             var sut = new EventStoreBusPublisher(sender, queue.Object);
@@ -173,19 +180,23 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             this.version = "0001";
             this.rowKey = "Unpublished_" + version;
 
-            this.partitionKeys = Enumerable.Range(0, 230).Select(i => "Key" + i).ToArray();
+            this.partitionKeys = Enumerable.Range(0, 2000).Select(i => "Key" + i).ToArray();
             this.queue = new Mock<IPendingEventsQueue>();
-            queue.Setup(x => x.GetPending(It.IsAny<string>())).Returns<string>(
-                key => new[]
-                           {
-                               Mock.Of<IEventRecord>(
-                                   x => x.PartitionKey == key
-                                        && x.RowKey == rowKey
-                                        && x.TypeName == "TestEventType"
-                                        && x.SourceId == "TestId"
-                                        && x.SourceType == "TestSourceType"
-                                        && x.Payload == "serialized event")
-                           });
+            queue.Setup(x => x.GetPendingAsync(It.IsAny<string>(), It.IsAny<Action<IEnumerable<IEventRecord>, bool>>(), It.IsAny<Action<Exception>>()))
+                .Callback<string, Action<IEnumerable<IEventRecord>, bool>, Action<Exception>>(
+                (key, success, error) =>
+                    success(new[]
+                                {
+                                    Mock.Of<IEventRecord>(
+                                        x => x.PartitionKey == key
+                                            && x.RowKey == rowKey
+                                            && x.TypeName == "TestEventType"
+                                            && x.SourceId == "TestId"
+                                            && x.SourceType == "TestSourceType"
+                                            && x.Payload == "serialized event")
+                                },
+                    false));
+
             queue.Setup(x => x.GetPartitionsWithPendingEvents()).Returns(Enumerable.Empty<string>());
             queue
                 .Setup(x =>
@@ -225,9 +236,9 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         }
 
         [Fact]
-        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_100()
+        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_800()
         {
-            var degreeOfParallelism = 100;
+            var degreeOfParallelism = 800;
 
             this.sender.ShouldWaitForCallback = true;
             for (int i = 0; i < partitionKeys.Length; i++)
