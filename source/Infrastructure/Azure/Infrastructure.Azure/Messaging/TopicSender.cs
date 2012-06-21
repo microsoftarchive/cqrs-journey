@@ -61,12 +61,23 @@ namespace Infrastructure.Azure.Messaging
             this.retryPolicy.Retrying +=
                 (s, e) =>
                 {
+                    var handler = this.Retrying;
+                    if (handler != null)
+                    {
+                        handler(this, EventArgs.Empty);
+                    }
+
                     Trace.TraceWarning("An error occurred in attempt number {1} to send a message: {0}", e.LastException.Message, e.CurrentRetryCount);
                 };
 
             var factory = MessagingFactory.Create(this.serviceUri, this.tokenProvider);
             this.topicClient = factory.CreateTopicClient(this.topic);
         }
+
+        /// <summary>
+        /// Notifies that the sender is retrying due to a transient fault.
+        /// </summary>
+        public event EventHandler Retrying;
 
         /// <summary>
         /// Asynchronously sends the specified message.

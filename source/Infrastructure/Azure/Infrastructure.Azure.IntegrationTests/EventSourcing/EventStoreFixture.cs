@@ -14,6 +14,7 @@
 namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -175,7 +176,7 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void can_get_all_events_for_partition_as_pending()
         {
-            var pending = sut.GetPending(this.partitionKey).ToList();
+            var pending = GetPendingAsyncAndWait(sut, this.partitionKey).ToList();
 
             Assert.Equal(2, pending.Count);
             Assert.True(pending.All(x => x.SourceType == "Source"));
@@ -191,11 +192,11 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void when_deleting_pending_then_can_get_list_without_item()
         {
-            var pending = sut.GetPending(this.partitionKey).ToList();
+            var pending = GetPendingAsyncAndWait(sut, this.partitionKey).ToList();
 
-            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
+            DeletePendingAsyncAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
 
-            pending = sut.GetPending(this.partitionKey).ToList();
+            pending = GetPendingAsyncAndWait(sut, this.partitionKey).ToList();
 
             Assert.Equal(1, pending.Count);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);
@@ -216,12 +217,12 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
         [Fact]
         public void can_delete_item_several_times_for_idempotency()
         {
-            var pending = sut.GetPending(this.partitionKey).ToList();
-            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
-            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
-            DeletePendingAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
+            var pending = GetPendingAsyncAndWait(sut, this.partitionKey).ToList();
+            DeletePendingAsyncAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
+            DeletePendingAsyncAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
+            DeletePendingAsyncAndWait(sut, pending[0].PartitionKey, pending[0].RowKey);
 
-            pending = sut.GetPending(this.partitionKey).ToList();
+            pending = GetPendingAsyncAndWait(sut, this.partitionKey).ToList();
 
             Assert.Equal(1, pending.Count);
             Assert.Equal("Unpublished_" + events[1].Version.ToString("D10"), pending[0].RowKey);
@@ -230,11 +231,26 @@ namespace Azure.IntegrationTests.EventSourcing.EventStoreFixture
             Assert.Equal("Source", pending[0].SourceType);
         }
 
-        private void DeletePendingAndWait(EventStore sut, string partitionKey, string rowKey)
+        private void DeletePendingAsyncAndWait(EventStore sut, string partitionKey, string rowKey)
         {
             var resetEvent = new AutoResetEvent(false);
             sut.DeletePendingAsync(partitionKey, rowKey, (deleted) => { resetEvent.Set(); Assert.True(deleted); }, Assert.Null);
             Assert.True(resetEvent.WaitOne(5000));
+        }
+
+        private IEnumerable<IEventRecord> GetPendingAsyncAndWait(EventStore sut, string partitionKey)
+        {
+            var resetEvent = new AutoResetEvent(false);
+            IEnumerable<IEventRecord> results = null;
+            bool hasMore = false;
+            sut.GetPendingAsync(partitionKey, (rs, more) =>
+            {
+                results = rs;
+                hasMore = more; resetEvent.Set();
+            }, Assert.Null);
+            Assert.True(resetEvent.WaitOne(6000));
+            Assert.False(hasMore);
+            return results;
         }
     }
 

@@ -59,10 +59,16 @@ namespace Infrastructure.Azure.EventSourcing
             var backgroundRetryStrategy = new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1));
             var blockingRetryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
             this.pendingEventsQueueRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(backgroundRetryStrategy);
-            this.pendingEventsQueueRetryPolicy.Retrying += (s, e) => Trace.TraceWarning(
-                "An error occurred in attempt number {1} to access table storage (PendingEventsQueue): {0}",
-                e.LastException.Message,
-                e.CurrentRetryCount);
+            this.pendingEventsQueueRetryPolicy.Retrying += (s, e) =>
+            {
+                var handler = this.Retrying;
+                if (handler != null)
+                {
+                    handler(this, EventArgs.Empty);
+                }
+
+                Trace.TraceWarning("An error occurred in attempt number {1} to access table storage (PendingEventsQueue): {0}", e.LastException.Message, e.CurrentRetryCount);
+            };
             this.eventStoreRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(blockingRetryStrategy);
             this.eventStoreRetryPolicy.Retrying += (s, e) => Trace.TraceWarning(
                 "An error occurred in attempt number {1} to access table storage (EventStore): {0}",
@@ -71,6 +77,11 @@ namespace Infrastructure.Azure.EventSourcing
 
             this.eventStoreRetryPolicy.ExecuteAction(() => tableClient.CreateTableIfNotExist(tableName));
         }
+
+        /// <summary>
+        /// Notifies that the sender is retrying due to a transient fault.
+        /// </summary>
+        public event EventHandler Retrying;
 
         public IEnumerable<EventData> Load(string partitionKey, int version)
         {
@@ -124,13 +135,38 @@ namespace Infrastructure.Azure.EventSourcing
             }
         }
 
-        public IEnumerable<IEventRecord> GetPending(string partitionKey)
+        /// <summary>
+        /// Gets the pending events for publishing asynchronously using delegate continuations.
+        /// </summary>
+        /// <param name="partitionKey">The partition key to get events from.</param>
+        /// <param name="successCallback">The callback that will be called if the data is successfully retrieved. 
+        /// The first argument of the callback is the list of pending events.
+        /// The second argument is true if there are more records that were not retrieved.</param>
+        /// <param name="exceptionCallback">The callback used if there is an exception that does not allow to continue.</param>
+        public void GetPendingAsync(string partitionKey, Action<IEnumerable<IEventRecord>, bool> successCallback, Action<Exception> exceptionCallback)
         {
             var query = this.GetEntitiesQuery(partitionKey, UnpublishedRowKeyPrefix, UnpublishedRowKeyPrefixUpperLimit);
-            // TODO: continuation tokens, etc
-            return this.pendingEventsQueueRetryPolicy.ExecuteAction(() => query.Execute());
+            this.pendingEventsQueueRetryPolicy
+                .ExecuteAction(
+                    ac => query.BeginExecuteSegmented(ac, null),
+                    ar => query.EndExecuteSegmented(ar),
+                    rs =>
+                    {
+                        var all = rs.Results.ToList();
+                        successCallback(rs.Results, rs.HasMoreResults);
+                    },
+                    exceptionCallback);
         }
 
+        /// <summary>
+        /// Deletes the specified pending event from the queue.
+        /// </summary>
+        /// <param name="partitionKey">The partition key of the event.</param>
+        /// <param name="rowKey">The partition key of the event.</param>
+        /// <param name="successCallback">The callback that will be called if the data is successfully retrieved.
+        /// The argument specifies if the row was deleted. If false, it means that the row did not exist.
+        /// </param>
+        /// <param name="exceptionCallback">The callback used if there is an exception that does not allow to continue.</param>
         public void DeletePendingAsync(string partitionKey, string rowKey, Action<bool> successCallback, Action<Exception> exceptionCallback)
         {
             var context = this.tableClient.GetDataServiceContext();
@@ -163,19 +199,10 @@ namespace Infrastructure.Azure.EventSourcing
                 exceptionCallback);
         }
 
-        private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)
-        {
-            var context = this.tableClient.GetDataServiceContext();
-            var query = context
-                .CreateQuery<EventTableServiceEntity>(this.tableName)
-                .Where(
-                    x =>
-                    x.PartitionKey == partitionKey && x.RowKey.CompareTo(minRowKey) >= 0 && x.RowKey.CompareTo(maxRowKey) <= 0);
-
-            // TODO: continuation tokens, etc
-            return query.AsTableServiceQuery();
-        }
-
+        /// <summary>
+        /// Gets the list of all partitions that have pending unpublished events.
+        /// </summary>
+        /// <returns>The list of all partitions.</returns>
         public IEnumerable<string> GetPartitionsWithPendingEvents()
         {
             var context = this.tableClient.GetDataServiceContext();
@@ -228,6 +255,18 @@ namespace Infrastructure.Azure.EventSourcing
                 });
 
             return result.GetConsumingEnumerable(tokenSource.Token);
+        }
+
+        private CloudTableQuery<EventTableServiceEntity> GetEntitiesQuery(string partitionKey, string minRowKey, string maxRowKey)
+        {
+            var context = this.tableClient.GetDataServiceContext();
+            var query = context
+                .CreateQuery<EventTableServiceEntity>(this.tableName)
+                .Where(
+                    x =>
+                    x.PartitionKey == partitionKey && x.RowKey.CompareTo(minRowKey) >= 0 && x.RowKey.CompareTo(maxRowKey) <= 0);
+
+            return query.AsTableServiceQuery();
         }
     }
 }
