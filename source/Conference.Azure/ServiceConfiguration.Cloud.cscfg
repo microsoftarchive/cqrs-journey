@@ -24,6 +24,7 @@
       <Setting name="DbContext.SqlBus" value="" />
       <Setting name="DbContext.BlobStorage" value="" />
       <Setting name="MaintenanceMode" value="false" />
+      <Setting name="InstrumentationEnabled" value="false" />
     </ConfigurationSettings>
   </Role>
   <Role name="WorkerRoleCommandProcessor">

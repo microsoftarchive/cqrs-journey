@@ -81,7 +81,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         [Fact]
         public void then_notifies_publisher_about_the_pending_partition_key()
         {
-            publisher.Verify(s => s.SendAsync("TestEntity_" + id.ToString()));
+            publisher.Verify(s => s.SendAsync("TestEntity_" + id.ToString(), 2));
         }
     }
 
@@ -146,7 +146,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         [Fact]
         public void then_notifies_publisher_about_the_pending_partition_key()
         {
-            publisher.Verify(s => s.SendAsync("TestOriginatorEntity_" + id.ToString()));
+            publisher.Verify(s => s.SendAsync("TestOriginatorEntity_" + id.ToString(), 2));
         }
 
         [Fact]

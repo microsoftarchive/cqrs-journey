@@ -64,7 +64,7 @@ namespace Infrastructure.Azure.EventSourcing
                         "Type T must have a constructor with the following signature: .ctor(Guid, IMemento, IEnumerable<IVersionedEvent>)");
                 }
                 this.originatorEntityFactory = (id, memento, events) => (T)mementoConstructor.Invoke(new object[] { id, memento, events });
-                this.cacheMementoIfApplicable = (T originator) => 
+                this.cacheMementoIfApplicable = (T originator) =>
                     {
                         string key = GetPartitionKey(originator.Id);
                         var memento = ((IMementoOriginator)originator).SaveToMemento();
@@ -131,7 +131,7 @@ namespace Infrastructure.Azure.EventSourcing
             var partitionKey = this.GetPartitionKey(eventSourced.Id);
             this.eventStore.Save(partitionKey, serialized);
 
-            this.publisher.SendAsync(partitionKey);
+            this.publisher.SendAsync(partitionKey, events.Length);
 
             this.cacheMementoIfApplicable.Invoke(eventSourced);
         }

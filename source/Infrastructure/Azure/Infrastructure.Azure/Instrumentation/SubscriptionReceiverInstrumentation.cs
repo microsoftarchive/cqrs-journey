@@ -45,14 +45,14 @@ namespace Infrastructure.Azure.Instrumentation
 
             if (this.instrumentationEnabled)
             {
-                this.totalMessagesCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalMessagesCounterName, this.instanceName, false);
-                this.totalMessagesSuccessfullyProcessedCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalMessagesSuccessfullyProcessedCounterName, this.instanceName, false);
-                this.totalMessagesUnsuccessfullyProcessedCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalMessagesUnsuccessfullyProcessedCounterName, this.instanceName, false);
-                this.totalMessagesCompletedCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalMessagesCompletedCounterName, this.instanceName, false);
-                this.totalMessagesNotCompletedCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalMessagesNotCompletedCounterName, this.instanceName, false);
-                this.messagesReceivedPerSecondCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, MessagesReceivedPerSecondCounterName, this.instanceName, false);
-                this.averageMessageProcessingTimeCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, AverageMessageProcessingTimeCounterName, this.instanceName, false);
-                this.averageMessageProcessingTimeBaseCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, AverageMessageProcessingTimeBaseCounterName, this.instanceName, false);
+                this.totalMessagesCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalMessagesCounterName, this.instanceName, false);
+                this.totalMessagesSuccessfullyProcessedCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalMessagesSuccessfullyProcessedCounterName, this.instanceName, false);
+                this.totalMessagesUnsuccessfullyProcessedCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalMessagesUnsuccessfullyProcessedCounterName, this.instanceName, false);
+                this.totalMessagesCompletedCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalMessagesCompletedCounterName, this.instanceName, false);
+                this.totalMessagesNotCompletedCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalMessagesNotCompletedCounterName, this.instanceName, false);
+                this.messagesReceivedPerSecondCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, MessagesReceivedPerSecondCounterName, this.instanceName, false);
+                this.averageMessageProcessingTimeCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, AverageMessageProcessingTimeCounterName, this.instanceName, false);
+                this.averageMessageProcessingTimeBaseCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, AverageMessageProcessingTimeBaseCounterName, this.instanceName, false);
             }
         }
 

@@ -22,6 +22,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Messaging;
     using Microsoft.ServiceBus.Messaging;
 
@@ -30,13 +31,15 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IMessageSender sender;
         private readonly IPendingEventsQueue queue;
         private readonly BlockingCollection<string> enqueuedKeys;
+        private readonly IEventStoreBusPublisherInstrumentation instrumentation;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
         private readonly DynamicThrottling dynamicThrottling = new DynamicThrottling();
 
-        public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue)
+        public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue, IEventStoreBusPublisherInstrumentation instrumentation)
         {
             this.sender = sender;
             this.queue = queue;
+            this.instrumentation = instrumentation;
 
             this.enqueuedKeys = new BlockingCollection<string>();
             this.queue.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
@@ -89,12 +92,14 @@ namespace Infrastructure.Azure.EventSourcing
             this.dynamicThrottling.Start(cancellationToken);
         }
 
-        public void SendAsync(string partitionKey)
+        public void SendAsync(string partitionKey, int eventCount)
         {
-            if (string.IsNullOrEmpty(partitionKey)) 
+            if (string.IsNullOrEmpty(partitionKey))
                 throw new ArgumentNullException(partitionKey);
 
             EnqueueIfNotExists(partitionKey);
+
+            this.instrumentation.EventsPublishingRequested(eventCount);
         }
 
         private void EnqueueIfNotExists(string partitionKey)
@@ -108,6 +113,8 @@ namespace Infrastructure.Azure.EventSourcing
 
         private void ProcessPartition(string key)
         {
+            this.instrumentation.EventPublisherStarted();
+
             this.queue.GetPendingAsync(
                 key,
                 (results, hasMoreResults) =>
@@ -131,6 +138,7 @@ namespace Infrastructure.Azure.EventSourcing
 
                             // all elements were processed or should be retried later. Mark this job as done.
                             this.dynamicThrottling.NotifyWorkCompleted();
+                            this.instrumentation.EventPublisherFinished();
                         },
                         ex =>
                         {
@@ -140,6 +148,7 @@ namespace Infrastructure.Azure.EventSourcing
                             // if there was ANY unhandled error, re-add the item to collection.
                             this.EnqueueIfNotExists(key);
                             this.dynamicThrottling.NotifyWorkCompletedWithError();
+                            this.instrumentation.EventPublisherFinished();
                         });
                 },
                 ex =>
@@ -149,6 +158,7 @@ namespace Infrastructure.Azure.EventSourcing
                     // if there was ANY unhandled error, re-add the item to collection.
                     this.EnqueueIfNotExists(key);
                     this.dynamicThrottling.NotifyWorkCompletedWithError();
+                    this.instrumentation.EventPublisherFinished();
                 });
         }
 
@@ -195,6 +205,8 @@ namespace Infrastructure.Azure.EventSourcing
                             {
                                 if (rowDeleted)
                                 {
+                                    this.instrumentation.EventPublished();
+
                                     sendNextEvent.Invoke();
                                 }
                                 else
@@ -284,7 +296,7 @@ namespace Infrastructure.Azure.EventSourcing
                 Interlocked.Increment(ref this.currentParallelJobs);
                 // Trace.WriteLine("Job started. Parallel jobs are now: " + this.currentParallelJobs);
             }
-            
+
             public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
             {
                 while (this.currentParallelJobs * ParallelTokenRatio >= this.availableParallelTokens)

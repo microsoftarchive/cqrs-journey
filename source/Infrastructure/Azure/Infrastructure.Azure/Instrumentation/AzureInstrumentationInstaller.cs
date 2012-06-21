@@ -23,22 +23,39 @@ namespace Infrastructure.Azure.Instrumentation
         {
             InitializeComponent();
 
-            var installer = new PerformanceCounterInstaller { CategoryName = Constants.PerformanceCountersCategory, CategoryType = PerformanceCounterCategoryType.MultiInstance };
+            // Receiver performance counters
+            {
+                var installer = new PerformanceCounterInstaller { CategoryName = Constants.ReceiversPerformanceCountersCategory, CategoryType = PerformanceCounterCategoryType.MultiInstance };
+                this.Installers.Add(installer);
 
-            installer.Counters.Add(new CounterCreationData(SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
 
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesCompletedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesNotCompletedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesCompletedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesNotCompletedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
 
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.AverageMessageProcessingTimeCounterName, string.Empty, PerformanceCounterType.RawFraction));
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.AverageMessageProcessingTimeBaseCounterName, string.Empty, PerformanceCounterType.RawBase));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.AverageMessageProcessingTimeCounterName, string.Empty, PerformanceCounterType.RawFraction));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.AverageMessageProcessingTimeBaseCounterName, string.Empty, PerformanceCounterType.RawBase));
 
-            installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.MessagesReceivedPerSecondCounterName, string.Empty, PerformanceCounterType.RateOfCountsPerSecond32));
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.MessagesReceivedPerSecondCounterName, string.Empty, PerformanceCounterType.RateOfCountsPerSecond32));
+            }
 
-            this.Installers.Add(installer);
+            // Event store publisher counters
+            {
+                var installer = new PerformanceCounterInstaller { CategoryName = Constants.EventPublishersPerformanceCountersCategory, CategoryType = PerformanceCounterCategoryType.SingleInstance };
+                this.Installers.Add(installer);
+
+
+                installer.Counters.Add(new CounterCreationData(EventStoreBusPublisherInstrumentation.TotalEventsPublishingRequestsCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(EventStoreBusPublisherInstrumentation.EventPublishingRequestsPerSecondCounterName, string.Empty, PerformanceCounterType.RateOfCountsPerSecond32));
+
+                installer.Counters.Add(new CounterCreationData(EventStoreBusPublisherInstrumentation.TotalEventsPublishedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(EventStoreBusPublisherInstrumentation.EventsPublishedPerSecondCounterName, string.Empty, PerformanceCounterType.RateOfCountsPerSecond32));
+
+                installer.Counters.Add(new CounterCreationData(EventStoreBusPublisherInstrumentation.CurrentEventPublishersCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+            }
         }
     }
 }

@@ -110,54 +110,44 @@ namespace WorkerRoleCommandProcessor
                 });
 
 #if !LOCAL
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesCompletedCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalMessagesNotCompletedCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.AverageMessageProcessingTimeCounterName,
-                    SampleRate = sampleRate
-                });
-            config.PerformanceCounters.DataSources.Add(
-                new PerformanceCounterConfiguration
-                {
-                    CounterSpecifier = @"\Azure Infrastructure(*)\" + Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.MessagesReceivedPerSecondCounterName,
-                    SampleRate = sampleRate
-                });
+            foreach (var counterName in
+                new[] 
+                { 
+                    Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesCompletedCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesNotCompletedCounterName,                
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.AverageMessageProcessingTimeCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.MessagesReceivedPerSecondCounterName
+                })
+            {
+                config.PerformanceCounters.DataSources.Add(
+                    new PerformanceCounterConfiguration
+                    {
+                        CounterSpecifier = @"\" + Infrastructure.Azure.Instrumentation.Constants.ReceiversPerformanceCountersCategory + @"(*)\" + counterName,
+                        SampleRate = sampleRate
+                    });
+            }
+
+            foreach (var counterName in
+                new[] 
+                { 
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.CurrentEventPublishersCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.EventPublishingRequestsPerSecondCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.EventsPublishedPerSecondCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.TotalEventsPublishedCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.TotalEventsPublishingRequestsCounterName,
+                })
+            {
+                config.PerformanceCounters.DataSources.Add(
+                    new PerformanceCounterConfiguration
+                    {
+                        CounterSpecifier = @"\" + Infrastructure.Azure.Instrumentation.Constants.EventPublishersPerformanceCountersCategory + @"(*)\" + counterName,
+                        SampleRate = sampleRate
+                    });
+            }
 #endif
 
             config.PerformanceCounters.ScheduledTransferPeriod = transferPeriod;

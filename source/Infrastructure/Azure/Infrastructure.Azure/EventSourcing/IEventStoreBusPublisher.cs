@@ -18,6 +18,6 @@ namespace Infrastructure.Azure.EventSourcing
     public interface IEventStoreBusPublisher
     {
         void Start(CancellationToken cancellationToken);
-        void SendAsync(string partitionKey);
+        void SendAsync(string partitionKey, int eventCount);
     }
 }

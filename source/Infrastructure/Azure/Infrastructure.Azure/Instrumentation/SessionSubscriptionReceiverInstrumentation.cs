@@ -26,7 +26,7 @@ namespace Infrastructure.Azure.Instrumentation
         {
             if (this.InstrumentationEnabled)
             {
-                this.totalSessionsCounter = new PerformanceCounter(Constants.PerformanceCountersCategory, TotalSessionsCounterName, this.InstanceName, false);
+                this.totalSessionsCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalSessionsCounterName, this.InstanceName, false);
             }
         }
 
