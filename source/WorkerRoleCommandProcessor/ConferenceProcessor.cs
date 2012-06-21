@@ -43,9 +43,12 @@ namespace WorkerRoleCommandProcessor
         private IUnityContainer container;
         private CancellationTokenSource cancellationTokenSource;
         private List<IProcessor> processors;
+        private bool instrumentationEnabled;
 
-        public ConferenceProcessor()
+        public ConferenceProcessor(bool instrumentationEnabled = false)
         {
+            this.instrumentationEnabled = instrumentationEnabled;
+
             OnCreating();
 
             this.cancellationTokenSource = new CancellationTokenSource();

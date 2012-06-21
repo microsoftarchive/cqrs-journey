@@ -38,7 +38,7 @@ namespace WorkerRoleCommandProcessor
             if (!MaintenanceMode.IsInMaintainanceMode)
             {
                 Trace.WriteLine("Starting the command processor", "Information");
-                using (var processor = new ConferenceProcessor())
+                using (var processor = new ConferenceProcessor(this.InstrumentationEnabled))
                 {
                     processor.Start();
 
@@ -108,6 +108,48 @@ namespace WorkerRoleCommandProcessor
                     CounterSpecifier = @"\Processor(_Total)\% Processor Time",
                     SampleRate = sampleRate
                 });
+
+#if !LOCAL
+            foreach (var counterName in
+                new[] 
+                { 
+                    Infrastructure.Azure.Instrumentation.SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesCompletedCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.TotalMessagesNotCompletedCounterName,                
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.AverageMessageProcessingTimeCounterName,
+                    Infrastructure.Azure.Instrumentation.SubscriptionReceiverInstrumentation.MessagesReceivedPerSecondCounterName
+                })
+            {
+                config.PerformanceCounters.DataSources.Add(
+                    new PerformanceCounterConfiguration
+                    {
+                        CounterSpecifier = @"\" + Infrastructure.Azure.Instrumentation.Constants.ReceiversPerformanceCountersCategory + @"(*)\" + counterName,
+                        SampleRate = sampleRate
+                    });
+            }
+
+            foreach (var counterName in
+                new[] 
+                { 
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.CurrentEventPublishersCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.EventPublishingRequestsPerSecondCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.EventsPublishedPerSecondCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.TotalEventsPublishedCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.TotalEventsPublishingRequestsCounterName,
+                })
+            {
+                config.PerformanceCounters.DataSources.Add(
+                    new PerformanceCounterConfiguration
+                    {
+                        CounterSpecifier = @"\" + Infrastructure.Azure.Instrumentation.Constants.EventPublishersPerformanceCountersCategory + @"(*)\" + counterName,
+                        SampleRate = sampleRate
+                    });
+            }
+#endif
+
             config.PerformanceCounters.ScheduledTransferPeriod = transferPeriod;
 
             // Setup logs
@@ -134,6 +176,20 @@ namespace WorkerRoleCommandProcessor
         {
             this.running = false;
             base.OnStop();
+        }
+
+        private bool InstrumentationEnabled
+        {
+            get
+            {
+                bool instrumentationEnabled;
+                if (!bool.TryParse(RoleEnvironment.GetConfigurationSettingValue("InstrumentationEnabled"), out instrumentationEnabled))
+                {
+                    instrumentationEnabled = false;
+                }
+
+                return instrumentationEnabled;
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace WorkerRoleCommandProcessor
             // production database will already have been migrated to V3.
             MigrationToV3.Migration.Initialize();
 
-            using (var processor = new ConferenceProcessor())
+            using (var processor = new ConferenceProcessor(false))
             {
                 processor.Start();
 

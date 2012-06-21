@@ -53,6 +53,25 @@ namespace Conference.Web.Public
                     SampleRate = sampleRate
                 });
             config.PerformanceCounters.ScheduledTransferPeriod = transferPeriod;
+#if !LOCAL
+            foreach (var counterName in
+                new[] 
+                { 
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.CurrentEventPublishersCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.EventPublishingRequestsPerSecondCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.EventsPublishedPerSecondCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.TotalEventsPublishedCounterName,
+                    Infrastructure.Azure.Instrumentation.EventStoreBusPublisherInstrumentation.TotalEventsPublishingRequestsCounterName,
+                })
+            {
+                config.PerformanceCounters.DataSources.Add(
+                    new PerformanceCounterConfiguration
+                    {
+                        CounterSpecifier = @"\" + Infrastructure.Azure.Instrumentation.Constants.EventPublishersPerformanceCountersCategory + @"(*)\" + counterName,
+                        SampleRate = sampleRate
+                    });
+            }
+#endif
 
             // Setup logs
             config.Logs.ScheduledTransferPeriod = transferPeriod;

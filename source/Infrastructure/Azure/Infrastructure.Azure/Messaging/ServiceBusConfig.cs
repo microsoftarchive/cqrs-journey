@@ -16,7 +16,7 @@ namespace Infrastructure.Azure.Messaging
     using System;
     using System.Globalization;
     using System.Linq;
-    using System.Text;
+    using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Messaging.Handling;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
@@ -58,7 +58,7 @@ namespace Infrastructure.Azure.Messaging
 
         // Can't really infer the topic from the subscription, since subscriptions of the same 
         // name can exist across different topics (i.e. "all" currently)
-        public EventProcessor CreateEventProcessor(string subscription, IEventHandler handler, ITextSerializer serializer)
+        public EventProcessor CreateEventProcessor(string subscription, IEventHandler handler, ITextSerializer serializer, bool instrumentationEnabled = false)
         {
             if (!this.initialized)
                 throw new InvalidOperationException("Service bus configuration has not been initialized.");
@@ -75,8 +75,8 @@ namespace Infrastructure.Azure.Messaging
                     subscription, topicSettings.Path));
 
             var receiver = subscriptionSettings.RequiresSession ?
-                (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription) :
-                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription, true);
+                (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription, true, new SessionSubscriptionReceiverInstrumentation(subscription, instrumentationEnabled)) :
+                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription, true, new SubscriptionReceiverInstrumentation(subscription, instrumentationEnabled));
 
             var processor = new EventProcessor(receiver, serializer);
             processor.Register(handler);
@@ -179,7 +179,7 @@ namespace Infrastructure.Azure.Messaging
                         {
                             // Add the desired rule.
                             TryAddRule(client, new RuleDescription(ruleName, new SqlFilter(sqlExpression)));
-                            
+
                             // once the desired rule was added, delete the default rule.
                             TryRemoveRule(client, RuleDescription.DefaultRuleName);
                         }

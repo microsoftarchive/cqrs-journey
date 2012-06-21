@@ -246,6 +246,12 @@
     <Content Include="Areas\ThirdPartyProcessor\Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Shared\MaintenanceMode.cshtml" />
     <Content Include="Views\Registration\PricedOrderUnknown.cshtml" />
+    <None Include="setup\install.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="setup\install.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config">
@@ -262,6 +268,7 @@
     <Content Include="..\..\Infrastructure\Azure\Settings.xml">
       <Link>Settings.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
