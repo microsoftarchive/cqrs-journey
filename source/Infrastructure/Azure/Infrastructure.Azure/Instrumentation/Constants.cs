@@ -15,7 +15,7 @@ namespace Infrastructure.Azure.Instrumentation
 {
     public static class Constants
     {
-        public const string ReceiversPerformanceCountersCategory = "Azure Infrastructure (Receivers)";
-        public const string EventPublishersPerformanceCountersCategory = "Azure Infrastructure (Event Publishers)";
+        public const string ReceiversPerformanceCountersCategory = "Azure Infrastructure - Receivers";
+        public const string EventPublishersPerformanceCountersCategory = "Azure Infrastructure - Event Publishers";
     }
 }
