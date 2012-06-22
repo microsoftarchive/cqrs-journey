@@ -86,6 +86,7 @@ namespace Registration.Handlers
             Save(dto);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
         private OrderSeats Find(Guid id)
         {
             var dto = this.storage.Find("SeatAssignments-" + id);

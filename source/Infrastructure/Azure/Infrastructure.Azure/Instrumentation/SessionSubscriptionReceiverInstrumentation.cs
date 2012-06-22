@@ -44,5 +44,16 @@ namespace Infrastructure.Azure.Instrumentation
             {
             }
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.InstrumentationEnabled)
+                {
+                    this.totalSessionsCounter.Dispose();
+                }
+            }
+        }
     }
 }

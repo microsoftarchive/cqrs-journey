@@ -13,9 +13,10 @@
 
 namespace Infrastructure.Azure.Instrumentation
 {
+    using System;
     using System.Diagnostics;
 
-    public class SubscriptionReceiverInstrumentation : ISubscriptionReceiverInstrumentation
+    public class SubscriptionReceiverInstrumentation : ISubscriptionReceiverInstrumentation, IDisposable
     {
         public const string TotalMessagesCounterName = "Total messages received";
         public const string TotalMessagesSuccessfullyProcessedCounterName = "Total messages processed";
@@ -104,6 +105,30 @@ namespace Infrastructure.Azure.Instrumentation
                 else
                 {
                     this.totalMessagesNotCompletedCounter.Increment();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.instrumentationEnabled)
+                {
+                    this.totalMessagesCounter.Dispose();
+                    this.totalMessagesSuccessfullyProcessedCounter.Dispose();
+                    this.totalMessagesUnsuccessfullyProcessedCounter.Dispose();
+                    this.totalMessagesCompletedCounter.Dispose();
+                    this.totalMessagesNotCompletedCounter.Dispose();
+                    this.messagesReceivedPerSecondCounter.Dispose();
+                    this.averageMessageProcessingTimeCounter.Dispose();
+                    this.averageMessageProcessingTimeBaseCounter.Dispose();
                 }
             }
         }

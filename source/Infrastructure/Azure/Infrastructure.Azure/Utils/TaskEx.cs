@@ -26,6 +26,7 @@ namespace Infrastructure.Azure.Utils
         /// <returns>
         /// The timed Task.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Timer is disposed in the timer callback")]
         public static Task Delay(int dueTime)
         {
             if (dueTime <= 0) throw new ArgumentOutOfRangeException("dueTime");

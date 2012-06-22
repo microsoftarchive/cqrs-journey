@@ -20,6 +20,7 @@ namespace Conference.Web.Public
 
     public class WebRole : RoleEntryPoint
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public override bool OnStart()
         {
             var config = DiagnosticMonitor.GetDefaultInitialConfiguration();
