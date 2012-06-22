@@ -11,24 +11,39 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace WorkerRoleCommandProcessor
+namespace Infrastructure.Azure.Instrumentation
 {
-    using Infrastructure;
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Messaging.Handling;
-    using Infrastructure.Serialization;
-    using Microsoft.Practices.Unity;
-
-    public static class UnityContainerExtensions
+    partial class AzureInstrumentationInstaller
     {
-        public static void RegisterEventProcessor<T>(this IUnityContainer container, ServiceBusConfig busConfig, string subscriptionName, bool instrumentationEnabled = false)
-            where T : IEventHandler
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
         {
-            container.RegisterInstance<IProcessor>(subscriptionName, busConfig.CreateEventProcessor(
-                subscriptionName,
-                container.Resolve<T>(),
-                container.Resolve<ITextSerializer>(),
-                instrumentationEnabled));
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
         }
+
+        #region Component Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+        }
+
+        #endregion
     }
 }

@@ -23,6 +23,7 @@ namespace Conference.Web.Public
     using Infrastructure;
     using Infrastructure.Azure;
     using Infrastructure.Azure.EventSourcing;
+    using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Database;
     using Infrastructure.EventSourcing;
@@ -48,6 +49,8 @@ namespace Conference.Web.Public
             container.RegisterInstance<ITextSerializer>(serializer);
             var metadata = new StandardMetadataProvider();
             container.RegisterInstance<IMetadataProvider>(metadata);
+
+            var instrumentationEnabled = CloudConfigurationManager.GetSetting("InstrumentationEnabled") == "true";
 
             // command bus
 
@@ -84,6 +87,7 @@ namespace Conference.Web.Public
 
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
+            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation(instrumentationEnabled));
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             container.RegisterType(
                 typeof(IEventSourcedRepository<>),

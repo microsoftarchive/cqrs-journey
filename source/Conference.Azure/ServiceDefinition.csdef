@@ -46,7 +46,20 @@
       <Setting name="DbContext.SqlBus" />
       <Setting name="DbContext.BlobStorage" />
       <Setting name="MaintenanceMode" />
+      <Setting name="InstrumentationEnabled" />
     </ConfigurationSettings>
+    <Startup>
+      <Task taskType="simple" executionContext="elevated" commandLine="setup\install.cmd">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+          <Variable name="INSTRUMENTATIONENABLED">
+            <RoleInstanceValue xpath="/RoleEnvironment/CurrentInstance/ConfigurationSettings/ConfigurationSetting[@name='InstrumentationEnabled']/@value" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
   </WebRole>
   <WorkerRole name="WorkerRoleCommandProcessor" vmsize="ExtraSmall">
     <Imports>
@@ -65,6 +78,19 @@
       <Setting name="DbContext.ConferenceManagement" />
       <Setting name="MaintenanceMode" />
       <Setting name="DbContext.MessageLog" />
+      <Setting name="InstrumentationEnabled" />
     </ConfigurationSettings>
+    <Startup>
+      <Task taskType="simple" executionContext="elevated" commandLine="setup\install.cmd">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+          <Variable name="INSTRUMENTATIONENABLED">
+            <RoleInstanceValue xpath="/RoleEnvironment/CurrentInstance/ConfigurationSettings/ConfigurationSetting[@name='InstrumentationEnabled']/@value" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
   </WorkerRole>
 </ServiceDefinition>

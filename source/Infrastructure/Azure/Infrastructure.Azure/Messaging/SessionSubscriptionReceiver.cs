@@ -19,6 +19,7 @@ namespace Infrastructure.Azure.Messaging
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
+    using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Utils;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.ServiceBus;
     using Microsoft.Practices.TransientFaultHandling;
@@ -41,6 +42,7 @@ namespace Infrastructure.Azure.Messaging
         private readonly bool requiresSequentialProcessing;
         private readonly object lockObject = new object();
         private readonly RetryPolicy receiveRetryPolicy;
+        private readonly ISessionSubscriptionReceiverInstrumentation instrumentation;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
 
@@ -54,6 +56,18 @@ namespace Infrastructure.Azure.Messaging
                 topic,
                 subscription,
                 requiresSequentialProcessing,
+                new SessionSubscriptionReceiverInstrumentation(subscription, false),
+                new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
+        {
+        }
+
+        public SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool requiresSequentialProcessing, ISessionSubscriptionReceiverInstrumentation instrumentation)
+            : this(
+                settings,
+                topic,
+                subscription,
+                requiresSequentialProcessing,
+                instrumentation,
                 new ExponentialBackoff(10, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(1)))
         {
         }
@@ -62,12 +76,13 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SessionSubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
-        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool requiresSequentialProcessing, RetryStrategy backgroundRetryStrategy)
+        protected SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool requiresSequentialProcessing, ISessionSubscriptionReceiverInstrumentation instrumentation, RetryStrategy backgroundRetryStrategy)
         {
             this.settings = settings;
             this.topic = topic;
             this.subscription = subscription;
             this.requiresSequentialProcessing = requiresSequentialProcessing;
+            this.instrumentation = instrumentation;
 
             this.tokenProvider = TokenProvider.CreateSharedSecretTokenProvider(settings.TokenIssuer, settings.TokenAccessKey);
             this.serviceUri = ServiceBusEnvironment.CreateServiceUri(settings.ServiceUriScheme, settings.ServiceNamespace, settings.ServicePath);
@@ -188,6 +203,8 @@ namespace Infrastructure.Azure.Messaging
                     {
                         if (session != null)
                         {
+                            this.instrumentation.SessionStarted();
+
                             // starts a new task to process new sessions in parallel when enough threads are available
                             Task.Factory.StartNew(() => this.AcceptSession(cancellationToken), cancellationToken);
                             this.ReceiveMessagesAndCloseSession(session, cancellationToken);
@@ -256,11 +273,32 @@ namespace Infrastructure.Azure.Messaging
 
                             try
                             {
+                                this.instrumentation.MessageReceived();
+
                                 // Make sure we are not told to stop receiving while we were waiting for a new message.
                                 if (!cancellationToken.IsCancellationRequested)
                                 {
-                                    // Process the received message.
-                                    releaseAction = this.InvokeMessageHandler(msg);
+                                    var stopwatch = Stopwatch.StartNew();
+                                    try
+                                    {
+                                        try
+                                        {
+                                            // Process the received message.
+                                            releaseAction = this.InvokeMessageHandler(msg);
+
+                                            this.instrumentation.MessageProcessed(true, stopwatch.ElapsedMilliseconds);
+                                        }
+                                        catch
+                                        {
+                                            this.instrumentation.MessageProcessed(false, stopwatch.ElapsedMilliseconds);
+
+                                            throw;
+                                        }
+                                    }
+                                    finally
+                                    {
+                                        stopwatch.Stop();
+                                    }
                                 }
                             }
                             finally
@@ -313,6 +351,8 @@ namespace Infrastructure.Azure.Messaging
 
                 // Cannot continue to receive messages from this session.
                 closeSession.Invoke();
+
+                this.instrumentation.SessionEnded();
             };
 
             // Start receiving messages asynchronously for the session.
@@ -328,6 +368,7 @@ namespace Infrastructure.Azure.Messaging
                         operationSucceeded =>
                         {
                             msg.Dispose();
+                            this.instrumentation.MessageCompleted(operationSucceeded);
                             if (operationSucceeded)
                             {
                                 completeReceive();
@@ -343,6 +384,8 @@ namespace Infrastructure.Azure.Messaging
                         operationSucceeded =>
                         {
                             msg.Dispose();
+                            this.instrumentation.MessageCompleted(false);
+
                             closeSession.Invoke();
                         });
                     break;
@@ -353,6 +396,8 @@ namespace Infrastructure.Azure.Messaging
                         operationSucceeded =>
                         {
                             msg.Dispose();
+                            this.instrumentation.MessageCompleted(false);
+
                             if (operationSucceeded)
                             {
                                 completeReceive();

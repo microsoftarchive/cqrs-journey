@@ -11,24 +11,38 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace WorkerRoleCommandProcessor
+namespace Infrastructure.Azure.Instrumentation
 {
-    using Infrastructure;
-    using Infrastructure.Azure.Messaging;
-    using Infrastructure.Messaging.Handling;
-    using Infrastructure.Serialization;
-    using Microsoft.Practices.Unity;
+    using System.Diagnostics;
 
-    public static class UnityContainerExtensions
+    public class SessionSubscriptionReceiverInstrumentation : SubscriptionReceiverInstrumentation, ISessionSubscriptionReceiverInstrumentation
     {
-        public static void RegisterEventProcessor<T>(this IUnityContainer container, ServiceBusConfig busConfig, string subscriptionName, bool instrumentationEnabled = false)
-            where T : IEventHandler
+        public const string TotalSessionsCounterName = "Total sessions";
+
+        private readonly PerformanceCounter totalSessionsCounter;
+
+        public SessionSubscriptionReceiverInstrumentation(string instanceName, bool instrumentationEnabled)
+            : base(instanceName, instrumentationEnabled)
         {
-            container.RegisterInstance<IProcessor>(subscriptionName, busConfig.CreateEventProcessor(
-                subscriptionName,
-                container.Resolve<T>(),
-                container.Resolve<ITextSerializer>(),
-                instrumentationEnabled));
+            if (this.InstrumentationEnabled)
+            {
+                this.totalSessionsCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalSessionsCounterName, this.InstanceName, false);
+            }
+        }
+
+        public void SessionStarted()
+        {
+            if (this.InstrumentationEnabled)
+            {
+                this.totalSessionsCounter.Increment();
+            }
+        }
+
+        public void SessionEnded()
+        {
+            if (this.InstrumentationEnabled)
+            {
+            }
         }
     }
 }
