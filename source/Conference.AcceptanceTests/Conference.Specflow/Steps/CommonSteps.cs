@@ -304,11 +304,7 @@ namespace Conference.Specflow.Steps
 
         public void TheRegistrantProceedToCheckoutPayment()
         {
-            // Wait for order events to be digested. 
-            //Thread.Sleep(Constants.WaitTimeout); 
-            
-            Browser.Click(Constants.UI.NextStepId);
-            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
+            Browser.ClickAndWait(Constants.UI.NextStepId, Constants.UI.ThirdpartyPayment);
         }
 
         #endregion

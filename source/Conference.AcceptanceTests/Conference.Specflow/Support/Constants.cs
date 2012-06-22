@@ -40,6 +40,7 @@ namespace Conference.Specflow.Support
 #endif
             public const string NextStepId = "Next";
             public const string FindId = "find";
+            public const string ThirdpartyPayment = "Simulated Third-party Payment Clearing Processor";
             public const string ProceedToSeatAssignementId = "Proceed to Seat Assignment";
             public const string SeatAssignementId = "Assign seats to attendees";
             public const string ReservationSuccessfull = "Seats information";

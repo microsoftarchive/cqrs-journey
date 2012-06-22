@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using Conference.Specflow.Support;
+using Registration.Events;
 using TechTalk.SpecFlow;
 using Xunit;
 using W = WatiN.Core;
@@ -30,7 +31,7 @@ namespace Conference.Specflow.Steps.Views
     {
         private Table conferenceInfo;
         private Table seatsInfo;
-        private readonly List<string> slugs = new List<string>();
+        private List<string> slugs;
 
         [Given(@"this base conference information")]
         public void GivenThisBaseConferenceInformation(Table table)
@@ -47,6 +48,7 @@ namespace Conference.Specflow.Steps.Views
         [When(@"the Business Customer proceed to create (.*) '(.*)' conferences")]
         public void WhenTheBusinessCustomerProceedToCreateManyConsecutiveConferences(int conferences, string value)
         {
+            slugs = new List<string>();
             var rnd = new Random();
             bool isRandom = value.Equals("random", StringComparison.OrdinalIgnoreCase);
 
@@ -74,18 +76,10 @@ namespace Conference.Specflow.Steps.Views
                     failureCollector.Add(string.Format("Conference with slug '{0}' not found in management repository.", s));
                     return;
                 }
-
-                var rConf = RegistrationHelper.FindConference(mConf.Id);
-                if (rConf == null)
+                var success = MessageLogHelper.CollectEvents<AvailableSeatsChanged>(mConf.Id, seatsInfo.Rows.Count);
+                if(!success)
                 {
-                    failureCollector.Add(string.Format("Conference '{0}' not found in registration repository.", mConf.Name));
-                    return;
-                }
-
-                if(seatsInfo.Rows.Count != rConf.Seats.Count)
-                {
-                    failureCollector.Add(string.Format("Expected seats in Conference '{0}' are: {1} and only {2} were found.", 
-                        rConf.Name, seatsInfo.Rows.Count, rConf.Seats.Count));
+                    failureCollector.Add(string.Format("Some seats were not found in Conference '{0}'", mConf.Name));
                 }
             });
 
