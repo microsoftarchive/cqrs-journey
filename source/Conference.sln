@@ -78,6 +78,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationToV3", "Migrations
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Tests", "Infrastructure\Infrastructure.Tests\Infrastructure.Tests.csproj", "{449F6FFD-3817-496A-BCDE-71D5F4710811}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationToV3.InHouseProcessor", "Migrations\MigrationToV3.InHouseProcessor\MigrationToV3.InHouseProcessor.csproj", "{BA05787C-E0F5-4303-A71B-D282694B759B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -245,6 +247,12 @@ Global
 		{449F6FFD-3817-496A-BCDE-71D5F4710811}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
 		{449F6FFD-3817-496A-BCDE-71D5F4710811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{449F6FFD-3817-496A-BCDE-71D5F4710811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -273,6 +281,7 @@ Global
 		{877916FD-C0B0-4908-8E1B-D2541AAD7DC0} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
 		{BE7057E8-67AA-4440-B6C3-D06C23E064FE} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
 		{8EC84BDD-9B6E-44E6-A333-A2D9C8A7C201} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
+		{BA05787C-E0F5-4303-A71B-D282694B759B} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.2\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime
