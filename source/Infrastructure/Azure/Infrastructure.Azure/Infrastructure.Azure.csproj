@@ -81,7 +81,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncExtensions.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="Instrumentation\AzureInstrumentationInstaller.cs">
       <SubType>Component</SubType>
