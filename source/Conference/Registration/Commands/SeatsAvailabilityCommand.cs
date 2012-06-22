@@ -14,7 +14,6 @@
 namespace Registration.Commands
 {
     using System;
-    using System.Collections.Generic;
     using Infrastructure.Messaging;
 
     public abstract class SeatsAvailabilityCommand : ICommand, IMessageSessionProvider
@@ -28,6 +27,11 @@ namespace Registration.Commands
         public Guid ConferenceId { get; set; }
 
         string IMessageSessionProvider.SessionId
+        {
+            get { return this.SessionId; }
+        }
+
+        protected string SessionId
         {
             get { return "SeatsAvailability_" + this.ConferenceId.ToString(); }
         }

@@ -43,6 +43,7 @@ namespace Conference.Web.Public
     {
         private List<IProcessor> processors;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "By design")]
         static partial void OnCreateContainer(UnityContainer container)
         {
             var serializer = new JsonTextSerializer();
@@ -118,7 +119,7 @@ namespace Conference.Web.Public
         }
 
         // to satisfy the IProcessor requirements.
-        private class PublisherProcessorAdapter : IProcessor
+        private class PublisherProcessorAdapter : IProcessor, IDisposable
         {
             private IEventStoreBusPublisher publisher;
             private CancellationTokenSource tokenSource;
@@ -137,6 +138,11 @@ namespace Conference.Web.Public
             public void Stop()
             {
                 this.tokenSource.Cancel();
+            }
+
+            public void Dispose()
+            {
+                this.tokenSource.Dispose();
             }
         }
     }

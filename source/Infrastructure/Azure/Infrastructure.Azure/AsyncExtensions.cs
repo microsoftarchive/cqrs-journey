@@ -34,7 +34,7 @@ namespace Infrastructure.Azure
                 {
                     end(ar);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // TODO: Do not catch all! Add handling logic ASAP or remove this extension method entirely.
                     // This catch clause was added to avoid breaking the test runner host as a temporary measure.
@@ -56,7 +56,7 @@ namespace Infrastructure.Azure
                 {
                     end(ar);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // TODO: Do not catch all! Add handling logic ASAP or remove this extension method entirely.
                     // This catch clause was added to avoid breaking the test runner host as a temporary measure.

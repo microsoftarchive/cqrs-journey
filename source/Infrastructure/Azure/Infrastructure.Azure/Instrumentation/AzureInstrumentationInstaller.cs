@@ -19,6 +19,7 @@ namespace Infrastructure.Azure.Instrumentation
     [RunInstaller(true)]
     public partial class AzureInstrumentationInstaller : System.Configuration.Install.Installer
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "By design")]
         public AzureInstrumentationInstaller()
         {
             InitializeComponent();

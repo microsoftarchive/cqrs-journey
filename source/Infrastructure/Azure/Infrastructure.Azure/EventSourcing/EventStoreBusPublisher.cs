@@ -26,7 +26,7 @@ namespace Infrastructure.Azure.EventSourcing
     using Infrastructure.Azure.Messaging;
     using Microsoft.ServiceBus.Messaging;
 
-    public class EventStoreBusPublisher : IEventStoreBusPublisher
+    public class EventStoreBusPublisher : IEventStoreBusPublisher, IDisposable
     {
         private readonly IMessageSender sender;
         private readonly IPendingEventsQueue queue;
@@ -100,6 +100,21 @@ namespace Infrastructure.Azure.EventSourcing
             EnqueueIfNotExists(partitionKey);
 
             this.instrumentation.EventsPublishingRequested(eventCount);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.dynamicThrottling.Dispose();
+                this.enqueuedKeys.Dispose();
+            }
         }
 
         private void EnqueueIfNotExists(string partitionKey)
@@ -202,21 +217,21 @@ namespace Infrastructure.Azure.EventSourcing
                         item.PartitionKey,
                         item.RowKey,
                         (bool rowDeleted) =>
+                        {
+                            if (rowDeleted)
                             {
-                                if (rowDeleted)
-                                {
-                                    this.instrumentation.EventPublished();
+                                this.instrumentation.EventPublished();
 
-                                    sendNextEvent.Invoke();
-                                }
-                                else
-                                {
-                                    // another thread or process has already sent this event.
-                                    // stop competing for the same partition and try to send it at the end of the queue if there are any
-                                    // events still pending.
-                                    successCallback(false);
-                                }
-                            },
+                                sendNextEvent.Invoke();
+                            }
+                            else
+                            {
+                                // another thread or process has already sent this event.
+                                // stop competing for the same partition and try to send it at the end of the queue if there are any
+                                // events still pending.
+                                successCallback(false);
+                            }
+                        },
                         errorCallback);
                 };
 
@@ -226,12 +241,15 @@ namespace Infrastructure.Azure.EventSourcing
         private static BrokeredMessage BuildMessage(IEventRecord record)
         {
             string version = record.RowKey.Substring(RowKeyPrefixIndex);
-            return new BrokeredMessage(new MemoryStream(Encoding.UTF8.GetBytes(record.Payload)), true)
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes(record.Payload));
+            try
             {
-                MessageId = record.PartitionKey + "_" + version,
-                SessionId = record.SourceId,
-                CorrelationId = record.CorrelationId,
-                Properties =
+                return new BrokeredMessage(stream, true)
+                {
+                    MessageId = record.PartitionKey + "_" + version,
+                    SessionId = record.SourceId,
+                    CorrelationId = record.CorrelationId,
+                    Properties =
                     {
                         { "Version", version },
                         { StandardMetadata.SourceType, record.SourceType },
@@ -242,7 +260,13 @@ namespace Infrastructure.Azure.EventSourcing
                         { StandardMetadata.SourceId, record.SourceId },
                         { StandardMetadata.TypeName, record.TypeName },
                     }
-            };
+                };
+            }
+            catch
+            {
+                stream.Dispose();
+                throw;
+            }
         }
 
         private IEnumerable<T> GetThrottlingEnumerable<T>(IEnumerable<T> enumerable, CancellationToken cancellationToken)
@@ -261,7 +285,7 @@ namespace Infrastructure.Azure.EventSourcing
             }
         }
 
-        public class DynamicThrottling
+        public class DynamicThrottling : IDisposable
         {
             // configuration
             private const int MaxDegreeOfParallelism = 800;
@@ -333,6 +357,21 @@ namespace Infrastructure.Azure.EventSourcing
                 }
 
                 this.tokenRestoringTimer.Change(IntervalForRestoringParallelToken, IntervalForRestoringParallelToken);
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    this.waitHandle.Dispose();
+                    this.tokenRestoringTimer.Dispose();
+                }
             }
 
             private void IncrementParallelTokens()

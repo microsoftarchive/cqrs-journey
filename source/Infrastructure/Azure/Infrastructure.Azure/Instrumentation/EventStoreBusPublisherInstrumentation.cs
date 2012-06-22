@@ -13,9 +13,10 @@
 
 namespace Infrastructure.Azure.Instrumentation
 {
+    using System;
     using System.Diagnostics;
 
-    public class EventStoreBusPublisherInstrumentation : IEventStoreBusPublisherInstrumentation
+    public class EventStoreBusPublisherInstrumentation : IEventStoreBusPublisherInstrumentation, IDisposable
     {
         public const string CurrentEventPublishersCounterName = "Event publishers";
         public const string TotalEventsPublishingRequestsCounterName = "Total events publishing requested";
@@ -76,6 +77,27 @@ namespace Infrastructure.Azure.Instrumentation
             if (this.instrumentationEnabled)
             {
                 this.currentEventPublishersCounter.Decrement();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.instrumentationEnabled)
+                {
+                    this.currentEventPublishersCounter.Dispose();
+                    this.totalEventsPublishingRequestedCounter.Dispose();
+                    this.eventPublishingRequestsPerSecondCounter.Dispose();
+                    this.eventsPublishedPerSecondCounter.Dispose();
+                    this.totalEventsPublishedCounter.Dispose();
+                }
             }
         }
     }

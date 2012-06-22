@@ -44,6 +44,7 @@ namespace Infrastructure.Util
         /// any values, and caches the result.
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "By design")]
         private class AnyEnumerable<T> : IAnyEnumerable<T>
         {
             private readonly IEnumerable<T> enumerable;

@@ -58,6 +58,7 @@ namespace Infrastructure.Azure.Messaging
 
         // Can't really infer the topic from the subscription, since subscriptions of the same 
         // name can exist across different topics (i.e. "all" currently)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Instrumentation disposed by receiver")]
         public EventProcessor CreateEventProcessor(string subscription, IEventHandler handler, ITextSerializer serializer, bool instrumentationEnabled = false)
         {
             if (!this.initialized)
@@ -74,14 +75,57 @@ namespace Infrastructure.Azure.Messaging
                     "Subscription '{0}' for topic '{1}' has not been registered in the service bus configuration.",
                     subscription, topicSettings.Path));
 
-            var receiver = subscriptionSettings.RequiresSession ?
-                (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription, true, new SessionSubscriptionReceiverInstrumentation(subscription, instrumentationEnabled)) :
-                (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription, true, new SubscriptionReceiverInstrumentation(subscription, instrumentationEnabled));
+            IMessageReceiver receiver;
 
-            var processor = new EventProcessor(receiver, serializer);
-            processor.Register(handler);
+            if (subscriptionSettings.RequiresSession)
+            {
+                var instrumentation = new SessionSubscriptionReceiverInstrumentation(subscription, instrumentationEnabled);
+                try
+                {
+                    receiver = (IMessageReceiver)new SessionSubscriptionReceiver(this.settings, topicSettings.Path, subscription, true, instrumentation);
+                }
+                catch
+                {
+                    instrumentation.Dispose();
+                    throw;
+                }
+            }
+            else
+            {
+                var instrumentation = new SubscriptionReceiverInstrumentation(subscription, instrumentationEnabled);
+                try
+                {
+                    receiver = (IMessageReceiver)new SubscriptionReceiver(this.settings, topicSettings.Path, subscription, true, instrumentation);
+                }
+                catch
+                {
+                    instrumentation.Dispose();
+                    throw;
+                }
+            }
 
-            return processor;
+            EventProcessor processor;
+            try
+            {
+                processor = new EventProcessor(receiver, serializer);
+            }
+            catch
+            {
+                using (receiver as IDisposable) { }
+                throw;
+            }
+
+            try
+            {
+                processor.Register(handler);
+
+                return processor;
+            }
+            catch
+            {
+                processor.Dispose();
+                throw;
+            }
         }
 
         private void CreateTopicIfNotExists(NamespaceManager namespaceManager, TopicSettings topic)

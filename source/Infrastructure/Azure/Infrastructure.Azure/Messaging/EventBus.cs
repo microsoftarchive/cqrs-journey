@@ -63,34 +63,42 @@ namespace Infrastructure.Azure.Messaging
             var @event = envelope.Body;
 
             var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            this.serializer.Serialize(writer, @event);
-            stream.Position = 0;
-
-            var message = new BrokeredMessage(stream, true);
-
-            message.SessionId = @event.SourceId.ToString();
-
-            if (!string.IsNullOrWhiteSpace(envelope.MessageId))
+            try
             {
-                message.MessageId = envelope.MessageId;
-            }
+                var writer = new StreamWriter(stream);
+                this.serializer.Serialize(writer, @event);
+                stream.Position = 0;
 
-            if (!string.IsNullOrWhiteSpace(envelope.CorrelationId))
-            {
-                message.CorrelationId = envelope.CorrelationId;
-            }
+                var message = new BrokeredMessage(stream, true);
 
-            var metadata = this.metadataProvider.GetMetadata(@event);
-            if (metadata != null)
-            {
-                foreach (var pair in metadata)
+                message.SessionId = @event.SourceId.ToString();
+
+                if (!string.IsNullOrWhiteSpace(envelope.MessageId))
                 {
-                    message.Properties[pair.Key] = pair.Value;
+                    message.MessageId = envelope.MessageId;
                 }
-            }
 
-            return message;
+                if (!string.IsNullOrWhiteSpace(envelope.CorrelationId))
+                {
+                    message.CorrelationId = envelope.CorrelationId;
+                }
+
+                var metadata = this.metadataProvider.GetMetadata(@event);
+                if (metadata != null)
+                {
+                    foreach (var pair in metadata)
+                    {
+                        message.Properties[pair.Key] = pair.Value;
+                    }
+                }
+
+                return message;
+            }
+            catch
+            {
+                stream.Dispose();
+                throw;
+            }
         }
     }
 }
