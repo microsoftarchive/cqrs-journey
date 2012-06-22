@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.MessageLog
 {
     using System;
     using Infrastructure.Azure.Messaging;
-    using Infrastructure.Azure.Utils;
     using Microsoft.ServiceBus.Messaging;
 
     public class AzureMessageLogListener : IProcessor, IDisposable
@@ -46,9 +45,16 @@ namespace Infrastructure.Azure.MessageLog
 
         public void Dispose()
         {
-            var disposable = this.receiver as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                using (this.receiver as IDisposable) { }
+            }
         }
     }
 }

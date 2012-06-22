@@ -120,6 +120,7 @@ namespace Infrastructure.Azure.Messaging.Handling
             Dispose(false);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design.")]
         private MessageReleaseAction OnMessageReceived(BrokeredMessage message)
         {
             // NOTE: type information does not belong here. It's a responsibility 

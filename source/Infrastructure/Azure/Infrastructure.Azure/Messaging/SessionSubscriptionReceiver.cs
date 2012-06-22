@@ -50,6 +50,7 @@ namespace Infrastructure.Azure.Messaging
         /// Initializes a new instance of the <see cref="SubscriptionReceiver"/> class, 
         /// automatically creating the topic and subscription if they don't exist.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Instrumentation disabled in this overload")]
         public SessionSubscriptionReceiver(ServiceBusSettings settings, string topic, string subscription, bool requiresSequentialProcessing = true)
             : this(
                 settings,
@@ -155,6 +156,11 @@ namespace Infrastructure.Azure.Messaging
         protected virtual void Dispose(bool disposing)
         {
             this.Stop();
+
+            if (disposing)
+            {
+                using (this.instrumentation as IDisposable) { }
+            }
         }
 
         protected virtual MessageReleaseAction InvokeMessageHandler(BrokeredMessage message)

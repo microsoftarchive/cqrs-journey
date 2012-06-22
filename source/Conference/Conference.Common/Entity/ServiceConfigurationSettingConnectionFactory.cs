@@ -58,7 +58,7 @@ namespace Conference.Common.Entity
                             nameOrConnectionString = connectionString.ConnectionString;
                         }
                     }
-                    catch (ConfigurationErrorsException e)
+                    catch (ConfigurationErrorsException)
                     {
                     }
                 }

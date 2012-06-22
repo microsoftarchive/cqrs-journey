@@ -58,52 +58,60 @@ namespace Infrastructure.Azure.Messaging
         private BrokeredMessage BuildMessage(Envelope<ICommand> command)
         {
             var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            this.serializer.Serialize(writer, command.Body);
-            stream.Position = 0;
-
-            var message = new BrokeredMessage(stream, true);
-
-            if (!string.IsNullOrWhiteSpace(command.MessageId))
+            try
             {
-                message.MessageId = command.MessageId;
-            }
-            else if (!default(Guid).Equals(command.Body.Id))
-            {
-                message.MessageId = command.Body.Id.ToString();
-            }
+                var writer = new StreamWriter(stream);
+                this.serializer.Serialize(writer, command.Body);
+                stream.Position = 0;
 
-            if (!string.IsNullOrWhiteSpace(command.CorrelationId))
-            {
-                message.CorrelationId = command.CorrelationId;
-            }
+                var message = new BrokeredMessage(stream, true);
 
-            var sessionProvider = command.Body as IMessageSessionProvider;
-            if (sessionProvider != null)
-            {
-                message.SessionId = sessionProvider.SessionId;
-            }
-
-            var metadata = this.metadataProvider.GetMetadata(command.Body);
-            if (metadata != null)
-            {
-                foreach (var pair in metadata)
+                if (!string.IsNullOrWhiteSpace(command.MessageId))
                 {
-                    message.Properties[pair.Key] = pair.Value;
+                    message.MessageId = command.MessageId;
                 }
-            }
+                else if (!default(Guid).Equals(command.Body.Id))
+                {
+                    message.MessageId = command.Body.Id.ToString();
+                }
 
-            if (command.Delay > TimeSpan.Zero)
+                if (!string.IsNullOrWhiteSpace(command.CorrelationId))
+                {
+                    message.CorrelationId = command.CorrelationId;
+                }
+
+                var sessionProvider = command.Body as IMessageSessionProvider;
+                if (sessionProvider != null)
+                {
+                    message.SessionId = sessionProvider.SessionId;
+                }
+
+                var metadata = this.metadataProvider.GetMetadata(command.Body);
+                if (metadata != null)
+                {
+                    foreach (var pair in metadata)
+                    {
+                        message.Properties[pair.Key] = pair.Value;
+                    }
+                }
+
+                if (command.Delay > TimeSpan.Zero)
+                {
+                    message.ScheduledEnqueueTimeUtc = DateTime.UtcNow.Add(command.Delay);
+                }
+
+                if (command.TimeToLive > TimeSpan.Zero)
+                {
+                    message.TimeToLive = command.TimeToLive;
+                }
+
+                return message;
+            }
+            catch
             {
-                message.ScheduledEnqueueTimeUtc = DateTime.UtcNow.Add(command.Delay);
+                stream.Dispose();
+                throw;
             }
-
-            if (command.TimeToLive > TimeSpan.Zero)
-            {
-                message.TimeToLive = command.TimeToLive;
-            }
-
-            return message;
         }
     }
 }
