@@ -12,13 +12,16 @@
 // ==============================================================================================================
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Threading.Tasks;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
 using Xunit;
 using W = WatiN.Core;
+using System.Linq;
 
 namespace Conference.Specflow.Steps.Views
 {
@@ -50,7 +53,7 @@ namespace Conference.Specflow.Steps.Views
             for(var i = 1; i <= conferences; i++)
             {
                 Browser.GoTo(Constants.ConferenceManagementCreatePage);
-                PopulateConferenceInformation(isRandom ? rnd.Next() : i);
+                PopulateConferenceInformation(isRandom ? (i + "000" + rnd.Next()) : i.ToString(CultureInfo.InvariantCulture));
                 Browser.Click(Constants.UI.CreateConferenceId);
                 Browser.Click(Constants.UI.PublishConferenceId);
                 Browser.Click(Constants.UI.ConferenceManagementSeatTypesId);
@@ -61,21 +64,50 @@ namespace Conference.Specflow.Steps.Views
         [Then(@"all the conferences are created")]
         public void ThenAllTheConferencesAreCreated()
         {
-            Parallel.ForEach(slugs,
-                             s => Assert.NotNull(ConferenceHelper.FindConference(s)));
+            var failureCollector = new ConcurrentBag<string>();
+
+            Parallel.ForEach(slugs, s =>
+            {
+                var mConf = ConferenceHelper.FindConference(s);
+                if(mConf == null)
+                {
+                    failureCollector.Add(string.Format("Conference with slug '{0}' not found in management repository.", s));
+                    return;
+                }
+
+                var rConf = RegistrationHelper.FindConference(mConf.Id);
+                if (rConf == null)
+                {
+                    failureCollector.Add(string.Format("Conference '{0}' not found in registration repository.", mConf.Name));
+                    return;
+                }
+
+                if(seatsInfo.Rows.Count != rConf.Seats.Count)
+                {
+                    failureCollector.Add(string.Format("Expected seats in Conference '{0}' are: {1} and only {2} were found.", 
+                        rConf.Name, seatsInfo.Rows.Count, rConf.Seats.Count));
+                }
+            });
+
+            if(failureCollector.Count > 0)
+            {
+                var sb = new StringBuilder();
+                failureCollector.ToList().ForEach(s => sb.AppendLine(s));
+                Assert.True(failureCollector.Count == 0, sb.ToString()); // raise error with all the failures
+            }
         }
 
-        private void PopulateConferenceInformation(int number)
+        private void PopulateConferenceInformation(string id)
         {
             var row = conferenceInfo.Rows[0];
-            var slug = ToOrdinal(row["Slug"], number);
+            var slug = ToOrdinal(row["Slug"], id);
             slugs.Add(slug);
 
-            Browser.SetInput("Name", ToOrdinal(row["Name"], number));
-            Browser.SetInput("Description", ToOrdinal(row["Description"], number));
+            Browser.SetInput("Name", ToOrdinal(row["Name"], id));
+            Browser.SetInput("Description", ToOrdinal(row["Description"], id));
             Browser.SetInput("StartDate", row["Start"]);
             Browser.SetInput("EndDate", row["End"]);
-            Browser.SetInput("OwnerName", ToOrdinal(row["Owner"],number));
+            Browser.SetInput("OwnerName", ToOrdinal(row["Owner"], id));
             Browser.SetInput("OwnerEmail", row["Email"]);
             Browser.SetInput("name", row["Email"], "ConfirmEmail");
             Browser.SetInput("Slug", slug);
@@ -87,6 +119,7 @@ namespace Conference.Specflow.Steps.Views
             foreach(var row in seatsInfo.Rows)
             {
                 Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
+                Browser.WaitForComplete();
                 for (int i = 0; i < 4; i++) //Browser.TextFields.Count
                 {
                     Browser.TextFields[i].Value = row[i];
@@ -95,9 +128,9 @@ namespace Conference.Specflow.Steps.Views
             }
         }
 
-        private string ToOrdinal(string data, int value)
+        private string ToOrdinal(string data, string value)
         {
-            return data.Replace("%1", value.ToString(CultureInfo.InvariantCulture));
+            return data.Replace("%1", value);
         }
     }
 }
