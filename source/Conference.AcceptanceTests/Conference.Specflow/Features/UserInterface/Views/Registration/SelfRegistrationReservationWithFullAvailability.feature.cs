@@ -300,8 +300,8 @@ this.FeatureBackground();
                         "email address"});
             table11.AddRow(new string[] {
                         "William",
-                        "Weber",
-                        "William@Weber.com"});
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 93
  testRunner.And("the Registrant enter these details", ((string)(null)), table11);
 #line 96

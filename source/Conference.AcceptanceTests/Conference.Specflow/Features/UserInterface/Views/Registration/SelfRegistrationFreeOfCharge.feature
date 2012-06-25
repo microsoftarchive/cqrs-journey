@@ -28,10 +28,10 @@ Scenario: Checkout all free of charge
 	| General admission | 1        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the total should read $0
-	When the Registrant proceed to Checkout:Payment
+	When the Registrant proceed to Checkout:NoPayment
     Then the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
@@ -45,8 +45,8 @@ Scenario: Checkout partial free of charge
 	| Additional cocktail party | 3        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the total should read $300
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment

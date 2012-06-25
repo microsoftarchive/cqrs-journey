@@ -152,9 +152,9 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table5.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 42
  testRunner.And("the Registrant enter these details", ((string)(null)), table5);
 #line 45
@@ -182,13 +182,13 @@ this.FeatureBackground();
             table7.AddRow(new string[] {
                         "General admission",
                         "William",
-                        "Weber",
-                        "William@Weber.com"});
+                        "Flash",
+                        "william@fabrikam.com"});
             table7.AddRow(new string[] {
                         "Additional cocktail party",
                         "Jim",
-                        "Gregory",
-                        "Jim@Gregory.com"});
+                        "Corbin",
+                        "jim@litwareinc.com"});
 #line 51
  testRunner.And("the Registrant assign these seats", ((string)(null)), table7);
 #line hidden

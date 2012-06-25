@@ -19,8 +19,8 @@ Feature:  Seat Types configuration scenarios for creating and editing Seat Types
 
 Scenario: Seat Types are created and assigned to an existing Conference
 Given an existing unpublished conference with this information
-| Owner         | Email                    | Name      | Description                                   | Slug   | Start      | End        |
-| Gregory Weber | gregoryweber@contoso.com | CQRS2012S | CQRS summit 2012 conference (Seat Assignment) | random | 05/02/2012 | 07/12/2012 |
+| Owner         | Email                | Name      | Description                                   | Slug   | Start      | End        |
+| William Flash | william@fabrikam.com | CQRS2012S | CQRS summit 2012 conference (Seat Assignment) | random | 05/02/2012 | 07/12/2012 |
 And the Business Customer selects the Seat Types opcion
 And the Business Customer proceed to create new Seat Types
 When the Business Customer proceed to create the Seat Types

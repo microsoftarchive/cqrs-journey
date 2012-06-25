@@ -101,8 +101,8 @@ this.FeatureBackground();
                         "Start",
                         "End"});
             table1.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012P",
                         "CQRS summit 2012 conference (Create)",
                         "random",
@@ -118,8 +118,8 @@ testRunner.When("the Business Customer proceed to create the Conference");
                         "Email",
                         "AccessCode"});
             table2.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "random"});
 #line 28
 testRunner.Then("following details will be shown for the created Conference", ((string)(null)), table2);
@@ -147,8 +147,8 @@ this.FeatureBackground();
                         "Start",
                         "End"});
             table3.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012P",
                         "CQRS summit 2012 conference (Published)",
                         "random",
@@ -186,8 +186,8 @@ this.FeatureBackground();
                         "Start",
                         "End"});
             table4.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012U",
                         "CQRS summit 2012 conference (Original)",
                         "random",
@@ -236,8 +236,8 @@ this.FeatureBackground();
                         "Start",
                         "End"});
             table7.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012A",
                         "CQRS summit 2012 conference (Access)",
                         "random",
@@ -257,8 +257,8 @@ testRunner.When("the Business Customer proceed to get access to the conference s
                         "Start",
                         "End"});
             table8.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012A",
                         "CQRS summit 2012 conference (Access)",
                         "random",

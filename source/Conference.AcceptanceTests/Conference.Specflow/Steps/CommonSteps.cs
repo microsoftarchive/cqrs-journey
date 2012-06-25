@@ -13,6 +13,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Conference.Specflow.Support;
 using TechTalk.SpecFlow;
@@ -79,12 +80,18 @@ namespace Conference.Specflow.Steps
         public void GivenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
             MakeTheReservationWithSeatsAlreadyReserved(Browser);
-         }
+        }
 
         [Given(@"the Registrant proceed to Checkout:Payment")]
         public void GivenTheRegistrantProceedToCheckoutPayment()
         {
             TheRegistrantProceedToCheckoutPayment();
+        }
+
+        [When(@"the Registrant proceed to Checkout:NoPayment")]
+        public void WhenTheRegistrantProceedToCheckoutNoPayment()
+        {
+            Browser.Click(Constants.UI.NextStepId);
         }
 
         [Given(@"the total should read \$(.*)")]
@@ -205,6 +212,18 @@ namespace Conference.Specflow.Steps
         public void ThenTheTotalShouldRead(int value)
         {
             TheTotalShouldRead(value);
+        }
+
+        [Then(@"the error message for '(.*)' with value '(.*)' will show up")]
+        public void ThenTheErrorMessageForIdWithValueWillShowUp(string id, string message)
+        {
+            var input = Browser.TextField(id);
+            const string requiredValAttrId = "data-val-required";
+            if (!input.Exists)
+                input = Browser.TextFields.FirstOrDefault(t => t.GetAttributeValue(requiredValAttrId) == message);
+
+            Assert.True(input.Exists);
+            Assert.Equal(message, input.GetAttributeValue(requiredValAttrId));
         }
 
         [Then(@"the message '(.*)' will show up")]

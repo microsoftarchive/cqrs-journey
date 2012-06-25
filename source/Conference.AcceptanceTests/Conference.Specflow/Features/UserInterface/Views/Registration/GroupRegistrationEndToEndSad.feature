@@ -60,8 +60,8 @@ Scenario: Allocate some purchased Seats
 	| Additional cocktail party | 4        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
     And the Registration process was successful
@@ -69,9 +69,9 @@ Scenario: Allocate some purchased Seats
 	| seat type                 | quantity |
 	| Additional cocktail party | 4        |
 	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address       |
-	| Additional cocktail party | Mani       | Kris      | Mani@Kris.com       |
-	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	| seat type                 | first name | last name | email address      |
+	| Additional cocktail party | Antonio    | Alwan     | antonio@adatum.com |
+	| Additional cocktail party | Jon        | Jaffe     | jon@fabrikam.com   |
 	Then these seats are assigned
 	| seat type                 | quantity |
 	| Additional cocktail party | 4        |

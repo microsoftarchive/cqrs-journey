@@ -20,8 +20,8 @@ Feature:  Conference configuration scenarios for creating and editing Conference
 
 Background: 
 Given this conference information
-	| Owner         | Email                    | Name      | Description                             | Slug   | Start      | End        |
-	| Gregory Weber | gregoryweber@contoso.com | CQRS2012P | CQRS summit 2012 conference (Published) | random | 05/02/2012 | 05/12/2012 |
+	| Owner         | Email                | Name      | Description                             | Slug   | Start      | End        |
+	| William Flash | william@fabrikam.com | CQRS2012P | CQRS summit 2012 conference (Published) | random | 05/02/2012 | 05/12/2012 |
 
 Scenario: A new Conference is created and published
 	When the conference is created

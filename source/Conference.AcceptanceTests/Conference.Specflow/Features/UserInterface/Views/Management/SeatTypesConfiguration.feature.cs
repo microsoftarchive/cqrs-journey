@@ -91,8 +91,8 @@ this.ScenarioSetup(scenarioInfo);
                         "Start",
                         "End"});
             table1.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012S",
                         "CQRS summit 2012 conference (Seat Assignment)",
                         "random",

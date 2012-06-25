@@ -45,16 +45,16 @@ Scenario: Make a reservation with the selected Order Items
 Scenario: Checkout:Registrant Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	When the Registrant proceed to Checkout:Payment
 	Then the payment options should be offered for a total of $249
 
 Scenario: Checkout:Payment and sucessfull Order completed
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
     Then the Registration process was successful
@@ -67,8 +67,8 @@ Scenario: Checkout:Payment and sucessfull Order completed
 Scenario: Allocate all purchased Seats
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
     And the Registration process was successful
@@ -77,9 +77,9 @@ Scenario: Allocate all purchased Seats
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
 	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address            |
-	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
-	| Additional cocktail party | Gregory    | Weber     | gregoryweber@contoso.com |
+	| seat type                 | first name | last name | email address        |
+	| General admission         | William    | Flash     | william@fabrikam.com |
+	| Additional cocktail party | Jon        | Jaffe     | jon@fabrikam.com     |
 	Then these seats are assigned
 	| seat type                 | quantity |
 	| General admission         | 1        |

@@ -27,5 +27,5 @@ And these Seat Types
 | Name  | Description      | Quantity | Price |
 | TEST1 | Test seat type 1 | 100000   | 0     |
 | TEST2 | Test seat type 2 | 100000   | 1     | 
-When the Business Customer proceed to create 100 'random' conferences
+When the Business Customer proceed to create 50 'random' conferences
 Then all the conferences are created

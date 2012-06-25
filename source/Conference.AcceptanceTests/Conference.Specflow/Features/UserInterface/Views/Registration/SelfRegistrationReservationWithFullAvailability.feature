@@ -91,8 +91,8 @@ Scenario: Find a purchased Order
 	| Additional cocktail party | 2        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address         |
-	| William    | Weber     | William@Weber.com     |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
     Then the Registration process was successful

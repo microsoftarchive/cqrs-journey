@@ -229,15 +229,16 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table8.AddRow(new string[] {
-                        "Gregory",
+                        "William",
                         "",
-                        "gregoryweber@invalid"});
+                        "william@invalid"});
 #line 65
  testRunner.And("the Registrant enter these details", ((string)(null)), table8);
 #line 68
- testRunner.When("the Registrant proceed to Checkout:Payment");
+ testRunner.When("the Registrant proceed to Checkout:NoPayment");
 #line 69
- testRunner.Then("the message \'The LastName field is required.\' will show up");
+ testRunner.Then("the error message for \'LastName\' with value \'The LastName field is required.\' wil" +
+                    "l show up");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -261,9 +262,9 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table9.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 74
  testRunner.And("the Registrant enter these details", ((string)(null)), table9);
 #line 77
@@ -295,9 +296,9 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table10.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 84
  testRunner.And("the Registrant enter these details", ((string)(null)), table10);
 #line 87
@@ -329,14 +330,14 @@ this.FeatureBackground();
                         "email address"});
             table12.AddRow(new string[] {
                         "General admission",
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
             table12.AddRow(new string[] {
                         "Additional cocktail party",
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "Jon",
+                        "Jaffe",
+                        "jon@fabrikam.com"});
 #line 95
  testRunner.When("the Registrant assign these seats", ((string)(null)), table12);
 #line hidden

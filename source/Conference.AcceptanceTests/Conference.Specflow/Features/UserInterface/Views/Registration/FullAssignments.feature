@@ -28,8 +28,8 @@ Scenario: Allocate all purchased Seats for an individual
 	| Additional cocktail party | 1        |
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
     And the Registration process was successful
@@ -38,9 +38,9 @@ Scenario: Allocate all purchased Seats for an individual
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
 	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address            |
-	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
-	| Additional cocktail party | Gregory    | Weber     | gregoryweber@contoso.com |
+	| seat type                 | first name | last name | email address        |
+	| General admission         | William    | Flash     | william@fabrikam.com |
+	| Additional cocktail party | Jim        | Corbin    | jim@litwareinc.com   |
 	Then these seats are assigned
 	| seat type                 | quantity |
 	| General admission         | 1        |
@@ -55,7 +55,7 @@ Scenario: Allocate all purchased Seats for a group
 	And the Registrant proceed to make the Reservation
 	And the Registrant enter these details
 	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
     And the Registration process was successful
@@ -64,13 +64,13 @@ Scenario: Allocate all purchased Seats for a group
 	| General admission         | 4        |
 	| Additional cocktail party | 2        |
 	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address       |
-	| General admission         | William    | Weber     | William@Weber.com   |
-	| General admission         | Gregory    | Doe       | GregoryDoe@live.com |
-	| General admission         | Oliver     | Weber     | Oliver@Weber.com    |
-	| General admission         | Tim        | Martin    | Tim@Martin.com      |
-	| Additional cocktail party | Mani       | Kris      | Mani@Kris.com       |
-	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	| seat type                 | first name | last name | email address            |
+	| General admission         | William    | Flash     | william@fabrikam.com     |
+	| General admission         | Jim        | Corbin    | jim@litwareinc.com       |
+	| General admission         | Karen      | Berg      | karen@alpineskihouse.com |
+	| General admission         | Ryan       | Ihrig     | ryan@cohowinery.com      |
+	| Additional cocktail party | Antonio    | Alwan     | antonio@adatim.com       |
+	| Additional cocktail party | Jon        | Jaffe     | jon@fabrika.com          |
 	Then these seats are assigned
 	| seat type                 | quantity |
 	| General admission         | 4        |

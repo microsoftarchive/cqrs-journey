@@ -213,9 +213,9 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table7.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 62
  testRunner.And("the Registrant enter these details", ((string)(null)), table7);
 #line 65
@@ -241,14 +241,14 @@ this.FeatureBackground();
                         "email address"});
             table9.AddRow(new string[] {
                         "Additional cocktail party",
-                        "Mani",
-                        "Kris",
-                        "Mani@Kris.com"});
+                        "Antonio",
+                        "Alwan",
+                        "antonio@adatum.com"});
             table9.AddRow(new string[] {
                         "Additional cocktail party",
-                        "Jim",
-                        "Gregory",
-                        "Jim@Gregory.com"});
+                        "Jon",
+                        "Jaffe",
+                        "jon@fabrikam.com"});
 #line 71
  testRunner.When("the Registrant assign these seats", ((string)(null)), table9);
 #line hidden

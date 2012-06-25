@@ -63,17 +63,17 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 Scenario: Checkout:Registrant Invalid Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address        |
-	| Gregory    |           | gregoryweber@invalid |
-	When the Registrant proceed to Checkout:Payment
-	Then the message 'The LastName field is required.' will show up 	
+	| first name | last name | email address   |
+	| William    |           | william@invalid |
+	When the Registrant proceed to Checkout:NoPayment
+	Then the error message for 'LastName' with value 'The LastName field is required.' will show up 	
 
 
 Scenario: Checkout:Payment with cancellation
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to cancel the payment
     Then the payment selection page will show up 	
@@ -82,8 +82,8 @@ Scenario: Checkout:Payment with cancellation
 Scenario: Partiall Seats allocation
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
     And the Registration process was successful
@@ -93,9 +93,9 @@ Scenario: Partiall Seats allocation
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
 	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address            |
-	| General admission         | Gregory    | Weber     | gregoryweber@contoso.com |
-	| Additional cocktail party | Gregory    | Weber     | gregoryweber@contoso.com |
+	| seat type                 | first name | last name | email address        |
+	| General admission         | William    | Flash     | william@fabrikam.com |
+	| Additional cocktail party | Jon        | Jaffe     | jon@fabrikam.com     |
 	Then these seats are assigned
 	| seat type                 | quantity |
 	| General admission         | 1        |

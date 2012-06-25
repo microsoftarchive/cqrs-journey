@@ -40,8 +40,8 @@ Scenario: End to end Registration implemented using controllers
 	| seat type     |
 	| CQRS Workshop |
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
 	Then the Order should be created with the following Order Items
@@ -49,9 +49,9 @@ Scenario: End to end Registration implemented using controllers
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
 	And the Registrant assign these seats
-	| seat type                 | first name | last name | email address       |
-	| General admission         | William    | Weber     | William@Weber.com   |
-	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	| seat type                 | first name | last name | email address        |
+	| General admission         | William    | Flash     | william@fabrikam.com |
+	| Additional cocktail party | Jim        | Corbin    | jim@litwareinc.com   |
 	And these seats are assigned
 	| seat type                 | quantity |
 	| General admission         | 1        |

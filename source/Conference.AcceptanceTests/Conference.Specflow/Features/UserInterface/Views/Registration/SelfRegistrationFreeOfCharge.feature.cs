@@ -124,15 +124,15 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table3.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 30
  testRunner.And("the Registrant enter these details", ((string)(null)), table3);
 #line 33
  testRunner.And("the total should read $0");
 #line 34
- testRunner.When("the Registrant proceed to Checkout:Payment");
+ testRunner.When("the Registrant proceed to Checkout:NoPayment");
 #line 35
     testRunner.Then("the Registration process was successful");
 #line hidden
@@ -179,9 +179,9 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table6.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 47
  testRunner.And("the Registrant enter these details", ((string)(null)), table6);
 #line 50

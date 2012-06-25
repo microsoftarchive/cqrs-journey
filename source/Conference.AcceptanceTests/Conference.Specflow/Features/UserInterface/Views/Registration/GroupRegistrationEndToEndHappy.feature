@@ -46,16 +46,16 @@ Scenario: All the Order Items are available and all get selected, then all get r
 Scenario: Checkout:Registrant Details
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address         |
-	| William    | Weber     | William@Weber.com     |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	When the Registrant proceed to Checkout:Payment
 	Then the payment options should be offered for a total of $1197
 
 Scenario: Checkout:Payment and sucessfull Order completed
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address         |
-	| William    | Weber     | William@Weber.com     |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	When the Registrant proceed to confirm the payment
     Then the Registration process was successful
@@ -69,8 +69,8 @@ Scenario: Checkout:Payment and sucessfull Order completed
 Scenario: Allocate all purchased Seats
 	Given the Registrant proceed to make the Reservation
 	And the Registrant enter these details
-	| first name | last name | email address            |
-	| Gregory    | Weber     | gregoryweber@contoso.com |
+	| first name | last name | email address        |
+	| William    | Flash     | william@fabrikam.com |
 	And the Registrant proceed to Checkout:Payment
 	And the Registrant proceed to confirm the payment
     And the Registration process was successful
@@ -80,13 +80,13 @@ Scenario: Allocate all purchased Seats
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
 	When the Registrant assign these seats
-	| seat type                 | first name | last name | email address       |
-	| General admission         | William    | Weber     | William@Weber.com   |
-	| General admission         | Gregory    | Doe       | GregoryDoe@live.com |
-	| General admission         | Oliver     | Weber     | Oliver@Weber.com    |
-	| CQRS Workshop             | Tim        | Martin    | Tim@Martin.com      |
-	| Additional cocktail party | Mani       | Kris      | Mani@Kris.com       |
-	| Additional cocktail party | Jim        | Gregory   | Jim@Gregory.com     |
+	| seat type                 | first name | last name | email address            |
+	| General admission         | William    | Flash     | william@fabrikam.com     |
+	| General admission         | Jim        | Corbin    | jim@litwareinc.com       |
+	| General admission         | Karen      | Berg      | karen@alpineskihouse.com |
+	| CQRS Workshop             | Ryan       | Ihrig     | ryan@cohowinery.com      |
+	| Additional cocktail party | Antonio    | Alwan     | antonio@adatum.com       |
+	| Additional cocktail party | Jon        | Jaffe     | jon@fabrikam.com         |
 	Then these seats are assigned
 	| seat type                 | quantity |
 	| General admission         | 3        |

@@ -173,8 +173,8 @@ this.FeatureBackground();
                         "email address"});
             table4.AddRow(new string[] {
                         "William",
-                        "Weber",
-                        "William@Weber.com"});
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 48
  testRunner.And("the Registrant enter these details", ((string)(null)), table4);
 #line 51
@@ -205,8 +205,8 @@ this.FeatureBackground();
                         "email address"});
             table5.AddRow(new string[] {
                         "William",
-                        "Weber",
-                        "William@Weber.com"});
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 56
  testRunner.And("the Registrant enter these details", ((string)(null)), table5);
 #line 59
@@ -253,9 +253,9 @@ this.FeatureBackground();
                         "last name",
                         "email address"});
             table7.AddRow(new string[] {
-                        "Gregory",
-                        "Weber",
-                        "gregoryweber@contoso.com"});
+                        "William",
+                        "Flash",
+                        "william@fabrikam.com"});
 #line 71
  testRunner.And("the Registrant enter these details", ((string)(null)), table7);
 #line 74
@@ -288,33 +288,33 @@ this.FeatureBackground();
             table9.AddRow(new string[] {
                         "General admission",
                         "William",
-                        "Weber",
-                        "William@Weber.com"});
+                        "Flash",
+                        "william@fabrikam.com"});
             table9.AddRow(new string[] {
                         "General admission",
-                        "Gregory",
-                        "Doe",
-                        "GregoryDoe@live.com"});
+                        "Jim",
+                        "Corbin",
+                        "jim@litwareinc.com"});
             table9.AddRow(new string[] {
                         "General admission",
-                        "Oliver",
-                        "Weber",
-                        "Oliver@Weber.com"});
+                        "Karen",
+                        "Berg",
+                        "karen@alpineskihouse.com"});
             table9.AddRow(new string[] {
                         "CQRS Workshop",
-                        "Tim",
-                        "Martin",
-                        "Tim@Martin.com"});
+                        "Ryan",
+                        "Ihrig",
+                        "ryan@cohowinery.com"});
             table9.AddRow(new string[] {
                         "Additional cocktail party",
-                        "Mani",
-                        "Kris",
-                        "Mani@Kris.com"});
+                        "Antonio",
+                        "Alwan",
+                        "antonio@adatum.com"});
             table9.AddRow(new string[] {
                         "Additional cocktail party",
-                        "Jim",
-                        "Gregory",
-                        "Jim@Gregory.com"});
+                        "Jon",
+                        "Jaffe",
+                        "jon@fabrikam.com"});
 #line 82
  testRunner.When("the Registrant assign these seats", ((string)(null)), table9);
 #line hidden

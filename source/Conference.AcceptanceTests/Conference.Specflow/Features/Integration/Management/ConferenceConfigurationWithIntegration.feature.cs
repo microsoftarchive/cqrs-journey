@@ -80,8 +80,8 @@ namespace Conference.Specflow.Features.Integration.Management
                         "Start",
                         "End"});
             table1.AddRow(new string[] {
-                        "Gregory Weber",
-                        "gregoryweber@contoso.com",
+                        "William Flash",
+                        "william@fabrikam.com",
                         "CQRS2012P",
                         "CQRS summit 2012 conference (Published)",
                         "random",
