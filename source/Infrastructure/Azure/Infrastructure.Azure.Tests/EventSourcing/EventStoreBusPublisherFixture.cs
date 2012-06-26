@@ -237,9 +237,9 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         }
 
         [Fact]
-        public void when_send_takes_time_then_still_publishes_events_concurrently_with_max_parallelism_degree_of_800()
+        public void when_send_takes_time_then_still_publishes_events_concurrently_with_fixed_max_degree_of_parallelism()
         {
-            var degreeOfParallelism = 800;
+            var degreeOfParallelism = 230;
 
             this.sender.ShouldWaitForCallback = true;
             for (int i = 0; i < partitionKeys.Length; i++)
