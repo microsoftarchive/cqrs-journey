@@ -22,15 +22,16 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class given_a_read_model_generator : given_a_read_model_database
+    public class given_a_read_model_generator
     {
         protected DraftOrderViewModelGenerator sut;
         protected IOrderDao dao;
 
         public given_a_read_model_generator()
         {
-            this.sut = new DraftOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
-            this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), new MemoryBlobStorage(), new JsonTextSerializer());
+            var blobStorage = new MemoryBlobStorage();
+            this.sut = new DraftOrderViewModelGenerator(blobStorage, new JsonTextSerializer());
+            this.dao = new OrderDao(blobStorage, new JsonTextSerializer());
         }
     }
 
@@ -116,6 +117,24 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
             var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
 
             Assert.Equal("a@b.com", dto.RegistrantEmail);
+        }
+
+        [Fact]
+        public void when_registrant_information_assigned_then_can_locate_order()
+        {
+            sut.Handle(new OrderRegistrantAssigned
+            {
+                Email = "a@b.com",
+                FirstName = "A",
+                LastName = "Z",
+                SourceId = orderPlacedEvent.SourceId,
+                Version = 5
+            });
+
+            var actual = dao.LocateOrder("a@b.com", orderPlacedEvent.AccessCode);
+
+            Assert.NotNull(actual);
+            Assert.Equal(orderPlacedEvent.SourceId, actual.Value);
         }
 
         [Fact]
@@ -316,41 +335,6 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_order_totals_calculated_then_updates_order_version()
-        {
-            sut.Handle(new OrderTotalsCalculated
-            {
-                SourceId = orderPlacedEvent.SourceId,
-                Version = 3,
-            });
-
-            var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
-
-            Assert.Equal(3, dto.OrderVersion);
-        }
-
-        [Fact]
-        public void when_order_totals_calculated_for_older_version_then_throws()
-        {
-            sut.Handle(new OrderTotalsCalculated
-            {
-                SourceId = orderPlacedEvent.SourceId,
-                Version = 5,
-            });
-
-            Assert.Throws<InvalidOperationException>(() =>
-            sut.Handle(new OrderTotalsCalculated
-            {
-                SourceId = orderPlacedEvent.SourceId,
-                Version = 3,
-            }));
-
-            var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
-
-            Assert.Equal(5, dto.OrderVersion);
-        }
-
-        [Fact]
         public void when_order_confirmed_v1_then_order_state_is_confirmed()
         {
             sut.Handle(new OrderPaymentConfirmed
@@ -396,10 +380,11 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
         [Fact]
         public void when_order_confirmed_for_older_version_then_throws()
         {
-            sut.Handle(new OrderTotalsCalculated
+            sut.Handle(new OrderUpdated
             {
                 SourceId = orderPlacedEvent.SourceId,
-                Version = 2,
+                Seats = new[] { new SeatQuantity(Guid.NewGuid(), 2) },
+                Version = 4,
             });
 
             Assert.Throws<InvalidOperationException>(() =>

@@ -51,6 +51,11 @@ namespace Registration.Handlers
             Mapper.CreateMap<SeatAssignmentUpdated, OrderSeat>();
         }
 
+        public static string GetSeatAssignmentsBlobId(Guid sourceId)
+        {
+            return "SeatAssignments-" + sourceId.ToString();
+        }
+
         public void Handle(SeatAssignmentsCreated @event)
         {
             var seatTypes = this.conferenceDao.GetSeatTypeNames(@event.Seats.Select(x => x.SeatType))
@@ -89,7 +94,7 @@ namespace Registration.Handlers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
         private OrderSeats Find(Guid id)
         {
-            var dto = this.storage.Find("SeatAssignments-" + id);
+            var dto = this.storage.Find(GetSeatAssignmentsBlobId(id));
             if (dto == null)
                 return null;
 
@@ -105,7 +110,7 @@ namespace Registration.Handlers
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, dto);
-                this.storage.Save("SeatAssignments-" + dto.AssignmentsId, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
+                this.storage.Save(GetSeatAssignmentsBlobId(dto.AssignmentsId), "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
             }
         }
     }

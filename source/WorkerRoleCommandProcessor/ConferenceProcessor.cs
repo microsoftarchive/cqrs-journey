@@ -82,7 +82,6 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<ITextSerializer>(new JsonTextSerializer());
             container.RegisterInstance<IMetadataProvider>(new StandardMetadataProvider());
 
-            container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
             container.RegisterType<IProcessDataContext<RegistrationProcess>, SqlProcessDataContext<RegistrationProcess>>(
                 new TransientLifetimeManager(),

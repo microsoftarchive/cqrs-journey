@@ -16,6 +16,7 @@ namespace Infrastructure.Azure
     using System.Xml;
     using System.Xml.Schema;
     using System.Xml.Serialization;
+    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
@@ -52,5 +53,6 @@ namespace Infrastructure.Azure
         public ServiceBusSettings ServiceBus { get; set; }
         public EventSourcingSettings EventSourcing { get; set; }
         public MessageLogSettings MessageLog { get; set; }
+        public BlobStorageSettings BlobStorage { get; set; }
     }
 }
