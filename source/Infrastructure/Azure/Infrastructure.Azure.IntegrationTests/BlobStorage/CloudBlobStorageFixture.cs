@@ -64,14 +64,38 @@ namespace Infrastructure.Azure.IntegrationTests.Storage.BlobStorageFixture
         }
     }
 
-    public class given_blob_storage_with_existing_root_container : given_blob_storage
+    public class given_blob_storage_with_existing_root_container :  IDisposable
     {
+        protected readonly CloudBlobStorage sut;
+        protected readonly CloudStorageAccount account;
+        protected readonly string rootContainerName;
+
         public given_blob_storage_with_existing_root_container()
         {
+            var settings = InfrastructureSettings.Read("Settings.xml").BlobStorage;
+            this.account = CloudStorageAccount.Parse(settings.ConnectionString);
+            this.rootContainerName = Guid.NewGuid().ToString();
+
             var client = this.account.CreateCloudBlobClient();
             var containerReference = client.GetContainerReference(this.rootContainerName);
 
             containerReference.Create();
+
+            this.sut = new CloudBlobStorage(account, this.rootContainerName);
+        }
+
+        public void Dispose()
+        {
+            var client = this.account.CreateCloudBlobClient();
+            var containerReference = client.GetContainerReference(this.rootContainerName);
+
+            try
+            {
+                containerReference.Delete();
+            }
+            catch (StorageClientException)
+            {
+            }
         }
     }
 

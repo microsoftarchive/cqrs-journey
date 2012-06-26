@@ -52,10 +52,9 @@ namespace Infrastructure.Azure.BlobStorage
             var containerReference = this.blobClient.GetContainerReference(this.rootContainerName);
             var blobReference = containerReference.GetBlobReference(id);
 
-            try
-            {
-                return this.readRetryPolicy.ExecuteAction(
-                    () =>
+            return this.readRetryPolicy.ExecuteAction(() =>
+                {
+                    try
                     {
                         using (var stream = blobReference.OpenRead())
                         using (var resultStream = new MemoryStream())
@@ -63,17 +62,17 @@ namespace Infrastructure.Azure.BlobStorage
                             stream.CopyTo(resultStream);
                             return resultStream.ToArray();
                         }
-                    });
-            }
-            catch (StorageClientException e)
-            {
-                if (e.ErrorCode == StorageErrorCode.ResourceNotFound)
-                {
-                    return null;
-                }
+                    }
+                    catch (StorageClientException e)
+                    {
+                        if (e.ErrorCode == StorageErrorCode.ResourceNotFound)
+                        {
+                            return null;
+                        }
 
-                throw;
-            }
+                        throw;
+                    }
+                });
         }
 
         public void Save(string id, string contentType, byte[] blob)
@@ -83,8 +82,7 @@ namespace Infrastructure.Azure.BlobStorage
 
             var blobReference = containerReference.GetBlobReference(id);
 
-            this.writeRetryPolicy.ExecuteAction(
-                () =>
+            this.writeRetryPolicy.ExecuteAction(() =>
                 {
                     using (var stream = blobReference.OpenWrite())
                     {
@@ -100,19 +98,21 @@ namespace Infrastructure.Azure.BlobStorage
             var client = this.account.CreateCloudBlobClient();
             var containerReference = client.GetContainerReference(this.rootContainerName);
             var blobReference = containerReference.GetBlobReference(id);
-            try
-            {
-                this.writeRetryPolicy.ExecuteAction(() => blobReference.DeleteIfExists());
-            }
-            catch (StorageClientException e)
-            {
-                if (e.ErrorCode == StorageErrorCode.ResourceNotFound)
-                {
-                    return;
-                }
 
-                throw;
-            }
+            this.writeRetryPolicy.ExecuteAction(() =>
+                {
+                    try
+                    {
+                        blobReference.DeleteIfExists();
+                    }
+                    catch (StorageClientException e)
+                    {
+                        if (e.ErrorCode != StorageErrorCode.ResourceNotFound)
+                        {
+                            throw;
+                        }
+                    }
+                });
         }
     }
 }

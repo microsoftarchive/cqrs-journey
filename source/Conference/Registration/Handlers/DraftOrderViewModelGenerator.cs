@@ -25,13 +25,13 @@ namespace Registration.Handlers
     using Infrastructure.Serialization;
     using Registration.Events;
     using Registration.ReadModel;
+    using Registration.ReadModel.Implementation;
 
     public class DraftOrderViewModelGenerator :
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>,
-        IEventHandler<OrderConfirmed>, IEventHandler<OrderPaymentConfirmed>,
-        IEventHandler<OrderTotalsCalculated>
+        IEventHandler<OrderConfirmed>, IEventHandler<OrderPaymentConfirmed>
     {
         private readonly IBlobStorage blobStorage;
         private readonly ITextSerializer serializer;
@@ -55,6 +55,11 @@ namespace Registration.Handlers
             return "DraftOrder/" + sourceId.ToString();
         }
 
+        public static string GetOrderLocatorBlobId(string accessCode, string email)
+        {
+            return "OrderLocator/" + accessCode + "_" + email;
+        }
+
         public void Handle(OrderPlaced @event)
         {
             var dto = new DraftOrder(@event.SourceId, @event.ConferenceId, DraftOrder.States.PendingReservation, @event.Version)
@@ -63,24 +68,39 @@ namespace Registration.Handlers
             };
             dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
 
-            this.Save(dto);
+            this.Save(dto, GetDraftOrderBlobId(@event.SourceId));
         }
 
         public void Handle(OrderRegistrantAssigned @event)
         {
-            var dto = this.Find(@event.SourceId);
+            var dto = this.Find<DraftOrder>(GetDraftOrderBlobId(@event.SourceId));
+            var originalEmail = dto.RegistrantEmail;
             if (WasNotAlreadyHandled(dto, @event.Version))
             {
                 dto.RegistrantEmail = @event.Email;
                 dto.OrderVersion = @event.Version;
 
-                this.Save(dto);
+                this.Save(dto, GetDraftOrderBlobId(@event.SourceId));
             }
+
+            if (originalEmail != null && originalEmail != dto.RegistrantEmail)
+            {
+                this.blobStorage.Delete(GetOrderLocatorBlobId(dto.AccessCode, originalEmail));
+            }
+
+            var locator = new OrderLocator
+               {
+                   AccessCode = dto.AccessCode,
+                   OrderId = dto.OrderId,
+                   Email = dto.RegistrantEmail
+               };
+
+            this.Save(locator, GetOrderLocatorBlobId(locator.AccessCode, locator.Email));
         }
 
         public void Handle(OrderUpdated @event)
         {
-            var dto = this.Find(@event.SourceId);
+            var dto = this.Find<DraftOrder>(GetDraftOrderBlobId(@event.SourceId));
             if (WasNotAlreadyHandled(dto, @event.Version))
             {
                 dto.Lines.Clear();
@@ -90,7 +110,7 @@ namespace Registration.Handlers
                 dto.State = DraftOrder.States.PendingReservation;
                 dto.OrderVersion = @event.Version;
 
-                this.Save(dto);
+                this.Save(dto, GetDraftOrderBlobId(@event.SourceId));
             }
         }
 
@@ -111,31 +131,19 @@ namespace Registration.Handlers
 
         public void Handle(OrderConfirmed @event)
         {
-            var dto = this.Find(@event.SourceId);
+            var dto = this.Find<DraftOrder>(GetDraftOrderBlobId(@event.SourceId));
             if (WasNotAlreadyHandled(dto, @event.Version))
             {
                 dto.State = DraftOrder.States.Confirmed;
                 dto.OrderVersion = @event.Version;
 
-                this.Save(dto);
-            }
-        }
-
-        // TODO: why is this needed?
-        public void Handle(OrderTotalsCalculated @event)
-        {
-            var dto = this.Find(@event.SourceId);
-            if (WasNotAlreadyHandled(dto, @event.Version))
-            {
-                dto.OrderVersion = @event.Version;
-
-                this.Save(dto);
+                this.Save(dto, GetDraftOrderBlobId(@event.SourceId));
             }
         }
 
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
-            var dto = this.Find(orderId);
+            var dto = this.Find<DraftOrder>(GetDraftOrderBlobId(orderId));
             if (WasNotAlreadyHandled(dto, orderVersion))
             {
                 foreach (var seat in seats)
@@ -149,7 +157,7 @@ namespace Registration.Handlers
 
                 dto.OrderVersion = orderVersion;
 
-                this.Save(dto);
+                this.Save(dto, GetDraftOrderBlobId(orderId));
             }
         }
 
@@ -181,9 +189,10 @@ This read model generator has an expectation that the EventBus will deliver mess
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
-        private DraftOrder Find(Guid id)
+        private T Find<T>(string id)
+            where T : class
         {
-            var dto = this.blobStorage.Find(GetDraftOrderBlobId(id));
+            var dto = this.blobStorage.Find(id);
             if (dto == null)
             {
                 return null;
@@ -192,16 +201,17 @@ This read model generator has an expectation that the EventBus will deliver mess
             using (var stream = new MemoryStream(dto))
             using (var reader = new StreamReader(stream, Encoding.UTF8))
             {
-                return (DraftOrder)this.serializer.Deserialize(reader);
+                return (T)this.serializer.Deserialize(reader);
             }
         }
 
-        private void Save(DraftOrder dto)
+        private void Save<T>(T dto, string id)
+            where T : class
         {
             using (var writer = new StringWriter())
             {
                 this.serializer.Serialize(writer, dto);
-                this.blobStorage.Save(GetDraftOrderBlobId(dto.OrderId), "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
+                this.blobStorage.Save(id, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
             }
         }
     }

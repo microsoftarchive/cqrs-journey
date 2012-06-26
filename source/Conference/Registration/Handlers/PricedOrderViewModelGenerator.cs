@@ -24,6 +24,7 @@ namespace Registration.Handlers
     using Infrastructure.Serialization;
     using Registration.Events;
     using Registration.ReadModel;
+    using Registration.ReadModel.Implementation;
 
     public class PricedOrderViewModelGenerator :
         IEventHandler<OrderPlaced>,

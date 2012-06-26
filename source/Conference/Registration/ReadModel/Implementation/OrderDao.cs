@@ -15,6 +15,7 @@ namespace Registration.ReadModel.Implementation
 {
     using System;
     using System.IO;
+    using System.Text;
     using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
     using Registration.Handlers;
@@ -32,68 +33,39 @@ namespace Registration.ReadModel.Implementation
 
         public Guid? LocateOrder(string email, string accessCode)
         {
-            // TODO add support for locating orders
-            return null;
-
-            //using (var context = this.contextFactory.Invoke())
-            //{
-            //    var orderProjection = context
-            //        .Query<DraftOrder>()
-            //        .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
-            //        .Select(o => new { o.OrderId })
-            //        .FirstOrDefault();
-
-            //    if (orderProjection != null)
-            //    {
-            //        return orderProjection.OrderId;
-            //    }
-
-            //    return null;
-            //}
+            var blob = this.FindBlob<OrderLocator>(DraftOrderViewModelGenerator.GetOrderLocatorBlobId(accessCode, email));
+            return blob != null ? blob.OrderId : (Guid?)null;
         }
 
         public DraftOrder FindDraftOrder(Guid orderId)
         {
-            var blob = this.blobStorage.Find(DraftOrderViewModelGenerator.GetDraftOrderBlobId(orderId));
-            if (blob == null)
-            {
-                return null;
-            }
-
-            using (var stream = new MemoryStream(blob))
-            using (var reader = new StreamReader(stream))
-            {
-                return (DraftOrder)this.serializer.Deserialize(reader);
-            }
+            return FindBlob<DraftOrder>(DraftOrderViewModelGenerator.GetDraftOrderBlobId(orderId));
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
         public PricedOrder FindPricedOrder(Guid orderId)
         {
-            var blob = this.blobStorage.Find(PricedOrderViewModelGenerator.GetPricedOrderBlobId(orderId));
-            if (blob == null)
-            {
-                return null;
-            }
+            return FindBlob<PricedOrder>(PricedOrderViewModelGenerator.GetPricedOrderBlobId(orderId));
+        }
 
-            using (var stream = new MemoryStream(blob))
-            using (var reader = new StreamReader(stream))
-            {
-                return (PricedOrder)this.serializer.Deserialize(reader);
-            }
+        public OrderSeats FindOrderSeats(Guid assignmentsId)
+        {
+            return FindBlob<OrderSeats>(SeatAssignmentsViewModelGenerator.GetSeatAssignmentsBlobId(assignmentsId));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
-        public OrderSeats FindOrderSeats(Guid assignmentsId)
+        private T FindBlob<T>(string id)
+            where T : class
         {
-            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
-            if (blob == null)
-                return null;
-
-            using (var stream = new MemoryStream(blob))
-            using (var reader = new StreamReader(stream))
+            var dto = this.blobStorage.Find(id);
+            if (dto == null)
             {
-                return (OrderSeats)this.serializer.Deserialize(reader);
+                return null;
+            }
+
+            using (var stream = new MemoryStream(dto))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                return (T)this.serializer.Deserialize(reader);
             }
         }
     }

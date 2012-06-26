@@ -23,7 +23,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class given_a_read_model_generator : given_a_read_model_database
+    public class given_a_read_model_generator
     {
         protected PricedOrderViewModelGenerator sut;
         private IOrderDao dao;
