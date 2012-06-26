@@ -18,11 +18,13 @@ namespace WorkerRoleCommandProcessor
     using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
+    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.BlobStorage;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -58,6 +60,10 @@ namespace WorkerRoleCommandProcessor
         {
             var metadata = container.Resolve<IMetadataProvider>();
             var serializer = container.Resolve<ITextSerializer>();
+
+            // blob
+            var blobStorageAccount = CloudStorageAccount.Parse(azureSettings.BlobStorage.ConnectionString);
+            container.RegisterInstance<IBlobStorage>(new CloudBlobStorage(blobStorageAccount, azureSettings.BlobStorage.RootContainerName));
 
             var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
             var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);

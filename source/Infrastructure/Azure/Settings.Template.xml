@@ -43,4 +43,9 @@
     <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
     <TableName>ConferenceMessageLog</TableName>
   </MessageLog>
+  <BlobStorage>
+    <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+    <!-- Container name in Azure has restrictions: Only Lower-case Alphanumeric Characters and Dashes, 3 to 63 Characters, May Not Begin a Dash, May Not Contain Two Consecutive Dashes -->
+    <RootContainerName>conference-read-model</RootContainerName>
+ </BlobStorage>
 </InfrastructureSettings>

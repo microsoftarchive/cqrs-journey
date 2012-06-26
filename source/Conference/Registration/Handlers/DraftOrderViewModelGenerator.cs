@@ -15,14 +15,16 @@ namespace Registration.Handlers
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Entity;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     using AutoMapper;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Registration.Events;
     using Registration.ReadModel;
-    using Registration.ReadModel.Implementation;
 
     public class DraftOrderViewModelGenerator :
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
@@ -31,7 +33,8 @@ namespace Registration.Handlers
         IEventHandler<OrderConfirmed>, IEventHandler<OrderPaymentConfirmed>,
         IEventHandler<OrderTotalsCalculated>
     {
-        private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private readonly IBlobStorage blobStorage;
+        private readonly ITextSerializer serializer;
 
         static DraftOrderViewModelGenerator()
         {
@@ -41,59 +44,53 @@ namespace Registration.Handlers
             Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
         }
 
-        public DraftOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
+        public DraftOrderViewModelGenerator(IBlobStorage blobStorage, ITextSerializer serializer)
         {
-            this.contextFactory = contextFactory;
+            this.blobStorage = blobStorage;
+            this.serializer = serializer;
+        }
+
+        public static string GetDraftOrderBlobId(Guid sourceId)
+        {
+            return "DraftOrder/" + sourceId.ToString();
         }
 
         public void Handle(OrderPlaced @event)
         {
-            using (var context = this.contextFactory.Invoke())
+            var dto = new DraftOrder(@event.SourceId, @event.ConferenceId, DraftOrder.States.PendingReservation, @event.Version)
             {
-                var dto = new DraftOrder(@event.SourceId, @event.ConferenceId, DraftOrder.States.PendingReservation, @event.Version)
-                {
-                    AccessCode = @event.AccessCode,
-                };
-                dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
+                AccessCode = @event.AccessCode,
+            };
+            dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
 
-                context.Save(dto);
-            }
+            this.Save(dto);
         }
 
         public void Handle(OrderRegistrantAssigned @event)
         {
-            using (var context = this.contextFactory.Invoke())
+            var dto = this.Find(@event.SourceId);
+            if (WasNotAlreadyHandled(dto, @event.Version))
             {
-                var dto = context.Find<DraftOrder>(@event.SourceId);
-                if (WasNotAlreadyHandled(dto, @event.Version))
-                {
-                    dto.RegistrantEmail = @event.Email;
-                    dto.OrderVersion = @event.Version;
-                    context.Save(dto);
-                }
+                dto.RegistrantEmail = @event.Email;
+                dto.OrderVersion = @event.Version;
+
+                this.Save(dto);
             }
         }
 
         public void Handle(OrderUpdated @event)
         {
-            using (var context = this.contextFactory.Invoke())
+            var dto = this.Find(@event.SourceId);
+            if (WasNotAlreadyHandled(dto, @event.Version))
             {
-                var dto = context.Set<DraftOrder>().Include(o => o.Lines).First(o => o.OrderId == @event.SourceId);
-                if (WasNotAlreadyHandled(dto, @event.Version))
-                {
-                    var linesSet = context.Set<DraftOrderItem>();
-                    foreach (var line in dto.Lines.ToArray())
-                    {
-                        linesSet.Remove(line);
-                    }
+                dto.Lines.Clear();
 
-                    dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
+                dto.Lines.AddRange(@event.Seats.Select(seat => new DraftOrderItem(seat.SeatType, seat.Quantity)));
 
-                    dto.State = DraftOrder.States.PendingReservation;
-                    dto.OrderVersion = @event.Version;
+                dto.State = DraftOrder.States.PendingReservation;
+                dto.OrderVersion = @event.Version;
 
-                    context.Save(dto);
-                }
+                this.Save(dto);
             }
         }
 
@@ -114,52 +111,45 @@ namespace Registration.Handlers
 
         public void Handle(OrderConfirmed @event)
         {
-            using (var context = this.contextFactory.Invoke())
+            var dto = this.Find(@event.SourceId);
+            if (WasNotAlreadyHandled(dto, @event.Version))
             {
-                var dto = context.Find<DraftOrder>(@event.SourceId);
-                if (WasNotAlreadyHandled(dto, @event.Version))
-                {
-                    dto.State = DraftOrder.States.Confirmed;
-                    dto.OrderVersion = @event.Version;
-                    context.Save(dto);
-                }
+                dto.State = DraftOrder.States.Confirmed;
+                dto.OrderVersion = @event.Version;
+
+                this.Save(dto);
             }
         }
 
         // TODO: why is this needed?
         public void Handle(OrderTotalsCalculated @event)
         {
-            using (var context = this.contextFactory.Invoke())
+            var dto = this.Find(@event.SourceId);
+            if (WasNotAlreadyHandled(dto, @event.Version))
             {
-                var dto = context.Find<DraftOrder>(@event.SourceId);
-                if (WasNotAlreadyHandled(dto, @event.Version))
-                {
-                    dto.OrderVersion = @event.Version;
-                    context.Save(dto);
-                }
+                dto.OrderVersion = @event.Version;
+
+                this.Save(dto);
             }
         }
 
         private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
         {
-            using (var context = this.contextFactory.Invoke())
+            var dto = this.Find(orderId);
+            if (WasNotAlreadyHandled(dto, orderVersion))
             {
-                var dto = context.Set<DraftOrder>().Include(x => x.Lines).First(x => x.OrderId == orderId);
-                if (WasNotAlreadyHandled(dto, orderVersion))
+                foreach (var seat in seats)
                 {
-                    foreach (var seat in seats)
-                    {
-                        var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);
-                        item.ReservedSeats = seat.Quantity;
-                    }
-
-                    dto.State = state;
-                    dto.ReservationExpirationDate = reservationExpiration;
-
-                    dto.OrderVersion = orderVersion;
-
-                    context.Save(dto);
+                    var item = dto.Lines.Single(x => x.SeatType == seat.SeatType);
+                    item.ReservedSeats = seat.Quantity;
                 }
+
+                dto.State = state;
+                dto.ReservationExpirationDate = reservationExpiration;
+
+                dto.OrderVersion = orderVersion;
+
+                this.Save(dto);
             }
         }
 
@@ -187,6 +177,31 @@ This read model generator has an expectation that the EventBus will deliver mess
                         draftOrder.OrderId,
                         eventVersion,
                         draftOrder.OrderVersion));
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
+        private DraftOrder Find(Guid id)
+        {
+            var dto = this.blobStorage.Find(GetDraftOrderBlobId(id));
+            if (dto == null)
+            {
+                return null;
+            }
+
+            using (var stream = new MemoryStream(dto))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                return (DraftOrder)this.serializer.Deserialize(reader);
+            }
+        }
+
+        private void Save(DraftOrder dto)
+        {
+            using (var writer = new StringWriter())
+            {
+                this.serializer.Serialize(writer, dto);
+                this.blobStorage.Save(GetDraftOrderBlobId(dto.OrderId), "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
             }
         }
     }

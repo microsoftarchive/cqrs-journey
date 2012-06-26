@@ -29,8 +29,9 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
 
         public given_a_read_model_generator()
         {
-            this.sut = new DraftOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
-            this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), new MemoryBlobStorage(), new JsonTextSerializer());
+            var blobStorage = new MemoryBlobStorage();
+            this.sut = new DraftOrderViewModelGenerator(blobStorage, new JsonTextSerializer());
+            this.dao = new OrderDao(blobStorage, new JsonTextSerializer());
         }
     }
 

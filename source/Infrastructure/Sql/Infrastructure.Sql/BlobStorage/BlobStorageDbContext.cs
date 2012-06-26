@@ -60,6 +60,17 @@ namespace Infrastructure.Sql.BlobStorage
             this.SaveChanges();
         }
 
+        public void Delete(string id)
+        {
+            var blob = this.Set<BlobEntity>().Find(id);
+            if (blob == null)
+                return;
+
+            this.Set<BlobEntity>().Remove(blob);
+
+            this.SaveChanges();
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

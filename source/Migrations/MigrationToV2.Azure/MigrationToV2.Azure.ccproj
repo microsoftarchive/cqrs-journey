@@ -37,16 +37,6 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MigrationToV2\MigrationToV2.csproj">
-      <Name>MigrationToV2</Name>
-      <Project>{877916fd-c0b0-4908-8e1b-d2541aad7dc0}</Project>
-      <Private>True</Private>
-      <RoleType>Worker</RoleType>
-      <RoleName>MigrationToV2</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Profiles" />
   </ItemGroup>
   <!-- Import the target files for this project template -->

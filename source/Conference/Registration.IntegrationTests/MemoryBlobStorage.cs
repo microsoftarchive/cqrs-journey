@@ -31,5 +31,10 @@ namespace Registration.IntegrationTests
         {
             this.blobs[id] = blob;
         }
+
+        public void Delete(string id)
+        {
+            this.blobs.Remove(id);
+        }
     }
 }
