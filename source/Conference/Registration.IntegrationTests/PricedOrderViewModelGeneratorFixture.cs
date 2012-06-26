@@ -23,15 +23,16 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class given_a_read_model_generator : given_a_read_model_database
+    public class given_a_read_model_generator
     {
         protected PricedOrderViewModelGenerator sut;
         private IOrderDao dao;
 
         public given_a_read_model_generator()
         {
-            this.sut = new PricedOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
-            this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), new MemoryBlobStorage(), new JsonTextSerializer());
+            var blobStorage = new MemoryBlobStorage();
+            this.sut = new PricedOrderViewModelGenerator(blobStorage, new JsonTextSerializer());
+            this.dao = new OrderDao(blobStorage, new JsonTextSerializer());
         }
 
         public class given_some_initial_seats : given_a_read_model_generator
@@ -182,7 +183,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
                 var assignmentsId = Guid.NewGuid();
                 this.sut.Handle(new SeatAssignmentsCreated
                                     {
-                                        SourceId = assignmentsId, 
+                                        SourceId = assignmentsId,
                                         OrderId = orderId,
                                     });
 

@@ -44,5 +44,13 @@ namespace Infrastructure.Sql.BlobStorage
                 context.Save(id, contentType, blob);
             }
         }
+
+        public void Delete(string id)
+        {
+            using (var context = new BlobStorageDbContext(this.nameOrConnectionString))
+            {
+                context.Delete(id);
+            }
+        }
     }
 }

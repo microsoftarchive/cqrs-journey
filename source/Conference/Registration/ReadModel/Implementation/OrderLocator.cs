@@ -11,35 +11,14 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace MigrationToV2
+namespace Registration.ReadModel.Implementation
 {
     using System;
-    using Conference;
-    using Infrastructure.Messaging.Handling;
-    using Registration.Handlers;
-    using Registration.ReadModel.Implementation;
 
-    // this class will forward the SeatCreated and SeatUpdated events to the generator when replaying, but will not
-    // forward the order events (as we are not recreating the entire read model from the event log.
-    public class PricedOrderViewModelUpdater :
-        IEventHandler<SeatCreated>,
-        IEventHandler<SeatUpdated>
+    internal class OrderLocator
     {
-        private readonly PricedOrderViewModelGenerator innerGenerator;
-
-        public PricedOrderViewModelUpdater(Func<ConferenceRegistrationDbContext> contextFactory)
-        {
-            this.innerGenerator = new PricedOrderViewModelGenerator(contextFactory, null, null);
-        }
-
-        public void Handle(SeatCreated @event)
-        {
-            this.innerGenerator.Handle(@event);
-        }
-
-        public void Handle(SeatUpdated @event)
-        {
-            this.innerGenerator.Handle(@event);
-        }
+        public string AccessCode { get; set; }
+        public string Email { get; set; }
+        public Guid OrderId { get; set; }
     }
 }

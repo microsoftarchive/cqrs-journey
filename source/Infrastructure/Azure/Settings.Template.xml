@@ -20,7 +20,7 @@
       <Topic Path="conference/events" IsEventBus="true">
         <Subscription Name="log" RequiresSession="false"/>
         <Subscription Name="Registration.RegistrationProcessRouterV3" RequiresSession="false" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','SeatsReserved','PaymentCompleted','OrderConfirmed')"/>
-        <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed','OrderTotalsCalculated')"/>
+        <Subscription Name="Registration.OrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed')"/>
         <Subscription Name="Registration.PricedOrderViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatCreated','SeatUpdated')"/>
         <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('ConferenceCreated','ConferenceUpdated','ConferencePublished','ConferenceUnpublished','SeatCreated','SeatUpdated','AvailableSeatsChanged','SeatsReserved','SeatsReservationCancelled')"/>
         <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
@@ -43,4 +43,9 @@
     <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
     <TableName>ConferenceMessageLog</TableName>
   </MessageLog>
+  <BlobStorage>
+    <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
+    <!-- Container name in Azure has restrictions: Only Lower-case Alphanumeric Characters and Dashes, 3 to 63 Characters, May Not Begin a Dash, May Not Contain Two Consecutive Dashes -->
+    <RootContainerName>conference-read-model</RootContainerName>
+ </BlobStorage>
 </InfrastructureSettings>

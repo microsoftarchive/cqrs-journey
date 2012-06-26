@@ -15,10 +15,12 @@ namespace WorkerRoleCommandProcessor
 {
     using System.Data.Entity;
     using Infrastructure;
+    using Infrastructure.BlobStorage;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
+    using Infrastructure.Sql.BlobStorage;
     using Infrastructure.Sql.EventSourcing;
     using Infrastructure.Sql.MessageLog;
     using Infrastructure.Sql.Messaging;
@@ -43,6 +45,8 @@ namespace WorkerRoleCommandProcessor
         {
             var serializer = container.Resolve<ITextSerializer>();
             var metadata = container.Resolve<IMetadataProvider>();
+
+            container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));
 
             var commandBus = new CommandBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"), serializer);
             var eventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);

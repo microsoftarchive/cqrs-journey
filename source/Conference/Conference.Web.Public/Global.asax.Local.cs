@@ -19,6 +19,8 @@ namespace Conference.Web.Public
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
     using Microsoft.Practices.Unity;
+    using Infrastructure.BlobStorage;
+    using Infrastructure.Sql.BlobStorage;
 
     partial class MvcApplication
     {
@@ -27,6 +29,7 @@ namespace Conference.Web.Public
             var serializer = new JsonTextSerializer();
             container.RegisterInstance<ITextSerializer>(serializer);
 
+            container.RegisterType<IBlobStorage, SqlBlobStorage>(new ContainerControlledLifetimeManager(), new InjectionConstructor("BlobStorage"));
             container.RegisterType<IMessageSender, MessageSender>(
                 "Commands", new TransientLifetimeManager(), new InjectionConstructor(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Commands"));
             container.RegisterType<ICommandBus, CommandBus>(

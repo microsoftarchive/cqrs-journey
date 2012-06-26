@@ -22,9 +22,11 @@ namespace Conference.Web.Public
     using System.Web;
     using Infrastructure;
     using Infrastructure.Azure;
+    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.BlobStorage;
     using Infrastructure.Database;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
@@ -63,6 +65,10 @@ namespace Conference.Web.Public
 
             container.RegisterInstance<ICommandBus>(synchronousCommandBus);
             container.RegisterInstance<ICommandHandlerRegistry>(synchronousCommandBus);
+
+            // blob
+            var blobStorageAccount = CloudStorageAccount.Parse(settings.BlobStorage.ConnectionString);
+            container.RegisterInstance<IBlobStorage>(new CloudBlobStorage(blobStorageAccount, settings.BlobStorage.RootContainerName));
 
             // support for inline command processing
 

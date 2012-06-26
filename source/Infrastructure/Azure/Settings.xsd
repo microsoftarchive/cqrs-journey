@@ -54,6 +54,14 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="BlobStorage" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="RootContainerName" type="cqrs:AzureContainerName" minOccurs="1" maxOccurs="1" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -73,6 +81,13 @@
         <xs:restriction base="xs:string">
             <!-- Regex inferred from trial & error messages from Azure (i.e. max length, invalid chars, etc.) -->
             <xs:pattern value="^[A-Za-z0-9-_][A-Za-z0-9.-_]{1,49}$" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="AzureContainerName">
+        <xs:restriction base="xs:string">
+            <!-- There is no way to annotate or render a more user-friendly error when pattern matching fails -->
+            <!-- Consecutive dashes are not allowed -->
+            <xs:pattern value="^[a-z][-a-z0-9]{2,62}$" />
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="TimeSpan">

@@ -14,71 +14,58 @@
 namespace Registration.ReadModel.Implementation
 {
     using System;
-    using System.Data.Entity;
     using System.IO;
-    using System.Linq;
+    using System.Text;
     using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
+    using Registration.Handlers;
 
     public class OrderDao : IOrderDao
     {
-        private readonly Func<ConferenceRegistrationDbContext> contextFactory;
         private IBlobStorage blobStorage;
         private ITextSerializer serializer;
 
-        public OrderDao(Func<ConferenceRegistrationDbContext> contextFactory, IBlobStorage blobStorage, ITextSerializer serializer)
+        public OrderDao(IBlobStorage blobStorage, ITextSerializer serializer)
         {
-            this.contextFactory = contextFactory;
             this.blobStorage = blobStorage;
             this.serializer = serializer;
         }
 
         public Guid? LocateOrder(string email, string accessCode)
         {
-            using (var context = this.contextFactory.Invoke())
-            {
-                var orderProjection = context
-                    .Query<DraftOrder>()
-                    .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
-                    .Select(o => new { o.OrderId })
-                    .FirstOrDefault();
-
-                if (orderProjection != null)
-                {
-                    return orderProjection.OrderId;
-                }
-
-                return null;
-            }
+            var blob = this.FindBlob<OrderLocator>(DraftOrderViewModelGenerator.GetOrderLocatorBlobId(accessCode, email));
+            return blob != null ? blob.OrderId : (Guid?)null;
         }
 
         public DraftOrder FindDraftOrder(Guid orderId)
         {
-            using (var context = this.contextFactory.Invoke())
-            {
-                return context.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
-            }
+            return FindBlob<DraftOrder>(DraftOrderViewModelGenerator.GetDraftOrderBlobId(orderId));
         }
 
         public PricedOrder FindPricedOrder(Guid orderId)
         {
-            using (var context = this.contextFactory.Invoke())
-            {
-                return context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
-            }
+            return FindBlob<PricedOrder>(PricedOrderViewModelGenerator.GetPricedOrderBlobId(orderId));
+        }
+
+        public OrderSeats FindOrderSeats(Guid assignmentsId)
+        {
+            return FindBlob<OrderSeats>(SeatAssignmentsViewModelGenerator.GetSeatAssignmentsBlobId(assignmentsId));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
-        public OrderSeats FindOrderSeats(Guid assignmentsId)
+        private T FindBlob<T>(string id)
+            where T : class
         {
-            var blob = this.blobStorage.Find("SeatAssignments-" + assignmentsId);
-            if (blob == null)
-                return null;
-
-            using (var stream = new MemoryStream(blob))
-            using (var reader = new StreamReader(stream))
+            var dto = this.blobStorage.Find(id);
+            if (dto == null)
             {
-                return (OrderSeats)this.serializer.Deserialize(reader);
+                return null;
+            }
+
+            using (var stream = new MemoryStream(dto))
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                return (T)this.serializer.Deserialize(reader);
             }
         }
     }
