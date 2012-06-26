@@ -288,31 +288,69 @@ namespace Infrastructure.Azure.EventSourcing
         public class DynamicThrottling : IDisposable
         {
             // configuration
-            private const int MaxDegreeOfParallelism = 800;
-            private const int MinDegreeOfParallelism = 30;
-            private const double ParallelTokenRatio = 0.1;
-            private const int IntervalForRestoringParallelToken = 7500;
 
-            //values derived from the previous ones
-            private const int MaxAmountOfTokens = (int)(MaxDegreeOfParallelism * ParallelTokenRatio);
-            private const int MinAmountOfTokens = (int)(MinDegreeOfParallelism * ParallelTokenRatio);
+            /// <summary>
+            /// Maximum number of parallel jobs.
+            /// </summary>
+            private const int MaxDegreeOfParallelism = 230;
+
+            /// <summary>
+            /// Minimum number of parallel jobs.
+            /// </summary>
+            private const int MinDegreeOfParallelism = 30;
+            
+            /// <summary>
+            /// Number of degrees of parallelism to remove on retrying.
+            /// </summary>
+            private const int RetryParallelismPenalty = 3;
+
+            /// <summary>
+            /// Number of degrees of parallelism to remove when work fails.
+            /// </summary>
+            private const int WorkFailedParallelismPenalty = 10;
+
+            /// <summary>
+            /// Number of degrees of parallelism to restore on work completed.
+            /// </summary>
+            private const int WorkCompletedParallelismGain = 1;
+
+            /// <summary>
+            /// Interval in milliseconds to restore 1 degree of parallelism.
+            /// </summary>
+            private const int IntervalForRestoringDegreeOfParallelism = 8000;
+
 
             private readonly AutoResetEvent waitHandle = new AutoResetEvent(true);
-            private readonly Timer tokenRestoringTimer;
+            private readonly Timer parallelismRestoringTimer;
 
             private int currentParallelJobs = 0;
-            private int availableParallelTokens = MaxAmountOfTokens;
+            private int availableDegreesOfParallelism = MaxDegreeOfParallelism;
 
             public DynamicThrottling()
             {
-                this.tokenRestoringTimer = new Timer(s => this.IncrementParallelTokens());
+                this.parallelismRestoringTimer = new Timer(s => this.IncrementDegreesOfParallelism(1));
+            }
+
+            public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
+            {
+                while (this.currentParallelJobs >= this.availableDegreesOfParallelism)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    // Trace.WriteLine("Waiting for available degrees of parallelism. Available: " + this.availableDegreesOfParallelism + ". In use: " + this.currentParallelJobs);
+
+                    this.waitHandle.WaitOne();
+                }
             }
 
             public void NotifyWorkCompleted()
             {
                 Interlocked.Decrement(ref this.currentParallelJobs);
                 // Trace.WriteLine("Job finished. Parallel jobs are now: " + this.currentParallelJobs);
-                this.waitHandle.Set();
+                IncrementDegreesOfParallelism(WorkCompletedParallelismGain);
             }
 
             public void NotifyWorkStarted()
@@ -321,42 +359,28 @@ namespace Infrastructure.Azure.EventSourcing
                 // Trace.WriteLine("Job started. Parallel jobs are now: " + this.currentParallelJobs);
             }
 
-            public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
-            {
-                while (this.currentParallelJobs * ParallelTokenRatio >= this.availableParallelTokens)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    // Trace.WriteLine("Waiting for tokens. Available: " + this.availableParallelTokens + ". In use: " + this.currentParallelJobs * ParallelTokenRatio);
-
-                    this.waitHandle.WaitOne();
-                }
-            }
-
             public void OnRetrying()
             {
-                // Slightly penalize with removal of 1 token (more than 1 degree of parallelism).
-                this.DecrementParallelTokens(1);
+                // Slightly penalize with removal of some degrees of parallelism.
+                this.DecrementDegreesOfParallelism(RetryParallelismPenalty);
             }
 
             public void NotifyWorkCompletedWithError()
             {
-                // Largely penalize with removal of several tokens.
-                this.DecrementParallelTokens(3);
-                this.NotifyWorkCompleted();
+                // Largely penalize with removal of several degrees of parallelism.
+                this.DecrementDegreesOfParallelism(WorkFailedParallelismPenalty);
+                Interlocked.Decrement(ref this.currentParallelJobs);
+                // Trace.WriteLine("Job finished with error. Parallel jobs are now: " + this.currentParallelJobs);
             }
 
             public void Start(CancellationToken cancellationToken)
             {
                 if (cancellationToken.CanBeCanceled)
                 {
-                    cancellationToken.Register(() => this.tokenRestoringTimer.Change(Timeout.Infinite, Timeout.Infinite));
+                    cancellationToken.Register(() => this.parallelismRestoringTimer.Change(Timeout.Infinite, Timeout.Infinite));
                 }
 
-                this.tokenRestoringTimer.Change(IntervalForRestoringParallelToken, IntervalForRestoringParallelToken);
+                this.parallelismRestoringTimer.Change(IntervalForRestoringDegreeOfParallelism, IntervalForRestoringDegreeOfParallelism);
             }
 
             public void Dispose()
@@ -370,28 +394,33 @@ namespace Infrastructure.Azure.EventSourcing
                 if (disposing)
                 {
                     this.waitHandle.Dispose();
-                    this.tokenRestoringTimer.Dispose();
+                    this.parallelismRestoringTimer.Dispose();
                 }
             }
 
-            private void IncrementParallelTokens()
+            private void IncrementDegreesOfParallelism(int count)
             {
-                if (this.availableParallelTokens < MaxAmountOfTokens)
+                if (this.availableDegreesOfParallelism < MaxDegreeOfParallelism)
                 {
-                    this.availableParallelTokens++;
-                    this.waitHandle.Set();
-                    // Trace.WriteLine("Incremented tokens. Available: " + this.availableParallelTokens);
+                    this.availableDegreesOfParallelism += count;
+                    if (this.availableDegreesOfParallelism >= MaxDegreeOfParallelism)
+                    {
+                        this.availableDegreesOfParallelism = MaxDegreeOfParallelism;
+                        // Trace.WriteLine("Incremented available degrees of parallelism. Available: " + this.availableDegreesOfParallelism);
+                    }
                 }
+
+                this.waitHandle.Set();
             }
 
-            private void DecrementParallelTokens(int count)
+            private void DecrementDegreesOfParallelism(int count)
             {
-                this.availableParallelTokens -= count;
-                if (this.availableParallelTokens < MinAmountOfTokens)
+                this.availableDegreesOfParallelism -= count;
+                if (this.availableDegreesOfParallelism < MinDegreeOfParallelism)
                 {
-                    this.availableParallelTokens = MinAmountOfTokens;
+                    this.availableDegreesOfParallelism = MinDegreeOfParallelism;
                 }
-                // Trace.WriteLine("Decremented tokens. Available: " + this.availableParallelTokens);
+                // Trace.WriteLine("Decremented available degrees of parallelism. Available: " + this.availableDegreesOfParallelism);
             }
         }
     }
