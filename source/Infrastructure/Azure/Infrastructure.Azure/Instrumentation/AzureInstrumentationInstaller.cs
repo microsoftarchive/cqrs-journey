@@ -30,7 +30,9 @@ namespace Infrastructure.Azure.Instrumentation
                 this.Installers.Add(installer);
 
                 installer.Counters.Add(new CounterCreationData(SessionSubscriptionReceiverInstrumentation.TotalSessionsCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
+                installer.Counters.Add(new CounterCreationData(SessionSubscriptionReceiverInstrumentation.CurrentSessionsCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
 
+                installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.CurrentMessagesInProcessCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
                 installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
                 installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesSuccessfullyProcessedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));
                 installer.Counters.Add(new CounterCreationData(SubscriptionReceiverInstrumentation.TotalMessagesUnsuccessfullyProcessedCounterName, string.Empty, PerformanceCounterType.NumberOfItems32));

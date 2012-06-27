@@ -235,8 +235,15 @@ namespace Infrastructure.Azure.Messaging
                     this.receiveRetryPolicy.ExecuteAction(
                     cb => session.BeginClose(cb, null),
                     session.EndClose,
-                    null,
-                    ex => Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription));
+                    () =>
+                    {
+                        this.instrumentation.SessionEnded();
+                    },
+                    ex =>
+                    {
+                        this.instrumentation.SessionEnded();
+                        Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription);
+                    });
 
                 if (this.requiresSequentialProcessing)
                 {
@@ -357,8 +364,6 @@ namespace Infrastructure.Azure.Messaging
 
                 // Cannot continue to receive messages from this session.
                 closeSession.Invoke();
-
-                this.instrumentation.SessionEnded();
             };
 
             // Start receiving messages asynchronously for the session.
