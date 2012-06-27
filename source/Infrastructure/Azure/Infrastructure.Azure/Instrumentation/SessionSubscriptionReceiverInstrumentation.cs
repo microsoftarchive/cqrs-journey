@@ -13,13 +13,16 @@
 
 namespace Infrastructure.Azure.Instrumentation
 {
+    using System;
     using System.Diagnostics;
 
     public class SessionSubscriptionReceiverInstrumentation : SubscriptionReceiverInstrumentation, ISessionSubscriptionReceiverInstrumentation
     {
         public const string TotalSessionsCounterName = "Total sessions";
+        public const string CurrentSessionsCounterName = "Current sessions";
 
         private readonly PerformanceCounter totalSessionsCounter;
+        private readonly PerformanceCounter currentSessionsCounter;
 
         public SessionSubscriptionReceiverInstrumentation(string instanceName, bool instrumentationEnabled)
             : base(instanceName, instrumentationEnabled)
@@ -27,6 +30,7 @@ namespace Infrastructure.Azure.Instrumentation
             if (this.InstrumentationEnabled)
             {
                 this.totalSessionsCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalSessionsCounterName, this.InstanceName, false);
+                this.currentSessionsCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, CurrentSessionsCounterName, this.InstanceName, false);
             }
         }
 
@@ -34,7 +38,14 @@ namespace Infrastructure.Azure.Instrumentation
         {
             if (this.InstrumentationEnabled)
             {
-                this.totalSessionsCounter.Increment();
+                try
+                {
+                    this.totalSessionsCounter.Increment();
+                    this.currentSessionsCounter.Increment();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
 
@@ -42,6 +53,13 @@ namespace Infrastructure.Azure.Instrumentation
         {
             if (this.InstrumentationEnabled)
             {
+                try
+                {
+                    this.currentSessionsCounter.Decrement();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
 

@@ -26,6 +26,7 @@ namespace Infrastructure.Azure.Instrumentation
         public const string MessagesReceivedPerSecondCounterName = "Messages received/sec";
         public const string AverageMessageProcessingTimeCounterName = "Avg. message processing time";
         public const string AverageMessageProcessingTimeBaseCounterName = "Avg. message processing time base";
+        public const string CurrentMessagesInProcessCounterName = "Current messages";
 
         private readonly string instanceName;
         private readonly bool instrumentationEnabled;
@@ -38,6 +39,7 @@ namespace Infrastructure.Azure.Instrumentation
         private readonly PerformanceCounter messagesReceivedPerSecondCounter;
         private readonly PerformanceCounter averageMessageProcessingTimeCounter;
         private readonly PerformanceCounter averageMessageProcessingTimeBaseCounter;
+        private readonly PerformanceCounter currentMessagesInProcessCounter;
 
         public SubscriptionReceiverInstrumentation(string instanceName, bool instrumentationEnabled)
         {
@@ -54,6 +56,7 @@ namespace Infrastructure.Azure.Instrumentation
                 this.messagesReceivedPerSecondCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, MessagesReceivedPerSecondCounterName, this.instanceName, false);
                 this.averageMessageProcessingTimeCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, AverageMessageProcessingTimeCounterName, this.instanceName, false);
                 this.averageMessageProcessingTimeBaseCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, AverageMessageProcessingTimeBaseCounterName, this.instanceName, false);
+                this.currentMessagesInProcessCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, CurrentMessagesInProcessCounterName, this.instanceName, false);
             }
         }
 
@@ -71,8 +74,15 @@ namespace Infrastructure.Azure.Instrumentation
         {
             if (this.InstrumentationEnabled)
             {
-                this.totalMessagesCounter.Increment();
-                this.messagesReceivedPerSecondCounter.Increment();
+                try
+                {
+                    this.totalMessagesCounter.Increment();
+                    this.messagesReceivedPerSecondCounter.Increment();
+                    this.currentMessagesInProcessCounter.Increment();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
 
@@ -80,17 +90,23 @@ namespace Infrastructure.Azure.Instrumentation
         {
             if (this.InstrumentationEnabled)
             {
-                if (success)
+                try
                 {
-                    this.totalMessagesSuccessfullyProcessedCounter.Increment();
-                }
-                else
-                {
-                    this.totalMessagesUnsuccessfullyProcessedCounter.Increment();
-                }
+                    if (success)
+                    {
+                        this.totalMessagesSuccessfullyProcessedCounter.Increment();
+                    }
+                    else
+                    {
+                        this.totalMessagesUnsuccessfullyProcessedCounter.Increment();
+                    }
 
-                this.averageMessageProcessingTimeCounter.IncrementBy(elapsedMilliseconds / 100);
-                this.averageMessageProcessingTimeBaseCounter.Increment();
+                    this.averageMessageProcessingTimeCounter.IncrementBy(elapsedMilliseconds / 100);
+                    this.averageMessageProcessingTimeBaseCounter.Increment();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
 
@@ -98,13 +114,20 @@ namespace Infrastructure.Azure.Instrumentation
         {
             if (this.InstrumentationEnabled)
             {
-                if (success)
+                try
                 {
-                    this.totalMessagesCompletedCounter.Increment();
+                    if (success)
+                    {
+                        this.totalMessagesCompletedCounter.Increment();
+                    }
+                    else
+                    {
+                        this.totalMessagesNotCompletedCounter.Increment();
+                    }
+                    this.currentMessagesInProcessCounter.Decrement();
                 }
-                else
+                catch (ObjectDisposedException)
                 {
-                    this.totalMessagesNotCompletedCounter.Increment();
                 }
             }
         }
