@@ -34,7 +34,7 @@ Background:
 #End state		: 3 reserved	
 Scenario: All the Order Items are offered and all get reserved
 	Given the total should read $749
-	When the Registrant proceed to make the Reservation		
+	When the Registrant proceeds to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
 		| seat type                 | quantity |
@@ -42,18 +42,18 @@ Scenario: All the Order Items are offered and all get reserved
 		| CQRS Workshop             | 1        |
 		| Additional cocktail party | 1        |
 	And the total should read $749
-	And the countdown started
+	And the countdown is started
 
 
 #Initial state	: 3 available
 #End state		: 3 unavailable
 Scenario: All the Order Items are offered and all get unavailable
-	Given these Seat Types becomes unavailable before the Registrant make the reservation
+	Given these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 |
 	| General admission         |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation with seats already reserved 		
+	When the Registrant proceeds to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| General admission         |          | Sold out |
@@ -64,11 +64,11 @@ Scenario: All the Order Items are offered and all get unavailable
 #Initial state	: 3 available
 #End state		: 2 unavailable, 1 reserved
 Scenario: All Seat Types are offered, one get reserved and two get unavailable
-	Given these Seat Types becomes unavailable before the Registrant make the reservation
+	Given these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation with seats already reserved 		
+	When the Registrant proceeds to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| CQRS Workshop             |          | Sold out |
@@ -80,7 +80,7 @@ Scenario: All Seat Types are offered, one get reserved and two get unavailable
 	| seat type         | quantity |
 	| General admission | 1        |
 	And the total should read $199
-	And the countdown started
+	And the countdown is started
 
 
 Scenario: Find a purchased Order
@@ -89,12 +89,12 @@ Scenario: Find a purchased Order
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	And the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	When the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	When the Registrant proceeds to confirm the payment
     Then the Registration process was successful
 	And the Order should be found with the following Order Items
 	| seat type                 | quantity |

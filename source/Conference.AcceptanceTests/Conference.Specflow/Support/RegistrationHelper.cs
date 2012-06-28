@@ -41,7 +41,7 @@ namespace Conference.Specflow.Support
         public static RegistrationController GetRegistrationController(string conferenceCode)
         {
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
-            var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
+            var orderDao = new OrderDao(new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
    
             // Setup context mocks
@@ -75,7 +75,7 @@ namespace Conference.Specflow.Support
         public static OrderController GetOrderController()
         {
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
-            var orderDao = new OrderDao(ctxFactory, new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
+            var orderDao = new OrderDao(new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
 
             return new OrderController(conferenceDao, orderDao, ConferenceHelper.BuildCommandBus());

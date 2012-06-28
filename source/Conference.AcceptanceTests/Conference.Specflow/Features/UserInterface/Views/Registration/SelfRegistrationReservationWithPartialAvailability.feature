@@ -33,12 +33,12 @@ Background:
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
+	And these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 |
 	| General admission         |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation with seats already reserved 		
+	When the Registrant proceeds to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| General admission         |          | Sold out |
@@ -48,23 +48,23 @@ Background:
 
 #Initial state	: 3 selected and two get reserved
 #End state		: 1 reserved and 2 not get reserved  
- Scenario: All the Order Items are selected and two not available, then one get reserved and two not	
+ Scenario: All the Order Items are selected and two are not available, then one get reserved and two not	
  	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
+	And these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation with seats already reserved 		
+	When the Registrant proceeds to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| General admission         | 0        |          |
 	| CQRS Workshop             |          | Sold out |
 	| Additional cocktail party |          | Sold out |
-	#And the countdown started
+	#And the countdown is started
 
 
 #Initial state	: 3 selected and 1 get partially reserved and 1 get all reserved
@@ -75,11 +75,11 @@ Background:
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
+	And these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 | quantity |
 	| CQRS Workshop             | 10       |
 	| Additional cocktail party |          |
-	And the Registrant proceed to make the Reservation with seats already reserved 		
+	And the Registrant proceeds to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| General admission         | 0        |          |
@@ -90,11 +90,11 @@ Background:
 	| General admission | 1        |
 	| CQRS Workshop     | 1        |
 	And the total should read $699
-	When the Registrant proceed to make the Reservation
+	When the Registrant proceeds to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
 		| seat type         | quantity |
 		| General admission | 1        |
 		| CQRS Workshop     | 1        |
 	And the total should read $699
-	And the countdown started
+	And the countdown is started

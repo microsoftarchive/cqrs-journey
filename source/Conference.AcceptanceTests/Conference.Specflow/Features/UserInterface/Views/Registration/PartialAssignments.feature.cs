@@ -120,7 +120,7 @@ this.FeatureBackground();
 #line 25
  testRunner.Given("the selected Order Items", ((string)(null)), table2);
 #line 29
- testRunner.And("the Registrant proceed to make the Reservation");
+ testRunner.And("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -131,11 +131,11 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 30
- testRunner.And("the Registrant enter these details", ((string)(null)), table3);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table3);
 #line 33
- testRunner.And("the Registrant proceed to Checkout:Payment");
+ testRunner.And("the Registrant proceeds to Checkout:Payment");
 #line 34
- testRunner.And("the Registrant proceed to confirm the payment");
+ testRunner.And("the Registrant proceeds to confirm the payment");
 #line 35
     testRunner.And("the Registration process was successful");
 #line hidden
@@ -162,7 +162,7 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 40
- testRunner.When("the Registrant assign these seats", ((string)(null)), table5);
+ testRunner.When("the Registrant assigns these seats", ((string)(null)), table5);
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -202,7 +202,7 @@ this.FeatureBackground();
 #line 50
  testRunner.Given("the selected Order Items", ((string)(null)), table7);
 #line 54
- testRunner.And("the Registrant proceed to make the Reservation");
+ testRunner.And("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -213,11 +213,11 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 55
- testRunner.And("the Registrant enter these details", ((string)(null)), table8);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table8);
 #line 58
- testRunner.And("the Registrant proceed to Checkout:Payment");
+ testRunner.And("the Registrant proceeds to Checkout:Payment");
 #line 59
- testRunner.And("the Registrant proceed to confirm the payment");
+ testRunner.And("the Registrant proceeds to confirm the payment");
 #line 60
     testRunner.And("the Registration process was successful");
 #line hidden
@@ -254,7 +254,7 @@ this.FeatureBackground();
                         "Alwan",
                         "antonio@adatum.com"});
 #line 65
- testRunner.When("the Registrant assign these seats", ((string)(null)), table10);
+ testRunner.When("the Registrant assigns these seats", ((string)(null)), table10);
 #line hidden
             TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",

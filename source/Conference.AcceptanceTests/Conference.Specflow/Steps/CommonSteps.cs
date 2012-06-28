@@ -47,7 +47,7 @@ namespace Conference.Specflow.Steps
             SelectOrderItems(Browser, conferenceInfo, table);
         }
 
-        [Given(@"the Registrant enter these details")]
+        [Given(@"the Registrant enters these details")]
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
             Browser.SetInput("FirstName", table.Rows[0]["first name"]);
@@ -59,8 +59,8 @@ namespace Conference.Specflow.Steps
             ScenarioContext.Current.Set(table.Rows[0]["email address"], "email");
         }
 
-        [Given(@"these Seat Types becomes unavailable before the Registrant make the reservation")]
-        public void GivenTheseSeatTypesBecomesUnavailableBeforeTheRegistrantMakeTheReservation(Table table)
+        [Given(@"these Seat Types become unavailable before the Registrant makes the reservation")]
+        public void GivenTheseSeatTypesBecomeUnavailableBeforeTheRegistrantMakesTheReservation(Table table)
         {
             var controllerSteps = new SelfRegistrationEndToEndWithControllersSteps();
             controllerSteps.GivenTheSelectedOrderItems(table);
@@ -70,25 +70,25 @@ namespace Conference.Specflow.Steps
             controllerSteps.WhenTheRegistrantProceedToConfirmThePayment();
         }
 
-        [Given(@"the Registrant proceed to make the Reservation")]
+        [Given(@"the Registrant proceeds to make the Reservation")]
         public void GivenTheRegistrantProceedToMakeTheReservation()
         {
             MakeTheReservation(Browser);
         }
 
-        [Given(@"the Registrant proceed to make the Reservation with seats already reserved")]
+        [Given(@"the Registrant proceeds to make the Reservation with seats already reserved")]
         public void GivenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
             MakeTheReservationWithSeatsAlreadyReserved(Browser);
         }
 
-        [Given(@"the Registrant proceed to Checkout:Payment")]
+        [Given(@"the Registrant proceeds to Checkout:Payment")]
         public void GivenTheRegistrantProceedToCheckoutPayment()
         {
             TheRegistrantProceedToCheckoutPayment();
         }
 
-        [When(@"the Registrant proceed to Checkout:NoPayment")]
+        [When(@"the Registrant proceeds to Checkout:NoPayment")]
         public void WhenTheRegistrantProceedToCheckoutNoPayment()
         {
             Browser.Click(Constants.UI.NextStepId);
@@ -112,7 +112,7 @@ namespace Conference.Specflow.Steps
             TheOrderShouldBeCreatedWithTheFollowingOrderItems(table);
         }
 
-        [Given(@"the Registrant proceed to confirm the payment")]
+        [Given(@"the Registrant proceeds to confirm the payment")]
         public void GivenTheRegistrantProceedToConfirmThePayment()
         {
             TheRegistrantProceedToConfirmThePayment();
@@ -128,25 +128,25 @@ namespace Conference.Specflow.Steps
 
         #region When
 
-        [When(@"the Registrant proceed to make the Reservation")]
+        [When(@"the Registrant proceeds to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
             MakeTheReservation(Browser);
         }
 
-        [When(@"the Registrant proceed to make the Reservation with seats already reserved")]
+        [When(@"the Registrant proceeds to make the Reservation with seats already reserved")]
         public void WhenTheRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
             MakeTheReservationWithSeatsAlreadyReserved(Browser);
         }
 
-        [When(@"the Registrant proceed to Checkout:Payment")]
+        [When(@"the Registrant proceeds to Checkout:Payment")]
         public void WhenTheRegistrantProceedToCheckoutPayment()
         {
             TheRegistrantProceedToCheckoutPayment();
         }
 
-        [When(@"the Registrant proceed to confirm the payment")]
+        [When(@"the Registrant proceeds to confirm the payment")]
         public void WhenTheRegistrantProceedToConfirmThePayment()
         {
             TheRegistrantProceedToConfirmThePayment();
@@ -169,8 +169,8 @@ namespace Conference.Specflow.Steps
             ReservationConfirmed(Browser);
         }
 
-        [Then(@"the countdown started")]
-        public void ThenTheCountdownStarted()
+        [Then(@"the countdown is started")]
+        public void ThenTheCountdownIsStarted()
         {
             var countdown = ScenarioContext.Current.Get<W.Browser>().Div("countdown_time").Text;
 

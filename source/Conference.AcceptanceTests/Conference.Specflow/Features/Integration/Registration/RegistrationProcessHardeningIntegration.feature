@@ -13,7 +13,7 @@
 
 @RegistrationProcessHardeningIntegration
 @NoWatiN
-Feature: Hardening the RegistrationProcess so it be able to recover from unexpected conditions and failures
+Feature: Hardening the RegistrationProcess so it is able to recover from unexpected conditions and failures
 	There are two general issues to consider
 	Messages are handled successfully but they cannot be completed so they are handled again and
 	the process state is stored but the commands it generates fail to be published
@@ -49,14 +49,14 @@ And  the event for reserving the selected Seats is emitted
 
 
 #- Times-out because it is expecting a timely response from any of the commands it has sent, but for some reason the recipients of those commands fail to respond.
-Scenario: Times-out afther the reservation is completed
+Scenario: Times-out after the reservation is completed
 	# event: OrderPlaced
-When the event for Order placed get expired
+When the event for Order placed gets expired
 Then the event for confirming the Order is not emitted
 
 #- Receives an unexpected event (i.e. PaymentCompleted after the order has been expired).
 Scenario: Execute the Payment process after the order has expired
-Given the event for Order placed get expired
+Given the event for Order placed gets expired
 	# command: InitiateThirdPartyProcessorPayment
 When the command for initiate the payment is sent
 	# command: CompleteThirdPartyProcessorPayment

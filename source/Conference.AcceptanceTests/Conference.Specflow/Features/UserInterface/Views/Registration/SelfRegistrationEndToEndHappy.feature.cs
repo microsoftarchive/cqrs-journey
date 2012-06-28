@@ -124,7 +124,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 32
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.When("the Registrant proceeds to make the Reservation");
 #line 33
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
@@ -149,7 +149,7 @@ this.FeatureBackground();
 #line 41
  testRunner.And("the total should read $249");
 #line 42
- testRunner.And("the countdown started");
+ testRunner.And("the countdown is started");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -166,7 +166,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 46
- testRunner.Given("the Registrant proceed to make the Reservation");
+ testRunner.Given("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -177,9 +177,9 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 47
- testRunner.And("the Registrant enter these details", ((string)(null)), table5);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table5);
 #line 50
- testRunner.When("the Registrant proceed to Checkout:Payment");
+ testRunner.When("the Registrant proceeds to Checkout:Payment");
 #line 51
  testRunner.Then("the payment options should be offered for a total of $249");
 #line hidden
@@ -198,7 +198,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 54
- testRunner.Given("the Registrant proceed to make the Reservation");
+ testRunner.Given("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -209,11 +209,11 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 55
- testRunner.And("the Registrant enter these details", ((string)(null)), table6);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table6);
 #line 58
- testRunner.And("the Registrant proceed to Checkout:Payment");
+ testRunner.And("the Registrant proceeds to Checkout:Payment");
 #line 59
- testRunner.When("the Registrant proceed to confirm the payment");
+ testRunner.When("the Registrant proceeds to confirm the payment");
 #line 60
     testRunner.Then("the Registration process was successful");
 #line hidden
@@ -244,7 +244,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 68
- testRunner.Given("the Registrant proceed to make the Reservation");
+ testRunner.Given("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -255,11 +255,11 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 69
- testRunner.And("the Registrant enter these details", ((string)(null)), table8);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table8);
 #line 72
- testRunner.And("the Registrant proceed to Checkout:Payment");
+ testRunner.And("the Registrant proceeds to Checkout:Payment");
 #line 73
- testRunner.And("the Registrant proceed to confirm the payment");
+ testRunner.And("the Registrant proceeds to confirm the payment");
 #line 74
     testRunner.And("the Registration process was successful");
 #line hidden
@@ -291,7 +291,7 @@ this.FeatureBackground();
                         "Jaffe",
                         "jon@fabrikam.com"});
 #line 79
- testRunner.When("the Registrant assign these seats", ((string)(null)), table10);
+ testRunner.When("the Registrant assigns these seats", ((string)(null)), table10);
 #line hidden
             TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",

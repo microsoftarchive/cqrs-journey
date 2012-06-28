@@ -21,19 +21,19 @@ namespace Conference.Specflow.Steps
     [Binding]
     public class SeatTypesConfigurationSteps : StepDefinition
     {
-        [Given(@"the Business Customer selects the Seat Types opcion")]
-        public void GivenTheBusinessCustomerSelectsTheSeatTypesOpcion()
+        [Given(@"the Business Customer selects the Seat Types option")]
+        public void GivenTheBusinessCustomerSelectsTheSeatTypesOption()
         {
             Browser.Click(Constants.UI.ConferenceManagementSeatTypesId);
         }
 
-        [Given(@"the Business Customer proceed to create new Seat Types")]
+        [Given(@"the Business Customer proceeds to create new Seat Types")]
         public void GivenTheBusinessCustomerProceedToCreateNewSeatTypes()
         {
             Browser.Click(Constants.UI.ConferenceManagementCreateNewSeatTypesId);
         }
 
-        [When(@"the Business Customer proceed to create the Seat Types")]
+        [When(@"the Business Customer proceeds to create the Seat Types")]
         public void WhenTheBusinessCustomerProceedToCreateTheSeatTypes(Table table)
         {
             var slug = ScenarioContext.Current.Get<string>("slug");

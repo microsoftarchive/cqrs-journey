@@ -45,7 +45,7 @@ namespace Conference.Specflow.Steps.Views
             seatsInfo = table;
         }
 
-        [When(@"the Business Customer proceed to create (.*) '(.*)' conferences")]
+        [When(@"the Business Customer proceeds to create (.*) '(.*)' conferences")]
         public void WhenTheBusinessCustomerProceedToCreateManyConsecutiveConferences(int conferences, string value)
         {
             slugs = new List<string>();

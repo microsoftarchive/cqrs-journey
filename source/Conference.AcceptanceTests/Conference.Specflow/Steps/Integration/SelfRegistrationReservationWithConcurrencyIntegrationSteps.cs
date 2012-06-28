@@ -37,7 +37,7 @@ namespace Conference.Specflow.Steps
             commandBus = ConferenceHelper.BuildCommandBus();
         }
 
-        [When(@"(.*) Registrants selects these Order Items")]
+        [When(@"(.*) Registrants select these Order Items")]
         public void WhenManyRegistrantsSelectsTheseOrderItems(int registrants, Table table)
         {
             var conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
@@ -98,7 +98,7 @@ namespace Conference.Specflow.Steps
 #endif
         }
 
-        [When(@"(.*) Registrants selects these Order Items")]
+        [When(@"(.*) Registrants select these Order Items")]
         public void WhenManyRegistrantsSelectsTheseOrderItems(int registrants, Table table)
         {
 #if LOCAL

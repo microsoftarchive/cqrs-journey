@@ -117,7 +117,7 @@ this.FeatureBackground();
 #line 26
  testRunner.Given("the selected Order Items", ((string)(null)), table2);
 #line 29
- testRunner.And("the Registrant proceed to make the Reservation");
+ testRunner.And("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -128,11 +128,11 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 30
- testRunner.And("the Registrant enter these details", ((string)(null)), table3);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table3);
 #line 33
  testRunner.And("the total should read $0");
 #line 34
- testRunner.When("the Registrant proceed to Checkout:NoPayment");
+ testRunner.When("the Registrant proceeds to Checkout:NoPayment");
 #line 35
     testRunner.Then("the Registration process was successful");
 #line hidden
@@ -172,7 +172,7 @@ this.FeatureBackground();
 #line 42
  testRunner.Given("the selected Order Items", ((string)(null)), table5);
 #line 46
- testRunner.And("the Registrant proceed to make the Reservation");
+ testRunner.And("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -183,13 +183,13 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 47
- testRunner.And("the Registrant enter these details", ((string)(null)), table6);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table6);
 #line 50
  testRunner.And("the total should read $300");
 #line 51
- testRunner.And("the Registrant proceed to Checkout:Payment");
+ testRunner.And("the Registrant proceeds to Checkout:Payment");
 #line 52
- testRunner.When("the Registrant proceed to confirm the payment");
+ testRunner.When("the Registrant proceeds to confirm the payment");
 #line 53
     testRunner.Then("the Registration process was successful");
 #line hidden

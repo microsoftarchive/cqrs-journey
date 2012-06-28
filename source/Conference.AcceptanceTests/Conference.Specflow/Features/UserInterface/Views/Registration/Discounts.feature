@@ -12,9 +12,9 @@
 # ==============================================================================================================
 
 Feature: Promotional Code scenarios for applying Promotional Codes to Seat Types
-	In order to apply a Promotional Code for one ore more Seat Types
+	In order to apply a Promotional Code for one or more Seat Types
 	As a Registrant
-	I want to be able to enter a Promotional Code and get the specified price reduction
+	I want to be able to enters a Promotional Code and get the specified price reduction
 
 Background: 
 	Given the list of the available Order Items for the CQRS summit 2012 conference
@@ -40,10 +40,10 @@ Scenario: Full Promotional Code for all selected items
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $1197
-	When the Registrant apply the 'SPEAKER123' Promotional Code
+	And the total amount should be $1197
+	When the Registrant applies the 'SPEAKER123' Promotional Code
 	Then the 'SPEAKER123' Promo code should show a value of -$1197
-	And the total amount should be of $0
+	And the total amount should be $0
 
 
 #Next release
@@ -54,10 +54,10 @@ Scenario: Partial Promotional Code for all selected items
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $1197
-	When the Registrant apply the 'VOLUNTEER' Promotional Code
+	And the total amount should be $1197
+	When the Registrant applies the 'VOLUNTEER' Promotional Code
 	Then the 'VOLUNTEER' Promo code should show a value of -$597
-	And the total amount should be of $600
+	And the total amount should be $600
 
 
 #Next release
@@ -67,10 +67,10 @@ Scenario: Partial Promotional Code for none of the selected items
 	| seat type                 | quantity |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $600
-	When the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
-	And the total amount should be of $600
+	And the total amount should be $600
+	When the Registrant applies the 'VOLUNTEER' Promotional Code
+	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform the Registrant about the problem
+	And the total amount should be $600
 
 
 #Next release
@@ -81,12 +81,12 @@ Scenario: Cumulative Promotional Codes
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $1197
-	When the Registrant apply the 'COPRESENTER' Promotional Code
-	And the Registrant apply the 'WS10' Promotional Code
+	And the total amount should be $1197
+	When the Registrant applies the 'COPRESENTER' Promotional Code
+	And the Registrant applies the 'WS10' Promotional Code
 	Then the 'COPRESENTER' Promotional Code item should show a value of -$10
 	And the 'WS10' Promotional Code item should show a value of -$20
-	And the total amount should be of $1167
+	And the total amount should be $1167
 
 
 #Next release
@@ -96,14 +96,14 @@ Scenario: Single use Promotional Code
 	| seat type                 | quantity |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $600
-	And the Registrant apply the '1TIMEPRECON' Promotional Code
+	And the total amount should be $600
+	And the Registrant applies the '1TIMEPRECON' Promotional Code
 	And the total amount should be of $350
-	And the Registrant proceed to complete the registration
-	And the Registrant selects the Event Registration
-	When the Registrant apply the '1TIMEPRECON' Promotional Code
-	Then the '1TIMEPRECON' Promo code will not be applied and an error message will inform about the problem
-	And the total amount should be of $600
+	And the Registrant proceeds to complete the registration
+	And the Registrant select the Event Registration
+	When the Registrant applies the '1TIMEPRECON' Promotional Code
+	Then the '1TIMEPRECON' Promo code will not be applied and an error message will inform the Registrant about the problem
+	And the total amount should be $600
 
 
 #Next release
@@ -114,12 +114,12 @@ Scenario: Mutually exclusive Promotional Code
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $1197
-	When the Registrant apply the 'COPRESENTER' Promotional Code
-	And the Registrant apply the 'VOLUNTEER' Promotional Code
-	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform about the problem
+	And the total amount should be $1197
+	When the Registrant applies the 'COPRESENTER' Promotional Code
+	And the Registrant applies the 'VOLUNTEER' Promotional Code
+	Then the 'VOLUNTEER' Promo code will not be applied and an error message will inform the Registrant about the problem
 	And the 'COPRESENTER' Promotional Code item should show a value of -$10
-	And the total amount should be of $1187
+	And the total amount should be $1187
 
 
 #Next release
@@ -130,12 +130,12 @@ Scenario: Combine only Promotional Code
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And the total amount should be of $1197
-	When the Registrant apply the 'WS10' Promotional Code
-	And the Registrant apply the 'VOLUNTEER' Promotional Code
+	And the total amount should be $1197
+	When the Registrant applies the 'WS10' Promotional Code
+	And the Registrant applies the 'VOLUNTEER' Promotional Code
 	Then the 'VOLUNTEER' Promo code should show a value of -$597
 	And the 'WS10' Promotional Code item should show a value of -$10
-	And the total amount should be of $590
+	And the total amount should be $590
 
 
 #Next release
@@ -146,18 +146,18 @@ Scenario: Partial scope
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	And the total amount should be of $749
-	When the Registrant apply the 'CONFONLY' Promotional Code
+	And the total amount should be $749
+	When the Registrant applies the 'CONFONLY' Promotional Code
 	Then the 'CONFONLY' Promo code should show a value of -$50
-	And the total amount should be of $699
+	And the total amount should be $699
 
 
 # Next release
 @Ignore
 Scenario: Make a reservation with the selected Order Items and a Promo Code
-	Given the Registrant apply the 'COPRESENTER' Promotional Code
+	Given the Registrant applies the 'COPRESENTER' Promotional Code
 	And the 'COPRESENTER' Promo code should show a value of -$5
-	When the Registrant proceed to make the Reservation		
+	When the Registrant proceeds to make the Reservation		
 	Then the Reservation is confirmed for all the selected Order Items
 	And the total should read $244
-	And the countdown started
+	And the countdown is started

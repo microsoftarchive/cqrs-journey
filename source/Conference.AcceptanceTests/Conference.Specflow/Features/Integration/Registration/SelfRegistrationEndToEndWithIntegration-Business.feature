@@ -13,7 +13,7 @@
 
 @SelfRegistrationEndToEndWithIntegration
 @NoWatiN
-Feature: Self Registrant end to end scenario for making a Registration for a Conference site expressed with Business laguage
+Feature: Self Registrant end to end scenario for making a Registration for a Conference site expressed with Business language
 	In order to register for a conference
 	As an Attendee
 	I want to be able to register for the conference, pay for the Registration Order and associate myself with the paid Order automatically
@@ -32,7 +32,7 @@ And the selected Order Items
 	| Additional cocktail party | 1        |
 
 #When the command to register the selected Order Items is sent 
-When the Registrant proceed to make the Reservation
+When the Registrant proceeds to make the Reservation
 #Then the event for Order placed is emitted
 Then the Reservation is confirmed for all the selected Order Items
 #And the command for reserving the selected Seats is received

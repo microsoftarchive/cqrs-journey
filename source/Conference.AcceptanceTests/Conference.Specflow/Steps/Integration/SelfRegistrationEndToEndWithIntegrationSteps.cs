@@ -38,7 +38,7 @@ namespace Conference.Specflow.Steps
             commandBus = ConferenceHelper.BuildCommandBus();
         }
 
-        [When(@"the Registrant proceed to make the Reservation")]
+        [When(@"the Registrant proceeds to make the Reservation")]
         [When(@"the command to register the selected Order Items is sent")]
         public void WhenTheCommandToRegisterTheSelectedOrderItemsIsSent()
         {

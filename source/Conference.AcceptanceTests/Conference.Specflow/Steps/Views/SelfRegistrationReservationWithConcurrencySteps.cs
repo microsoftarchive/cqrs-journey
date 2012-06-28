@@ -29,13 +29,13 @@ namespace Conference.Specflow.Steps
         {
         }
 
-        [Given(@"another Registrant selects these Order Items")]
+        [Given(@"another Registrant select these Order Items")]
         public void GivenAnotherRegistrantSelectsTheseOrderItems(Table table)
         {
             CommonSteps.SelectOrderItems(Browser, ScenarioContext.Current.Get<ConferenceInfo>(), table);
         }
 
-        [When(@"another Registrant proceed to make the Reservation")]
+        [When(@"another Registrant proceeds to make the Reservation")]
         public void WhenAnotherRegistrantProceedToMakeTheReservation()
         {
             CommonSteps.MakeTheReservation(Browser);
@@ -47,7 +47,7 @@ namespace Conference.Specflow.Steps
             SelfRegistrationReservationWithPartialAvailabilitySteps.AvailableSeats(Browser, table);
         }
 
-        [When(@"another Registrant proceed to make the Reservation with seats already reserved")]
+        [When(@"another Registrant proceeds to make the Reservation with seats already reserved")]
         public void WhenAnotherRegistrantProceedToMakeTheReservationWithSeatsAlreadyReserved()
         {
             CommonSteps.MakeTheReservationWithSeatsAlreadyReserved(Browser);
@@ -59,7 +59,7 @@ namespace Conference.Specflow.Steps
     {
         private List<string> results;
 
-        [When(@"(.*) Registrants selects these Order Items")]
+        [When(@"(.*) Registrants select these Order Items")]
         public void WhenManyRegistrantsSelectsTheseOrderItems(int registrants, Table table)
         {
             Func<string> worker = () =>
@@ -70,7 +70,7 @@ namespace Conference.Specflow.Steps
                     {
                         registrant.GivenTheSelectedOrderItems(table);
                         registrant.GivenTheRegistrantProceedToMakeTheReservation();
-                        //If we get here, the reservation was successful so proceed to payment
+                        //If we get here, the reservation was successful so proceeds to payment
                         registrant.GivenTheRegistrantProceedToCheckoutPayment();
                         registrant.WhenTheRegistrantProceedToConfirmThePayment();
                         registrant.ThenTheOrderShouldBeCreatedWithTheFollowingOrderItems(table);

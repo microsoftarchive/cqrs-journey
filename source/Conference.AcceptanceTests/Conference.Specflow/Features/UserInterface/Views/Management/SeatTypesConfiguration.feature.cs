@@ -101,9 +101,9 @@ this.ScenarioSetup(scenarioInfo);
 #line 21
 testRunner.Given("an existing unpublished conference with this information", ((string)(null)), table1);
 #line 24
-testRunner.And("the Business Customer selects the Seat Types opcion");
+testRunner.And("the Business Customer selects the Seat Types option");
 #line 25
-testRunner.And("the Business Customer proceed to create new Seat Types");
+testRunner.And("the Business Customer proceeds to create new Seat Types");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
@@ -116,7 +116,7 @@ testRunner.And("the Business Customer proceed to create new Seat Types");
                         "100",
                         "199"});
 #line 26
-testRunner.When("the Business Customer proceed to create the Seat Types", ((string)(null)), table2);
+testRunner.When("the Business Customer proceeds to create the Seat Types", ((string)(null)), table2);
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",

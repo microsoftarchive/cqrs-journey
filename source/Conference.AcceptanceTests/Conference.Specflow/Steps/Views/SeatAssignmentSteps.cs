@@ -21,8 +21,8 @@ namespace Conference.Specflow.Steps
     [Binding]
     public class SeatAssignmentSteps : StepDefinition
     {
-        [When(@"the Registrant assign these seats")]
-        public void WhenTheRegistrantAssignTheseSeats(Table table)
+        [When(@"the Registrant assigns these seats")]
+        public void WhenTheRegistrantAssignsTheseSeats(Table table)
         {
             Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
             try
