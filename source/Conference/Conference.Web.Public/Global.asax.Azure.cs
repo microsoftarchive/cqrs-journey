@@ -94,7 +94,7 @@ namespace Conference.Web.Public
 
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
-            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation(instrumentationEnabled));
+            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation("web.public", instrumentationEnabled));
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             container.RegisterType(
                 typeof(IEventSourcedRepository<>),

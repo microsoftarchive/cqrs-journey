@@ -135,7 +135,7 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
-            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation(this.instrumentationEnabled));
+            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation("worker", this.instrumentationEnabled));
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             var cache = new MemoryCache("RepositoryCache");
             container.RegisterType(
