@@ -226,7 +226,7 @@ namespace Infrastructure.Azure.Messaging
                         // Process the message once it was successfully received
                         if (this.processInParallel)
                         {
-                            // Continue receiving and processing new messages asynchrnously
+                            // Continue receiving and processing new messages asynchronously
                             Task.Factory.StartNew(receiveNext);
                         }
 

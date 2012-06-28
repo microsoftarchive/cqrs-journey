@@ -95,10 +95,10 @@ namespace Infrastructure.Azure.Messaging
 
             this.dynamicThrottling =
                 new DynamicThrottling(
-                    maxDegreeOfParallelism: 50,
+                    maxDegreeOfParallelism: 160,
                     minDegreeOfParallelism: 30,
-                    retryParallelismPenalty: 1,
-                    workFailedParallelismPenalty: 3,
+                    retryParallelismPenalty: 3,
+                    workFailedParallelismPenalty: 5,
                     workCompletedParallelismGain: 1,
                     intervalForRestoringDegreeOfParallelism: 10000);
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
@@ -195,11 +195,12 @@ namespace Infrastructure.Azure.Messaging
                 {
                     // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
                     Trace.TraceError("An unrecoverable error occurred while trying to accept a session in subscription {1}:\r\n{0}", ex, this.subscription);
+                    this.dynamicThrottling.OnRetrying();
 
                     if (!cancellationToken.IsCancellationRequested)
                     {
                         // Continue accepting new sessions until we are told to stop regardless of any exceptions.
-                        TaskEx.Delay(1000).ContinueWith(t => AcceptSession(cancellationToken));
+                        TaskEx.Delay(1000).ContinueWith(t => AcceptSession(cancellationToken), cancellationToken);
                     }
                 };
 
