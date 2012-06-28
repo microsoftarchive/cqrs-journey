@@ -33,13 +33,13 @@ namespace WorkerRoleCommandProcessor
 				/// </summary>
 				public const string Seatsavailability = "seatsavailability";
 				/// <summary>
-				/// all
-				/// </summary>
-				public const string All = "all";
-				/// <summary>
 				/// log
 				/// </summary>
 				public const string Log = "log";
+				/// <summary>
+				/// all
+				/// </summary>
+				public const string All = "all";
 			}
 		}
 
@@ -57,13 +57,13 @@ namespace WorkerRoleCommandProcessor
 				/// </summary>
 				public const string Log = "log";
 				/// <summary>
-				/// Registration.RegistrationProcessRouter
+				/// Registration.RegistrationPMOrderPlaced
 				/// </summary>
-				public const string RegistrationProcessRouter = "Registration.RegistrationProcessRouter";
+				public const string RegistrationPMOrderPlaced = "Registration.RegistrationPMOrderPlaced";
 				/// <summary>
-				/// Registration.RegistrationProcessRouterV3
+				/// Registration.RegistrationPMNextSteps
 				/// </summary>
-				public const string RegistrationProcessRouterV3 = "Registration.RegistrationProcessRouterV3";
+				public const string RegistrationPMNextSteps = "Registration.RegistrationPMNextSteps";
 				/// <summary>
 				/// Registration.OrderViewModelGenerator
 				/// </summary>
@@ -88,6 +88,10 @@ namespace WorkerRoleCommandProcessor
 				/// Conference.OrderEventHandler
 				/// </summary>
 				public const string OrderEventHandler = "Conference.OrderEventHandler";
+				/// <summary>
+				/// Registration.RegistrationProcessRouter
+				/// </summary>
+				public const string RegistrationProcessRouter = "Registration.RegistrationProcessRouter";
 			}
 		}
 
