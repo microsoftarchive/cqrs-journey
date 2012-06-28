@@ -15,7 +15,6 @@ namespace Infrastructure.Azure.BlobStorage
 {
     using System;
     using System.Diagnostics;
-    using System.IO;
     using Infrastructure.BlobStorage;
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.AzureStorage;
     using Microsoft.Practices.TransientFaultHandling;
@@ -56,16 +55,11 @@ namespace Infrastructure.Azure.BlobStorage
                 {
                     try
                     {
-                        using (var stream = blobReference.OpenRead())
-                        using (var resultStream = new MemoryStream())
-                        {
-                            stream.CopyTo(resultStream);
-                            return resultStream.ToArray();
-                        }
+                        return blobReference.DownloadByteArray();
                     }
                     catch (StorageClientException e)
                     {
-                        if (e.ErrorCode == StorageErrorCode.ResourceNotFound)
+                        if (e.ErrorCode == StorageErrorCode.ResourceNotFound || e.ErrorCode ==StorageErrorCode.BlobNotFound || e.ErrorCode == StorageErrorCode.ContainerNotFound)
                         {
                             return null;
                         }
@@ -84,12 +78,7 @@ namespace Infrastructure.Azure.BlobStorage
 
             this.writeRetryPolicy.ExecuteAction(() =>
                 {
-                    using (var stream = blobReference.OpenWrite())
-                    {
-                        stream.Write(blob, 0, blob.Length);
-                    }
-
-                    blobReference.Properties.ContentType = contentType;
+                    blobReference.UploadByteArray(blob);
                 });
         }
 
