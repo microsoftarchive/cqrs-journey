@@ -30,23 +30,23 @@ And the Seat Types configuration
 #Next release
 @Ignore
 Scenario: Create a new Promotional Code
-Given the Business Customer proceed to create a Promotional Code
-And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
+Given the Business Customer proceeds to create a Promotional Code
+And the Business Customer enters the 'NEWCODE' Promotional Code and these attributes
 	| Discount | Quota     | Scope             | Cumulative |
 	| 10%      | Unlimited | General admission | SPEAKER123 |
-When the Business Customer proceed to save the new information
+When the Business Customer proceeds to save the new information
 Then the new Promotional Code is added to the list of existing codes
 
 
 # New Promo Code Sad path
 #Next release
 @Ignore
-Scenario: Create a new Promotional Code with with exceeding quota
-Given the Business Customer proceed to create a Promotional Code
-And the Business Customer enter the 'NEWCODE' Promotional Code and these attributes
+Scenario: Create a new Promotional Code with a quota that exceeds the available seats
+Given the Business Customer proceeds to create a Promotional Code
+And the Business Customer enters the 'NEWCODE' Promotional Code and these attributes
 	| Discount | Quota | Scope             | Cumulative |
 	| 10%      | 1000  | General admission | SPEAKER123 |
-When the Business Customer proceed to save the new information
+When the Business Customer proceeds to save the new information
 Then an error message will show up describing that the quota value exceeds the total seats for the specified Seat Type
 
 
@@ -54,21 +54,21 @@ Then an error message will show up describing that the quota value exceeds the t
 #Next release
 @Ignore
 Scenario: Update an existing Promotional Code
-Given the Business Customer selects 'SPEAKER123' Promotional Code
+Given the Business Customer select 'SPEAKER123' Promotional Code
 And the Scope is updated with value 'CQRS Workshop'
 And the Quota is updated with the value '50'
-When the Business Customer proceed to save the new information
+When the Business Customer proceeds to save the new information
 Then updated values are reflected in the selected Promotional Code
 
 
 # Update Promo Code Sad path
 #Next release
 @Ignore
-Scenario: Update an existing Promotional Code with exceeding quota
-Given the Business Customer selects 'SPEAKER123' Promotional Code
+Scenario: Update an existing Promotional Code with a quota that exceeds the available seats
+Given the Business Customer select 'SPEAKER123' Promotional Code
 And the Scope is updated with value 'CQRS Workshop'
 And the Quota is updated with the value '200'
-When the Business Customer proceed to save the new information
+When the Business Customer proceeds to save the new information
 Then an error message will show up describing that the quota value exceeds the total seats for the specified Seat Type
 
 

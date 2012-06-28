@@ -127,7 +127,7 @@ this.FeatureBackground();
 #line 31
  testRunner.Given("the selected Order Items", ((string)(null)), table2);
 #line 36
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.When("the Registrant proceeds to make the Reservation");
 #line 37
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line 38
@@ -162,7 +162,7 @@ this.FeatureBackground();
 #line 45
  testRunner.Given("the selected Order Items", ((string)(null)), table3);
 #line 49
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.When("the Registrant proceeds to make the Reservation");
 #line 50
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line 51
@@ -202,9 +202,9 @@ this.FeatureBackground();
             table5.AddRow(new string[] {
                         "Additional cocktail party"});
 #line 62
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table5);
+ testRunner.And("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table5);
 #line 66
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.When("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -265,9 +265,9 @@ this.FeatureBackground();
                         "Additional cocktail party",
                         "20"});
 #line 84
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table8);
+ testRunner.And("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table8);
 #line 88
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.When("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",

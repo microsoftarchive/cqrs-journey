@@ -67,7 +67,7 @@ namespace Conference.Specflow.Steps
             ScenarioContext.Current.Set(registrationController.ConferenceAlias);
         }
 
-        [Given(@"the Registrant proceed to make the Reservation")]
+        [Given(@"the Registrant proceeds to make the Reservation")]
         public void GivenTheRegistrantProceedToMakeTheReservation()
         {
             //Assert.True(redirect != null, "Reservation not accepted. May be waitlisted.");
@@ -113,7 +113,7 @@ namespace Conference.Specflow.Steps
             }
         }
 
-        [Given(@"the Registrant enter these details")]  
+        [Given(@"the Registrant enters these details")]  
         public void GivenTheRegistrantEnterTheseDetails(Table table)
         {
             GivenTheRegistrantEnterTheseDetails(table.Rows[0]["first name"], table.Rows[0]["last name"],
@@ -127,7 +127,7 @@ namespace Conference.Specflow.Steps
             registrationViewModel.RegistrantDetails.Email = email;
         }
 
-        [Given(@"the Registrant proceed to Checkout:Payment")]
+        [Given(@"the Registrant proceeds to Checkout:Payment")]
         public void GivenTheRegistrantProceedToCheckoutPayment()
         {
             var result = registrationController.SpecifyRegistrantAndPaymentDetails(
@@ -148,7 +148,7 @@ namespace Conference.Specflow.Steps
             routeValues = result.RouteValues;
         }
 
-        [When(@"the Registrant proceed to confirm the payment")]
+        [When(@"the Registrant proceeds to confirm the payment")]
         public void WhenTheRegistrantProceedToConfirmThePayment()
         {
             using (var paymentController = RegistrationHelper.GetPaymentController())
@@ -177,8 +177,8 @@ namespace Conference.Specflow.Steps
             Thread.Sleep(Constants.WaitTimeout);
         }
 
-        [Then(@"the Registrant assign these seats")]
-        public void ThenTheRegistrantAssignTheseSeats(Table table)
+        [Then(@"the Registrant assigns these seats")]
+        public void ThenTheRegistrantAssignsTheseSeats(Table table)
         {
             using (var orderController = RegistrationHelper.GetOrderController())
             {

@@ -14,7 +14,7 @@
 Feature:  Multiple Conference configuration scenarios for creating and editing many Conferences
 	In order to create multiple Conferences
 	As a Business Customer
-	I want to be able to create multiple Conferences and set its properties
+	I want to be able to create multiple Conferences and set their properties
 
 
 #Multiple creation scenario
@@ -22,10 +22,10 @@ Feature:  Multiple Conference configuration scenarios for creating and editing m
 Scenario: Multiple Seat Types are created and assigned to a new existing Conference
 Given this base conference information
 | Owner   | Email           | Name    | Description              | Slug    | Start      | End        |
-| Neuro%1 | neuro@neuro.com | NEURO%1 | Neuro Test conference %1 | neuro%1 | 05/02/2012 | 07/12/2012 |
+| Neuro%1 | neuro@fabrikam.com | NEURO%1 | Neuro Test conference %1 | neuro%1 | 05/02/2012 | 07/12/2012 |
 And these Seat Types
 | Name  | Description      | Quantity | Price |
 | TEST1 | Test seat type 1 | 100000   | 0     |
 | TEST2 | Test seat type 2 | 100000   | 1     | 
-When the Business Customer proceed to create 50 'random' conferences
+When the Business Customer proceeds to create 50 'random' conferences
 Then all the conferences are created

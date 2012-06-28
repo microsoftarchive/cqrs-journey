@@ -17,13 +17,13 @@ Feature: Self-Registrant scenarios for making a Reservation for a Conference sit
 	As an Attendee
 	I want to be able to select an Order Item from one or many of the available where other Registrants may also be interested
 
-#This scenario with low volume is for Azure build  
+#This scenario with low volume is for the Wondows Azure build (Release)
 @SelfRegistrationReservationWithConcurrencyIntegration
 Scenario: Some Registrants try to reserve the same Order Item and not all of them get the reservation	
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type     | rate | quota |
 	| CQRS Workshop | $500 | 4     |
-	When 4 Registrants selects these Order Items
+	When 4 Registrants select these Order Items
 	| seat type     | quantity |
 	| CQRS Workshop | 2        |
 	# event: OrderReservationCompleted 
@@ -32,14 +32,14 @@ Scenario: Some Registrants try to reserve the same Order Item and not all of the
 	And 2 events for partially completing the order are emitted
 
 
-#This scenario with hight volume is for Sql build (DebugLocal)  
+#This scenario with high volume is for the Sql Server Express build (DebugLocal)  
 #Self Registrant scenario
 @SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly
 Scenario: Many Registrants try to reserve the same Order Item and not all of them get the reservation	
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type     | rate | quota |
 	| CQRS Workshop | $500 | 200   |
-	When 200 Registrants selects these Order Items
+	When 200 Registrants select these Order Items
 	| seat type     | quantity |
 	| CQRS Workshop | 2        |
 	# event: OrderReservationCompleted 
@@ -48,15 +48,15 @@ Scenario: Many Registrants try to reserve the same Order Item and not all of the
 	And 100 events for partially completing the order are emitted
 
 
-#This scenario with hight volume is for Sql build (DebugLocal)  
+#This scenario with high volume is for the Sql Server Express build (DebugLocal)
 #Group Registrant scenario with some partial and some full reservations
 @SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly
-Scenario: Many Registrants try to reserve many same Order Items and some of them get a partial reservation
+Scenario: Many Registrants try to reserve many of the same Order Items and some of them get a partial reservation
 	Given the list of the available Order Items for the CQRS summit 2012 conference
 	| seat type         | rate | quota |
 	| CQRS Workshop     | $500 | 200   |
 	| General admission | $199 | 100   |
-	When 200 Registrants selects these Order Items
+	When 200 Registrants select these Order Items
 	| seat type         | quantity |
 	| CQRS Workshop     | 1        |
 	| General admission | 2        |

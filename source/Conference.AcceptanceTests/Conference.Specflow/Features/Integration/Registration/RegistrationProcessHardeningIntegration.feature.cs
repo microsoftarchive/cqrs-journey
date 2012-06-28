@@ -18,7 +18,7 @@ namespace Conference.Specflow.Features.Integration.Registration
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature : Xunit.IUseFixture<HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData>, System.IDisposable
+    public partial class HardeningTheRegistrationProcessSoItIsAbleToRecoverFromUnexpectedConditionsAndFailuresFeature : Xunit.IUseFixture<HardeningTheRegistrationProcessSoItIsAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,7 +26,7 @@ namespace Conference.Specflow.Features.Integration.Registration
 #line 1 "RegistrationProcessHardeningIntegration.feature"
 #line hidden
         
-        public HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature()
+        public HardeningTheRegistrationProcessSoItIsAbleToRecoverFromUnexpectedConditionsAndFailuresFeature()
         {
             this.TestInitialize();
         }
@@ -34,7 +34,7 @@ namespace Conference.Specflow.Features.Integration.Registration
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Hardening the RegistrationProcess so it is able to recover from unexpected condit" +
                     "ions and failures", "There are two general issues to consider\r\nMessages are handled successfully but t" +
                     "hey cannot be completed so they are handled again and\r\nthe process state is stor" +
                     "ed but the commands it generates fail to be published", ProgrammingLanguage.CSharp, new string[] {
@@ -105,7 +105,7 @@ testRunner.And("the selected Order Items", ((string)(null)), table2);
 #line hidden
         }
         
-        public virtual void SetFixture(HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData fixtureData)
+        public virtual void SetFixture(HardeningTheRegistrationProcessSoItIsAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FixtureData fixtureData)
         {
         }
         
@@ -115,7 +115,7 @@ testRunner.And("the selected Order Items", ((string)(null)), table2);
         }
         
         [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it is able to recover from unexpected condit" +
             "ions and failures")]
         [Xunit.TraitAttribute("Description", "The Command to Register the order is lost after a crash")]
         public virtual void TheCommandToRegisterTheOrderIsLostAfterACrash()
@@ -138,18 +138,18 @@ testRunner.And("the event for reserving the selected Seats is emitted");
         }
         
         [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it is able to recover from unexpected condit" +
             "ions and failures")]
-        [Xunit.TraitAttribute("Description", "Times-out afther the reservation is completed")]
-        public virtual void Times_OutAftherTheReservationIsCompleted()
+        [Xunit.TraitAttribute("Description", "Times-out after the reservation is completed")]
+        public virtual void Times_OutAfterTheReservationIsCompleted()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Times-out afther the reservation is completed", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Times-out after the reservation is completed", ((string[])(null)));
 #line 52
 this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
 #line 54
-testRunner.When("the event for Order placed get expired");
+testRunner.When("the event for Order placed gets expired");
 #line 55
 testRunner.Then("the event for confirming the Order is not emitted");
 #line hidden
@@ -157,7 +157,7 @@ testRunner.Then("the event for confirming the Order is not emitted");
         }
         
         [Xunit.FactAttribute()]
-        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it be able to recover from unexpected condit" +
+        [Xunit.TraitAttribute("FeatureTitle", "Hardening the RegistrationProcess so it is able to recover from unexpected condit" +
             "ions and failures")]
         [Xunit.TraitAttribute("Description", "Execute the Payment process after the order has expired")]
         public virtual void ExecuteThePaymentProcessAfterTheOrderHasExpired()
@@ -168,7 +168,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
 #line 59
-testRunner.Given("the event for Order placed get expired");
+testRunner.Given("the event for Order placed gets expired");
 #line 61
 testRunner.When("the command for initiate the payment is sent");
 #line 63
@@ -188,12 +188,12 @@ testRunner.And("the event for confirming the Order is not emitted");
             
             public FixtureData()
             {
-                HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureSetup();
+                HardeningTheRegistrationProcessSoItIsAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                HardeningTheRegistrationProcessSoItBeAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureTearDown();
+                HardeningTheRegistrationProcessSoItIsAbleToRecoverFromUnexpectedConditionsAndFailuresFeature.FeatureTearDown();
             }
         }
     }

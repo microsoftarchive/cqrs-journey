@@ -18,7 +18,7 @@ namespace Conference.Specflow.Features.Integration.Registration
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "1.8.1.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLaguageFeature : Xunit.IUseFixture<SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLaguageFeature.FixtureData>, System.IDisposable
+    public partial class SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLanguageFeature : Xunit.IUseFixture<SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLanguageFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -26,7 +26,7 @@ namespace Conference.Specflow.Features.Integration.Registration
 #line 1 "SelfRegistrationEndToEndWithIntegration-Business.feature"
 #line hidden
         
-        public SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLaguageFeature()
+        public SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLanguageFeature()
         {
             this.TestInitialize();
         }
@@ -35,7 +35,7 @@ namespace Conference.Specflow.Features.Integration.Registration
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Self Registrant end to end scenario for making a Registration for a Conference si" +
-                    "te expressed with Business laguage", "In order to register for a conference\r\nAs an Attendee\r\nI want to be able to regis" +
+                    "te expressed with Business language", "In order to register for a conference\r\nAs an Attendee\r\nI want to be able to regis" +
                     "ter for the conference, pay for the Registration Order and associate myself with" +
                     " the paid Order automatically", ProgrammingLanguage.CSharp, new string[] {
                         "SelfRegistrationEndToEndWithIntegration",
@@ -68,7 +68,7 @@ namespace Conference.Specflow.Features.Integration.Registration
             testRunner.CollectScenarioErrors();
         }
         
-        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLaguageFeature.FixtureData fixtureData)
+        public virtual void SetFixture(SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLanguageFeature.FixtureData fixtureData)
         {
         }
         
@@ -79,7 +79,7 @@ namespace Conference.Specflow.Features.Integration.Registration
         
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self Registrant end to end scenario for making a Registration for a Conference si" +
-            "te expressed with Business laguage")]
+            "te expressed with Business language")]
         [Xunit.TraitAttribute("Description", "Make a reservation with the selected Order Items")]
         public virtual void MakeAReservationWithTheSelectedOrderItems()
         {
@@ -118,7 +118,7 @@ testRunner.Given("the list of the available Order Items for the CQRS summit 2012
 #line 29
 testRunner.And("the selected Order Items", ((string)(null)), table2);
 #line 35
-testRunner.When("the Registrant proceed to make the Reservation");
+testRunner.When("the Registrant proceeds to make the Reservation");
 #line 37
 testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
@@ -153,12 +153,12 @@ testRunner.And("the total should read $249");
             
             public FixtureData()
             {
-                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLaguageFeature.FeatureSetup();
+                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLanguageFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLaguageFeature.FeatureTearDown();
+                SelfRegistrantEndToEndScenarioForMakingARegistrationForAConferenceSiteExpressedWithBusinessLanguageFeature.FeatureTearDown();
             }
         }
     }

@@ -114,7 +114,7 @@ this.FeatureBackground();
                         "CQRS Workshop",
                         "1"});
 #line 28
- testRunner.When("20 Registrants selects these Order Items", ((string)(null)), table2);
+ testRunner.When("20 Registrants select these Order Items", ((string)(null)), table2);
 #line 31
  testRunner.Then("only 10 Registrants get confirmed registrations for the selected Order Items");
 #line hidden

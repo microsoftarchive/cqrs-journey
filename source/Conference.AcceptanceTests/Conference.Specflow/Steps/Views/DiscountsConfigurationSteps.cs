@@ -24,13 +24,13 @@ namespace Conference.Specflow.Steps
             ScenarioContext.Current.Pending();
         }
 
-        [Given(@"the Business Customer selects 'Add new Promotional code' option")]
+        [Given(@"the Business Customer select 'Add new Promotional code' option")]
         public void GivenTheBusinessCustomerSelectsAddNewPromotionalCodeOption()
         {
             ScenarioContext.Current.Pending();
         }
 
-        [Given(@"the Business Customer enter the 'NEWCODE' Promotional Code and these attributes")]
+        [Given(@"the Business Customer enters the 'NEWCODE' Promotional Code and these attributes")]
         public void GivenTheBusinessCustomerEnterTheNewcodePromotionalCodeAndTheseAttributes(Table table)
         {
             ScenarioContext.Current.Pending();

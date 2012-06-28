@@ -37,8 +37,8 @@ Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2
 	| seat type                 | quantity |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
+	When the Registrant proceeds to make the Reservation					
+	Then these order items get confirmed being waitlisted
 	| seat type                 | quantity |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
@@ -48,7 +48,7 @@ Scenario: 1 order item is available, 2 are waitlisted and 2 are selected, then 2
 #End state		: 1 reserved 
 #Next release
 @Ignore
-Scenario: 1 order item is available,  2 are waitlisted and 1 available is selected, then only 1 get reserved	
+Scenario: 1 order item is available,  2 are waitlisted and 1 available is selected, then only 1 gets reserved	
 	Given the list of available Order Items selected by the Registrant
 	| seat type         | quantity |
 	| General admission | 1        |
@@ -56,7 +56,7 @@ Scenario: 1 order item is available,  2 are waitlisted and 1 available is select
 	| seat type                 | quantity |
 	| CQRS Workshop             | 0        |
 	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation					
+	When the Registrant proceeds to make the Reservation					
 	Then these order items get reserved
 	| seat type         | quantity |
 	| General admission | 1        |
@@ -66,7 +66,7 @@ Scenario: 1 order item is available,  2 are waitlisted and 1 available is select
 #End state		: 1 reserved,  1 waitlisted confirmed  
 #Next release
 @Ignore
-Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 get reserved and 1 get waitlisted	
+Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlisted are selected, then 1 gets reserved and 1 gets waitlisted	
 	Given the list of available Order Items selected by the Registrant
 	| seat type         | quantity |
 	| General admission | 1        |
@@ -74,8 +74,8 @@ Scenario: 1 order item is available, 2 are waitlisted, 1 available and 1 waitlis
 	| seat type                 | quantity |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation					
-	Then these order itmes get confirmed being waitlisted
+	When the Registrant proceeds to make the Reservation					
+	Then these order items get confirmed being waitlisted
 	| seat type     | quantity |
 	| CQRS Workshop | 1        |
 	And these other order items get reserved

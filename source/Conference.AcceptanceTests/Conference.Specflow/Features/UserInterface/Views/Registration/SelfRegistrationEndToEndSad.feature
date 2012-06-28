@@ -35,18 +35,18 @@ Scenario: No selected Seat Type
 	| General admission         | 0        |
 	| CQRS Workshop             | 0        |
 	| Additional cocktail party | 0        |
-	When the Registrant proceed to make the Reservation with no selected seats
+	When the Registrant proceeds to make the Reservation with no selected seats
 	Then the message 'One or more items are required' will show up
 
 
 #Initial state	: 3 available
 #End state		: 2 waitlisted, 1 reserved
 Scenario: All Seat Types are available, one get reserved and two get waitlisted
-	Given these Seat Types becomes unavailable before the Registrant make the reservation
+	Given these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 |
 	| CQRS Workshop             |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation with seats already reserved		
+	When the Registrant proceeds to make the Reservation with seats already reserved		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| CQRS Workshop             |          | Sold out |
@@ -61,38 +61,38 @@ Scenario: All Seat Types are available, one get reserved and two get waitlisted
 
 
 Scenario: Checkout:Registrant Invalid Details
-	Given the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	Given the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address   |
 	| William    |           | william@invalid |
-	When the Registrant proceed to Checkout:NoPayment
+	When the Registrant proceeds to Checkout:NoPayment
 	Then the error message for 'LastName' with value 'The LastName field is required.' will show up 	
 
 
 Scenario: Checkout:Payment with cancellation
-	Given the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	Given the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	When the Registrant proceed to cancel the payment
+	And the Registrant proceeds to Checkout:Payment
+	When the Registrant proceeds to cancel the payment
     Then the payment selection page will show up 	
 
 
 Scenario: Partiall Seats allocation
-	Given the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	Given the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	And the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	And the Registrant proceeds to confirm the payment
     And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 1        |
-	When the Registrant assign these seats
+	When the Registrant assigns these seats
 	| seat type                 | first name | last name | email address        |
 	| General admission         | William    | Flash     | william@fabrikam.com |
 	| Additional cocktail party | Jon        | Jaffe     | jon@fabrikam.com     |

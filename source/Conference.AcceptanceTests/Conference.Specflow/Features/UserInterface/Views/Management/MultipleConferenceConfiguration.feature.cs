@@ -36,7 +36,7 @@ namespace Conference.Specflow.Features.UserInterface.Views.Management
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Multiple Conference configuration scenarios for creating and editing many Confere" +
                     "nces", "In order to create multiple Conferences\r\nAs a Business Customer\r\nI want to be abl" +
-                    "e to create multiple Conferences and set its properties", ProgrammingLanguage.CSharp, ((string[])(null)));
+                    "e to create multiple Conferences and set their properties", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -94,7 +94,7 @@ this.ScenarioSetup(scenarioInfo);
                         "End"});
             table1.AddRow(new string[] {
                         "Neuro%1",
-                        "neuro@neuro.com",
+                        "neuro@fabrikam.com",
                         "NEURO%1",
                         "Neuro Test conference %1",
                         "neuro%1",
@@ -121,7 +121,7 @@ testRunner.Given("this base conference information", ((string)(null)), table1);
 #line 26
 testRunner.And("these Seat Types", ((string)(null)), table2);
 #line 30
-testRunner.When("the Business Customer proceed to create 50 \'random\' conferences");
+testRunner.When("the Business Customer proceeds to create 50 \'random\' conferences");
 #line 31
 testRunner.Then("all the conferences are created");
 #line hidden
