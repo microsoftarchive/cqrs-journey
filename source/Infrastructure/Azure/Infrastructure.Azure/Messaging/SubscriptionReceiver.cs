@@ -43,6 +43,7 @@ namespace Infrastructure.Azure.Messaging
         private readonly object lockObject = new object();
         private readonly Microsoft.Practices.TransientFaultHandling.RetryPolicy receiveRetryPolicy;
         private readonly bool processInParallel;
+        private readonly DynamicThrottling dynamicThrottling;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
 
@@ -95,10 +96,19 @@ namespace Infrastructure.Azure.Messaging
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
             this.client.PrefetchCount = 50;
-
+           
+            this.dynamicThrottling =
+                new DynamicThrottling(
+                    maxDegreeOfParallelism: 100,
+                    minDegreeOfParallelism: 50,
+                    retryParallelismPenalty: 3,
+                    workFailedParallelismPenalty: 5,
+                    workCompletedParallelismGain: 1,
+                    intervalForRestoringDegreeOfParallelism: 8000);
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
             {
+                this.dynamicThrottling.OnRetrying();
                 Trace.TraceWarning(
                     "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
                     e.LastException.Message,
@@ -162,6 +172,7 @@ namespace Infrastructure.Azure.Messaging
             if (disposing)
             {
                 using (this.instrumentation as IDisposable) { }
+                using (this.dynamicThrottling as IDisposable) { }
             }
         }
 
@@ -260,6 +271,10 @@ namespace Infrastructure.Azure.Messaging
                                 this.ReleaseMessage(msg, releaseAction);
                             }
                         }
+                        else
+                        {
+                            this.dynamicThrottling.NotifyWorkCompleted();
+                        }
 
                         if (!this.processInParallel)
                         {
@@ -278,8 +293,10 @@ namespace Infrastructure.Azure.Messaging
             // Initialize an action to receive the next message in the queue or end if cancelled.
             receiveNext = () =>
             {
+                this.dynamicThrottling.WaitUntilAllowedParallelism(cancellationToken);
                 if (!cancellationToken.IsCancellationRequested)
                 {
+                    this.dynamicThrottling.NotifyWorkStarted();
                     // Continue receiving and processing new messages until we are told to stop.
                     receiveMessage.Invoke();
                 }
@@ -290,6 +307,7 @@ namespace Infrastructure.Azure.Messaging
             {
                 // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
                 Trace.TraceError("An unrecoverable error occurred while trying to receive a new message from subscription {1}:\r\n{0}", ex, this.subscription);
+                this.dynamicThrottling.NotifyWorkCompletedWithError();
 
                 if (!cancellationToken.IsCancellationRequested)
                 {
@@ -307,13 +325,25 @@ namespace Infrastructure.Azure.Messaging
             switch (releaseAction.Kind)
             {
                 case MessageReleaseActionKind.Complete:
-                    msg.SafeCompleteAsync(r => { msg.Dispose(); this.instrumentation.MessageCompleted(r); });
+                    msg.SafeCompleteAsync(success => 
+                    { 
+                        msg.Dispose();
+                        this.instrumentation.MessageCompleted(success);
+                        if (success)
+                        {
+                            this.dynamicThrottling.NotifyWorkCompleted();
+                        }
+                        else
+                        {
+                            this.dynamicThrottling.NotifyWorkCompletedWithError();
+                        }
+                    });
                     break;
                 case MessageReleaseActionKind.Abandon:
-                    msg.SafeAbandonAsync(r => { msg.Dispose(); this.instrumentation.MessageCompleted(false); });
+                    msg.SafeAbandonAsync(success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
                     break;
                 case MessageReleaseActionKind.DeadLetter:
-                    msg.SafeDeadLetterAsync(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, r => { msg.Dispose(); this.instrumentation.MessageCompleted(false); });
+                    msg.SafeDeadLetterAsync(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
                     break;
                 default:
                     break;

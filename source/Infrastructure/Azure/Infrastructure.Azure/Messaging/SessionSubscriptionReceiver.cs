@@ -43,6 +43,7 @@ namespace Infrastructure.Azure.Messaging
         private readonly object lockObject = new object();
         private readonly RetryPolicy receiveRetryPolicy;
         private readonly ISessionSubscriptionReceiverInstrumentation instrumentation;
+        private readonly DynamicThrottling dynamicThrottling;
         private CancellationTokenSource cancellationSource;
         private SubscriptionClient client;
 
@@ -92,9 +93,18 @@ namespace Infrastructure.Azure.Messaging
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
             this.client.PrefetchCount = 50;
 
+            this.dynamicThrottling =
+                new DynamicThrottling(
+                    maxDegreeOfParallelism: 50,
+                    minDegreeOfParallelism: 30,
+                    retryParallelismPenalty: 1,
+                    workFailedParallelismPenalty: 3,
+                    workCompletedParallelismGain: 1,
+                    intervalForRestoringDegreeOfParallelism: 10000);
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
                 {
+                    this.dynamicThrottling.OnRetrying();
                     Trace.TraceWarning(
                         "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
                         e.LastException.Message,
@@ -160,6 +170,7 @@ namespace Infrastructure.Azure.Messaging
             if (disposing)
             {
                 using (this.instrumentation as IDisposable) { }
+                using (this.dynamicThrottling as IDisposable) { }
             }
         }
 
@@ -175,6 +186,8 @@ namespace Infrastructure.Azure.Messaging
 
         private void AcceptSession(CancellationToken cancellationToken)
         {
+            this.dynamicThrottling.WaitUntilAllowedParallelism(cancellationToken);
+
             if (!cancellationToken.IsCancellationRequested)
             {
                 // Initialize a custom action acting as a callback whenever a non-transient exception occurs while accepting a session.
@@ -186,7 +199,7 @@ namespace Infrastructure.Azure.Messaging
                     if (!cancellationToken.IsCancellationRequested)
                     {
                         // Continue accepting new sessions until we are told to stop regardless of any exceptions.
-                        AcceptSession(cancellationToken);
+                        TaskEx.Delay(1000).ContinueWith(t => AcceptSession(cancellationToken));
                     }
                 };
 
@@ -210,7 +223,7 @@ namespace Infrastructure.Azure.Messaging
                         if (session != null)
                         {
                             this.instrumentation.SessionStarted();
-
+                            this.dynamicThrottling.NotifyWorkStarted();
                             // starts a new task to process new sessions in parallel when enough threads are available
                             Task.Factory.StartNew(() => this.AcceptSession(cancellationToken), cancellationToken);
                             this.ReceiveMessagesAndCloseSession(session, cancellationToken);
@@ -229,7 +242,7 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         private void ReceiveMessagesAndCloseSession(MessageSession session, CancellationToken cancellationToken)
         {
-            Action closeSession = () =>
+            Action<bool> closeSession = (bool success) =>
             {
                 Action doClose = () =>
                     this.receiveRetryPolicy.ExecuteAction(
@@ -238,11 +251,20 @@ namespace Infrastructure.Azure.Messaging
                     () =>
                     {
                         this.instrumentation.SessionEnded();
+                        if (success)
+                        {
+                            this.dynamicThrottling.NotifyWorkCompleted();
+                        }
+                        else
+                        {
+                            this.dynamicThrottling.NotifyWorkCompletedWithError();
+                        }
                     },
                     ex =>
                     {
                         this.instrumentation.SessionEnded();
                         Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription);
+                        this.dynamicThrottling.NotifyWorkCompletedWithError();
                     });
 
                 if (this.requiresSequentialProcessing)
@@ -323,7 +345,7 @@ namespace Infrastructure.Azure.Messaging
                                 }
                                 else
                                 {
-                                    this.ReleaseMessage(msg, releaseAction, () => { }, () => { });
+                                    this.ReleaseMessage(msg, releaseAction, () => { }, (s) => { this.dynamicThrottling.OnRetrying(); });
                                     receiveNext.Invoke();
                                 }
                             }
@@ -331,7 +353,7 @@ namespace Infrastructure.Azure.Messaging
                         else
                         {
                             // no more messages in the session, close it and do not continue receiving
-                            closeSession.Invoke();
+                            closeSession(true);
                         }
                     },
                     ex =>
@@ -352,7 +374,7 @@ namespace Infrastructure.Azure.Messaging
                 }
                 else
                 {
-                    closeSession.Invoke();
+                    closeSession(true);
                 }
             };
 
@@ -363,14 +385,14 @@ namespace Infrastructure.Azure.Messaging
                 Trace.TraceError("An unrecoverable error occurred while trying to receive a new message from subscription {1}:\r\n{0}", ex, this.subscription);
 
                 // Cannot continue to receive messages from this session.
-                closeSession.Invoke();
+                closeSession(false);
             };
 
             // Start receiving messages asynchronously for the session.
             receiveNext.Invoke();
         }
 
-        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action closeSession)
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action<bool> closeSession)
         {
             switch (releaseAction.Kind)
             {
@@ -386,21 +408,23 @@ namespace Infrastructure.Azure.Messaging
                             }
                             else
                             {
-                                closeSession.Invoke();
+                                closeSession(false);
                             }
                         });
                     break;
                 case MessageReleaseActionKind.Abandon:
+                    this.dynamicThrottling.OnRetrying();
                     msg.SafeAbandonAsync(
                         operationSucceeded =>
                         {
                             msg.Dispose();
                             this.instrumentation.MessageCompleted(false);
 
-                            closeSession.Invoke();
+                            closeSession(false);
                         });
                     break;
                 case MessageReleaseActionKind.DeadLetter:
+                    this.dynamicThrottling.OnRetrying();
                     msg.SafeDeadLetterAsync(
                         releaseAction.DeadLetterReason,
                         releaseAction.DeadLetterDescription,
@@ -415,7 +439,7 @@ namespace Infrastructure.Azure.Messaging
                             }
                             else
                             {
-                                closeSession.Invoke();
+                                closeSession(false);
                             }
                         });
                     break;
