@@ -34,8 +34,8 @@ namespace Conference.Specflow.Features.UserInterface.Views.Registration
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Code scenarios for applying Promotional Codes to Seat Types", "In order to apply a Promotional Code for one ore more Seat Types\r\nAs a Registrant" +
-                    "\r\nI want to be able to enter a Promotional Code and get the specified price redu" +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Promotional Code scenarios for applying Promotional Codes to Seat Types", "In order to apply a Promotional Code for one or more Seat Types\r\nAs a Registrant\r" +
+                    "\nI want to be able to enters a Promotional Code and get the specified price redu" +
                     "ction", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
@@ -167,13 +167,13 @@ this.FeatureBackground();
 #line 38
  testRunner.Given("the selected available Order Items", ((string)(null)), table3);
 #line 43
- testRunner.And("the total amount should be of $1197");
+ testRunner.And("the total amount should be $1197");
 #line 44
- testRunner.When("the Registrant apply the \'SPEAKER123\' Promotional Code");
+ testRunner.When("the Registrant applies the \'SPEAKER123\' Promotional Code");
 #line 45
  testRunner.Then("the \'SPEAKER123\' Promo code should show a value of -$1197");
 #line 46
- testRunner.And("the total amount should be of $0");
+ testRunner.And("the total amount should be $0");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -205,13 +205,13 @@ this.FeatureBackground();
 #line 52
  testRunner.Given("the selected available Order Items", ((string)(null)), table4);
 #line 57
- testRunner.And("the total amount should be of $1197");
+ testRunner.And("the total amount should be $1197");
 #line 58
- testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
+ testRunner.When("the Registrant applies the \'VOLUNTEER\' Promotional Code");
 #line 59
  testRunner.Then("the \'VOLUNTEER\' Promo code should show a value of -$597");
 #line 60
- testRunner.And("the total amount should be of $600");
+ testRunner.And("the total amount should be $600");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -240,14 +240,14 @@ this.FeatureBackground();
 #line 66
  testRunner.Given("the selected available Order Items", ((string)(null)), table5);
 #line 70
- testRunner.And("the total amount should be of $600");
+ testRunner.And("the total amount should be $600");
 #line 71
- testRunner.When("the Registrant apply the \'VOLUNTEER\' Promotional Code");
+ testRunner.When("the Registrant applies the \'VOLUNTEER\' Promotional Code");
 #line 72
- testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
-                    "bout the problem");
+ testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform t" +
+                    "he Registrant about the problem");
 #line 73
- testRunner.And("the total amount should be of $600");
+ testRunner.And("the total amount should be $600");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -279,17 +279,17 @@ this.FeatureBackground();
 #line 79
  testRunner.Given("the selected available Order Items", ((string)(null)), table6);
 #line 84
- testRunner.And("the total amount should be of $1197");
+ testRunner.And("the total amount should be $1197");
 #line 85
- testRunner.When("the Registrant apply the \'COPRESENTER\' Promotional Code");
+ testRunner.When("the Registrant applies the \'COPRESENTER\' Promotional Code");
 #line 86
- testRunner.And("the Registrant apply the \'WS10\' Promotional Code");
+ testRunner.And("the Registrant applies the \'WS10\' Promotional Code");
 #line 87
  testRunner.Then("the \'COPRESENTER\' Promotional Code item should show a value of -$10");
 #line 88
  testRunner.And("the \'WS10\' Promotional Code item should show a value of -$20");
 #line 89
- testRunner.And("the total amount should be of $1167");
+ testRunner.And("the total amount should be $1167");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -318,22 +318,22 @@ this.FeatureBackground();
 #line 95
  testRunner.Given("the selected available Order Items", ((string)(null)), table7);
 #line 99
- testRunner.And("the total amount should be of $600");
+ testRunner.And("the total amount should be $600");
 #line 100
- testRunner.And("the Registrant apply the \'1TIMEPRECON\' Promotional Code");
+ testRunner.And("the Registrant applies the \'1TIMEPRECON\' Promotional Code");
 #line 101
  testRunner.And("the total amount should be of $350");
 #line 102
- testRunner.And("the Registrant proceed to complete the registration");
+ testRunner.And("the Registrant proceeds to complete the registration");
 #line 103
- testRunner.And("the Registrant selects the Event Registration");
+ testRunner.And("the Registrant select the Event Registration");
 #line 104
- testRunner.When("the Registrant apply the \'1TIMEPRECON\' Promotional Code");
+ testRunner.When("the Registrant applies the \'1TIMEPRECON\' Promotional Code");
 #line 105
  testRunner.Then("the \'1TIMEPRECON\' Promo code will not be applied and an error message will inform" +
-                    " about the problem");
+                    " the Registrant about the problem");
 #line 106
- testRunner.And("the total amount should be of $600");
+ testRunner.And("the total amount should be $600");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -365,18 +365,18 @@ this.FeatureBackground();
 #line 112
  testRunner.Given("the selected available Order Items", ((string)(null)), table8);
 #line 117
- testRunner.And("the total amount should be of $1197");
+ testRunner.And("the total amount should be $1197");
 #line 118
- testRunner.When("the Registrant apply the \'COPRESENTER\' Promotional Code");
+ testRunner.When("the Registrant applies the \'COPRESENTER\' Promotional Code");
 #line 119
- testRunner.And("the Registrant apply the \'VOLUNTEER\' Promotional Code");
+ testRunner.And("the Registrant applies the \'VOLUNTEER\' Promotional Code");
 #line 120
- testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform a" +
-                    "bout the problem");
+ testRunner.Then("the \'VOLUNTEER\' Promo code will not be applied and an error message will inform t" +
+                    "he Registrant about the problem");
 #line 121
  testRunner.And("the \'COPRESENTER\' Promotional Code item should show a value of -$10");
 #line 122
- testRunner.And("the total amount should be of $1187");
+ testRunner.And("the total amount should be $1187");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -408,17 +408,17 @@ this.FeatureBackground();
 #line 128
  testRunner.Given("the selected available Order Items", ((string)(null)), table9);
 #line 133
- testRunner.And("the total amount should be of $1197");
+ testRunner.And("the total amount should be $1197");
 #line 134
- testRunner.When("the Registrant apply the \'WS10\' Promotional Code");
+ testRunner.When("the Registrant applies the \'WS10\' Promotional Code");
 #line 135
- testRunner.And("the Registrant apply the \'VOLUNTEER\' Promotional Code");
+ testRunner.And("the Registrant applies the \'VOLUNTEER\' Promotional Code");
 #line 136
  testRunner.Then("the \'VOLUNTEER\' Promo code should show a value of -$597");
 #line 137
  testRunner.And("the \'WS10\' Promotional Code item should show a value of -$10");
 #line 138
- testRunner.And("the total amount should be of $590");
+ testRunner.And("the total amount should be $590");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -450,13 +450,13 @@ this.FeatureBackground();
 #line 144
  testRunner.Given("the selected available Order Items", ((string)(null)), table10);
 #line 149
- testRunner.And("the total amount should be of $749");
+ testRunner.And("the total amount should be $749");
 #line 150
- testRunner.When("the Registrant apply the \'CONFONLY\' Promotional Code");
+ testRunner.When("the Registrant applies the \'CONFONLY\' Promotional Code");
 #line 151
  testRunner.Then("the \'CONFONLY\' Promo code should show a value of -$50");
 #line 152
- testRunner.And("the total amount should be of $699");
+ testRunner.And("the total amount should be $699");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -473,17 +473,17 @@ this.ScenarioSetup(scenarioInfo);
 #line 19
 this.FeatureBackground();
 #line 158
- testRunner.Given("the Registrant apply the \'COPRESENTER\' Promotional Code");
+ testRunner.Given("the Registrant applies the \'COPRESENTER\' Promotional Code");
 #line 159
  testRunner.And("the \'COPRESENTER\' Promo code should show a value of -$5");
 #line 160
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.When("the Registrant proceeds to make the Reservation");
 #line 161
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line 162
  testRunner.And("the total should read $244");
 #line 163
- testRunner.And("the countdown started");
+ testRunner.And("the countdown is started");
 #line hidden
             this.ScenarioCleanup();
         }

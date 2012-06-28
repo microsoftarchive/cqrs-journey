@@ -80,7 +80,7 @@ namespace Conference.Specflow.Steps
             eventBus.Publish(orderPlaced);
         }
 
-        [When(@"the Registrant proceed to make the Reservation")]
+        [When(@"the Registrant proceeds to make the Reservation")]
         public void WhenTheRegistrantProceedToMakeTheReservation()
         {
             registerToConference = ScenarioContext.Current.Get<RegisterToConference>();
@@ -91,13 +91,13 @@ namespace Conference.Specflow.Steps
             this.commandBus.Send(registerToConference);
         }
 
-        [Given(@"the event for Order placed get expired")]
+        [Given(@"the event for Order placed gets expired")]
         public void GivenTheEventForOrderPlacedGetExpired()
         {
             WhenTheEventForOrderPlacedGetExpired();
         }
 
-        [When(@"the event for Order placed get expired")]
+        [When(@"the event for Order placed gets expired")]
         public void WhenTheEventForOrderPlacedGetExpired()
         {
             //Update the registration data

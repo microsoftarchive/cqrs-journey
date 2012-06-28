@@ -33,42 +33,42 @@ Background:
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
+	And these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 | quantity |
 	| General admission         | 18       |
 	| CQRS Workshop             | 20       |
 	| Additional cocktail party | 10       |
-	And the Registrant proceed to make the Reservation with seats already reserved 		
+	And the Registrant proceeds to make the Reservation with seats already reserved 		
 	And the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message                                    |
 	| General admission         | 2        | Could not reserve all the requested seats. |
 	| CQRS Workshop             |          | Sold out                                   |
 	| Additional cocktail party | 0        |                                            |
 	And the total should read $398
-	When the Registrant proceed to make the Reservation
+	When the Registrant proceeds to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
 	And these Order Items should be reserved
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	And the total should read $398
-	And the countdown started
+	And the countdown is started
 
 
 Scenario: Allocate some purchased Seats
  	Given the selected Order Items
 	| seat type                 | quantity |
 	| Additional cocktail party | 4        |
-	And the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	And the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	And the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	And the Registrant proceeds to confirm the payment
     And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| Additional cocktail party | 4        |
-	When the Registrant assign these seats
+	When the Registrant assigns these seats
 	| seat type                 | first name | last name | email address      |
 	| Additional cocktail party | Antonio    | Alwan     | antonio@adatum.com |
 	| Additional cocktail party | Jon        | Jaffe     | jon@fabrikam.com   |

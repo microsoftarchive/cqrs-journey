@@ -24,7 +24,7 @@ Scenario: A new Conference is created with the required information
 Given this conference information
 | Owner         | Email                | Name      | Description                          | Slug   | Start      | End        |
 | William Flash | william@fabrikam.com | CQRS2012P | CQRS summit 2012 conference (Create) | random | 05/02/2012 | 05/12/2012 |
-When the Business Customer proceed to create the Conference
+When the Business Customer proceeds to create the Conference
 Then following details will be shown for the created Conference
 | Owner         | Email                | AccessCode |
 | William Flash | william@fabrikam.com | random     |
@@ -34,20 +34,20 @@ Scenario: An existing unpublished Conference is selected and published
 Given this conference information
 | Owner         | Email                | Name      | Description                             | Slug   | Start      | End        |
 | William Flash | william@fabrikam.com | CQRS2012P | CQRS summit 2012 conference (Published) | random | 05/02/2012 | 05/12/2012 |
-And the Business Customer proceed to create the Conference
-When the Business Customer proceed to publish the Conference
-Then the state of the Conference change to Published
+And the Business Customer proceeds to create the Conference
+When the Business Customer proceeds to publish the Conference
+Then the state of the Conference changes to Published
 
 
 Scenario: An existing Conference is edited and updated
 Given an existing published conference with this information
 | Owner         | Email                | Name      | Description                            | Slug   | Start      | End        |
 | William Flash | william@fabrikam.com | CQRS2012U | CQRS summit 2012 conference (Original) | random | 05/02/2012 | 05/12/2012 |
-And the Business Customer proceed to edit the existing settigns with this information
+And the Business Customer proceeds to edit the existing settings with this information
 | Description                           |
 | CQRS summit 2012 conference (Updated) |
-When the Business Customer proceed to save the changes
-Then this information is show up in the Conference settings
+When the Business Customer proceeds to save the changes
+Then this information is shown in the Conference settings
 | Description                           |
 | CQRS summit 2012 conference (Updated) |
 
@@ -56,8 +56,8 @@ Scenario: Access an existing Conference
 Given an existing published conference with this information
 | Owner         | Email                | Name      | Description                          | Slug   | Start      | End        |
 | William Flash | william@fabrikam.com | CQRS2012A | CQRS summit 2012 conference (Access) | random | 05/02/2012 | 05/12/2012 |
-When the Business Customer proceed to get access to the conference settings
-Then this information is show up in the Conference settings
+When the Business Customer proceeds to get access to the conference settings
+Then this information is shown in the Conference settings
 | Owner         | Email                | Name      | Description                          | Slug   | Start      | End        |
 | William Flash | william@fabrikam.com | CQRS2012A | CQRS summit 2012 conference (Access) | random | 05/02/2012 | 05/12/2012 |
 

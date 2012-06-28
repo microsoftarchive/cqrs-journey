@@ -31,7 +31,7 @@ Background:
 
 
 Scenario: End to end Registration implemented using controllers
-	Given the Registrant proceed to make the Reservation
+	Given the Registrant proceeds to make the Reservation
 	And these Order Items should be reserved
 	| seat type                 | quantity |
 	| General admission         | 1        |
@@ -39,16 +39,16 @@ Scenario: End to end Registration implemented using controllers
 	And these Order Items should not be reserved
 	| seat type     |
 	| CQRS Workshop |
-	And the Registrant enter these details
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	When the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	When the Registrant proceeds to confirm the payment
 	Then the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-	And the Registrant assign these seats
+	And the Registrant assigns these seats
 	| seat type                 | first name | last name | email address        |
 	| General admission         | William    | Flash     | william@fabrikam.com |
 	| Additional cocktail party | Jim        | Corbin    | jim@litwareinc.com   |

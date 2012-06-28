@@ -129,7 +129,7 @@ this.FeatureBackground();
 #line 36
  testRunner.Given("the total should read $749");
 #line 37
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.When("the Registrant proceeds to make the Reservation");
 #line 38
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
@@ -150,7 +150,7 @@ this.FeatureBackground();
 #line 44
  testRunner.And("the total should read $749");
 #line 45
- testRunner.And("the countdown started");
+ testRunner.And("the countdown is started");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -176,9 +176,9 @@ this.FeatureBackground();
             table4.AddRow(new string[] {
                         "Additional cocktail party"});
 #line 51
- testRunner.Given("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table4);
+ testRunner.Given("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table4);
 #line 56
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.When("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -221,9 +221,9 @@ this.FeatureBackground();
             table6.AddRow(new string[] {
                         "Additional cocktail party"});
 #line 67
- testRunner.Given("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table6);
+ testRunner.Given("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table6);
 #line 71
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.When("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -260,7 +260,7 @@ this.FeatureBackground();
 #line 82
  testRunner.And("the total should read $199");
 #line 83
- testRunner.And("the countdown started");
+ testRunner.And("the countdown is started");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -292,7 +292,7 @@ this.FeatureBackground();
 #line 87
  testRunner.Given("the selected Order Items", ((string)(null)), table10);
 #line 92
- testRunner.And("the Registrant proceed to make the Reservation");
+ testRunner.And("the Registrant proceeds to make the Reservation");
 #line hidden
             TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                         "first name",
@@ -303,11 +303,11 @@ this.FeatureBackground();
                         "Flash",
                         "william@fabrikam.com"});
 #line 93
- testRunner.And("the Registrant enter these details", ((string)(null)), table11);
+ testRunner.And("the Registrant enters these details", ((string)(null)), table11);
 #line 96
- testRunner.And("the Registrant proceed to Checkout:Payment");
+ testRunner.And("the Registrant proceeds to Checkout:Payment");
 #line 97
- testRunner.When("the Registrant proceed to confirm the payment");
+ testRunner.When("the Registrant proceeds to confirm the payment");
 #line 98
     testRunner.Then("the Registration process was successful");
 #line hidden

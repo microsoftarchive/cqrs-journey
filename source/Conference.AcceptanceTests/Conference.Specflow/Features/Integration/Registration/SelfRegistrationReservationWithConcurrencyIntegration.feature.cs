@@ -107,7 +107,7 @@ this.ScenarioSetup(scenarioInfo);
                         "CQRS Workshop",
                         "2"});
 #line 26
- testRunner.When("4 Registrants selects these Order Items", ((string)(null)), table2);
+ testRunner.When("4 Registrants select these Order Items", ((string)(null)), table2);
 #line 30
  testRunner.Then("only 2 events for completing the Order reservation are emitted");
 #line 32
@@ -147,7 +147,7 @@ this.ScenarioSetup(scenarioInfo);
                         "CQRS Workshop",
                         "2"});
 #line 42
- testRunner.When("200 Registrants selects these Order Items", ((string)(null)), table4);
+ testRunner.When("200 Registrants select these Order Items", ((string)(null)), table4);
 #line 46
  testRunner.Then("only 100 events for completing the Order reservation are emitted");
 #line 48
@@ -159,12 +159,12 @@ this.ScenarioSetup(scenarioInfo);
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self-Registrant scenarios for making a Reservation for a Conference site where mu" +
             "ltiple Registrants make simultaneous reservations")]
-        [Xunit.TraitAttribute("Description", "Many Registrants try to reserve many same Order Items and some of them get a part" +
-            "ial reservation")]
-        public virtual void ManyRegistrantsTryToReserveManySameOrderItemsAndSomeOfThemGetAPartialReservation()
+        [Xunit.TraitAttribute("Description", "Many Registrants try to reserve many of the same Order Items and some of them get" +
+            " a partial reservation")]
+        public virtual void ManyRegistrantsTryToReserveManyOfTheSameOrderItemsAndSomeOfThemGetAPartialReservation()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Many Registrants try to reserve many same Order Items and some of them get a part" +
-                    "ial reservation", new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Many Registrants try to reserve many of the same Order Items and some of them get" +
+                    " a partial reservation", new string[] {
                         "SelfRegistrationReservationWithConcurrencyIntegrationDebugLocalOnly"});
 #line 54
 this.ScenarioSetup(scenarioInfo);
@@ -194,7 +194,7 @@ this.ScenarioSetup(scenarioInfo);
                         "General admission",
                         "2"});
 #line 59
- testRunner.When("200 Registrants selects these Order Items", ((string)(null)), table6);
+ testRunner.When("200 Registrants select these Order Items", ((string)(null)), table6);
 #line 64
  testRunner.Then("only 50 events for completing the Order reservation are emitted");
 #line 66

@@ -20,13 +20,13 @@ namespace Conference.Specflow.Steps
     [Binding]
     public class SelfRegistrationEndToEndSadSteps : StepDefinition
     {
-        [When(@"the Registrant proceed to cancel the payment")]
+        [When(@"the Registrant proceeds to cancel the payment")]
         public void WhenTheRegistrantProceedToCancelThePayment()
         {
             Browser.Click(Constants.UI.RejectPaymentInputValue);
         }
 
-        [When(@"the Registrant proceed to make the Reservation with no selected seats")]
+        [When(@"the Registrant proceeds to make the Reservation with no selected seats")]
         public void WhenTheRegistrantProceedToMakeTheReservationWithNoSelectedSeats()
         {
             Browser.Click(Constants.UI.NextStepId);

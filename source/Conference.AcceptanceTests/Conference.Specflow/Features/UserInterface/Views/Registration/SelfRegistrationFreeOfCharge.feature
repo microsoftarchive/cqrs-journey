@@ -26,12 +26,12 @@ Scenario: Checkout all free of charge
 	Given the selected Order Items
 	| seat type         | quantity |
 	| General admission | 1        |
-	And the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	And the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
 	And the total should read $0
-	When the Registrant proceed to Checkout:NoPayment
+	When the Registrant proceeds to Checkout:NoPayment
     Then the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
@@ -43,13 +43,13 @@ Scenario: Checkout partial free of charge
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	| Additional cocktail party | 3        |
-	And the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	And the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
 	And the total should read $300
-	And the Registrant proceed to Checkout:Payment
-	When the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	When the Registrant proceeds to confirm the payment
     Then the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |

@@ -33,7 +33,7 @@ Scenario: All the Order Items are available and all get selected, then all get r
 	| General admission         | 3        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	When the Registrant proceed to make the Reservation
+	When the Registrant proceeds to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
 	And the total should read $1197
 
@@ -46,7 +46,7 @@ Scenario: All the Order Items are available and some get selected, then only the
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	| Additional cocktail party | 2        |
-	When the Registrant proceed to make the Reservation
+	When the Registrant proceeds to make the Reservation
 	Then the Reservation is confirmed for all the selected Order Items
 	And the total should read $498
 
@@ -59,11 +59,11 @@ Scenario: All the Order Items are available and all get waitlisted
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	| Additional cocktail party | 2        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
+	And these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 |
 	| General admission         |
 	| Additional cocktail party |
-	When the Registrant proceed to make the Reservation with seats already reserved 		
+	When the Registrant proceeds to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message  |
 	| General admission         |          | Sold out |
@@ -75,17 +75,17 @@ Scenario: All the Order Items are available and all get waitlisted
 #Initial state	: 3 available items, 3 selected
 #End state		: 1 reserved, 1 partially reserved, 1 waitlisted
 Scenario: All the Order Items are available, 1 becomes partially available, 1 becomes unavailable and 1 is available,
-	      then 2 are partially offered to get waitlisted and 1 get reserved
+	      then 2 are partially offered to get waitlisted and 1 gets reserved
 	Given the selected Order Items
 	| seat type                 | quantity |
 	| General admission         | 2        |
 	| CQRS Workshop             | 1        |
 	| Additional cocktail party | 2        |
-	And these Seat Types becomes unavailable before the Registrant make the reservation
+	And these Seat Types become unavailable before the Registrant makes the reservation
 	| seat type                 | quantity |
 	| General admission         | 19       |
 	| Additional cocktail party | 20       |
-	When the Registrant proceed to make the Reservation with seats already reserved 		
+	When the Registrant proceeds to make the Reservation with seats already reserved 		
 	Then the Registrant is offered to select any of these available seats
 	| seat type                 | selected | message                                    |
 	| General admission         | 1        | Could not reserve all the requested seats. |

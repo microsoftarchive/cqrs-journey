@@ -136,9 +136,9 @@ this.FeatureBackground();
             table3.AddRow(new string[] {
                         "Additional cocktail party"});
 #line 36
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table3);
+ testRunner.And("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table3);
 #line 41
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.When("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -165,12 +165,12 @@ this.FeatureBackground();
         [Xunit.FactAttribute()]
         [Xunit.TraitAttribute("FeatureTitle", "Self Registrant scenarios for making a Reservation for a Conference site with Ord" +
             "er Items partially available")]
-        [Xunit.TraitAttribute("Description", "All the Order Items are selected and two not available, then one get reserved and" +
-            " two not")]
-        public virtual void AllTheOrderItemsAreSelectedAndTwoNotAvailableThenOneGetReservedAndTwoNot()
+        [Xunit.TraitAttribute("Description", "All the Order Items are selected and two are not available, then one get reserved" +
+            " and two not")]
+        public virtual void AllTheOrderItemsAreSelectedAndTwoAreNotAvailableThenOneGetReservedAndTwoNot()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are selected and two not available, then one get reserved and" +
-                    " two not", ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("All the Order Items are selected and two are not available, then one get reserved" +
+                    " and two not", ((string[])(null)));
 #line 51
  this.ScenarioSetup(scenarioInfo);
 #line 20
@@ -198,9 +198,9 @@ this.FeatureBackground();
             table6.AddRow(new string[] {
                         "Additional cocktail party"});
 #line 57
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table6);
+ testRunner.And("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table6);
 #line 61
- testRunner.When("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.When("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -263,9 +263,9 @@ this.FeatureBackground();
                         "Additional cocktail party",
                         ""});
 #line 78
- testRunner.And("these Seat Types becomes unavailable before the Registrant make the reservation", ((string)(null)), table9);
+ testRunner.And("these Seat Types become unavailable before the Registrant makes the reservation", ((string)(null)), table9);
 #line 82
- testRunner.And("the Registrant proceed to make the Reservation with seats already reserved");
+ testRunner.And("the Registrant proceeds to make the Reservation with seats already reserved");
 #line hidden
             TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                         "seat type",
@@ -300,7 +300,7 @@ this.FeatureBackground();
 #line 92
  testRunner.And("the total should read $699");
 #line 93
- testRunner.When("the Registrant proceed to make the Reservation");
+ testRunner.When("the Registrant proceeds to make the Reservation");
 #line 94
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
@@ -318,7 +318,7 @@ this.FeatureBackground();
 #line 99
  testRunner.And("the total should read $699");
 #line 100
- testRunner.And("the countdown started");
+ testRunner.And("the countdown is started");
 #line hidden
             this.ScenarioCleanup();
         }

@@ -14,7 +14,7 @@
 Feature: Self-Registrant scenarios for making a Reservation for a Conference site where two Registrants make simultaneous reservations
 	In order to reserve Seats for a Conference
 	As an Attendee
-	I want to be able to select an Order Item from one or many of the available where other Registrants may also be interested on at the same time
+	I want to be able to select an Order Item from one or many of the available where other Registrants may also be interested at the same time
 
 #General preconditions for all the scenarios
 Background: 
@@ -22,15 +22,15 @@ Background:
 	| seat type     | rate | quota |
 	| CQRS Workshop | $500 | 10    |
 
- Scenario: Only one Order Item is available and two Registrants try to reserve it, then only one get the reservation	
+ Scenario: Only one Order Item is available and two Registrants try to reserve it, then only one gets the reservation	
 	Given the selected Order Items
 	| seat type     | quantity |
 	| CQRS Workshop | 6        |
-	And another Registrant selects these Order Items 
+	And another Registrant select these Order Items 
 	| seat type     | quantity |
 	| CQRS Workshop | 6        |
-	When the Registrant proceed to make the Reservation
-	And another Registrant proceed to make the Reservation with seats already reserved 
+	When the Registrant proceeds to make the Reservation
+	And another Registrant proceeds to make the Reservation with seats already reserved 
 	Then the Reservation is confirmed for all the selected Order Items
 	And a second Reservation is offered to select any of these available seats
 	| seat type     | selected | message                                    |

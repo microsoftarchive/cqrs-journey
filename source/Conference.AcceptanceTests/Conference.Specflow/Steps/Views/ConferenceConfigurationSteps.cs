@@ -33,14 +33,14 @@ namespace Conference.Specflow.Steps
             PopulateConferenceInformation(table, true);
         }
 
-        [Given(@"the Business Customer proceed to edit the existing settigns with this information")]
+        [Given(@"the Business Customer proceeds to edit the existing settings with this information")]
         public void GivenTheBusinessCustomerProceedToEditTheExistingSettignsWithThisInformation(Table table)
         {
             Browser.Click(Constants.UI.EditConferenceId);
             PopulateConferenceInformation(table);
         }
 
-        [Given(@"the Business Customer proceed to create the Conference")]
+        [Given(@"the Business Customer proceeds to create the Conference")]
         public void GivenTheBusinessCustomerProceedToCreateTheConference()
         {
             CreateTheConference();
@@ -69,25 +69,25 @@ namespace Conference.Specflow.Steps
             ScenarioContext.Current.Set(Browser.FindText(Slug.FindBy), Constants.AccessCodeSessionKey);
         }
 
-        [When(@"the Business Customer proceed to create the Conference")]
+        [When(@"the Business Customer proceeds to create the Conference")]
         public void WhenTheBusinessCustomerProceedToCreateTheConference()
         {
             CreateTheConference();
         }
 
-        [When(@"the Business Customer proceed to publish the Conference")]
+        [When(@"the Business Customer proceeds to publish the Conference")]
         public void WhenTheBusinessCustomerProceedToPublishTheConference()
         {
             PublishTheConference();
         }
 
-        [When(@"the Business Customer proceed to save the changes")]
+        [When(@"the Business Customer proceeds to save the changes")]
         public void WhenTheBusinessCustomerProceedToSaveTheChanges()
         {
             Browser.Click(Constants.UI.UpdateConferenceId);
         }
 
-        [When(@"the Business Customer proceed to get access to the conference settings")]
+        [When(@"the Business Customer proceeds to get access to the conference settings")]
         public void WhenTheBusinessCustomerProceedToGetAccessToTheConferenceSettings()
         {
             Browser.GoTo(Constants.ConferenceManagementAccessPage);
@@ -108,13 +108,13 @@ namespace Conference.Specflow.Steps
             Assert.False(string.IsNullOrWhiteSpace(ac), "Access Code not found");
         }
 
-        [Then(@"the state of the Conference change to Published")]
+        [Then(@"the state of the Conference changes to Published")]
         public void ThenTheStateOfTheConferenceChangeToPublished()
         {
             Assert.True(Browser.SafeContainsText(Constants.UI.UnpublishConferenceId), "Conference was not published");
         }
 
-        [Then(@"this information is show up in the Conference settings")]
+        [Then(@"this information is shown in the Conference settings")]
         public void ThenThisInformationIsShowUpInTheConferenceSettings(Table table)
         {
             Assert.True(Browser.SafeContainsText(table.Rows[0][0]),

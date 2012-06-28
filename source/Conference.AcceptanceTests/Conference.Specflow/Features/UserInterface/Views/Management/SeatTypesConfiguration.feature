@@ -21,9 +21,9 @@ Scenario: Seat Types are created and assigned to an existing Conference
 Given an existing unpublished conference with this information
 | Owner         | Email                | Name      | Description                                   | Slug   | Start      | End        |
 | William Flash | william@fabrikam.com | CQRS2012S | CQRS summit 2012 conference (Seat Assignment) | random | 05/02/2012 | 07/12/2012 |
-And the Business Customer selects the Seat Types opcion
-And the Business Customer proceed to create new Seat Types
-When the Business Customer proceed to create the Seat Types
+And the Business Customer selects the Seat Types option
+And the Business Customer proceeds to create new Seat Types
+When the Business Customer proceeds to create the Seat Types
 | Name   | Description       | Quantity | Price |
 | GENADM | General admission | 100      | 199   | 
 Then the new Seat Types with this information are created

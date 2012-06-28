@@ -25,7 +25,7 @@ Background:
 
 @NoWatiN
 Scenario: Many Registrants try to reserve the same Order Item and not all of them get the registration	
-	When 20 Registrants selects these Order Items
+	When 20 Registrants select these Order Items
 	| seat type     | quantity |
 	| CQRS Workshop | 1        |
 	Then only 10 Registrants get confirmed registrations for the selected Order Items

@@ -26,18 +26,18 @@ Scenario: Allocate all purchased Seats for an individual
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-	And the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	And the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address        |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	And the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	And the Registrant proceeds to confirm the payment
     And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 1        |
 	| Additional cocktail party | 1        |
-	When the Registrant assign these seats
+	When the Registrant assigns these seats
 	| seat type                 | first name | last name | email address        |
 	| General admission         | William    | Flash     | william@fabrikam.com |
 	| Additional cocktail party | Jim        | Corbin    | jim@litwareinc.com   |
@@ -52,18 +52,18 @@ Scenario: Allocate all purchased Seats for a group
 	| seat type                 | quantity |
 	| General admission         | 4        |
 	| Additional cocktail party | 2        |
-	And the Registrant proceed to make the Reservation
-	And the Registrant enter these details
+	And the Registrant proceeds to make the Reservation
+	And the Registrant enters these details
 	| first name | last name | email address            |
 	| William    | Flash     | william@fabrikam.com |
-	And the Registrant proceed to Checkout:Payment
-	And the Registrant proceed to confirm the payment
+	And the Registrant proceeds to Checkout:Payment
+	And the Registrant proceeds to confirm the payment
     And the Registration process was successful
 	And the Order should be created with the following Order Items
 	| seat type                 | quantity |
 	| General admission         | 4        |
 	| Additional cocktail party | 2        |
-	When the Registrant assign these seats
+	When the Registrant assigns these seats
 	| seat type                 | first name | last name | email address            |
 	| General admission         | William    | Flash     | william@fabrikam.com     |
 	| General admission         | Jim        | Corbin    | jim@litwareinc.com       |
