@@ -304,51 +304,54 @@ namespace Infrastructure.Azure.Messaging
                         // Check if we actually received any messages.
                         if (msg != null)
                         {
-                            var releaseAction = MessageReleaseAction.AbandonMessage;
-
-                            try
-                            {
-                                this.instrumentation.MessageReceived();
-
-                                // Make sure we are not told to stop receiving while we were waiting for a new message.
-                                if (!cancellationToken.IsCancellationRequested)
+                            Task.Factory.StartNew(() =>
                                 {
-                                    var stopwatch = Stopwatch.StartNew();
+                                    var releaseAction = MessageReleaseAction.AbandonMessage;
+
                                     try
                                     {
-                                        try
-                                        {
-                                            // Process the received message.
-                                            releaseAction = this.InvokeMessageHandler(msg);
+                                        this.instrumentation.MessageReceived();
 
-                                            this.instrumentation.MessageProcessed(true, stopwatch.ElapsedMilliseconds);
-                                        }
-                                        catch
+                                        // Make sure we are not told to stop receiving while we were waiting for a new message.
+                                        if (!cancellationToken.IsCancellationRequested)
                                         {
-                                            this.instrumentation.MessageProcessed(false, stopwatch.ElapsedMilliseconds);
+                                            var stopwatch = Stopwatch.StartNew();
+                                            try
+                                            {
+                                                try
+                                                {
+                                                    // Process the received message.
+                                                    releaseAction = this.InvokeMessageHandler(msg);
 
-                                            throw;
+                                                    this.instrumentation.MessageProcessed(true, stopwatch.ElapsedMilliseconds);
+                                                }
+                                                catch
+                                                {
+                                                    this.instrumentation.MessageProcessed(false, stopwatch.ElapsedMilliseconds);
+
+                                                    throw;
+                                                }
+                                            }
+                                            finally
+                                            {
+                                                stopwatch.Stop();
+                                            }
                                         }
                                     }
                                     finally
                                     {
-                                        stopwatch.Stop();
+                                        // Ensure that any resources allocated by a BrokeredMessage instance are released.
+                                        if (this.requiresSequentialProcessing)
+                                        {
+                                            this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
+                                        }
+                                        else
+                                        {
+                                            this.ReleaseMessage(msg, releaseAction, () => { }, (s) => { this.dynamicThrottling.OnRetrying(); });
+                                            receiveNext.Invoke();
+                                        }
                                     }
-                                }
-                            }
-                            finally
-                            {
-                                // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                if (this.requiresSequentialProcessing)
-                                {
-                                    this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
-                                }
-                                else
-                                {
-                                    this.ReleaseMessage(msg, releaseAction, () => { }, (s) => { this.dynamicThrottling.OnRetrying(); });
-                                    receiveNext.Invoke();
-                                }
-                            }
+                                });
                         }
                         else
                         {
