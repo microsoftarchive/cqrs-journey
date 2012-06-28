@@ -150,6 +150,7 @@ namespace Infrastructure.Azure.Messaging
                 new SubscriptionDescription(topic.Path, subscription.Name)
                 {
                     RequiresSession = subscription.RequiresSession,
+                    LockDuration = TimeSpan.FromSeconds(150),
                 };
 
             try
