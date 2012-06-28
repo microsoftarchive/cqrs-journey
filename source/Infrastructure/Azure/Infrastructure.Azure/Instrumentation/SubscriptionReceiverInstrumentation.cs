@@ -57,6 +57,15 @@ namespace Infrastructure.Azure.Instrumentation
                 this.averageMessageProcessingTimeCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, AverageMessageProcessingTimeCounterName, this.instanceName, false);
                 this.averageMessageProcessingTimeBaseCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, AverageMessageProcessingTimeBaseCounterName, this.instanceName, false);
                 this.currentMessagesInProcessCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, CurrentMessagesInProcessCounterName, this.instanceName, false);
+
+                this.totalMessagesCounter.RawValue = 0;
+                this.totalMessagesSuccessfullyProcessedCounter.RawValue = 0;
+                this.totalMessagesUnsuccessfullyProcessedCounter.RawValue = 0;
+                this.totalMessagesCompletedCounter.RawValue = 0;
+                this.totalMessagesNotCompletedCounter.RawValue = 0;
+                this.averageMessageProcessingTimeCounter.RawValue = 0;
+                this.averageMessageProcessingTimeBaseCounter.RawValue = 0;
+                this.currentMessagesInProcessCounter.RawValue = 0;
             }
         }
 
