@@ -47,7 +47,7 @@ namespace Infrastructure.Azure.Instrumentation
 
             // Event store publisher counters
             {
-                var installer = new PerformanceCounterInstaller { CategoryName = Constants.EventPublishersPerformanceCountersCategory, CategoryType = PerformanceCounterCategoryType.SingleInstance };
+                var installer = new PerformanceCounterInstaller { CategoryName = Constants.EventPublishersPerformanceCountersCategory, CategoryType = PerformanceCounterCategoryType.MultiInstance };
                 this.Installers.Add(installer);
 
 

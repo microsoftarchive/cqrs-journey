@@ -31,6 +31,9 @@ namespace Infrastructure.Azure.Instrumentation
             {
                 this.totalSessionsCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, TotalSessionsCounterName, this.InstanceName, false);
                 this.currentSessionsCounter = new PerformanceCounter(Constants.ReceiversPerformanceCountersCategory, CurrentSessionsCounterName, this.InstanceName, false);
+
+                this.totalSessionsCounter.RawValue = 0;
+                this.currentSessionsCounter.RawValue = 0;
             }
         }
 

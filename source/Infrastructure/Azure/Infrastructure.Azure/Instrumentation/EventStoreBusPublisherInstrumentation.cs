@@ -32,17 +32,23 @@ namespace Infrastructure.Azure.Instrumentation
         private readonly PerformanceCounter eventsPublishedPerSecondCounter;
         private readonly PerformanceCounter totalEventsPublishedCounter;
 
-        public EventStoreBusPublisherInstrumentation(bool instrumentationEnabled)
+        public EventStoreBusPublisherInstrumentation(string instanceName, bool instrumentationEnabled)
         {
             this.instrumentationEnabled = instrumentationEnabled;
 
             if (this.instrumentationEnabled)
             {
-                this.currentEventPublishersCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, CurrentEventPublishersCounterName, false);
-                this.totalEventsPublishingRequestedCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, TotalEventsPublishingRequestsCounterName, false);
-                this.eventPublishingRequestsPerSecondCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, EventPublishingRequestsPerSecondCounterName, false);
-                this.totalEventsPublishedCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, TotalEventsPublishedCounterName, false);
-                this.eventsPublishedPerSecondCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, EventsPublishedPerSecondCounterName, false);
+                this.currentEventPublishersCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, CurrentEventPublishersCounterName, instanceName, false);
+                this.totalEventsPublishingRequestedCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, TotalEventsPublishingRequestsCounterName, instanceName, false);
+                this.eventPublishingRequestsPerSecondCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, EventPublishingRequestsPerSecondCounterName, instanceName, false);
+                this.totalEventsPublishedCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, TotalEventsPublishedCounterName, instanceName, false);
+                this.eventsPublishedPerSecondCounter = new PerformanceCounter(Constants.EventPublishersPerformanceCountersCategory, EventsPublishedPerSecondCounterName, instanceName, false);
+
+                this.currentEventPublishersCounter.RawValue = 0;
+                this.totalEventsPublishingRequestedCounter.RawValue = 0;
+                this.eventPublishingRequestsPerSecondCounter.RawValue = 0;
+                this.totalEventsPublishedCounter.RawValue = 0;
+                this.eventsPublishedPerSecondCounter.RawValue = 0;
             }
         }
 
