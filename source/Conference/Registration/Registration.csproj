@@ -114,11 +114,9 @@
     </Compile>
     <Compile Include="ReadModel\ConferenceAlias.cs" />
     <Compile Include="ReadModel\Implementation\CachingConferenceDao.cs" />
-    <Compile Include="ReadModel\Implementation\OrderLocator.cs" />
     <Compile Include="ReadModel\Implementation\OrderDao.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ReadModel\Implementation\PricedOrderConferenceSeatTypeDescriptions.cs" />
     <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />
@@ -127,6 +125,7 @@
     <Compile Include="ReadModel\ConferenceDetails.cs" />
     <Compile Include="ReadModel\PricedOrder.cs" />
     <Compile Include="ReadModel\OrderSeats.cs" />
+    <Compile Include="ReadModel\Implementation\PricedOrderLineSeatTypeDescription.cs" />
     <Compile Include="ReadModel\SeatTypeName.cs" />
     <Compile Include="RegistrationProcessRouter.cs" />
     <Compile Include="Handlers\SeatsAvailabilityHandler.cs" />
