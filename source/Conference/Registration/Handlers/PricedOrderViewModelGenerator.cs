@@ -16,6 +16,7 @@ namespace Registration.Handlers
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.Caching;
@@ -47,21 +48,24 @@ namespace Registration.Handlers
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Find<PricedOrder>(@event.SourceId);
-                if (dto == null)
+                var dto = new PricedOrder
                 {
-                    dto = new PricedOrder { OrderId = @event.SourceId };
-                    context.Set<PricedOrder>().Add(dto);
-                }
-                else if (!WasNotAlreadyHandled(dto, @event.Version))
+                    OrderId = @event.SourceId,
+                    ReservationExpirationDate = @event.ReservationAutoExpiration,
+                    OrderVersion = @event.Version
+                };
+                context.Set<PricedOrder>().Add(dto);
+                try
                 {
-                    return;
+                    context.SaveChanges();
                 }
-
-                dto.ReservationExpirationDate = @event.ReservationAutoExpiration;
-                dto.OrderVersion = @event.Version;
-
-                context.SaveChanges();
+                catch (DbUpdateException)
+                {
+                    Trace.TraceWarning(
+                        "Ignoring OrderPlaced message with version {1} for order id {0}. This could be caused because the message was already handled and the PricedOrder entity was already created.",
+                        dto.OrderId,
+                        @event.Version);
+                }
             }
         }
 
@@ -70,24 +74,17 @@ namespace Registration.Handlers
             var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).Distinct().ToArray();
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(x => x.OrderId == @event.SourceId);
-                if (dto == null)
-                {
-                    dto = new PricedOrder { OrderId = @event.SourceId };
-                    context.Set<PricedOrder>().Add(dto);
-                }
-                else if (WasNotAlreadyHandled(dto, @event.Version))
-                {
-                    var linesSet = context.Set<PricedOrderLine>();
-                    foreach (var line in dto.Lines.ToList())
-                    {
-                        linesSet.Remove(line);
-                    }
-                }
-                else
+                var dto = context.Query<PricedOrder>().Include(x => x.Lines).First(x => x.OrderId == @event.SourceId);
+                if (!WasNotAlreadyHandled(dto, @event.Version))
                 {
                     // message already handled, skip.
                     return;
+                }
+
+                var linesSet = context.Set<PricedOrderLine>();
+                foreach (var line in dto.Lines.ToList())
+                {
+                    linesSet.Remove(line);
                 }
 
                 var seatTypeDescriptions = GetSeatTypeDescriptions(seatTypeIds, context);
@@ -119,8 +116,6 @@ namespace Registration.Handlers
             }
         }
 
-
-
         public void Handle(OrderConfirmed @event)
         {
             using (var context = this.contextFactory.Invoke())
@@ -140,11 +135,20 @@ namespace Registration.Handlers
             // No need to keep this priced order alive if it is expired.
             using (var context = this.contextFactory.Invoke())
             {
-                var dto = context.Find<PricedOrder>(@event.SourceId);
-                if (dto != null)
+                var pricedOrder = new PricedOrder { OrderId = @event.SourceId };
+                var set = context.Set<PricedOrder>();
+                set.Attach(pricedOrder);
+                set.Remove(pricedOrder);
+                try
                 {
-                    context.Set<PricedOrder>().Remove(dto);
                     context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    Trace.TraceWarning(
+                        "Ignoring priced order expiration message with version {1} for order id {0}. This could be caused because the message was already handled and the entity was already deleted.",
+                        pricedOrder.OrderId,
+                        @event.Version);
                 }
             }
         }
