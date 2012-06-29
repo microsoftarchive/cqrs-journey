@@ -239,7 +239,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         [Fact]
         public void when_send_takes_time_then_still_publishes_events_concurrently_with_fixed_max_degree_of_parallelism()
         {
-            var degreeOfParallelism = 230;
+            var degreeOfParallelism = 130;
 
             this.sender.ShouldWaitForCallback = true;
             for (int i = 0; i < partitionKeys.Length; i++)
@@ -247,12 +247,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                 this.sut.SendAsync(partitionKeys[i], 0);
             }
 
-            var timeout = TimeSpan.FromSeconds(20);
-            var stopwatch = Stopwatch.StartNew();
-            while (sender.Sent.Count < degreeOfParallelism && stopwatch.Elapsed < timeout)
-            {
-                Thread.Sleep(500);
-            }
+            Thread.Sleep(2000);
 
             Assert.Equal(degreeOfParallelism, sender.Sent.Count);
             Assert.Equal(degreeOfParallelism, sender.AsyncSuccessCallbacks.Count);
@@ -264,8 +259,8 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             }
 
             // once all events can be sent, verify that it sends all.
-            stopwatch.Restart();
-            while (sender.Sent.Count < partitionKeys.Length && stopwatch.Elapsed < timeout)
+            var stopwatch = Stopwatch.StartNew();
+            while (sender.Sent.Count < partitionKeys.Length && stopwatch.Elapsed < TimeSpan.FromSeconds(20))
             {
                 Thread.Sleep(300);
             }
