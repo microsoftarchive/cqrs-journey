@@ -22,7 +22,7 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class given_a_read_model_generator
+    public class given_a_read_model_generator : given_a_read_model_database
     {
         protected DraftOrderViewModelGenerator sut;
         protected IOrderDao dao;
@@ -30,8 +30,8 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
         public given_a_read_model_generator()
         {
             var blobStorage = new MemoryBlobStorage();
-            this.sut = new DraftOrderViewModelGenerator(blobStorage, new JsonTextSerializer());
-            this.dao = new OrderDao(blobStorage, new JsonTextSerializer());
+            this.sut = new DraftOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
+            this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), blobStorage, new JsonTextSerializer());
         }
     }
 
