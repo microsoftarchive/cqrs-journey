@@ -257,10 +257,13 @@ namespace Infrastructure.Azure.Messaging
                             {
                                 Trace.TraceWarning("Waited for pending unreleased messages before closing session in subscription {0} but they did not complete in time", this.subscription);
                             }
-                            unreleasedMessages.Dispose();
                         }
                         catch (OperationCanceledException)
                         {
+                        }
+                        finally
+                        {
+                            unreleasedMessages.Dispose();
                         }
 
                         this.receiveRetryPolicy.ExecuteAction(
