@@ -103,7 +103,7 @@ namespace Infrastructure.Azure
             // Trace.WriteLine("Job started. Parallel jobs are now: " + this.currentParallelJobs);
         }
 
-        public void OnRetrying()
+        public void Penalize()
         {
             // Slightly penalize with removal of some degrees of parallelism.
             this.DecrementDegreesOfParallelism(retryParallelismPenalty);

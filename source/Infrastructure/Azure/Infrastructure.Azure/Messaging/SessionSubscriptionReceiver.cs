@@ -104,7 +104,7 @@ namespace Infrastructure.Azure.Messaging
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
                 {
-                    this.dynamicThrottling.OnRetrying();
+                    this.dynamicThrottling.Penalize();
                     Trace.TraceWarning(
                         "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
                         e.LastException.Message,
@@ -196,7 +196,7 @@ namespace Infrastructure.Azure.Messaging
                 {
                     // Just log an exception. Do not allow an unhandled exception to terminate the message receive loop abnormally.
                     Trace.TraceError("An unrecoverable error occurred while trying to accept a session in subscription {1}:\r\n{0}", ex, this.subscription);
-                    this.dynamicThrottling.OnRetrying();
+                    this.dynamicThrottling.Penalize();
 
                     if (!cancellationToken.IsCancellationRequested)
                     {
@@ -355,6 +355,10 @@ namespace Infrastructure.Azure.Messaging
                                             finally
                                             {
                                                 stopwatch.Stop();
+                                                if (stopwatch.Elapsed > TimeSpan.FromSeconds(45))
+                                                {
+                                                    this.dynamicThrottling.Penalize();
+                                                }
                                             }
                                         }
                                     }
@@ -367,7 +371,8 @@ namespace Infrastructure.Azure.Messaging
                                         }
                                         else
                                         {
-                                            this.ReleaseMessage(msg, releaseAction, () => { }, () => { this.dynamicThrottling.OnRetrying(); }, unreleasedMessages);
+                                            // Receives next without waiting for the message to be released.
+                                            this.ReleaseMessage(msg, releaseAction, () => { }, () => { this.dynamicThrottling.Penalize(); }, unreleasedMessages);
                                             receiveNext.Invoke();
                                         }
                                     }
@@ -415,7 +420,7 @@ namespace Infrastructure.Azure.Messaging
             receiveNext.Invoke();
         }
 
-        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action closeSessionWithError, CountdownEvent countdown)
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action onReleaseError, CountdownEvent countdown)
         {
             switch (releaseAction.Kind)
             {
@@ -431,23 +436,23 @@ namespace Infrastructure.Azure.Messaging
                             }
                             else
                             {
-                                closeSessionWithError();
+                                onReleaseError();
                             }
                         });
                     break;
                 case MessageReleaseActionKind.Abandon:
-                    this.dynamicThrottling.OnRetrying();
+                    this.dynamicThrottling.Penalize();
                     msg.SafeAbandonAsync(
                         operationSucceeded =>
                         {
                             msg.Dispose();
                             this.OnMessageCompleted(false, countdown);
 
-                            closeSessionWithError();
+                            onReleaseError();
                         });
                     break;
                 case MessageReleaseActionKind.DeadLetter:
-                    this.dynamicThrottling.OnRetrying();
+                    this.dynamicThrottling.Penalize();
                     msg.SafeDeadLetterAsync(
                         releaseAction.DeadLetterReason,
                         releaseAction.DeadLetterDescription,
@@ -462,7 +467,7 @@ namespace Infrastructure.Azure.Messaging
                             }
                             else
                             {
-                                closeSessionWithError();
+                                onReleaseError();
                             }
                         });
                     break;

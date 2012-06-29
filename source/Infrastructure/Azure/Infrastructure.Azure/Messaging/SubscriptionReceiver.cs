@@ -108,7 +108,7 @@ namespace Infrastructure.Azure.Messaging
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
             {
-                this.dynamicThrottling.OnRetrying();
+                this.dynamicThrottling.Penalize();
                 Trace.TraceWarning(
                     "An error occurred in attempt number {1} to receive a message from subscription {2}: {0}",
                     e.LastException.Message,
@@ -265,6 +265,10 @@ namespace Infrastructure.Azure.Messaging
                                             finally
                                             {
                                                 stopwatch.Stop();
+                                                if (stopwatch.Elapsed > TimeSpan.FromSeconds(45))
+                                                {
+                                                    this.dynamicThrottling.Penalize();
+                                                }
                                             }
                                         }
                                     }

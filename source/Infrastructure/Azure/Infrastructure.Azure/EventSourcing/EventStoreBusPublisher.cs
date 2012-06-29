@@ -50,8 +50,8 @@ namespace Infrastructure.Azure.EventSourcing
                     workFailedParallelismPenalty: 10,
                     workCompletedParallelismGain: 1,
                     intervalForRestoringDegreeOfParallelism: 8000);
-            this.queue.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
-            this.sender.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
+            this.queue.Retrying += (s, e) => this.dynamicThrottling.Penalize();
+            this.sender.Retrying += (s, e) => this.dynamicThrottling.Penalize();
         }
 
         public void Start(CancellationToken cancellationToken)
