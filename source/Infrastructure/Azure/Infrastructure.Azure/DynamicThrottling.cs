@@ -115,6 +115,7 @@ namespace Infrastructure.Azure
             this.DecrementDegreesOfParallelism(workFailedParallelismPenalty);
             Interlocked.Decrement(ref this.currentParallelJobs);
             // Trace.WriteLine("Job finished with error. Parallel jobs are now: " + this.currentParallelJobs);
+            this.waitHandle.Set();
         }
 
         public void Start(CancellationToken cancellationToken)

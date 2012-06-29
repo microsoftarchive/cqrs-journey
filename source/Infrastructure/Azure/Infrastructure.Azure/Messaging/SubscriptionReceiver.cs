@@ -134,6 +134,7 @@ namespace Infrastructure.Azure.Messaging
                 Task.Factory.StartNew(() =>
                     this.ReceiveMessages(this.cancellationSource.Token),
                     this.cancellationSource.Token);
+                this.dynamicThrottling.Start(this.cancellationSource.Token);
             }
         }
 
@@ -320,7 +321,7 @@ namespace Infrastructure.Azure.Messaging
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     // Continue receiving and processing new messages until we are told to stop regardless of any exceptions.
-                    receiveMessage.Invoke();
+                    TaskEx.Delay(10000).ContinueWith(t => receiveMessage.Invoke());
                 }
             };
 

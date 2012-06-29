@@ -131,6 +131,7 @@ namespace Infrastructure.Azure.Messaging
                     this.MessageHandler = messageHandler;
                     this.cancellationSource = new CancellationTokenSource();
                     Task.Factory.StartNew(() => this.AcceptSession(this.cancellationSource.Token), this.cancellationSource.Token);
+                    this.dynamicThrottling.Start(this.cancellationSource.Token);
                 }
             }
         }
@@ -200,7 +201,7 @@ namespace Infrastructure.Azure.Messaging
                     if (!cancellationToken.IsCancellationRequested)
                     {
                         // Continue accepting new sessions until we are told to stop regardless of any exceptions.
-                        TaskEx.Delay(1000).ContinueWith(t => AcceptSession(cancellationToken), cancellationToken);
+                        TaskEx.Delay(10000).ContinueWith(t => AcceptSession(cancellationToken));
                     }
                 };
 
@@ -243,30 +244,47 @@ namespace Infrastructure.Azure.Messaging
         /// </summary>
         private void ReceiveMessagesAndCloseSession(MessageSession session, CancellationToken cancellationToken)
         {
+            CountdownEvent unreleasedMessages = new CountdownEvent(1);
+
             Action<bool> closeSession = (bool success) =>
             {
                 Action doClose = () =>
-                    this.receiveRetryPolicy.ExecuteAction(
-                    cb => session.BeginClose(cb, null),
-                    session.EndClose,
-                    () =>
                     {
-                        this.instrumentation.SessionEnded();
-                        if (success)
+                        try
                         {
-                            this.dynamicThrottling.NotifyWorkCompleted();
+                            unreleasedMessages.Signal();
+                            if (!unreleasedMessages.Wait(15000, cancellationToken))
+                            {
+                                Trace.TraceWarning("Waited for pending unreleased messages before closing session in subscription {0} but they did not complete in time", this.subscription);
+                            }
+                            unreleasedMessages.Dispose();
                         }
-                        else
+                        catch (OperationCanceledException)
                         {
+                        }
+
+                        this.receiveRetryPolicy.ExecuteAction(
+                        cb => session.BeginClose(cb, null),
+                        session.EndClose,
+                        () =>
+                        {
+                            this.instrumentation.SessionEnded();
+                            if (success)
+                            {
+                                this.dynamicThrottling.NotifyWorkCompleted();
+                            }
+                            else
+                            {
+                                this.dynamicThrottling.NotifyWorkCompletedWithError();
+                            }
+                        },
+                        ex =>
+                        {
+                            this.instrumentation.SessionEnded();
+                            Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription);
                             this.dynamicThrottling.NotifyWorkCompletedWithError();
-                        }
-                    },
-                    ex =>
-                    {
-                        this.instrumentation.SessionEnded();
-                        Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription);
-                        this.dynamicThrottling.NotifyWorkCompletedWithError();
-                    });
+                        });
+                    };
 
                 if (this.requiresSequentialProcessing)
                 {
@@ -274,8 +292,8 @@ namespace Infrastructure.Azure.Messaging
                 }
                 else
                 {
-                    // Allow some time for releasing the messages before closing.
-                    TaskEx.Delay(3000).ContinueWith(t => doClose());
+                    // Allow some time for releasing the messages before closing. Also, continue in a non I/O completion thread in order to block.
+                    TaskEx.Delay(200).ContinueWith(t => doClose());
                 }
             };
 
@@ -305,6 +323,7 @@ namespace Infrastructure.Azure.Messaging
                         // Check if we actually received any messages.
                         if (msg != null)
                         {
+                            unreleasedMessages.AddCount();
                             Task.Factory.StartNew(() =>
                                 {
                                     var releaseAction = MessageReleaseAction.AbandonMessage;
@@ -344,11 +363,11 @@ namespace Infrastructure.Azure.Messaging
                                         // Ensure that any resources allocated by a BrokeredMessage instance are released.
                                         if (this.requiresSequentialProcessing)
                                         {
-                                            this.ReleaseMessage(msg, releaseAction, receiveNext, closeSession);
+                                            this.ReleaseMessage(msg, releaseAction, () => { receiveNext(); }, () => { closeSession(false); }, unreleasedMessages);
                                         }
                                         else
                                         {
-                                            this.ReleaseMessage(msg, releaseAction, () => { }, (s) => { this.dynamicThrottling.OnRetrying(); });
+                                            this.ReleaseMessage(msg, releaseAction, () => { }, () => { this.dynamicThrottling.OnRetrying(); }, unreleasedMessages);
                                             receiveNext.Invoke();
                                         }
                                     }
@@ -396,7 +415,7 @@ namespace Infrastructure.Azure.Messaging
             receiveNext.Invoke();
         }
 
-        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action<bool> closeSession)
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, Action completeReceive, Action closeSessionWithError, CountdownEvent countdown)
         {
             switch (releaseAction.Kind)
             {
@@ -405,14 +424,14 @@ namespace Infrastructure.Azure.Messaging
                         operationSucceeded =>
                         {
                             msg.Dispose();
-                            this.instrumentation.MessageCompleted(operationSucceeded);
+                            this.OnMessageCompleted(operationSucceeded, countdown);
                             if (operationSucceeded)
                             {
                                 completeReceive();
                             }
                             else
                             {
-                                closeSession(false);
+                                closeSessionWithError();
                             }
                         });
                     break;
@@ -422,9 +441,9 @@ namespace Infrastructure.Azure.Messaging
                         operationSucceeded =>
                         {
                             msg.Dispose();
-                            this.instrumentation.MessageCompleted(false);
+                            this.OnMessageCompleted(false, countdown);
 
-                            closeSession(false);
+                            closeSessionWithError();
                         });
                     break;
                 case MessageReleaseActionKind.DeadLetter:
@@ -435,7 +454,7 @@ namespace Infrastructure.Azure.Messaging
                         operationSucceeded =>
                         {
                             msg.Dispose();
-                            this.instrumentation.MessageCompleted(false);
+                            this.OnMessageCompleted(false, countdown);
 
                             if (operationSucceeded)
                             {
@@ -443,13 +462,19 @@ namespace Infrastructure.Azure.Messaging
                             }
                             else
                             {
-                                closeSession(false);
+                                closeSessionWithError();
                             }
                         });
                     break;
                 default:
                     break;
             }
+        }
+
+        private void OnMessageCompleted(bool success, CountdownEvent countdown)
+        {
+            this.instrumentation.MessageCompleted(success);
+            countdown.Signal();
         }
     }
 }
