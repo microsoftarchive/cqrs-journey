@@ -69,10 +69,10 @@ namespace Infrastructure.Azure
             this.retryParallelismPenalty = retryParallelismPenalty;
             this.workFailedParallelismPenalty = workFailedParallelismPenalty;
             this.workCompletedParallelismGain = workCompletedParallelismGain;
-            this.intervalForRestoringDegreeOfParallelism = 8000;
+            this.intervalForRestoringDegreeOfParallelism = intervalForRestoringDegreeOfParallelism;
             this.parallelismRestoringTimer = new Timer(s => this.IncrementDegreesOfParallelism(1));
 
-            this.availableDegreesOfParallelism = (maxDegreeOfParallelism + minDegreeOfParallelism) / 2;
+            this.availableDegreesOfParallelism = minDegreeOfParallelism;
         }
 
         public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
