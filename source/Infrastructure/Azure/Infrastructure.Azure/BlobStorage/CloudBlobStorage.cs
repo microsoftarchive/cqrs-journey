@@ -37,9 +37,9 @@ namespace Infrastructure.Azure.BlobStorage
             this.blobClient = account.CreateCloudBlobClient();
             this.blobClient.RetryPolicy = RetryPolicies.NoRetry();
 
-            this.readRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(new Incremental(2, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)));
+            this.readRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(new Incremental(1, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)));
             this.readRetryPolicy.Retrying += (s, e) => Trace.TraceWarning("An error occurred in attempt number {1} to read from blob storage: {0}", e.LastException.Message, e.CurrentRetryCount);
-            this.writeRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(new ExponentialBackoff(3, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(3)));
+            this.writeRetryPolicy = new RetryPolicy<StorageTransientErrorDetectionStrategy>(new FixedInterval(1, TimeSpan.FromSeconds(10)) { FastFirstRetry = false });
             this.writeRetryPolicy.Retrying += (s, e) => Trace.TraceWarning("An error occurred in attempt number {1} to write to blob storage: {0}", e.LastException.Message, e.CurrentRetryCount);
 
             var containerReference = this.blobClient.GetContainerReference(this.rootContainerName);
@@ -59,7 +59,7 @@ namespace Infrastructure.Azure.BlobStorage
                     }
                     catch (StorageClientException e)
                     {
-                        if (e.ErrorCode == StorageErrorCode.ResourceNotFound || e.ErrorCode ==StorageErrorCode.BlobNotFound || e.ErrorCode == StorageErrorCode.ContainerNotFound)
+                        if (e.ErrorCode == StorageErrorCode.ResourceNotFound || e.ErrorCode == StorageErrorCode.BlobNotFound || e.ErrorCode == StorageErrorCode.ContainerNotFound)
                         {
                             return null;
                         }

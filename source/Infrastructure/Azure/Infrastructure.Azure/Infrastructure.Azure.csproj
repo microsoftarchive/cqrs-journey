@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlobStorage\BlobStorageSettings.cs" />
+    <Compile Include="DynamicThrottling.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="Instrumentation\AzureInstrumentationInstaller.cs">
       <SubType>Component</SubType>

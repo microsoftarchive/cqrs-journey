@@ -21,84 +21,48 @@ namespace Infrastructure.Azure.Utils
 
     public static class BrokeredMessageExtensions
     {
-        private static readonly RetryPolicy FastRetryPolicy =
-            new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(new FixedInterval(2, TimeSpan.FromSeconds(.5d)) { FastFirstRetry = true });
+        private static readonly RetryPolicy retryPolicy =
+            new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(new ExponentialBackoff(3, TimeSpan.FromSeconds(.5d), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(2)) { FastFirstRetry = true });
 
-        public static bool SafeComplete(this BrokeredMessage message)
-        {
-            return SafeMessagingAction(message.Complete, "An error occurred while completing message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
-        }
-
-        public static bool SafeAbandon(this BrokeredMessage message)
-        {
-            return SafeMessagingAction(message.Abandon, "An error occurred while abandoning message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
-        }
-
-        public static bool SafeDeadLetter(this BrokeredMessage message, string reason, string description)
-        {
-            return SafeMessagingAction(() => message.DeadLetter(reason, description), "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.", message.MessageId);
-        }
-
-        public static void SafeCompleteAsync(this BrokeredMessage message, Action<bool> callback)
+        public static void SafeCompleteAsync(this BrokeredMessage message, string subscription, Action<bool> callback)
         {
             SafeMessagingActionAsync(
                 ac => message.BeginComplete(ac, null),
                 message.EndComplete,
                 message,
                 callback,
-                "An error occurred while completing message {0}. It will be reprocessed when the peek lock expires.",
-                message.MessageId);
+                "An error occurred while completing message {0} in subscription {1}. Error message: {2}",
+                message.MessageId,
+                subscription);
         }
 
-        public static void SafeAbandonAsync(this BrokeredMessage message, Action<bool> callback)
+        public static void SafeAbandonAsync(this BrokeredMessage message, string subscription, Action<bool> callback)
         {
             SafeMessagingActionAsync(
                 ac => message.BeginAbandon(ac, null),
                 message.EndAbandon,
                 message,
                 callback,
-                "An error occurred while abandoning message {0}. It will be reprocessed when the peek lock expires.",
-                message.MessageId);
+                "An error occurred while abandoning message {0} in subscription {1}. Error message: {2}",
+                message.MessageId,
+                subscription);
         }
 
-        public static void SafeDeadLetterAsync(this BrokeredMessage message, string reason, string description, Action<bool> callback)
+        public static void SafeDeadLetterAsync(this BrokeredMessage message, string subscription, string reason, string description, Action<bool> callback)
         {
             SafeMessagingActionAsync(
                 ac => message.BeginDeadLetter(reason, description, ac, null),
                 message.EndDeadLetter,
                 message,
                 callback,
-                "An error occurred while dead-lettering message {0}. It will be reprocessed when the peek lock expires.",
-                message.MessageId);
+                "An error occurred while dead-lettering message {0} in subscription {1}. Error message: {2}",
+                message.MessageId,
+                subscription);
         }
 
-        private static bool SafeMessagingAction(Action action, string actionErrorDescription, string messageId)
+        private static void SafeMessagingActionAsync(Action<AsyncCallback> begin, Action<IAsyncResult> end, BrokeredMessage message, Action<bool> callback, string actionErrorDescription, string messageId, string subscription)
         {
-            try
-            {
-                FastRetryPolicy.ExecuteAction(action);
-
-                return true;
-            }
-            catch (MessageLockLostException)
-            {
-                Trace.TraceWarning(actionErrorDescription, messageId);
-            }
-            catch (MessagingException)
-            {
-                Trace.TraceWarning(actionErrorDescription, messageId);
-            }
-            catch (TimeoutException)
-            {
-                Trace.TraceWarning(actionErrorDescription, messageId);
-            }
-
-            return false;
-        }
-
-        private static void SafeMessagingActionAsync(Action<AsyncCallback> begin, Action<IAsyncResult> end, BrokeredMessage message, Action<bool> callback, string actionErrorDescription, string messageId)
-        {
-            FastRetryPolicy.ExecuteAction(
+            retryPolicy.ExecuteAction(
                 begin,
                 end,
                 () =>
@@ -109,11 +73,11 @@ namespace Infrastructure.Azure.Utils
                 {
                     if (e is MessageLockLostException || e is MessagingException || e is TimeoutException)
                     {
-                        Trace.TraceWarning(actionErrorDescription, messageId);
+                        Trace.TraceWarning(actionErrorDescription, messageId, subscription, e.GetType().Name + " - " + e.Message);
                     }
                     else
                     {
-                        Trace.TraceError("Unexpected error releasing message:\r\n{0}", e);
+                        Trace.TraceError("Unexpected error releasing message in subscription {1}:\r\n{0}", e, subscription);
                     }
 
                     callback(false);

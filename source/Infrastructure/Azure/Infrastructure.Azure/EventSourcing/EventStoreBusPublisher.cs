@@ -33,7 +33,7 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly BlockingCollection<string> enqueuedKeys;
         private readonly IEventStoreBusPublisherInstrumentation instrumentation;
         private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
-        private readonly DynamicThrottling dynamicThrottling = new DynamicThrottling();
+        private readonly DynamicThrottling dynamicThrottling;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue, IEventStoreBusPublisherInstrumentation instrumentation)
         {
@@ -42,8 +42,16 @@ namespace Infrastructure.Azure.EventSourcing
             this.instrumentation = instrumentation;
 
             this.enqueuedKeys = new BlockingCollection<string>();
-            this.queue.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
-            this.sender.Retrying += (s, e) => this.dynamicThrottling.OnRetrying();
+            this.dynamicThrottling = 
+                new DynamicThrottling(
+                    maxDegreeOfParallelism: 230,
+                    minDegreeOfParallelism: 30,
+                    retryParallelismPenalty: 3,
+                    workFailedParallelismPenalty: 10,
+                    workCompletedParallelismGain: 1,
+                    intervalForRestoringDegreeOfParallelism: 8000);
+            this.queue.Retrying += (s, e) => this.dynamicThrottling.Penalize();
+            this.sender.Retrying += (s, e) => this.dynamicThrottling.Penalize();
         }
 
         public void Start(CancellationToken cancellationToken)
@@ -282,145 +290,6 @@ namespace Infrastructure.Azure.EventSourcing
                 {
                     yield break;
                 }
-            }
-        }
-
-        public class DynamicThrottling : IDisposable
-        {
-            // configuration
-
-            /// <summary>
-            /// Maximum number of parallel jobs.
-            /// </summary>
-            private const int MaxDegreeOfParallelism = 230;
-
-            /// <summary>
-            /// Minimum number of parallel jobs.
-            /// </summary>
-            private const int MinDegreeOfParallelism = 30;
-            
-            /// <summary>
-            /// Number of degrees of parallelism to remove on retrying.
-            /// </summary>
-            private const int RetryParallelismPenalty = 3;
-
-            /// <summary>
-            /// Number of degrees of parallelism to remove when work fails.
-            /// </summary>
-            private const int WorkFailedParallelismPenalty = 10;
-
-            /// <summary>
-            /// Number of degrees of parallelism to restore on work completed.
-            /// </summary>
-            private const int WorkCompletedParallelismGain = 1;
-
-            /// <summary>
-            /// Interval in milliseconds to restore 1 degree of parallelism.
-            /// </summary>
-            private const int IntervalForRestoringDegreeOfParallelism = 8000;
-
-
-            private readonly AutoResetEvent waitHandle = new AutoResetEvent(true);
-            private readonly Timer parallelismRestoringTimer;
-
-            private int currentParallelJobs = 0;
-            private int availableDegreesOfParallelism = MaxDegreeOfParallelism;
-
-            public DynamicThrottling()
-            {
-                this.parallelismRestoringTimer = new Timer(s => this.IncrementDegreesOfParallelism(1));
-            }
-
-            public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
-            {
-                while (this.currentParallelJobs >= this.availableDegreesOfParallelism)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    // Trace.WriteLine("Waiting for available degrees of parallelism. Available: " + this.availableDegreesOfParallelism + ". In use: " + this.currentParallelJobs);
-
-                    this.waitHandle.WaitOne();
-                }
-            }
-
-            public void NotifyWorkCompleted()
-            {
-                Interlocked.Decrement(ref this.currentParallelJobs);
-                // Trace.WriteLine("Job finished. Parallel jobs are now: " + this.currentParallelJobs);
-                IncrementDegreesOfParallelism(WorkCompletedParallelismGain);
-            }
-
-            public void NotifyWorkStarted()
-            {
-                Interlocked.Increment(ref this.currentParallelJobs);
-                // Trace.WriteLine("Job started. Parallel jobs are now: " + this.currentParallelJobs);
-            }
-
-            public void OnRetrying()
-            {
-                // Slightly penalize with removal of some degrees of parallelism.
-                this.DecrementDegreesOfParallelism(RetryParallelismPenalty);
-            }
-
-            public void NotifyWorkCompletedWithError()
-            {
-                // Largely penalize with removal of several degrees of parallelism.
-                this.DecrementDegreesOfParallelism(WorkFailedParallelismPenalty);
-                Interlocked.Decrement(ref this.currentParallelJobs);
-                // Trace.WriteLine("Job finished with error. Parallel jobs are now: " + this.currentParallelJobs);
-            }
-
-            public void Start(CancellationToken cancellationToken)
-            {
-                if (cancellationToken.CanBeCanceled)
-                {
-                    cancellationToken.Register(() => this.parallelismRestoringTimer.Change(Timeout.Infinite, Timeout.Infinite));
-                }
-
-                this.parallelismRestoringTimer.Change(IntervalForRestoringDegreeOfParallelism, IntervalForRestoringDegreeOfParallelism);
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (disposing)
-                {
-                    this.waitHandle.Dispose();
-                    this.parallelismRestoringTimer.Dispose();
-                }
-            }
-
-            private void IncrementDegreesOfParallelism(int count)
-            {
-                if (this.availableDegreesOfParallelism < MaxDegreeOfParallelism)
-                {
-                    this.availableDegreesOfParallelism += count;
-                    if (this.availableDegreesOfParallelism >= MaxDegreeOfParallelism)
-                    {
-                        this.availableDegreesOfParallelism = MaxDegreeOfParallelism;
-                        // Trace.WriteLine("Incremented available degrees of parallelism. Available: " + this.availableDegreesOfParallelism);
-                    }
-                }
-
-                this.waitHandle.Set();
-            }
-
-            private void DecrementDegreesOfParallelism(int count)
-            {
-                this.availableDegreesOfParallelism -= count;
-                if (this.availableDegreesOfParallelism < MinDegreeOfParallelism)
-                {
-                    this.availableDegreesOfParallelism = MinDegreeOfParallelism;
-                }
-                // Trace.WriteLine("Decremented available degrees of parallelism. Available: " + this.availableDegreesOfParallelism);
             }
         }
     }
