@@ -18,6 +18,7 @@ namespace Registration.Handlers
     using System.Data.Entity;
     using System.Diagnostics;
     using System.Linq;
+    using System.Runtime.Caching;
     using Conference;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
@@ -34,10 +35,12 @@ namespace Registration.Handlers
         IEventHandler<SeatUpdated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private readonly ObjectCache seatDescriptionsCache;
 
         public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
+            this.seatDescriptionsCache = new MemoryCache("SeatDescriptionsCache");
         }
 
         public void Handle(OrderPlaced @event)
@@ -87,17 +90,7 @@ namespace Registration.Handlers
                     return;
                 }
 
-                List<PricedOrderLineSeatTypeDescription> seatTypeDescriptions;
-                if (seatTypeIds.Length != 0)
-                {
-                    seatTypeDescriptions = context.Query<PricedOrderLineSeatTypeDescription>()
-                        .Where(x => seatTypeIds.Contains(x.SeatTypeId))
-                        .ToList();
-                }
-                else
-                {
-                    seatTypeDescriptions = new List<PricedOrderLineSeatTypeDescription>();
-                }
+                var seatTypeDescriptions = GetSeatTypeDescriptions(seatTypeIds, context);
 
                 foreach (var orderLine in @event.Lines)
                 {
@@ -125,6 +118,8 @@ namespace Registration.Handlers
                 context.SaveChanges();
             }
         }
+
+
 
         public void Handle(OrderConfirmed @event)
         {
@@ -197,6 +192,7 @@ namespace Registration.Handlers
 
                 dto.Name = @event.Name;
                 context.SaveChanges();
+                this.seatDescriptionsCache.Set(dto.SeatTypeId.ToString(), dto, new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) });
             }
         }
 
@@ -225,6 +221,47 @@ This read model generator has an expectation that the EventBus will deliver mess
                         eventVersion,
                         pricedOrder.OrderVersion));
             }
+        } 
+        
+        private List<PricedOrderLineSeatTypeDescription> GetSeatTypeDescriptions(IEnumerable<Guid> seatTypeIds, ConferenceRegistrationDbContext context)
+        {
+            var result = new List<PricedOrderLineSeatTypeDescription>();
+            var notCached = new List<Guid>();
+
+            PricedOrderLineSeatTypeDescription cached;
+            foreach (var seatType in seatTypeIds)
+            {
+                cached = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache.Get(seatType.ToString());
+                if (cached == null)
+                {
+                    notCached.Add(seatType);
+                }
+                else
+                {
+                    result.Add(cached);
+                }
+            }
+
+            if (notCached.Count > 0)
+            {
+                var notCachedArray = notCached.ToArray();
+                var seatTypeDescriptions = context.Query<PricedOrderLineSeatTypeDescription>()
+                    .Where(x => notCachedArray.Contains(x.SeatTypeId))
+                    .ToList();
+
+                foreach (var seatType in seatTypeDescriptions)
+                {
+                    // even though we went got a fresh version we don't want to overwrite a fresher version set by the event handler for seat descriptions
+                    var desc = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache.AddOrGetExisting(
+                        seatType.SeatTypeId.ToString(),
+                        seatType,
+                        new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) });
+
+                    result.Add(desc);
+                }
+            }
+
+            return result;
         }
     }
 }
