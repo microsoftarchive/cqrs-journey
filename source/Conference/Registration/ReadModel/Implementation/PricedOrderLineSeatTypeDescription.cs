@@ -14,16 +14,12 @@
 namespace Registration.ReadModel.Implementation
 {
     using System;
-    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
 
-    internal class PricedOrderConferenceSeatTypeDescriptions
+    internal class PricedOrderLineSeatTypeDescription
     {
-        public PricedOrderConferenceSeatTypeDescriptions()
-        {
-            this.SeatDescriptions = new Dictionary<Guid, string>();
-        }
-
-        public Guid ConferenceId { get; set; }
-        public IDictionary<Guid, string> SeatDescriptions { get; private set; }
+        [Key]
+        public Guid SeatTypeId { get; set; }
+        public string Name { get; set; }
     }
 }

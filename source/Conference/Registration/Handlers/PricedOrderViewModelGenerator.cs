@@ -14,14 +14,13 @@
 namespace Registration.Handlers
 {
     using System;
+    using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
-    using System.Text;
+    using System.Runtime.Caching;
     using Conference;
-    using Infrastructure.BlobStorage;
     using Infrastructure.Messaging.Handling;
-    using Infrastructure.Serialization;
     using Registration.Events;
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
@@ -35,109 +34,119 @@ namespace Registration.Handlers
         IEventHandler<SeatCreated>,
         IEventHandler<SeatUpdated>
     {
-        private readonly IBlobStorage blobStorage;
-        private readonly ITextSerializer serializer;
+        private readonly Func<ConferenceRegistrationDbContext> contextFactory;
+        private readonly ObjectCache seatDescriptionsCache;
 
-        public PricedOrderViewModelGenerator(IBlobStorage blobStorage, ITextSerializer serializer)
+        public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
-            this.blobStorage = blobStorage;
-            this.serializer = serializer;
-        }
-
-        public static string GetPricedOrderBlobId(Guid sourceId)
-        {
-            return "PricedOrder/" + sourceId.ToString();
-        }
-
-        public static string GetConferenceSeatsDescriptionBlobId(Guid sourceId)
-        {
-            return "ConferenceSeats/" + sourceId.ToString();
+            this.contextFactory = contextFactory;
+            this.seatDescriptionsCache = new MemoryCache("SeatDescriptionsCache");
         }
 
         public void Handle(OrderPlaced @event)
         {
-            var dto = this.Find<PricedOrder>(GetPricedOrderBlobId(@event.SourceId));
-
-            if (dto == null)
+            using (var context = this.contextFactory.Invoke())
             {
-                dto = new PricedOrder { OrderId = @event.SourceId, ConferenceId = @event.ConferenceId };
-            }
-            else if (!WasNotAlreadyHandled(dto, @event.Version))
-            {
-                return;
-            }
+                var dto = context.Find<PricedOrder>(@event.SourceId);
+                if (dto == null)
+                {
+                    dto = new PricedOrder { OrderId = @event.SourceId };
+                    context.Set<PricedOrder>().Add(dto);
+                }
+                else if (!WasNotAlreadyHandled(dto, @event.Version))
+                {
+                    return;
+                }
 
-            dto.ReservationExpirationDate = @event.ReservationAutoExpiration;
-            dto.OrderVersion = @event.Version;
+                dto.ReservationExpirationDate = @event.ReservationAutoExpiration;
+                dto.OrderVersion = @event.Version;
 
-            this.Save(dto, GetPricedOrderBlobId(@event.SourceId));
+                context.SaveChanges();
+            }
         }
 
         public void Handle(OrderTotalsCalculated @event)
         {
             var seatTypeIds = @event.Lines.OfType<SeatOrderLine>().Select(x => x.SeatType).Distinct().ToArray();
-
-            var dto = this.Find<PricedOrder>(GetPricedOrderBlobId(@event.SourceId));
-            if (dto == null)
+            using (var context = this.contextFactory.Invoke())
             {
-                dto = new PricedOrder { OrderId = @event.SourceId };
-            }
-            else if (WasNotAlreadyHandled(dto, @event.Version))
-            {
-                dto.Lines.Clear();
-            }
-            else
-            {
-                // message already handled, skip.
-                return;
-            }
-
-            var conferenceSeatDescriptions =
-                this.Find<PricedOrderConferenceSeatTypeDescriptions>(GetConferenceSeatsDescriptionBlobId(dto.ConferenceId)) ?? new PricedOrderConferenceSeatTypeDescriptions();
-
-            foreach (var orderLine in @event.Lines)
-            {
-                var line = new PricedOrderLine
+                var dto = context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(x => x.OrderId == @event.SourceId);
+                if (dto == null)
                 {
-                    LineTotal = orderLine.LineTotal
-                };
-
-                var seatOrderLine = orderLine as SeatOrderLine;
-                if (seatOrderLine != null)
+                    dto = new PricedOrder { OrderId = @event.SourceId };
+                    context.Set<PricedOrder>().Add(dto);
+                }
+                else if (WasNotAlreadyHandled(dto, @event.Version))
                 {
-                    string description;
-                    conferenceSeatDescriptions.SeatDescriptions.TryGetValue(seatOrderLine.SeatType, out description);
-
-                    // should we update the view model to avoid loosing the SeatTypeId?
-                    line.Description = description;
-                    line.UnitPrice = seatOrderLine.UnitPrice;
-                    line.Quantity = seatOrderLine.Quantity;
+                    var linesSet = context.Set<PricedOrderLine>();
+                    foreach (var line in dto.Lines.ToList())
+                    {
+                        linesSet.Remove(line);
+                    }
+                }
+                else
+                {
+                    // message already handled, skip.
+                    return;
                 }
 
-                dto.Lines.Add(line);
+                var seatTypeDescriptions = GetSeatTypeDescriptions(seatTypeIds, context);
+
+                foreach (var orderLine in @event.Lines)
+                {
+                    var line = new PricedOrderLine
+                    {
+                        LineTotal = orderLine.LineTotal
+                    };
+
+                    var seatOrderLine = orderLine as SeatOrderLine;
+                    if (seatOrderLine != null)
+                    {
+                        // should we update the view model to avoid loosing the SeatTypeId?
+                        line.Description = seatTypeDescriptions.Where(x => x.SeatTypeId == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
+                        line.UnitPrice = seatOrderLine.UnitPrice;
+                        line.Quantity = seatOrderLine.Quantity;
+                    }
+
+                    dto.Lines.Add(line);
+                }
+
+                dto.Total = @event.Total;
+                dto.IsFreeOfCharge = @event.IsFreeOfCharge;
+                dto.OrderVersion = @event.Version;
+
+                context.SaveChanges();
             }
-
-            dto.Total = @event.Total;
-            dto.IsFreeOfCharge = @event.IsFreeOfCharge;
-            dto.OrderVersion = @event.Version;
-
-            this.Save(dto, GetPricedOrderBlobId(@event.SourceId));
         }
+
+
 
         public void Handle(OrderConfirmed @event)
         {
-            var dto = this.Find<PricedOrder>(GetPricedOrderBlobId(@event.SourceId));
-            if (WasNotAlreadyHandled(dto, @event.Version))
+            using (var context = this.contextFactory.Invoke())
             {
-                dto.ReservationExpirationDate = null;
-                dto.OrderVersion = @event.Version;
-                this.Save(dto, GetPricedOrderBlobId(@event.SourceId));
+                var dto = context.Find<PricedOrder>(@event.SourceId);
+                if (WasNotAlreadyHandled(dto, @event.Version))
+                {
+                    dto.ReservationExpirationDate = null;
+                    dto.OrderVersion = @event.Version;
+                    context.Save(dto);
+                }
             }
         }
 
         public void Handle(OrderExpired @event)
         {
-            this.blobStorage.Delete(GetPricedOrderBlobId(@event.SourceId));
+            // No need to keep this priced order alive if it is expired.
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrder>(@event.SourceId);
+                if (dto != null)
+                {
+                    context.Set<PricedOrder>().Remove(dto);
+                    context.SaveChanges();
+                }
+            }
         }
 
         /// <summary>
@@ -145,20 +154,46 @@ namespace Registration.Handlers
         /// </summary>
         public void Handle(SeatAssignmentsCreated @event)
         {
-            var dto = this.Find<PricedOrder>(GetPricedOrderBlobId(@event.OrderId));
-            dto.AssignmentsId = @event.SourceId;
-            // Note: @event.Version does not correspond to order.Version.;
-            this.Save(dto, GetPricedOrderBlobId(@event.OrderId));
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrder>(@event.OrderId);
+                dto.AssignmentsId = @event.SourceId;
+                // Note: @event.Version does not correspond to order.Version.;
+                context.SaveChanges();
+            }
         }
 
         public void Handle(SeatCreated @event)
         {
-            this.SetSeatName(@event.ConferenceId, @event.SourceId, @event.Name);
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrderLineSeatTypeDescription>(@event.SourceId);
+                if (dto == null)
+                {
+                    dto = new PricedOrderLineSeatTypeDescription { SeatTypeId = @event.SourceId };
+                    context.Set<PricedOrderLineSeatTypeDescription>().Add(dto);
+                }
+
+                dto.Name = @event.Name;
+                context.SaveChanges();
+            }
         }
 
         public void Handle(SeatUpdated @event)
         {
-            this.SetSeatName(@event.ConferenceId, @event.SourceId, @event.Name);
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<PricedOrderLineSeatTypeDescription>(@event.SourceId);
+                if (dto == null)
+                {
+                    dto = new PricedOrderLineSeatTypeDescription { SeatTypeId = @event.SourceId };
+                    context.Set<PricedOrderLineSeatTypeDescription>().Add(dto);
+                }
+
+                dto.Name = @event.Name;
+                context.SaveChanges();
+                this.seatDescriptionsCache.Set(dto.SeatTypeId.ToString(), dto, new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) });
+            }
         }
 
         private static bool WasNotAlreadyHandled(PricedOrder pricedOrder, int eventVersion)
@@ -186,46 +221,47 @@ This read model generator has an expectation that the EventBus will deliver mess
                         eventVersion,
                         pricedOrder.OrderVersion));
             }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "By design")]
-        private T Find<T>(string id)
-            where T : class
+        } 
+        
+        private List<PricedOrderLineSeatTypeDescription> GetSeatTypeDescriptions(IEnumerable<Guid> seatTypeIds, ConferenceRegistrationDbContext context)
         {
-            var dto = this.blobStorage.Find(id);
-            if (dto == null)
+            var result = new List<PricedOrderLineSeatTypeDescription>();
+            var notCached = new List<Guid>();
+
+            PricedOrderLineSeatTypeDescription cached;
+            foreach (var seatType in seatTypeIds)
             {
-                return null;
+                cached = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache.Get(seatType.ToString());
+                if (cached == null)
+                {
+                    notCached.Add(seatType);
+                }
+                else
+                {
+                    result.Add(cached);
+                }
             }
 
-            using (var stream = new MemoryStream(dto))
-            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            if (notCached.Count > 0)
             {
-                return (T)this.serializer.Deserialize(reader);
-            }
-        }
+                var notCachedArray = notCached.ToArray();
+                var seatTypeDescriptions = context.Query<PricedOrderLineSeatTypeDescription>()
+                    .Where(x => notCachedArray.Contains(x.SeatTypeId))
+                    .ToList();
 
-        private void Save<T>(T dto, string id)
-            where T : class
-        {
-            using (var writer = new StringWriter())
-            {
-                this.serializer.Serialize(writer, dto);
-                this.blobStorage.Save(id, "text/plain", Encoding.UTF8.GetBytes(writer.ToString()));
-            }
-        }
+                foreach (var seatType in seatTypeDescriptions)
+                {
+                    // even though we went got a fresh version we don't want to overwrite a fresher version set by the event handler for seat descriptions
+                    var desc = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache.AddOrGetExisting(
+                        seatType.SeatTypeId.ToString(),
+                        seatType,
+                        new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) });
 
-        private void SetSeatName(Guid conferenceId, Guid seatId, string name)
-        {
-            var dto = this.Find<PricedOrderConferenceSeatTypeDescriptions>(GetConferenceSeatsDescriptionBlobId(conferenceId));
-            if (dto == null)
-            {
-                dto = new PricedOrderConferenceSeatTypeDescriptions { ConferenceId = conferenceId };
+                    result.Add(desc);
+                }
             }
 
-            dto.SeatDescriptions[seatId] = name;
-
-            this.Save(dto, GetConferenceSeatsDescriptionBlobId(conferenceId));
+            return result;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Registration.IntegrationTests.SeatAssignmentsViewModelGeneratorFixture
                 .Returns(seatTypes);
 
             var blobs = new MemoryBlobStorage();
-            this.dao = new OrderDao(blobs, new JsonTextSerializer());
+            this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), blobs, new JsonTextSerializer());
             this.sut = new SeatAssignmentsViewModelGenerator(conferenceDao.Object, blobs, new JsonTextSerializer());
 
             this.sut.Handle(new SeatAssignmentsCreated
