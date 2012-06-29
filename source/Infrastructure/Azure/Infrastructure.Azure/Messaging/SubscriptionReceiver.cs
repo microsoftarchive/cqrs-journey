@@ -338,25 +338,27 @@ namespace Infrastructure.Azure.Messaging
             switch (releaseAction.Kind)
             {
                 case MessageReleaseActionKind.Complete:
-                    msg.SafeCompleteAsync(success => 
-                    { 
-                        msg.Dispose();
-                        this.instrumentation.MessageCompleted(success);
-                        if (success)
+                    msg.SafeCompleteAsync(
+                        this.subscription,
+                        success =>
                         {
-                            this.dynamicThrottling.NotifyWorkCompleted();
-                        }
-                        else
-                        {
-                            this.dynamicThrottling.NotifyWorkCompletedWithError();
-                        }
-                    });
+                            msg.Dispose();
+                            this.instrumentation.MessageCompleted(success);
+                            if (success)
+                            {
+                                this.dynamicThrottling.NotifyWorkCompleted();
+                            }
+                            else
+                            {
+                                this.dynamicThrottling.NotifyWorkCompletedWithError();
+                            }
+                        });
                     break;
                 case MessageReleaseActionKind.Abandon:
-                    msg.SafeAbandonAsync(success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
+                    msg.SafeAbandonAsync(this.subscription, success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
                     break;
                 case MessageReleaseActionKind.DeadLetter:
-                    msg.SafeDeadLetterAsync(releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
+                    msg.SafeDeadLetterAsync(this.subscription, releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
                     break;
                 default:
                     break;

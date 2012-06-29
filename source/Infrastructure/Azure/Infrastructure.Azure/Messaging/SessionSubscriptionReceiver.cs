@@ -267,26 +267,26 @@ namespace Infrastructure.Azure.Messaging
                         }
 
                         this.receiveRetryPolicy.ExecuteAction(
-                        cb => session.BeginClose(cb, null),
-                        session.EndClose,
-                        () =>
-                        {
-                            this.instrumentation.SessionEnded();
-                            if (success)
+                            cb => session.BeginClose(cb, null),
+                            session.EndClose,
+                            () =>
                             {
-                                this.dynamicThrottling.NotifyWorkCompleted();
-                            }
-                            else
+                                this.instrumentation.SessionEnded();
+                                if (success)
+                                {
+                                    this.dynamicThrottling.NotifyWorkCompleted();
+                                }
+                                else
+                                {
+                                    this.dynamicThrottling.NotifyWorkCompletedWithError();
+                                }
+                            },
+                            ex =>
                             {
+                                this.instrumentation.SessionEnded();
+                                Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription);
                                 this.dynamicThrottling.NotifyWorkCompletedWithError();
-                            }
-                        },
-                        ex =>
-                        {
-                            this.instrumentation.SessionEnded();
-                            Trace.TraceError("An unrecoverable error occurred while trying to close a session in subscription {1}:\r\n{0}", ex, this.subscription);
-                            this.dynamicThrottling.NotifyWorkCompletedWithError();
-                        });
+                            });
                     };
 
                 if (this.requiresSequentialProcessing)
@@ -429,6 +429,7 @@ namespace Infrastructure.Azure.Messaging
             {
                 case MessageReleaseActionKind.Complete:
                     msg.SafeCompleteAsync(
+                        this.subscription,
                         operationSucceeded =>
                         {
                             msg.Dispose();
@@ -446,6 +447,7 @@ namespace Infrastructure.Azure.Messaging
                 case MessageReleaseActionKind.Abandon:
                     this.dynamicThrottling.Penalize();
                     msg.SafeAbandonAsync(
+                        this.subscription,
                         operationSucceeded =>
                         {
                             msg.Dispose();
@@ -457,6 +459,7 @@ namespace Infrastructure.Azure.Messaging
                 case MessageReleaseActionKind.DeadLetter:
                     this.dynamicThrottling.Penalize();
                     msg.SafeDeadLetterAsync(
+                        this.subscription,
                         releaseAction.DeadLetterReason,
                         releaseAction.DeadLetterDescription,
                         operationSucceeded =>
