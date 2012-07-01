@@ -181,7 +181,7 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
                 Version = 4,
             });
 
-            var lineId = dao.FindDraftOrder(orderPlacedEvent.SourceId).Lines.First().Id;
+            var seatType = dao.FindDraftOrder(orderPlacedEvent.SourceId).Lines.First().SeatType;
 
             sut.Handle(new OrderUpdated
             {
@@ -190,7 +190,7 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
                 Version = 4,
             });
 
-            Assert.Equal(lineId, dao.FindDraftOrder(orderPlacedEvent.SourceId).Lines.First().Id);
+            Assert.Equal(seatType, dao.FindDraftOrder(orderPlacedEvent.SourceId).Lines.First().SeatType);
         }
 
         [Fact]

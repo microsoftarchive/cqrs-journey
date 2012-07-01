@@ -352,14 +352,14 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [ConferenceRegistration].[OrderItemsView](
-	[Id] [uniqueidentifier] NOT NULL,
+	[OrderId] [uniqueidentifier] NOT NULL,
 	[SeatType] [uniqueidentifier] NOT NULL,
 	[RequestedSeats] [int] NOT NULL,
 	[ReservedSeats] [int] NOT NULL,
-	[DraftOrder_OrderId] [uniqueidentifier] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
-	[Id] ASC
+	[OrderId] ASC,
+	[SeatType] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
@@ -414,7 +414,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [ConferenceRegistration].[PricedOrderLines] CHECK CONSTRAINT [PricedOrder_Lines]
 GO
-ALTER TABLE [ConferenceRegistration].[OrderItemsView]  WITH CHECK ADD  CONSTRAINT [DraftOrder_Lines] FOREIGN KEY([DraftOrder_OrderId])
+ALTER TABLE [ConferenceRegistration].[OrderItemsView]  WITH CHECK ADD  CONSTRAINT [DraftOrder_Lines] FOREIGN KEY([OrderId])
 REFERENCES [ConferenceRegistration].[OrdersView] ([OrderId])
 ON DELETE CASCADE
 GO
