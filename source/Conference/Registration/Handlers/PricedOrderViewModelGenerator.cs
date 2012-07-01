@@ -89,11 +89,13 @@ namespace Registration.Handlers
 
                 var seatTypeDescriptions = GetSeatTypeDescriptions(seatTypeIds, context);
 
-                foreach (var orderLine in @event.Lines)
+                for (int i = 0; i < @event.Lines.Length; i++)
                 {
+                    var orderLine = @event.Lines[i];
                     var line = new PricedOrderLine
                     {
-                        LineTotal = orderLine.LineTotal
+                        LineTotal = orderLine.LineTotal,
+                        Position = i,
                     };
 
                     var seatOrderLine = orderLine as SeatOrderLine;

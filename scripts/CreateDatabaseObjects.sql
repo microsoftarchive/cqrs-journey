@@ -335,15 +335,16 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [ConferenceRegistration].[PricedOrderLines](
-	[LineId] [uniqueidentifier] NOT NULL,
 	[OrderId] [uniqueidentifier] NOT NULL,
+	[Position] [int] NOT NULL,
 	[Description] [nvarchar](max) NULL,
 	[UnitPrice] [decimal](18, 2) NOT NULL,
 	[Quantity] [int] NOT NULL,
 	[LineTotal] [decimal](18, 2) NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
-	[LineId] ASC
+	[OrderId] ASC,
+	[Position] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
