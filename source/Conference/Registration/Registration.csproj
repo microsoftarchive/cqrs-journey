@@ -117,6 +117,7 @@
     <Compile Include="ReadModel\Implementation\OrderDao.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
     <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />
