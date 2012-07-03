@@ -96,7 +96,7 @@ namespace Infrastructure.Azure.Messaging
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
             this.client.PrefetchCount = 50;
-           
+
             this.dynamicThrottling =
                 new DynamicThrottling(
                     maxDegreeOfParallelism: 100,
@@ -234,6 +234,10 @@ namespace Infrastructure.Azure.Messaging
                         // Check if we actually received any messages.
                         if (msg != null)
                         {
+                            var roundtripStopwatch = Stopwatch.StartNew();
+                            long schedulingElapsedMilliseconds = 0;
+                            long processingElapsedMilliseconds = 0;
+
                             Task.Factory.StartNew(() =>
                                 {
                                     var releaseAction = MessageReleaseAction.AbandonMessage;
@@ -242,10 +246,11 @@ namespace Infrastructure.Azure.Messaging
                                     {
                                         this.instrumentation.MessageReceived();
 
+                                        schedulingElapsedMilliseconds = roundtripStopwatch.ElapsedMilliseconds;
+
                                         // Make sure we are not told to stop receiving while we were waiting for a new message.
                                         if (!cancellationToken.IsCancellationRequested)
                                         {
-                                            var stopwatch = Stopwatch.StartNew();
                                             try
                                             {
                                                 try
@@ -253,19 +258,20 @@ namespace Infrastructure.Azure.Messaging
                                                     // Process the received message.
                                                     releaseAction = this.InvokeMessageHandler(msg);
 
-                                                    this.instrumentation.MessageProcessed(releaseAction.Kind == MessageReleaseActionKind.Complete, stopwatch.ElapsedMilliseconds);
+                                                    processingElapsedMilliseconds = roundtripStopwatch.ElapsedMilliseconds - schedulingElapsedMilliseconds;
+                                                    this.instrumentation.MessageProcessed(releaseAction.Kind == MessageReleaseActionKind.Complete, processingElapsedMilliseconds);
                                                 }
                                                 catch
                                                 {
-                                                    this.instrumentation.MessageProcessed(false, stopwatch.ElapsedMilliseconds);
+                                                    processingElapsedMilliseconds = roundtripStopwatch.ElapsedMilliseconds - schedulingElapsedMilliseconds;
+                                                    this.instrumentation.MessageProcessed(false, processingElapsedMilliseconds);
 
                                                     throw;
                                                 }
                                             }
                                             finally
                                             {
-                                                stopwatch.Stop();
-                                                if (stopwatch.Elapsed > TimeSpan.FromSeconds(45))
+                                                if (roundtripStopwatch.Elapsed > TimeSpan.FromSeconds(45))
                                                 {
                                                     this.dynamicThrottling.Penalize();
                                                 }
@@ -275,7 +281,7 @@ namespace Infrastructure.Azure.Messaging
                                     finally
                                     {
                                         // Ensure that any resources allocated by a BrokeredMessage instance are released.
-                                        this.ReleaseMessage(msg, releaseAction);
+                                        this.ReleaseMessage(msg, releaseAction, processingElapsedMilliseconds, schedulingElapsedMilliseconds, roundtripStopwatch);
                                     }
 
                                     if (!this.processInParallel)
@@ -333,7 +339,7 @@ namespace Infrastructure.Azure.Messaging
             receiveNext.Invoke();
         }
 
-        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction)
+        private void ReleaseMessage(BrokeredMessage msg, MessageReleaseAction releaseAction, long processingElapsedMilliseconds, long schedulingElapsedMilliseconds, Stopwatch roundtripStopwatch)
         {
             switch (releaseAction.Kind)
             {
@@ -352,13 +358,28 @@ namespace Infrastructure.Azure.Messaging
                             {
                                 this.dynamicThrottling.NotifyWorkCompletedWithError();
                             }
-                        });
+                        },
+                        processingElapsedMilliseconds,
+                        schedulingElapsedMilliseconds,
+                        roundtripStopwatch);
                     break;
                 case MessageReleaseActionKind.Abandon:
-                    msg.SafeAbandonAsync(this.subscription, success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
+                    msg.SafeAbandonAsync(
+                        this.subscription,
+                        success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); },
+                        processingElapsedMilliseconds,
+                        schedulingElapsedMilliseconds,
+                        roundtripStopwatch);
                     break;
                 case MessageReleaseActionKind.DeadLetter:
-                    msg.SafeDeadLetterAsync(this.subscription, releaseAction.DeadLetterReason, releaseAction.DeadLetterDescription, success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); });
+                    msg.SafeDeadLetterAsync(
+                        this.subscription,
+                        releaseAction.DeadLetterReason,
+                        releaseAction.DeadLetterDescription,
+                        success => { msg.Dispose(); this.instrumentation.MessageCompleted(false); this.dynamicThrottling.NotifyWorkCompletedWithError(); },
+                        processingElapsedMilliseconds,
+                        schedulingElapsedMilliseconds,
+                        roundtripStopwatch);
                     break;
                 default:
                     break;
