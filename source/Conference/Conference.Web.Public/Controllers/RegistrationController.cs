@@ -20,6 +20,7 @@ namespace Conference.Web.Public.Controllers
     using Conference.Web.Public.Models;
     using Infrastructure.Messaging;
     using Infrastructure.Tasks;
+    using Infrastructure.Utils;
     using Payments.Contracts.Commands;
     using Registration.Commands;
     using Registration.ReadModel;
@@ -54,7 +55,7 @@ namespace Conference.Web.Public.Controllers
                     .ContinueWith<ActionResult>(t =>
                     {
                         var viewModel = t.Result;
-                        viewModel.OrderId = Guid.NewGuid();
+                        viewModel.OrderId = GuidUtil.NewSequentialId();
                         return View(viewModel);
                     });
             }
@@ -284,7 +285,7 @@ namespace Conference.Web.Public.Controllers
             var paymentCommand =
                 new InitiateThirdPartyProcessorPayment
                 {
-                    PaymentId = Guid.NewGuid(),
+                    PaymentId = GuidUtil.NewSequentialId(),
                     ConferenceId = this.ConferenceAlias.Id,
                     PaymentSourceId = order.OrderId,
                     Description = description,

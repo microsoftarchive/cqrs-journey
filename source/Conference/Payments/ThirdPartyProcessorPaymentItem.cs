@@ -14,12 +14,13 @@
 namespace Payments
 {
     using System;
+    using Infrastructure.Utils;
 
     public class ThidPartyProcessorPaymentItem
     {
         public ThidPartyProcessorPaymentItem(string description, decimal amount)
         {
-            this.Id = Guid.NewGuid();
+            this.Id = GuidUtil.NewSequentialId();
 
             this.Description = description;
             this.Amount = amount;
