@@ -29,7 +29,7 @@
                                                 </xs:sequence>
                                                 <xs:attribute name="IsEventBus" type="xs:boolean" use="optional" />
                                                 <xs:attribute name="Path" type="cqrs:AzureTopicPath" use="required" />
-                                                <xs:attribute name="DuplicateDetectionHistoryTimeWindow" type="cqrs:TimeSpan" use="optional" default="01:00:00"/>
+                                                <xs:attribute name="DuplicateDetectionHistoryTimeWindow" type="cqrs:TimeSpan" use="optional" default="00:10:00"/>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
