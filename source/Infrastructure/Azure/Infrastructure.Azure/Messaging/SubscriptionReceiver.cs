@@ -253,7 +253,7 @@ namespace Infrastructure.Azure.Messaging
                                                     // Process the received message.
                                                     releaseAction = this.InvokeMessageHandler(msg);
 
-                                                    this.instrumentation.MessageProcessed(true, stopwatch.ElapsedMilliseconds);
+                                                    this.instrumentation.MessageProcessed(releaseAction.Kind == MessageReleaseActionKind.Complete, stopwatch.ElapsedMilliseconds);
                                                 }
                                                 catch
                                                 {
