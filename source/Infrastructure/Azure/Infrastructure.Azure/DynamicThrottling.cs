@@ -75,6 +75,11 @@ namespace Infrastructure.Azure
             this.availableDegreesOfParallelism = minDegreeOfParallelism;
         }
 
+        public int AvailableDegreesOfParallelism
+        {
+            get { return this.availableDegreesOfParallelism; }
+        }
+
         public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
         {
             while (this.currentParallelJobs >= this.availableDegreesOfParallelism)
