@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="AzureEventLogFixture.cs" />
     <Compile Include="BaseMessagingIntegration.cs" />
+    <Compile Include="BrokeredMessageExtensionsFixture.cs" />
     <Compile Include="EventProcessingIntegration.cs" />
     <Compile Include="EventSourcing\EventStoreFixture.cs" />
     <Compile Include="MessageProcessorIntegration.cs" />
