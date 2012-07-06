@@ -23,7 +23,7 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
     using Registration.ReadModel.Implementation;
     using Xunit;
 
-    public class given_a_read_model_generator
+    public class given_a_read_model_generator : given_a_read_model_database
     {
         protected PricedOrderViewModelGenerator sut;
         private IOrderDao dao;
@@ -31,8 +31,8 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
         public given_a_read_model_generator()
         {
             var blobStorage = new MemoryBlobStorage();
-            this.sut = new PricedOrderViewModelGenerator(blobStorage, new JsonTextSerializer());
-            this.dao = new OrderDao(blobStorage, new JsonTextSerializer());
+            this.sut = new PricedOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbName));
+            this.dao = new OrderDao(() => new ConferenceRegistrationDbContext(dbName), blobStorage, new JsonTextSerializer());
         }
 
         public class given_some_initial_seats : given_a_read_model_generator
@@ -52,20 +52,28 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
 
         public class given_a_placed_order : given_some_initial_seats
         {
-            private static readonly Guid orderId = Guid.NewGuid();
-            private static readonly DateTime expirationDate = DateTime.UtcNow;
-
-            private PricedOrder dto;
+            protected static readonly Guid orderId = Guid.NewGuid();
+            protected readonly OrderPlaced orderPlaced;
 
             public given_a_placed_order()
             {
-                this.sut.Handle(new OrderPlaced
-                                    {
-                                        SourceId = orderId,
-                                        ReservationAutoExpiration = expirationDate,
-                                        Version = 2,
-                                    });
+                this.orderPlaced = new OrderPlaced
+                {
+                    SourceId = orderId,
+                    ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10),
+                    Version = 2,
+                };
 
+                this.sut.Handle(orderPlaced);
+            }
+        }
+
+        public class when_reading_order : given_a_placed_order
+        {
+            private PricedOrder dto;
+
+            public when_reading_order()
+            {
                 this.dto = this.dao.FindPricedOrder(orderId);
             }
 
@@ -73,15 +81,25 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             public void then_creates_model_with_expiration_date_and_version()
             {
                 Assert.NotNull(dto);
-                Assert.InRange(dto.ReservationExpirationDate.Value, expirationDate.AddSeconds(-1), expirationDate.AddSeconds(1));
-                Assert.Equal(2, dto.OrderVersion);
+                Assert.InRange(dto.ReservationExpirationDate.Value, orderPlaced.ReservationAutoExpiration.AddSeconds(-1), orderPlaced.ReservationAutoExpiration.AddSeconds(1));
+                Assert.Equal(orderPlaced.Version, dto.OrderVersion);
+            }
+
+            [Fact]
+            public void then_order_placed_is_idempotent()
+            {
+                this.sut.Handle(orderPlaced);
+
+                dto = this.dao.FindPricedOrder(orderId);
+
+                Assert.NotNull(dto);
+                Assert.InRange(dto.ReservationExpirationDate.Value, orderPlaced.ReservationAutoExpiration.AddSeconds(-1), orderPlaced.ReservationAutoExpiration.AddSeconds(1));
+                Assert.Equal(orderPlaced.Version, dto.OrderVersion);
             }
         }
 
-        public class given_a_calculated_order : given_some_initial_seats
+        public class given_a_calculated_order : given_a_placed_order
         {
-            private static readonly Guid orderId = Guid.NewGuid();
-
             private PricedOrder dto;
 
             public given_a_calculated_order()
@@ -178,6 +196,17 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
             }
 
             [Fact]
+            public void expiration_is_idempotent()
+            {
+                this.sut.Handle(new OrderExpired { SourceId = orderId, Version = 15 });
+                this.sut.Handle(new OrderExpired { SourceId = orderId, Version = 15 });
+
+                this.dto = this.dao.FindPricedOrder(orderId);
+
+                Assert.Null(dto);
+            }
+
+            [Fact]
             public void when_seat_assignments_created_then_updates_order_with_assignments_id()
             {
                 var assignmentsId = Guid.NewGuid();
@@ -227,6 +256,12 @@ namespace Registration.IntegrationTests.PricedOrderViewModelGeneratorFixture
 
             public given_a_new_calculated_order()
             {
+                this.sut.Handle(new OrderPlaced
+                {
+                    SourceId = orderId,
+                    ReservationAutoExpiration = DateTime.UtcNow.AddMinutes(10),
+                    Version = 2,
+                });
                 this.sut.Handle(new OrderTotalsCalculated
                 {
                     SourceId = orderId,

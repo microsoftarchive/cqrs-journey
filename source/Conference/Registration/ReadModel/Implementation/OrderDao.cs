@@ -14,7 +14,9 @@
 namespace Registration.ReadModel.Implementation
 {
     using System;
+    using System.Data.Entity;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using Infrastructure.BlobStorage;
     using Infrastructure.Serialization;
@@ -22,29 +24,50 @@ namespace Registration.ReadModel.Implementation
 
     public class OrderDao : IOrderDao
     {
+        private readonly Func<ConferenceRegistrationDbContext> contextFactory;
         private IBlobStorage blobStorage;
         private ITextSerializer serializer;
 
-        public OrderDao(IBlobStorage blobStorage, ITextSerializer serializer)
+        public OrderDao(Func<ConferenceRegistrationDbContext> contextFactory, IBlobStorage blobStorage, ITextSerializer serializer)
         {
+            this.contextFactory = contextFactory;
             this.blobStorage = blobStorage;
             this.serializer = serializer;
         }
 
         public Guid? LocateOrder(string email, string accessCode)
         {
-            var blob = this.FindBlob<OrderLocator>(DraftOrderViewModelGenerator.GetOrderLocatorBlobId(accessCode, email));
-            return blob != null ? blob.OrderId : (Guid?)null;
+            using (var context = this.contextFactory.Invoke())
+            {
+                var orderProjection = context
+                    .Query<DraftOrder>()
+                    .Where(o => o.RegistrantEmail == email && o.AccessCode == accessCode)
+                    .Select(o => new { o.OrderId })
+                    .FirstOrDefault();
+
+                if (orderProjection != null)
+                {
+                    return orderProjection.OrderId;
+                }
+
+                return null;
+            }
         }
 
         public DraftOrder FindDraftOrder(Guid orderId)
         {
-            return FindBlob<DraftOrder>(DraftOrderViewModelGenerator.GetDraftOrderBlobId(orderId));
+            using (var context = this.contextFactory.Invoke())
+            {
+                return context.Query<DraftOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+            }
         }
 
         public PricedOrder FindPricedOrder(Guid orderId)
         {
-            return FindBlob<PricedOrder>(PricedOrderViewModelGenerator.GetPricedOrderBlobId(orderId));
+            using (var context = this.contextFactory.Invoke())
+            {
+                return context.Query<PricedOrder>().Include(x => x.Lines).FirstOrDefault(dto => dto.OrderId == orderId);
+            }
         }
 
         public OrderSeats FindOrderSeats(Guid assignmentsId)
