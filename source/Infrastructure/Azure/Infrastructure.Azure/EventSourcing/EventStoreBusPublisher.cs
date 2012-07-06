@@ -44,12 +44,11 @@ namespace Infrastructure.Azure.EventSourcing
             this.enqueuedKeys = new BlockingCollection<string>();
             this.dynamicThrottling = 
                 new DynamicThrottling(
-                    maxDegreeOfParallelism: 230,
-                    minDegreeOfParallelism: 30,
-                    retryParallelismPenalty: 3,
-                    workFailedParallelismPenalty: 10,
-                    workCompletedParallelismGain: 1,
-                    intervalForRestoringDegreeOfParallelism: 8000);
+                    minDegreeOfParallelism: 10,
+                    logProductConstant: 20,
+                    penalizeFactor: .1,
+                    workFailedPenaltyFactor: .25,
+                    intervalForRestoringParallelism: 8000);
             this.queue.Retrying += (s, e) => this.dynamicThrottling.Penalize();
             this.sender.Retrying += (s, e) => this.dynamicThrottling.Penalize();
         }

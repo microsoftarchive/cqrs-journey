@@ -99,12 +99,12 @@ namespace Infrastructure.Azure.Messaging
 
             this.dynamicThrottling =
                 new DynamicThrottling(
-                    maxDegreeOfParallelism: 100,
-                    minDegreeOfParallelism: 50,
-                    retryParallelismPenalty: 3,
-                    workFailedParallelismPenalty: 5,
-                    workCompletedParallelismGain: 1,
-                    intervalForRestoringDegreeOfParallelism: 8000);
+                    minDegreeOfParallelism: 30,
+                    logProductConstant: 15,
+                    penalizeFactor: .1,
+                    workFailedPenaltyFactor: .25,
+                    intervalForRestoringParallelism: 8000);
+
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
             this.receiveRetryPolicy.Retrying += (s, e) =>
             {

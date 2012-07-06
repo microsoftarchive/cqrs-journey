@@ -13,6 +13,7 @@
 
 namespace Infrastructure.Azure.Tests
 {
+    using System;
     using Xunit;
 
     public class DynamicThrottlingFixture
@@ -20,7 +21,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void starts_low()
         {
-            using (var sut = new DynamicThrottling(100, 10, 3, 5, 1, 8000))
+            using (var sut = new DynamicThrottling(10, 100, .1, .25, 8000))
             {
                 Assert.Equal(10, sut.AvailableDegreesOfParallelism);
             }
@@ -29,7 +30,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void increases_on_completed_work()
         {
-            using (var sut = new DynamicThrottling(100, 10, 3, 5, 1, 8000))
+            using (var sut = new DynamicThrottling(10, 100, .1, .25, 8000))
             {
                 sut.NotifyWorkStarted();
                 var startingValue = sut.AvailableDegreesOfParallelism;
@@ -43,7 +44,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void continually_increases_on_completed_work()
         {
-            using (var sut = new DynamicThrottling(100, 10, 3, 5, 1, 8000))
+            using (var sut = new DynamicThrottling(10, 100, .1, .25, 8000))
             {
                 for (int i = 0; i < 10; i++)
                 {
@@ -58,7 +59,7 @@ namespace Infrastructure.Azure.Tests
         [Fact]
         public void decreases_on_penalize()
         {
-            using (var sut = new DynamicThrottling(100, 10, 3, 5, 1, 8000))
+            using (var sut = new DynamicThrottling(10, 100, .1, .25, 8000))
             {
                 IncreaseDegreesOfParallelism(sut);
 
@@ -71,10 +72,27 @@ namespace Infrastructure.Azure.Tests
         }
 
         [Fact]
+        public void decreases_up_to_minimum()
+        {
+            using (var sut = new DynamicThrottling(10, 100, .1, .25, 8000))
+            {
+                IncreaseDegreesOfParallelism(sut);
+
+                sut.NotifyWorkStarted();
+                for (int i = 0; i < 100; i++)
+                {
+                    sut.Penalize();
+                }
+
+                Assert.Equal(10, sut.AvailableDegreesOfParallelism);
+            }
+        }
+
+        [Fact]
         public void penalize_decreases_less_than_completed_with_error()
         {
-            using (var sut1 = new DynamicThrottling(100, 10, 3, 5, 1, 8000))
-            using (var sut2 = new DynamicThrottling(100, 10, 3, 5, 1, 8000))
+            using (var sut1 = new DynamicThrottling(10, 100, .1, .25, 8000))
+            using (var sut2 = new DynamicThrottling(10, 100, .1, .25, 8000))
             {
                 IncreaseDegreesOfParallelism(sut1);
                 IncreaseDegreesOfParallelism(sut2);
@@ -86,6 +104,15 @@ namespace Infrastructure.Azure.Tests
                 sut2.NotifyWorkCompletedWithError();
 
                 Assert.True(sut1.AvailableDegreesOfParallelism > sut2.AvailableDegreesOfParallelism);
+            }
+        }
+
+        public void output_how_growth_function_would_behave()
+        {
+            var function = DynamicThrottling.GetLogarithmicGrowth(30, 10);
+            for (int i = 1; i < 1001; i = i + 10)
+            {
+                Console.WriteLine(i + ": " + function(i));
             }
         }
 

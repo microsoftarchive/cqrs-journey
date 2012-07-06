@@ -16,80 +16,82 @@ namespace Infrastructure.Azure
     using System;
     using System.Threading;
 
+    /// <summary>
+    /// Provides a way to throttle the work depending on the number of jobs it is able to complete and whether
+    /// the job is penalized for trying to parallelize too many jobs.
+    /// It uses a logarithmic growth function.
+    /// </summary>
     public class DynamicThrottling : IDisposable
     {
-        // configuration
+        private const long MaxValue = 10000000000000;
 
         /// <summary>
-        /// Maximum number of parallel jobs.
+        /// The growth function to determine available degree of parallelism.
         /// </summary>
-        private readonly int maxDegreeOfParallelism;
-
-        /// <summary>
-        /// Minimum number of parallel jobs.
-        /// </summary>
-        private readonly int minDegreeOfParallelism;
-
-        /// <summary>
-        /// Number of degrees of parallelism to remove on retrying.
-        /// </summary>
-        private readonly int retryParallelismPenalty;
-
-        /// <summary>
-        /// Number of degrees of parallelism to remove when work fails.
-        /// </summary>
-        private readonly int workFailedParallelismPenalty;
-
-        /// <summary>
-        /// Number of degrees of parallelism to restore on work completed.
-        /// </summary>
-        private readonly int workCompletedParallelismGain;
-
-        /// <summary>
-        /// Interval in milliseconds to restore 1 degree of parallelism.
-        /// </summary>
-        private readonly int intervalForRestoringDegreeOfParallelism;
+        private readonly Func<long, int> growthFunction;
+        private readonly double penalizeFactorSubtraction;
+        private readonly double workFailedPenaltyFactorSubtraction;
+        private readonly int intervalForRestoringParallelism;
 
         private readonly AutoResetEvent waitHandle = new AutoResetEvent(true);
         private readonly Timer parallelismRestoringTimer;
 
         private int currentParallelJobs = 0;
-        private int availableDegreesOfParallelism;
-
+        private long currentValue;
+        /// <summary>
+        /// Initializes a new instance of <see cref="DynamicThrottling"/>.
+        /// </summary>
+        /// <param name="minDegreeOfParallelism">The minimum degree of parallelism.</param>
+        /// <param name="logProductConstant">The constant to use when calculating the logarithmic growth.</param>
+        /// <param name="penalizeFactor">The factor used to slightly penalize throttling.</param>
+        /// <param name="workFailedPenaltyFactor">The factor used to heavily penalize throttling when work completed with failure.</param>
+        /// <param name="intervalForRestoringParallelism">Time in milliseconds to restore 1 parallelism value.</param>
         public DynamicThrottling(
-            int maxDegreeOfParallelism, 
             int minDegreeOfParallelism,
-            int retryParallelismPenalty,
-            int workFailedParallelismPenalty,
-            int workCompletedParallelismGain,
-            int intervalForRestoringDegreeOfParallelism)
+            int logProductConstant,
+            double penalizeFactor,
+            double workFailedPenaltyFactor,
+            int intervalForRestoringParallelism)
         {
-            this.maxDegreeOfParallelism = maxDegreeOfParallelism;
-            this.minDegreeOfParallelism = minDegreeOfParallelism;
-            this.retryParallelismPenalty = retryParallelismPenalty;
-            this.workFailedParallelismPenalty = workFailedParallelismPenalty;
-            this.workCompletedParallelismGain = workCompletedParallelismGain;
-            this.intervalForRestoringDegreeOfParallelism = intervalForRestoringDegreeOfParallelism;
-            this.parallelismRestoringTimer = new Timer(s => this.IncrementDegreesOfParallelism(1));
+            this.growthFunction = GetLogarithmicGrowth(minDegreeOfParallelism, logProductConstant);
+            if (penalizeFactor > 1) throw new ArgumentOutOfRangeException("penalizeFactor");
+            if (workFailedPenaltyFactor > 1) throw new ArgumentOutOfRangeException("workFailedPenaltyFactor");
+            
+            this.penalizeFactorSubtraction = 1 - penalizeFactor;
+            this.workFailedPenaltyFactorSubtraction = 1- workFailedPenaltyFactor;
+            this.intervalForRestoringParallelism = intervalForRestoringParallelism;
+            
+            this.parallelismRestoringTimer = new Timer(s => this.OnRestoringTimerTick());
 
-            this.availableDegreesOfParallelism = minDegreeOfParallelism;
+            this.currentValue = 1;
         }
+
+        public static Func<long, int> GetLogarithmicGrowth(int minimum, double constant)
+        {
+            if (minimum < 1) throw new ArgumentOutOfRangeException("minimum");
+            if (constant < 0) throw new ArgumentOutOfRangeException("constant");
+
+            var offset = -LogarithmicGrowth(0, constant, 1) + minimum;
+            return (long value) => LogarithmicGrowth(offset, constant, value > 1 ? value : 1);
+        }
+
+        private static Func<double, double, long, int> LogarithmicGrowth =
+            (offset, constant, value) => (int)(offset + (constant * Math.Log(value + 4)));
+
 
         public int AvailableDegreesOfParallelism
         {
-            get { return this.availableDegreesOfParallelism; }
+            get { return this.growthFunction(this.currentValue); }
         }
 
         public void WaitUntilAllowedParallelism(CancellationToken cancellationToken)
         {
-            while (this.currentParallelJobs >= this.availableDegreesOfParallelism)
+            while (this.currentParallelJobs >= this.AvailableDegreesOfParallelism)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return;
                 }
-
-                // Trace.WriteLine("Waiting for available degrees of parallelism. Available: " + this.availableDegreesOfParallelism + ". In use: " + this.currentParallelJobs);
 
                 this.waitHandle.WaitOne();
             }
@@ -98,8 +100,12 @@ namespace Infrastructure.Azure
         public void NotifyWorkCompleted()
         {
             Interlocked.Decrement(ref this.currentParallelJobs);
-            // Trace.WriteLine("Job finished. Parallel jobs are now: " + this.currentParallelJobs);
-            IncrementDegreesOfParallelism(workCompletedParallelismGain);
+            if (this.currentValue < MaxValue)
+            {
+                this.currentValue++;
+            }
+
+            this.waitHandle.Set();
         }
 
         public void NotifyWorkStarted()
@@ -111,13 +117,13 @@ namespace Infrastructure.Azure
         public void Penalize()
         {
             // Slightly penalize with removal of some degrees of parallelism.
-            this.DecrementDegreesOfParallelism(retryParallelismPenalty);
+            this.DecrementCurrentValue(penalizeFactorSubtraction);
         }
 
         public void NotifyWorkCompletedWithError()
         {
             // Largely penalize with removal of several degrees of parallelism.
-            this.DecrementDegreesOfParallelism(workFailedParallelismPenalty);
+            this.DecrementCurrentValue(workFailedPenaltyFactorSubtraction);
             Interlocked.Decrement(ref this.currentParallelJobs);
             // Trace.WriteLine("Job finished with error. Parallel jobs are now: " + this.currentParallelJobs);
             this.waitHandle.Set();
@@ -130,7 +136,7 @@ namespace Infrastructure.Azure
                 cancellationToken.Register(() => this.parallelismRestoringTimer.Change(Timeout.Infinite, Timeout.Infinite));
             }
 
-            this.parallelismRestoringTimer.Change(intervalForRestoringDegreeOfParallelism, intervalForRestoringDegreeOfParallelism);
+            this.parallelismRestoringTimer.Change(intervalForRestoringParallelism, intervalForRestoringParallelism);
         }
 
         public void Dispose()
@@ -148,29 +154,24 @@ namespace Infrastructure.Azure
             }
         }
 
-        private void IncrementDegreesOfParallelism(int count)
+        private void OnRestoringTimerTick()
         {
-            if (this.availableDegreesOfParallelism < maxDegreeOfParallelism)
+            // Slightly restore degrees of parallelism if the value is low.
+            if (this.currentValue < 100)
             {
-                this.availableDegreesOfParallelism += count;
-                if (this.availableDegreesOfParallelism >= maxDegreeOfParallelism)
-                {
-                    this.availableDegreesOfParallelism = maxDegreeOfParallelism;
-                    // Trace.WriteLine("Incremented available degrees of parallelism. Available: " + this.availableDegreesOfParallelism);
-                }
+                this.currentValue++;
             }
 
             this.waitHandle.Set();
         }
 
-        private void DecrementDegreesOfParallelism(int count)
+        private void DecrementCurrentValue(double penalty)
         {
-            this.availableDegreesOfParallelism -= count;
-            if (this.availableDegreesOfParallelism < minDegreeOfParallelism)
+            this.currentValue = (long)(((double)this.currentValue) * penalty);
+            if (this.currentValue < 1)
             {
-                this.availableDegreesOfParallelism = minDegreeOfParallelism;
+                this.currentValue = 1;
             }
-            // Trace.WriteLine("Decremented available degrees of parallelism. Available: " + this.availableDegreesOfParallelism);
         }
     }
 }
