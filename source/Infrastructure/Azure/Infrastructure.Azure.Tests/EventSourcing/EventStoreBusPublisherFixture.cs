@@ -237,20 +237,18 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         }
 
         [Fact]
-        public void when_send_takes_time_then_still_publishes_events_concurrently_with_fixed_max_degree_of_parallelism()
+        public void when_send_takes_time_then_still_publishes_events_concurrently_with_throttling()
         {
-            var degreeOfParallelism = 130;
-
             this.sender.ShouldWaitForCallback = true;
             for (int i = 0; i < partitionKeys.Length; i++)
             {
                 this.sut.SendAsync(partitionKeys[i], 0);
             }
 
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
 
-            Assert.Equal(degreeOfParallelism, sender.Sent.Count);
-            Assert.Equal(degreeOfParallelism, sender.AsyncSuccessCallbacks.Count);
+            Assert.True(sender.Sent.Count < partitionKeys.Length);
+            Assert.True(sender.AsyncSuccessCallbacks.Count < partitionKeys.Length);
 
             this.sender.ShouldWaitForCallback = false;
             foreach (var callback in sender.AsyncSuccessCallbacks)
