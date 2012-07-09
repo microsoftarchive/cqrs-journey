@@ -86,6 +86,8 @@ if ($nugetExists -eq 0)
 	Copy-Item $nugetOriginal -Destination $nuget -Force
 }
 
+$env:EnableNuGetPackageRestore=$true
+
 for($i=0; $i -lt $solutionFolders.Length; $i++)
 {
     pushd $solutionFolders[$i]
