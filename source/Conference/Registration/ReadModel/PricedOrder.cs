@@ -15,17 +15,18 @@ namespace Registration.ReadModel
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel.DataAnnotations;
 
     public class PricedOrder
     {
         public PricedOrder()
         {
-            this.Lines = new List<PricedOrderLine>();
+            this.Lines = new ObservableCollection<PricedOrderLine>();
         }
 
+        [Key]
         public Guid OrderId { get; set; }
-
-        public Guid ConferenceId { get; set; }
 
         /// <summary>
         /// Used for correlating with the seat assigmnents.
@@ -46,6 +47,7 @@ namespace Registration.ReadModel
             this.LineId = Guid.NewGuid();
         }
 
+        [Key]
         public Guid LineId { get; set; }
         public Guid OrderId { get; set; }
         public string Description { get; set; }
