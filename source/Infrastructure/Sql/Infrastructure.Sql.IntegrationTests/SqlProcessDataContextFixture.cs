@@ -17,6 +17,8 @@ namespace Infrastructure.Sql.IntegrationTests
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Infrastructure.Messaging;
     using Infrastructure.Processes;
     using Infrastructure.Serialization;
@@ -26,7 +28,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
     public class SqlProcessDataContextFixture : IDisposable
     {
-        private readonly string dbName = typeof(SqlProcessDataContextFixture).Name + "-" + Guid.NewGuid();
+        protected readonly string dbName = typeof(SqlProcessDataContextFixture).Name + "-" + Guid.NewGuid();
 
         public SqlProcessDataContextFixture()
         {
@@ -222,7 +224,7 @@ namespace Infrastructure.Sql.IntegrationTests
         }
 
         [Fact]
-        public void WhenCommandPublishingThrowsPartiallyOnFind_ThenPublishesPendingCommandOnNextFind()
+        public void WhenCommandPublishingThrowsPartiallyOnSave_ThenPublishesPendingCommandOnNextFind()
         {
             var bus = new Mock<ICommandBus>();
             var command1 = new Envelope<ICommand>(new TestCommand());
@@ -288,6 +290,174 @@ namespace Infrastructure.Sql.IntegrationTests
                 this.Id = Guid.NewGuid();
             }
             public Guid Id { get; set; }
+        }
+    }
+
+    public class given_context_that_stalls_on_save_and_on_find_when_publishing_ : SqlProcessDataContextFixture
+    {
+        protected TestCommand command1;
+        protected TestCommand command2;
+        protected TestCommand command3;
+        protected Mock<ICommandBus> bus1;
+        protected List<Exception> exceptions;
+        protected ManualResetEvent saveFinished;
+        protected AutoResetEvent sendContinueResetEvent1;
+        protected AutoResetEvent sendStartedResetEvent1;
+        protected Mock<ICommandBus> bus2;
+        protected AutoResetEvent sendContinueResetEvent2;
+        protected AutoResetEvent sendStartedResetEvent2;
+        protected ManualResetEvent findAndSaveFinished;
+
+        public given_context_that_stalls_on_save_and_on_find_when_publishing_()
+        {
+            this.bus1 = new Mock<ICommandBus>();
+            this.command1 = new TestCommand();
+            this.command2 = new TestCommand();
+            this.command3 = new TestCommand();
+            var id = Guid.NewGuid();
+            this.exceptions = new List<Exception>();
+
+            this.saveFinished = new ManualResetEvent(false);
+            this.sendContinueResetEvent1 = new AutoResetEvent(false);
+            this.sendStartedResetEvent1 = new AutoResetEvent(false);
+            this.bus1.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)))
+                .Callback(() => { sendStartedResetEvent1.Set(); sendContinueResetEvent1.WaitOne(); });
+
+            Task.Factory.StartNew(() =>
+            {
+                using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus1.Object, new JsonTextSerializer()))
+                {
+                    var aggregate = new OrmTestProcess(id);
+                    aggregate.AddEnvelope(new Envelope<ICommand>(command1), new Envelope<ICommand>(command2), new Envelope<ICommand>(command3));
+
+                    context.Save(aggregate);
+                }
+            }).ContinueWith(t => exceptions.Add(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted)
+            .ContinueWith(t => saveFinished.Set());
+
+            Assert.True(sendStartedResetEvent1.WaitOne(3000));
+
+            this.bus2 = new Mock<ICommandBus>();
+            this.sendContinueResetEvent2 = new AutoResetEvent(false);
+            this.sendStartedResetEvent2 = new AutoResetEvent(false);
+            bus2.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)))
+                .Callback(() => { sendStartedResetEvent2.Set(); sendContinueResetEvent2.WaitOne(); });
+
+            this.findAndSaveFinished = new ManualResetEvent(false);
+
+            Task.Factory.StartNew(() =>
+            {
+                using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus2.Object, new JsonTextSerializer()))
+                {
+                    var entity = context.Find(id);
+                    context.Save(entity);
+                }
+            }).ContinueWith(t => exceptions.Add(t.Exception.InnerException), TaskContinuationOptions.OnlyOnFaulted)
+            .ContinueWith(t => findAndSaveFinished.Set());
+        }
+
+        [Fact]
+        public void when_save_finishes_sending_first_then_find_ignores_concurrency_exception_and_refreshes_context()
+        {
+            Assert.True(sendStartedResetEvent2.WaitOne(3000));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            sendContinueResetEvent1.Set();
+            Assert.True(saveFinished.WaitOne(3000));
+
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+
+            sendContinueResetEvent2.Set();
+            Assert.True(findAndSaveFinished.WaitOne(3000));
+
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+
+            Assert.Equal(0, exceptions.Count);
+        }
+
+        [Fact]
+        public void when_find_finishes_publishing_first_then_save_ignores_concurrency_exception()
+        {
+            Assert.True(sendStartedResetEvent2.WaitOne(3000));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            sendContinueResetEvent2.Set();
+            Assert.True(findAndSaveFinished.WaitOne(3000));
+
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+
+            sendContinueResetEvent1.Set();
+            Assert.True(saveFinished.WaitOne(3000));
+
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+
+            Assert.Equal(0, exceptions.Count);
+        }
+
+        [Fact]
+        public void when_save_throws_sending_first_then_find_ignores_concurrency_exception_and_refreshes_context()
+        {
+            bus1.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id))).Throws<TimeoutException>();
+
+            Assert.True(sendStartedResetEvent2.WaitOne(3000));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            sendContinueResetEvent1.Set();
+            Assert.True(saveFinished.WaitOne(3000));
+            
+            sendContinueResetEvent2.Set();
+            Assert.True(findAndSaveFinished.WaitOne(3000));
+
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+
+            Assert.Equal(1, exceptions.Count);
+            Assert.IsAssignableFrom<TimeoutException>(exceptions[0]);
+        }
+
+        [Fact]
+        public void when_save_throws_sending_after_find_sent_everything_then_ignores_concurrency_exception_and_surfaces_original()
+        {
+            bus1.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id))).Throws<TimeoutException>();
+
+            Assert.True(sendStartedResetEvent2.WaitOne(3000));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command1.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)), Times.Never());
+
+            sendContinueResetEvent2.Set();
+            Assert.True(findAndSaveFinished.WaitOne(3000));
+
+            sendContinueResetEvent1.Set();
+            Assert.True(saveFinished.WaitOne(3000));
+
+            bus1.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+            bus2.Verify(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Id)));
+
+            Assert.Equal(1, exceptions.Count);
+            Assert.IsAssignableFrom<TimeoutException>(exceptions[0]);
         }
     }
 

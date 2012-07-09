@@ -70,7 +70,22 @@ namespace Infrastructure.Sql.Processes
             {
                 // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
                 var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
-                this.DispatchMessages(undispatchedMessages);
+                try
+                {
+                    this.DispatchMessages(undispatchedMessages);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // if another thread already dispatched the messages, ignore
+                    Trace.TraceWarning("Concurrency exception while marking commands as dispatched for process manager with ID {0} in Find method.", process.Id);
+                    
+                    this.context.Entry(undispatchedMessages).Reload();
+
+                    undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+                    // undispatchedMessages should be null, as we do not have a rowguid to do optimistic locking, other than when the row is deleted.
+                    // Nevertheless, we try dispatching just in case the DB schema is changed to provide optimistic locking.
+                    this.DispatchMessages(undispatchedMessages);
+                }
 
                 if (!process.Completed || includeCompleted)
                 {
@@ -109,7 +124,15 @@ namespace Infrastructure.Sql.Processes
                 throw new ConcurrencyException(e.Message, e);
             }
 
-            this.DispatchMessages(undispatched, commands);
+            try
+            {
+                this.DispatchMessages(undispatched, commands);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // if another thread already dispatched the messages, ignore
+                Trace.TraceWarning("Ignoring concurrency exception while marking commands as dispatched for process manager with ID {0} in Save method.", process.Id);
+            }
         }
 
         private void DispatchMessages(UndispatchedMessages undispatched, List<Envelope<ICommand>> deserializedCommands = null)
@@ -129,10 +152,6 @@ namespace Infrastructure.Sql.Processes
                         this.commandBus.Send(deserializedCommands.First());
                         deserializedCommands.RemoveAt(0);
                     }
-
-                    // we remove all the undispatched messages for this process
-                    this.context.Set<UndispatchedMessages>().Remove(undispatched);
-                    this.retryPolicy.ExecuteAction(() => this.context.SaveChanges());
                 }
                 catch (Exception)
                 {
@@ -141,11 +160,22 @@ namespace Infrastructure.Sql.Processes
                     {
                         // if we were able to send some commands, then updates the undispatched messages.
                         undispatched.Commands = this.serializer.Serialize(deserializedCommands);
-                        this.context.SaveChanges();
+                        try
+                        {
+                            this.context.SaveChanges();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            // if another thread already dispatched the messages, ignore and surface original exception instead
+                        }
                     }
 
                     throw;
                 }
+
+                // we remove all the undispatched messages for this process manager.
+                this.context.Set<UndispatchedMessages>().Remove(undispatched);
+                this.retryPolicy.ExecuteAction(() => this.context.SaveChanges());
             }
         }
 
