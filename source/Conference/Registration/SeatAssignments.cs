@@ -18,6 +18,7 @@ namespace Registration
     using System.Linq;
     using AutoMapper;
     using Infrastructure.EventSourcing;
+    using Infrastructure.Utils;
     using Registration.Events;
 
     public class SeatAssignments : EventSourced
@@ -49,7 +50,7 @@ namespace Registration
         /// <param name="seats">The order seats.</param>
         public SeatAssignments(Guid orderId, IEnumerable<SeatQuantity> seats)
             // Note that we don't use the order id as the assignments id
-            : this(Guid.NewGuid())
+            : this(GuidUtil.NewSequentialId())
         {
             // Add as many assignments as seats there are.
             var i = 0;

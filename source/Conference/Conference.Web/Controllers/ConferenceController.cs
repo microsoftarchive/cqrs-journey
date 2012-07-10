@@ -17,6 +17,7 @@ namespace Conference.Web.Admin.Controllers
     using System.Data;
     using System.Web.Mvc;
     using AutoMapper;
+    using Infrastructure.Utils;
 
     public class ConferenceController : Controller
     {
@@ -114,7 +115,7 @@ namespace Conference.Web.Admin.Controllers
             {
                 try
                 {
-                    conference.Id = Guid.NewGuid();
+                    conference.Id = GuidUtil.NewSequentialId();
                     this.Service.CreateConference(conference);
                 }
                 catch (DuplicateNameException e)
@@ -221,7 +222,7 @@ namespace Conference.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                seat.Id = Guid.NewGuid();
+                seat.Id = GuidUtil.NewSequentialId();
                 this.Service.CreateSeat(this.Conference.Id, seat);
 
                 return PartialView("SeatGrid", new SeatType[] { seat });

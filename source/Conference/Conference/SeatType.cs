@@ -15,12 +15,13 @@ namespace Conference
 {
     using System;
     using System.ComponentModel.DataAnnotations;
+    using Infrastructure.Utils;
 
     public class SeatType
     {
         public SeatType()
         {
-            this.Id = Guid.NewGuid();
+            this.Id = GuidUtil.NewSequentialId();
         }
 
         public Guid Id { get; set; }

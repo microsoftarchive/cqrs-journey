@@ -86,6 +86,7 @@
     <Compile Include="StandardMetadata.cs" />
     <Compile Include="StandardMetadataProvider.cs" />
     <Compile Include="Tasks\TimerTaskFactory.cs" />
+    <Compile Include="Utils\GuidUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
