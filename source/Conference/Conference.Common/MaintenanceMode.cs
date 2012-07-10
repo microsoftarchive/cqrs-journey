@@ -13,9 +13,8 @@
 
 namespace Conference.Common
 {
-#if AZURESDK
     using System;
-#endif
+    using Microsoft.WindowsAzure;
 
     public class MaintenanceMode
     {
@@ -25,28 +24,9 @@ namespace Conference.Common
 
         public static void RefreshIsInMaintainanceMode()
         {
-#if AZURESDK
-            if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
-            {
-                try
-                {
-                    var settingValue = Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.GetConfigurationSettingValue(MaintenanceModeSettingName);
-                    IsInMaintainanceMode = (!string.IsNullOrEmpty(settingValue) &&
-                                            string.Equals(settingValue, "true", StringComparison.OrdinalIgnoreCase));
-                }
-                catch (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironmentException)
-                {
-                    // setting does not exist, assume is not in maintenance mode.
-                    IsInMaintainanceMode = false;
-                }
-            }
-            else
-            {
-#endif
-                IsInMaintainanceMode = false;
-#if AZURESDK
-            }
-#endif
+            var settingValue = CloudConfigurationManager.GetSetting(MaintenanceModeSettingName);
+            IsInMaintainanceMode = (!string.IsNullOrEmpty(settingValue) &&
+                                    string.Equals(settingValue, "true", StringComparison.OrdinalIgnoreCase));
         }
     }
 }
