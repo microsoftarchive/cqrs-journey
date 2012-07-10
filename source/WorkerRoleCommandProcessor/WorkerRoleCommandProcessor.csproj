@@ -46,7 +46,9 @@
     <StartupObject />
   </PropertyGroup>
   <!-- Begin Azure SDK specific conditionals -->
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Azure.properties))\Azure.properties" />
+  <PropertyGroup>
+      <AzureRuntimeAvailable>$(SolutionName.EndsWith('NoAzureSDK').Equals(false))</AzureRuntimeAvailable>
+  </PropertyGroup>
   <PropertyGroup Condition="$(AzureRuntimeAvailable) == 'true'">
     <DefineConstants>$(DefineConstants);AZURESDK</DefineConstants>
   </PropertyGroup>
