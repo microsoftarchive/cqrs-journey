@@ -19,6 +19,7 @@ namespace Conference
     using System.ComponentModel.DataAnnotations;
     using Common.Utils;
     using Conference.Properties;
+    using Infrastructure.Utils;
 
     /// <summary>
     /// Editable information about a conference.
@@ -61,7 +62,7 @@ namespace Conference
     {
         public ConferenceInfo()
         {
-            this.Id = Guid.NewGuid();
+            this.Id = GuidUtil.NewSequentialId();
             this.Seats = new ObservableCollection<SeatType>();
             this.AccessCode = HandleGenerator.Generate(6);
         }

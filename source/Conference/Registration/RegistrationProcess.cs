@@ -20,6 +20,7 @@ namespace Registration
     using System.Linq;
     using Infrastructure.Messaging;
     using Infrastructure.Processes;
+    using Infrastructure.Utils;
     using Payments.Contracts.Events;
     using Registration.Commands;
     using Registration.Events;
@@ -40,7 +41,7 @@ namespace Registration
 
         public RegistrationProcess()
         {
-            this.Id = Guid.NewGuid();
+            this.Id = GuidUtil.NewSequentialId();
         }
 
         public Guid Id { get; private set; }
