@@ -13,14 +13,18 @@
 
 namespace Conference.Common.Entity
 {
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Data.Common;
     using System.Data.Entity.Infrastructure;
+    using System.Linq;
     using Microsoft.WindowsAzure;
 
     public class ServiceConfigurationSettingConnectionFactory : IDbConnectionFactory
     {
-        private IDbConnectionFactory parent;
+        private readonly object lockObject = new object();
+        private readonly IDbConnectionFactory parent;
+        private Dictionary<string, string> cachedConnectionStringsMap = new Dictionary<string, string>();
 
         public ServiceConfigurationSettingConnectionFactory(IDbConnectionFactory parent)
         {
@@ -32,25 +36,40 @@ namespace Conference.Common.Entity
             string connectionString = null;
             if (!IsConnectionString(nameOrConnectionString))
             {
-                var connectionStringName = "DbContext." + nameOrConnectionString;
-                var settingValue = CloudConfigurationManager.GetSetting(connectionStringName);
-                if (!string.IsNullOrEmpty(settingValue))
+                if (!this.cachedConnectionStringsMap.TryGetValue(nameOrConnectionString, out connectionString))
                 {
-                    connectionString = settingValue;
-                }
-
-                if (connectionString == null)
-                {
-                    try
+                    lock (this.lockObject)
                     {
-                        var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
-                        if (connectionStringSettings != null)
+                        if (!this.cachedConnectionStringsMap.TryGetValue(nameOrConnectionString, out connectionString))
                         {
-                            connectionString = connectionStringSettings.ConnectionString;
+                            var connectionStringName = "DbContext." + nameOrConnectionString;
+                            var settingValue = CloudConfigurationManager.GetSetting(connectionStringName);
+                            if (!string.IsNullOrEmpty(settingValue))
+                            {
+                                connectionString = settingValue;
+                            }
+
+                            if (connectionString == null)
+                            {
+                                try
+                                {
+                                    var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
+                                    if (connectionStringSettings != null)
+                                    {
+                                        connectionString = connectionStringSettings.ConnectionString;
+                                    }
+                                }
+                                catch (ConfigurationErrorsException)
+                                {
+                                }
+                            }
+
+                            var immutableDictionary = this.cachedConnectionStringsMap
+                                .Concat(new[] { new KeyValuePair<string, string>(nameOrConnectionString, connectionString) })
+                                .ToDictionary(x => x.Key, x => x.Value);
+
+                            this.cachedConnectionStringsMap = immutableDictionary;
                         }
-                    }
-                    catch (ConfigurationErrorsException)
-                    {
                     }
                 }
             }
