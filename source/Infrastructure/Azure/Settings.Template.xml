@@ -13,9 +13,11 @@
         <Subscription Name="sessionless" RequiresSession="false" SqlFilter="TypeName NOT IN ('AddSeats','RemoveSeats','MakeSeatReservation','CommitSeatReservation','CancelSeatReservation')" />
         <Subscription Name="seatsavailability" RequiresSession="true" SqlFilter="TypeName IN ('AddSeats','RemoveSeats','MakeSeatReservation','CommitSeatReservation','CancelSeatReservation')" />
         <Subscription Name="log" RequiresSession="false"/>
-        
-        <!-- stop using this subscription -->
-        <Subscription Name="all" RequiresSession="false" SqlFilter="1=0"/>
+
+        <MigrationSupport>
+          <!-- stop using this subscription -->
+          <UpdateSubscriptionIfExists Name="all" SqlFilter="1=0"/>
+        </MigrationSupport>
       </Topic>
       <Topic Path="conference/events" IsEventBus="true">
         <Subscription Name="log" RequiresSession="false"/>
@@ -27,9 +29,11 @@
         <Subscription Name="Registration.SeatAssignmentsViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
         <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderConfirmed','OrderPaymentConfirmed')"/>
         <Subscription Name="Conference.OrderEventHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderRegistrantAssigned','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatAssigned','SeatAssignmentUpdated','SeatUnassigned')"/>
-        
-        <!-- stop using this subscription -->
-        <Subscription Name="Registration.RegistrationProcessRouter" RequiresSession="true" SqlFilter="1=0"/>
+
+        <MigrationSupport>
+          <!-- stop using this subscription -->
+          <UpdateSubscriptionIfExists Name="Registration.RegistrationProcessRouter" SqlFilter="1=0"/>
+        </MigrationSupport>
       </Topic>
     </Topics>
   </ServiceBus>

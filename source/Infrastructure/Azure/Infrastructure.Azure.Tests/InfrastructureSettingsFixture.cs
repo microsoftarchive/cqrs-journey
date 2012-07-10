@@ -29,7 +29,8 @@ namespace Infrastructure.Azure.Tests
 
             Assert.NotNull(settings);
             Assert.Equal(2, settings.Topics.Count);
-            Assert.Equal(4, settings.Topics[0].Subscriptions.Count);
+            Assert.Equal(3, settings.Topics[0].Subscriptions.Count);
+            Assert.Equal(1, settings.Topics[0].MigrationSupport.Count);
         }
 
         [Fact]
