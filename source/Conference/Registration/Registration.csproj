@@ -93,6 +93,7 @@
     <Compile Include="Commands\MakeSeatReservation.cs" />
     <Compile Include="Commands\AddSeats.cs" />
     <Compile Include="Commands\RemoveSeats.cs" />
+    <Compile Include="Database\RegistrationProcessDbContextInitializer.cs" />
     <Compile Include="Database\RegistrationProcessDbContext.cs" />
     <Compile Include="Events\AvailableSeatsChanged.cs" />
     <Compile Include="Events\SeatsReservationCancelled.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="ReadModel\Implementation\OrderDao.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContextInitializer.cs" />
     <Compile Include="ReadModel\OrderSeat.cs" />
     <Compile Include="ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
     <Compile Include="ReadModel\IOrderDao.cs" />

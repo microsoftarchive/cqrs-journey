@@ -74,6 +74,16 @@ namespace DatabaseInitializer
                 context.Dispose();
             }
 
+            using (var context = new ConferenceRegistrationDbContext(connectionString))
+            {
+                ConferenceRegistrationDbContextInitializer.CreateIndexes(context);
+            }
+
+            using (var context = new RegistrationProcessDbContext(connectionString))
+            {
+                RegistrationProcessDbContextInitializer.CreateIndexes(context);
+            }
+
             using (var context = new PaymentsDbContext(connectionString))
             {
                 PaymentsReadDbContextInitializer.CreateViews(context);
