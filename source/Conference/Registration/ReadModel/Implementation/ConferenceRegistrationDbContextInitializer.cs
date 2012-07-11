@@ -11,46 +11,34 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel
+namespace Registration.ReadModel.Implementation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel.DataAnnotations;
+    using System.Data.Entity;
+    using System.Linq;
 
-    public class PricedOrder
+    public class ConferenceRegistrationDbContextInitializer : IDatabaseInitializer<ConferenceRegistrationDbContext>
     {
-        public PricedOrder()
+        private IDatabaseInitializer<ConferenceRegistrationDbContext> innerInitializer;
+
+        public ConferenceRegistrationDbContextInitializer(IDatabaseInitializer<ConferenceRegistrationDbContext> innerInitializer)
         {
-            this.Lines = new ObservableCollection<PricedOrderLine>();
+            this.innerInitializer = innerInitializer;
         }
 
-        [Key]
-        public Guid OrderId { get; set; }
-
-        /// <summary>
-        /// Used for correlating with the seat assigmnents.
-        /// </summary>
-        public Guid? AssignmentsId { get; set; }
-
-        public IList<PricedOrderLine> Lines { get; set; }
-        public decimal Total { get; set; }
-        public int OrderVersion { get; set; }
-        public bool IsFreeOfCharge { get; set; }
-        public DateTime? ReservationExpirationDate { get; set; }
-    }
-
-    public class PricedOrderLine
-    {
-        public PricedOrderLine()
+        public void InitializeDatabase(ConferenceRegistrationDbContext context)
         {
+            this.innerInitializer.InitializeDatabase(context);
+
+            CreateIndexes(context);
+
+            context.SaveChanges();
         }
 
-        public Guid OrderId { get; set; }
-        public int Position { get; set; }
-        public string Description { get; set; }
-        public decimal UnitPrice { get; set; }
-        public int Quantity { get; set; }
-        public decimal LineTotal { get; set; }
+        public static void CreateIndexes(DbContext context)
+        {
+            context.Database.ExecuteSqlCommand(@"
+IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'IX_SeatTypesView_ConferenceId')
+CREATE NONCLUSTERED INDEX IX_SeatTypesView_ConferenceId ON [" + ConferenceRegistrationDbContext.SchemaName + "].[ConferenceSeatTypesView]( ConferenceId )");
+        }
     }
 }
