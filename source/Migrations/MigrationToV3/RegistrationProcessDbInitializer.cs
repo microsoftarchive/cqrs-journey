@@ -16,6 +16,7 @@ namespace MigrationToV3
     using System.Data.Entity;
     using System.Data.SqlClient;
     using Registration.Database;
+    using Registration.ReadModel.Implementation;
 
     /// <summary>
     /// This initializer automatically creates the new UndispatchedMessages introduced in V3. 
@@ -61,7 +62,6 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'Co
     ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
         [TimeStamp] [timestamp] NOT NULL
 ");
-                // TODO ADD INDEXES
             }
             catch (SqlException e)
             {
@@ -70,6 +70,8 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'Co
                     throw;
                 }
             }
+
+            ConferenceRegistrationDbContextInitializer.CreateIndexes(context);
         }
     }
 }
