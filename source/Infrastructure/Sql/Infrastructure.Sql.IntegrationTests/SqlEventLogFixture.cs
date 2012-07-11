@@ -16,6 +16,8 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
+
     using Infrastructure.MessageLog;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
@@ -241,6 +243,22 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
         }
 
         [Fact]
+        public void then_can_filter_in_by_end_date()
+        {
+            var events = this.sut.Query(new QueryCriteria { EndDate = DateTime.UtcNow }).ToList();
+
+            Assert.Equal(3, events.Count);
+        }
+
+        [Fact]
+        public void then_can_filter_out_by_end_date()
+        {
+            var events = this.sut.Query(new QueryCriteria { EndDate = DateTime.UtcNow.AddMinutes(-1) }).ToList();
+
+            Assert.Equal(0, events.Count);
+        }
+
+        [Fact]
         public void then_can_use_fluent_criteria_builder()
         {
             var events = this.sut.Query()
@@ -250,6 +268,7 @@ namespace Infrastructure.Sql.IntegrationTests.SqlEventLogFixture
                 .FromSource("SourceB")
                 .WithTypeName("EventB")
                 .WithFullName("Namespace.EventB")
+                .Until(DateTime.UtcNow)
                 .ToList();
 
             Assert.Equal(1, events.Count);
