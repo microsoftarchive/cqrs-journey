@@ -14,6 +14,7 @@
 namespace Infrastructure.Azure.Messaging
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using Infrastructure.Azure.Instrumentation;
@@ -27,6 +28,7 @@ namespace Infrastructure.Azure.Messaging
 
     public class ServiceBusConfig
     {
+        private const string RuleName = "Custom";
         private bool initialized;
         private ServiceBusSettings settings;
 
@@ -52,6 +54,15 @@ namespace Infrastructure.Azure.Messaging
                     retryPolicy.ExecuteAction(() => UpdateRules(namespaceManager, topic, subscription));
                 });
             });
+
+            // Execute migration support actions only after all the previous ones have been completed.
+            foreach (var topic in this.settings.Topics)
+            {
+                foreach (var action in topic.MigrationSupport)
+                {
+                    retryPolicy.ExecuteAction(() => UpdateSubscriptionIfExists(namespaceManager, topic, action));
+                }
+            }
 
             this.initialized = true;
         }
@@ -160,17 +171,38 @@ namespace Infrastructure.Azure.Messaging
             catch (MessagingEntityAlreadyExistsException) { }
         }
 
+        private static void UpdateSubscriptionIfExists(NamespaceManager namespaceManager, TopicSettings topic, UpdateSubscriptionIfExists action)
+        {
+            if (string.IsNullOrWhiteSpace(action.Name)) throw new ArgumentException("action");
+            if (string.IsNullOrWhiteSpace(action.SqlFilter)) throw new ArgumentException("action");
+
+            UpdateSqlFilter(namespaceManager, action.SqlFilter, action.Name, topic.Path);
+        }
+
         private static void UpdateRules(NamespaceManager namespaceManager, TopicSettings topic, SubscriptionSettings subscription)
         {
-            const string ruleName = "Custom";
             string sqlExpression = null;
             if (!string.IsNullOrWhiteSpace(subscription.SqlFilter))
             {
                 sqlExpression = subscription.SqlFilter;
             }
 
+            UpdateSqlFilter(namespaceManager, sqlExpression, subscription.Name, topic.Path);
+        }
+
+        private static void UpdateSqlFilter(NamespaceManager namespaceManager, string sqlExpression, string subscriptionName, string topicPath)
+        {
             bool needsReset = false;
-            var existingRules = namespaceManager.GetRules(topic.Path, subscription.Name).ToList();
+            List<RuleDescription> existingRules;
+            try
+            {
+                existingRules = namespaceManager.GetRules(topicPath, subscriptionName).ToList();
+            }
+            catch (MessagingEntityNotFoundException)
+            {
+                // the subscription does not exist, no need to update rules.
+                return;
+            }
             if (existingRules.Count != 1)
             {
                 needsReset = true;
@@ -186,11 +218,11 @@ namespace Infrastructure.Azure.Messaging
                 {
                     needsReset = true;
                 }
-                else if (sqlExpression != null && existingRule.Name != ruleName)
+                else if (sqlExpression != null && existingRule.Name != RuleName)
                 {
                     needsReset = true;
                 }
-                else if (sqlExpression != null && existingRule.Name == ruleName)
+                else if (sqlExpression != null && existingRule.Name == RuleName)
                 {
                     var filter = existingRule.Filter as SqlFilter;
                     if (filter == null || filter.SqlExpression != sqlExpression)
@@ -209,7 +241,7 @@ namespace Infrastructure.Azure.Messaging
                     SubscriptionClient client = null;
                     try
                     {
-                        client = factory.CreateSubscriptionClient(topic.Path, subscription.Name);
+                        client = factory.CreateSubscriptionClient(topicPath, subscriptionName);
 
                         // first add the default rule, so no new messages are lost while we are updating the subscription
                         TryAddRule(client, new RuleDescription(RuleDescription.DefaultRuleName, new TrueFilter()));
@@ -223,7 +255,7 @@ namespace Infrastructure.Azure.Messaging
                         if (sqlExpression != null)
                         {
                             // Add the desired rule.
-                            TryAddRule(client, new RuleDescription(ruleName, new SqlFilter(sqlExpression)));
+                            TryAddRule(client, new RuleDescription(RuleName, new SqlFilter(sqlExpression)));
 
                             // once the desired rule was added, delete the default rule.
                             TryRemoveRule(client, RuleDescription.DefaultRuleName);

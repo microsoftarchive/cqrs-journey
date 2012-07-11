@@ -26,6 +26,18 @@
                                                             <xs:attribute name="SqlFilter" type="xs:string" use="optional" />
                                                         </xs:complexType>
                                                     </xs:element>
+                                                    <xs:element name="MigrationSupport" minOccurs="0" maxOccurs="1">
+                                                      <xs:complexType>
+                                                        <xs:sequence>
+                                                          <xs:element name="UpdateSubscriptionIfExists" minOccurs="0" maxOccurs="unbounded" >
+                                                            <xs:complexType>
+                                                              <xs:attribute name="Name" type="cqrs:AzureSubscriptionName" use="required" />
+                                                              <xs:attribute name="SqlFilter" type="xs:string" use="required" />
+                                                            </xs:complexType>
+                                                          </xs:element>
+                                                        </xs:sequence>
+                                                      </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
                                                 <xs:attribute name="IsEventBus" type="xs:boolean" use="optional" />
                                                 <xs:attribute name="Path" type="cqrs:AzureTopicPath" use="required" />

@@ -178,6 +178,41 @@ namespace Infrastructure.Azure.IntegrationTests.ServiceBusConfigFixture
             handler.Verify(x => x.Handle(It.Is<AnEvent>(e => e.SourceId == ev.SourceId)));
         }
 
+        [Fact]
+        public void runs_migration_support_actions()
+        {
+            settings.Topics = settings.Topics.Take(1).ToList();
+            var topic = settings.Topics.First();
+            topic.Subscriptions = topic.Subscriptions.Take(1).ToList();
+            topic.MigrationSupport.Clear();
+            var subscription = topic.Subscriptions.First();
+            subscription.SqlFilter = "TypeName='MyTypeA'";
+            this.sut.Initialize();
+
+            var rule = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetRules(topic.Path, subscription.Name).Single());
+            Assert.Equal("TypeName='MyTypeA'", ((SqlFilter)rule.Filter).SqlExpression);
+
+            topic.MigrationSupport.Add(new UpdateSubscriptionIfExists { Name = subscription.Name, SqlFilter = "1=0" });
+            this.sut.Initialize();
+
+            rule = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetRules(topic.Path, subscription.Name).Single());
+            Assert.Equal("1=0", ((SqlFilter)rule.Filter).SqlExpression);
+        }
+
+        [Fact]
+        public void migration_support_action_noops_if_subscription_does_not_exist()
+        {
+            settings.Topics = settings.Topics.Take(1).ToList();
+            var topic = settings.Topics.First();
+            topic.Subscriptions.Clear();
+            topic.MigrationSupport.Clear();
+            topic.MigrationSupport.Add(new UpdateSubscriptionIfExists { Name = "TestSubscription", SqlFilter = "1=0" });
+            this.sut.Initialize();
+
+            var subscriptions = this.retryPolicy.ExecuteAction(() => this.namespaceManager.GetSubscriptions(topic.Path)).ToList();
+            Assert.Equal(0, subscriptions.Count);
+        }
+
         public class AnEvent : IEvent
         {
             public AnEvent()

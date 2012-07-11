@@ -73,6 +73,7 @@ namespace Infrastructure.Azure.Messaging
         public TopicSettings()
         {
             this.Subscriptions = new List<SubscriptionSettings>();
+            this.MigrationSupport = new List<UpdateSubscriptionIfExists>();
         }
 
         [XmlAttribute]
@@ -86,6 +87,10 @@ namespace Infrastructure.Azure.Messaging
 
         [XmlElement("Subscription", Namespace = InfrastructureSettings.XmlNamespace)]
         public List<SubscriptionSettings> Subscriptions { get; set; }
+
+        [XmlArray(ElementName = "MigrationSupport", Namespace = InfrastructureSettings.XmlNamespace)]
+        [XmlArrayItem(ElementName = "UpdateSubscriptionIfExists", Namespace = InfrastructureSettings.XmlNamespace)]
+        public List<UpdateSubscriptionIfExists> MigrationSupport { get; set; }
 
         /// <summary>
         /// Don't access this property directly. Use the properly typed 
@@ -111,6 +116,16 @@ namespace Infrastructure.Azure.Messaging
 
         [XmlAttribute]
         public bool RequiresSession { get; set; }
+
+        [XmlAttribute]
+        public string SqlFilter { get; set; }
+    }
+
+    [XmlRoot("UpdateSubscriptionIfExists", Namespace = InfrastructureSettings.XmlNamespace)]
+    public class UpdateSubscriptionIfExists
+    {
+        [XmlAttribute]
+        public string Name { get; set; }
 
         [XmlAttribute]
         public string SqlFilter { get; set; }
