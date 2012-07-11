@@ -11,17 +11,19 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace WorkerRoleCommandProcessor
+namespace MigrationToV3.InHouseProcessor
 {
     using System.Linq;
     using System.Runtime.Caching;
     using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
+    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
+    using Infrastructure.BlobStorage;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -29,7 +31,7 @@ namespace WorkerRoleCommandProcessor
     using Microsoft.Practices.Unity;
     using Microsoft.WindowsAzure;
     using Registration;
-    using RegistrationV2.ReadModel.Implementation;
+    using WorkerRoleCommandProcessor;
 
     /// <summary>
     /// Azure-side of the processor, which is included for compilation conditionally 
@@ -55,6 +57,11 @@ namespace WorkerRoleCommandProcessor
                     new SubscriptionSettings { Name = "Registration.OrderViewModelGenerator", RequiresSession = true },
                     new SubscriptionSettings { Name = "Registration.PricedOrderViewModelGenerator", RequiresSession = true }
                 });
+            this.azureSettings.ServiceBus.Topics.First(t => !t.IsEventBus).Subscriptions.AddRange(
+                new[] 
+                {
+                    new SubscriptionSettings { Name = "all", RequiresSession = false}
+                });
 
             this.busConfig = new ServiceBusConfig(this.azureSettings.ServiceBus);
 
@@ -63,10 +70,12 @@ namespace WorkerRoleCommandProcessor
 
         partial void OnCreateContainer(UnityContainer container)
         {
-            container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
-
             var metadata = container.Resolve<IMetadataProvider>();
             var serializer = container.Resolve<ITextSerializer>();
+
+            // blob
+            var blobStorageAccount = CloudStorageAccount.Parse(azureSettings.BlobStorage.ConnectionString);
+            container.RegisterInstance<IBlobStorage>(new CloudBlobStorage(blobStorageAccount, azureSettings.BlobStorage.RootContainerName));
 
             var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
             var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
@@ -74,7 +83,7 @@ namespace WorkerRoleCommandProcessor
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
             var commandProcessor =
-                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All, false, new SubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.All, this.instrumentationEnabled)), serializer);
+                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, "all", false, new SubscriptionReceiverInstrumentation("all", this.instrumentationEnabled)), serializer);
 
             container.RegisterInstance<ICommandBus>(commandBus);
 
@@ -88,7 +97,7 @@ namespace WorkerRoleCommandProcessor
 
         private void RegisterEventProcessors(UnityContainer container)
         {
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationProcessRouter, this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, "Registration.RegistrationProcessRouter", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.OrderViewModelGenerator>(this.busConfig, "Registration.OrderViewModelGenerator", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.PricedOrderViewModelGenerator>(this.busConfig, "Registration.PricedOrderViewModelGenerator", this.instrumentationEnabled);
         }

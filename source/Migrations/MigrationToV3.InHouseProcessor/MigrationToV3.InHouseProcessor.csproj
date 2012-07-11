@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BA05787C-E0F5-4303-A71B-D282694B759B}</ProjectGuid>
@@ -14,6 +14,7 @@
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <RoleType>Worker</RoleType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +53,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=2.1.267.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AutoMapper.2.1.267\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
@@ -88,12 +92,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\WorkerRoleCommandProcessor\ConferenceProcessor.cs">
-      <Link>ConferenceProcessor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\WorkerRoleCommandProcessor\DatabaseSetup.cs">
-      <Link>DatabaseSetup.cs</Link>
-    </Compile>
     <Compile Include="..\..\WorkerRoleCommandProcessor\ServiceBusConstants.cs">
       <Link>ServiceBusConstants.cs</Link>
     </Compile>
@@ -101,8 +99,18 @@
       <Link>UnityContainerExtensions.cs</Link>
     </Compile>
     <Compile Include="ConferenceProcessor.Azure.cs" />
+    <Compile Include="ConferenceProcessor.cs" />
+    <Compile Include="DatabaseSetup.cs" />
+    <Compile Include="Migrator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="V2ViewModelGenerators\Handlers\OrderViewModelGenerator.cs" />
+    <Compile Include="V2ViewModelGenerators\Handlers\PricedOrderViewModelGenerator.cs" />
+    <Compile Include="V2ViewModelGenerators\ReadModel\DraftOrder.cs" />
+    <Compile Include="V2ViewModelGenerators\ReadModel\DraftOrderItem.cs" />
+    <Compile Include="V2ViewModelGenerators\ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
+    <Compile Include="V2ViewModelGenerators\ReadModel\PricedOrder.cs" />
+    <Compile Include="V2ViewModelGenerators\ReadModel\PricedOrderLineSeatTypeDescription.cs" />
     <Compile Include="WorkerRole.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -36,10 +36,6 @@ namespace WorkerRoleCommandProcessor
 				/// log
 				/// </summary>
 				public const string Log = "log";
-				/// <summary>
-				/// all
-				/// </summary>
-				public const string All = "all";
 			}
 		}
 
@@ -88,18 +84,6 @@ namespace WorkerRoleCommandProcessor
 				/// Conference.OrderEventHandler
 				/// </summary>
 				public const string OrderEventHandler = "Conference.OrderEventHandler";
-				/// <summary>
-				/// Registration.RegistrationProcessRouter
-				/// </summary>
-				public const string RegistrationProcessRouter = "Registration.RegistrationProcessRouter";
-				/// <summary>
-				/// Registration.OrderViewModelGenerator
-				/// </summary>
-				public const string OrderViewModelGenerator = "Registration.OrderViewModelGenerator";
-				/// <summary>
-				/// Registration.PricedOrderViewModelGenerator
-				/// </summary>
-				public const string PricedOrderViewModelGenerator = "Registration.PricedOrderViewModelGenerator";
 			}
 		}
 

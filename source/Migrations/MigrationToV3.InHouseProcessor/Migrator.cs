@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace MigrationToV3
+namespace MigrationToV3.InHouseProcessor
 {
     using System;
     using System.Collections.Generic;
@@ -135,8 +135,6 @@ ALTER TABLE [ConferenceRegistration].[PricedOrderLinesV3] CHECK CONSTRAINT [Pric
 
         public void RegenerateV3ViewModels(AzureEventLogReader logReader, string dbConnectionString, DateTime maxEventTime)
         {
-            var commandBus = new NullCommandBus();
-
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
 
             var handlers = new List<IEventHandler>();

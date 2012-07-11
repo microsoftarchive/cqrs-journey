@@ -15,17 +15,14 @@ namespace MigrationToV3.InHouseProcessor
 {
     using System;
     using System.Configuration;
-    using System.Data.Entity;
     using System.Reflection;
     using System.Threading;
     using Conference;
-    using Conference.Common.Entity;
     using Infrastructure.Azure;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
     using Registration.Events;
-    using WorkerRoleCommandProcessor;
 
     class Program
     {
@@ -43,6 +40,10 @@ namespace MigrationToV3.InHouseProcessor
             var messageLogSettings = settings.MessageLog;
             var messageLogAccount = CloudStorageAccount.Parse(messageLogSettings.ConnectionString);
 
+            DatabaseSetup.Initialize();
+            MigrationToV3.Migration.Initialize();
+
+
             Console.WriteLine("Creating new read model subscriptions");
 
             migrator.CreateV3ReadModelSubscriptions(settings.ServiceBus);
@@ -51,7 +52,7 @@ namespace MigrationToV3.InHouseProcessor
 
             migrator.CreateV3ReadModelTables(ConfigurationManager.ConnectionStrings[dbConnectionString].ConnectionString);
 
-            Console.WriteLine("Waiting to let the new subscriptions get fill up with events");
+            Console.WriteLine("Waiting to let the new subscriptions fill up with events");
 
             Thread.Sleep(WaitTimeInMilliseconds);
 
@@ -63,9 +64,6 @@ namespace MigrationToV3.InHouseProcessor
 
             Console.WriteLine("Press enter to start processing events. Make sure the v2 processor is disabled.");
             Console.ReadLine();
-
-            Database.SetInitializer<RegistrationV2.ReadModel.Implementation.ConferenceRegistrationDbContext>(null);
-            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
             using (var processor = new ConferenceProcessor(false))
             {
