@@ -13,17 +13,25 @@
 
 namespace MigrationToV3
 {
-    using System.Data.Entity;
-    using Registration.Database;
-    using Registration.ReadModel.Implementation;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Infrastructure.Messaging;
 
-    public static class Migration
+    /// <summary>
+    /// TODO: Update summary.
+    /// </summary>
+    public class NullCommandBus : ICommandBus
     {
-        public static void Initialize()
+        public static readonly ICommandBus Instance = new NullCommandBus();
+
+        public void Send(Envelope<ICommand> command)
         {
-            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
-            // TODO review whether to 
-            //Database.SetInitializer<ConferenceRegistrationDbContext>(new ConferenceRegistrationDbInitializer());
+        }
+
+        public void Send(IEnumerable<Envelope<ICommand>> commands)
+        {
         }
     }
 }

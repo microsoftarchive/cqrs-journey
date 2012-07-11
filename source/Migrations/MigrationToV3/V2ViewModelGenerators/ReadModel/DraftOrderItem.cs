@@ -11,19 +11,26 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace MigrationToV3
+namespace RegistrationV2.ReadModel
 {
-    using System.Data.Entity;
-    using Registration.Database;
-    using Registration.ReadModel.Implementation;
+    using System;
 
-    public static class Migration
+    public class DraftOrderItem
     {
-        public static void Initialize()
+        public DraftOrderItem(Guid seatType, int requestedSeats)
         {
-            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
-            // TODO review whether to 
-            //Database.SetInitializer<ConferenceRegistrationDbContext>(new ConferenceRegistrationDbInitializer());
+            this.Id = Guid.NewGuid();
+            this.SeatType = seatType;
+            this.RequestedSeats = requestedSeats;
         }
+
+        protected DraftOrderItem()
+        {
+        }
+
+        public Guid Id { get; private set; }
+        public Guid SeatType { get; set; }
+        public int RequestedSeats { get; set; }
+        public int ReservedSeats { get; set; }
     }
 }

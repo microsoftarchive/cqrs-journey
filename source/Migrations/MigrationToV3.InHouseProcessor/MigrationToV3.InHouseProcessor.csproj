@@ -2,41 +2,56 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{8EC84BDD-9B6E-44E6-A333-A2D9C8A7C201}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{BA05787C-E0F5-4303-A71B-D282694B759B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MigrationToV3</RootNamespace>
-    <AssemblyName>MigrationToV3</AssemblyName>
+    <RootNamespace>MigrationToV3.InHouseProcessor</RootNamespace>
+    <AssemblyName>MigrationToV3.InHouseProcessor</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\MigrationToV3.InHouseProcessor.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\MigrationToV3.InHouseProcessor.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper, Version=2.1.267.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\AutoMapper.2.1.267\lib\net40\AutoMapper.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
@@ -44,6 +59,7 @@
       <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Unity.2.1.505.0\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.Unity.Configuration, Version=2.1.505.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -53,11 +69,14 @@
     <Reference Include="Microsoft.WindowsAzure.Configuration, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.WindowsAzure.ConfigurationManager.1.7.0.1\lib\net35-full\Microsoft.WindowsAzure.Configuration.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\WindowsAzure.Storage.1.7.0.0\lib\net35-full\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.Services.Client" />
@@ -69,18 +88,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Migration.cs" />
-    <Compile Include="Migrator.cs" />
-    <Compile Include="NullCommandBus.cs" />
+    <Compile Include="..\..\WorkerRoleCommandProcessor\ConferenceProcessor.cs">
+      <Link>ConferenceProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\WorkerRoleCommandProcessor\DatabaseSetup.cs">
+      <Link>DatabaseSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\..\WorkerRoleCommandProcessor\ServiceBusConstants.cs">
+      <Link>ServiceBusConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\..\WorkerRoleCommandProcessor\UnityContainerExtensions.cs">
+      <Link>UnityContainerExtensions.cs</Link>
+    </Compile>
+    <Compile Include="ConferenceProcessor.Azure.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegistrationProcessDbInitializer.cs" />
-    <Compile Include="V2ViewModelGenerators\Handlers\OrderViewModelGenerator.cs" />
-    <Compile Include="V2ViewModelGenerators\Handlers\PricedOrderViewModelGenerator.cs" />
-    <Compile Include="V2ViewModelGenerators\ReadModel\DraftOrder.cs" />
-    <Compile Include="V2ViewModelGenerators\ReadModel\DraftOrderItem.cs" />
-    <Compile Include="V2ViewModelGenerators\ReadModel\Implementation\ConferenceRegistrationDbContext.cs" />
-    <Compile Include="V2ViewModelGenerators\ReadModel\PricedOrder.cs" />
-    <Compile Include="V2ViewModelGenerators\ReadModel\PricedOrderLineSeatTypeDescription.cs" />
+    <Compile Include="WorkerRole.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\CQRS-journey.licenseheader">
@@ -130,6 +153,19 @@
       <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
       <Name>Registration.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MigrationToV3\MigrationToV3.csproj">
+      <Project>{8EC84BDD-9B6E-44E6-A333-A2D9C8A7C201}</Project>
+      <Name>MigrationToV3</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Infrastructure\Azure\Settings.xml">
+      <Link>Settings.xml</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

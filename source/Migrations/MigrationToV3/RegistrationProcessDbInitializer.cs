@@ -33,7 +33,7 @@ namespace MigrationToV3
             // can safely run with already upgraded databases.
             try
             {
-            context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[ConferenceRegistrationProcesses].[UndispatchedMessages]') AND type in (N'U'))
     CREATE TABLE [ConferenceRegistrationProcesses].[UndispatchedMessages]
     (
@@ -61,6 +61,7 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'Co
     ADD [SeatReservationCommandId] [uniqueidentifier] NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000',
         [TimeStamp] [timestamp] NOT NULL
 ");
+                // TODO ADD INDEXES
             }
             catch (SqlException e)
             {

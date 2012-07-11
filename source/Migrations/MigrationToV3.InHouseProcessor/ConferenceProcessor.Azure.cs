@@ -18,13 +18,10 @@ namespace WorkerRoleCommandProcessor
     using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
-    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.Instrumentation;
-    using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure.Messaging.Handling;
-    using Infrastructure.BlobStorage;
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
@@ -32,7 +29,7 @@ namespace WorkerRoleCommandProcessor
     using Microsoft.Practices.Unity;
     using Microsoft.WindowsAzure;
     using Registration;
-    using Registration.Handlers;
+    using RegistrationV2.ReadModel.Implementation;
 
     /// <summary>
     /// Azure-side of the processor, which is included for compilation conditionally 
@@ -51,6 +48,14 @@ namespace WorkerRoleCommandProcessor
         partial void OnCreating()
         {
             this.azureSettings = InfrastructureSettings.Read("Settings.xml");
+            this.azureSettings.ServiceBus.Topics.First(t => t.IsEventBus).Subscriptions.AddRange(
+                new[] 
+                {
+                    new SubscriptionSettings { Name = "Registration.RegistrationProcessRouter", RequiresSession = true },
+                    new SubscriptionSettings { Name = "Registration.OrderViewModelGenerator", RequiresSession = true },
+                    new SubscriptionSettings { Name = "Registration.PricedOrderViewModelGenerator", RequiresSession = true }
+                });
+
             this.busConfig = new ServiceBusConfig(this.azureSettings.ServiceBus);
 
             busConfig.Initialize();
@@ -58,72 +63,42 @@ namespace WorkerRoleCommandProcessor
 
         partial void OnCreateContainer(UnityContainer container)
         {
+            container.RegisterType<ConferenceRegistrationDbContext>(new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistration"));
+
             var metadata = container.Resolve<IMetadataProvider>();
             var serializer = container.Resolve<ITextSerializer>();
-
-            // blob
-            var blobStorageAccount = CloudStorageAccount.Parse(azureSettings.BlobStorage.ConnectionString);
-            container.RegisterInstance<IBlobStorage>(new CloudBlobStorage(blobStorageAccount, azureSettings.BlobStorage.RootContainerName));
 
             var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
             var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
             container.RegisterInstance<IMessageSender>(topicSender);
             var eventBus = new EventBus(topicSender, metadata, serializer);
 
-            var sessionlessCommandProcessor =
-                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Sessionless, false, new SubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.Sessionless, this.instrumentationEnabled)), serializer);
-            var seatsAvailabilityCommandProcessor =
-                new CommandProcessor(new SessionSubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Seatsavailability, false, new SessionSubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.Seatsavailability, this.instrumentationEnabled)), serializer);
+            var commandProcessor =
+                new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.All, false, new SubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.All, this.instrumentationEnabled)), serializer);
 
-            var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);
-            container.RegisterInstance<ICommandBus>(synchronousCommandBus);
+            container.RegisterInstance<ICommandBus>(commandBus);
 
             container.RegisterInstance<IEventBus>(eventBus);
-            container.RegisterInstance<IProcessor>("SessionlessCommandProcessor", sessionlessCommandProcessor);
-            container.RegisterInstance<IProcessor>("SeatsAvailabilityCommandProcessor", seatsAvailabilityCommandProcessor);
+            container.RegisterInstance<IProcessor>("CommandProcessor", commandProcessor);
 
             RegisterRepository(container);
             RegisterEventProcessors(container);
-            RegisterCommandHandlers(container, sessionlessCommandProcessor, seatsAvailabilityCommandProcessor);
-
-            // handle order commands inline, as they do not have competition.
-            synchronousCommandBus.Register(container.Resolve<ICommandHandler>("OrderCommandHandler"));
-
-            // message log
-            var messageLogAccount = CloudStorageAccount.Parse(azureSettings.MessageLog.ConnectionString);
-
-            container.RegisterInstance<IProcessor>("EventLogger", new AzureMessageLogListener(
-                new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
-                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Events.Path, Topics.Events.Subscriptions.Log)));
-
-            container.RegisterInstance<IProcessor>("CommandLogger", new AzureMessageLogListener(
-                new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
-                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Log)));
+            RegisterCommandHandlers(container, commandProcessor);
         }
 
         private void RegisterEventProcessors(UnityContainer container)
         {
-            container.RegisterType<RegistrationProcessRouter>(new ContainerControlledLifetimeManager());
-
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMOrderPlaced, this.instrumentationEnabled);
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMNextSteps, this.instrumentationEnabled);
-            container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGeneratorV3, this.instrumentationEnabled);
-            container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGeneratorV3, this.instrumentationEnabled);
-            container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator, this.instrumentationEnabled);
-            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator, this.instrumentationEnabled);
-            container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler, this.instrumentationEnabled);
-            container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler, this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationProcessRouter, this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationV2.Handlers.OrderViewModelGenerator>(this.busConfig, "Registration.OrderViewModelGenerator", this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationV2.Handlers.PricedOrderViewModelGenerator>(this.busConfig, "Registration.PricedOrderViewModelGenerator", this.instrumentationEnabled);
         }
 
-        private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry sessionlessRegistry, ICommandHandlerRegistry seatsAvailabilityRegistry)
+        private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry registry)
         {
             var commandHandlers = unityContainer.ResolveAll<ICommandHandler>().ToList();
-            var seatsAvailabilityHandler = commandHandlers.First(x => x.GetType().IsAssignableFrom(typeof(SeatsAvailabilityHandler)));
-
-            seatsAvailabilityRegistry.Register(seatsAvailabilityHandler);
-            foreach (var commandHandler in commandHandlers.Where(x => x != seatsAvailabilityHandler))
+            foreach (var commandHandler in commandHandlers)
             {
-                sessionlessRegistry.Register(commandHandler);
+                registry.Register(commandHandler);
             }
         }
 
@@ -135,7 +110,7 @@ namespace WorkerRoleCommandProcessor
 
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
-            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation("worker", this.instrumentationEnabled));
+            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation("v3migration", this.instrumentationEnabled));
             container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
             var cache = new MemoryCache("RepositoryCache");
             container.RegisterType(
