@@ -13,6 +13,7 @@
 
 namespace Infrastructure.MessageLog
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -36,5 +37,6 @@ namespace Infrastructure.MessageLog
         public ICollection<string> Namespaces { get; private set; }
         public ICollection<string> FullNames { get; private set; }
         public ICollection<string> TypeNames { get; private set; }
+        public DateTime? EndDate { get; set; }
     }
 }

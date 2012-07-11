@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
+
 namespace Infrastructure.MessageLog
 {
     using System.Collections;
@@ -73,6 +75,11 @@ namespace Infrastructure.MessageLog
             /// Filters events with a matching source type name metadata.
             /// </summary>
             IEventQuery FromSource(string sourceType);
+
+            /// <summary>
+            /// Filters events that occurred until the specified date.
+            /// </summary>
+            IEventQuery Until(DateTime endDate);
         }
 
         /// <summary>
@@ -130,6 +137,12 @@ namespace Infrastructure.MessageLog
             public IEventQuery FromSource(string sourceType)
             {
                 criteria.SourceTypes.Add(sourceType);
+                return this;
+            }
+
+            public IEventQuery Until(DateTime endDate)
+            {
+                criteria.EndDate = endDate;
                 return this;
             }
         }

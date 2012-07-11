@@ -107,6 +107,18 @@ namespace Infrastructure.Azure.MessageLog
             if (filter != null)
             {
                 expression = (expression == null) ? filter : expression.And(filter);
+                filter = null;
+            }
+
+            if (criteria.EndDate.HasValue)
+            {
+                var partitionKeyFilter = criteria.EndDate.Value.ToString("yyyMM");
+                var rowKeyFilter = criteria.EndDate.Value.Ticks.ToString("D20") + "`";
+                filter = e => e.PartitionKey.CompareTo(partitionKeyFilter) <= 0
+                              && e.RowKey.CompareTo(rowKeyFilter) <= 0;
+
+                expression = (expression == null) ? filter : expression.And(filter);
+                filter = null;
             }
 
             return expression;
