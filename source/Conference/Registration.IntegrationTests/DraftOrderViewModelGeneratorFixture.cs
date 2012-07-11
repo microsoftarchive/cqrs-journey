@@ -378,7 +378,7 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
         }
 
         [Fact]
-        public void when_order_confirmed_for_older_version_then_throws()
+        public void when_order_confirmed_for_older_version_then_no_ops()
         {
             sut.Handle(new OrderUpdated
             {
@@ -387,12 +387,11 @@ namespace Registration.IntegrationTests.DraftOrderViewModelGeneratorFixture
                 Version = 4,
             });
 
-            Assert.Throws<InvalidOperationException>(() =>
-                sut.Handle(new OrderConfirmed
-                            {
-                                SourceId = orderPlacedEvent.SourceId,
-                                Version = 1,
-                            }));
+            sut.Handle(new OrderConfirmed { SourceId = orderPlacedEvent.SourceId, Version = 1, });
+
+            var dto = dao.FindDraftOrder(orderPlacedEvent.SourceId);
+            Assert.Equal(4, dto.OrderVersion);
+            Assert.Equal(DraftOrder.States.PendingReservation, dto.State);
         }
     }
 }

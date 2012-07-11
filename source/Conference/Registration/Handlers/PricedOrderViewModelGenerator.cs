@@ -219,13 +219,13 @@ namespace Registration.Handlers
             }
             else
             {
-                throw new InvalidOperationException(
-                    string.Format(
-                        @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
-This read model generator has an expectation that the EventBus will deliver messages for the same source in order.",
-                        pricedOrder.OrderId,
-                        eventVersion,
-                        pricedOrder.OrderVersion));
+                Trace.TraceWarning(
+                    @"Ignoring an older order update message was received with with version {1} for order id {0}, last known version {2}.
+This read model generator has an expectation that the EventBus will deliver messages for the same source in order. Nevertheless, this warning can be expected in a migration scenario.",
+                    pricedOrder.OrderId,
+                    eventVersion,
+                    pricedOrder.OrderVersion);
+                return false;
             }
         } 
         

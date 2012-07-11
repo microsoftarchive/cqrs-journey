@@ -165,13 +165,13 @@ namespace Registration.Handlers
             }
             else
             {
-                throw new InvalidOperationException(
-                    string.Format(
-                        @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
+                Trace.TraceWarning(
+                    @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
 This read model generator has an expectation that the EventBus will deliver messages for the same source in order.",
-                        draftOrder.OrderId,
-                        eventVersion,
-                        draftOrder.OrderVersion));
+                    draftOrder.OrderId,
+                    eventVersion,
+                    draftOrder.OrderVersion);
+                return false;
             }
         }
     }
