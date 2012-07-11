@@ -38,6 +38,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
         private EventC eventC;
         private IMetadataProvider metadata;
         private ITextSerializer serializer;
+        private DateTime startEnqueueTime;
 
         public given_an_empty_event_log()
         {
@@ -85,18 +86,19 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
             this.writer = new AzureMessageLogWriter(this.account, this.tableName);
             this.sut = new AzureEventLogReader(this.account, this.tableName, new JsonTextSerializer());
 
-            Save(eventA);
-            Save(eventB);
-            Save(eventC);
+            this.startEnqueueTime = new DateTime(2012, 06, 30, 23, 59, 0, DateTimeKind.Utc);
+            Save(eventA, startEnqueueTime);
+            Save(eventB, startEnqueueTime.AddMinutes(5));
+            Save(eventC, startEnqueueTime.AddMinutes(6));
         }
 
-        private void Save(IEvent @event)
+        private void Save(IEvent @event, DateTime enqueueTime)
         {
             var message = new MessageLogEntity
             {
                 Payload = this.serializer.Serialize(@event),
-                PartitionKey = DateTime.UtcNow.ToString("yyyMM"),
-                RowKey = DateTime.UtcNow.Ticks.ToString("D20") + "_" + @event.GetHashCode(),
+                PartitionKey = enqueueTime.ToString("yyyMM"),
+                RowKey = enqueueTime.Ticks.ToString("D20") + "_" + @event.GetHashCode(),
                 MessageId = Guid.NewGuid().ToString(),
                 CorrelationId = Guid.NewGuid().ToString(),
             };
@@ -257,6 +259,13 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
             Assert.Equal(2, events.Count);
         }
 
+        [Fact]
+        public void then_can_filter_by_end_date()
+        {
+            var events = this.sut.Query(new QueryCriteria { EndDate = startEnqueueTime.AddMinutes(5.5) }).ToList();
+
+            Assert.Equal(2, events.Count);
+        }
 
         [Fact]
         public void then_can_use_fluent_criteria_builder()
@@ -268,6 +277,7 @@ namespace Infrastructure.Azure.IntegrationTests.AzureEventLogFixture
                 .FromSource("SourceB")
                 .WithTypeName("EventB")
                 .WithFullName("Namespace.EventB")
+                .Until(this.startEnqueueTime.AddMinutes(5))
                 .ToList();
 
             Assert.Equal(1, events.Count);

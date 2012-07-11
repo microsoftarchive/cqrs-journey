@@ -107,6 +107,16 @@ namespace Infrastructure.Sql.MessageLog
             if (filter != null)
             {
                 expression = (expression == null) ? filter : expression.And(filter);
+                filter = null;
+            }
+
+            if (criteria.EndDate.HasValue)
+            {
+                var creationDateFilter = criteria.EndDate.Value.ToString("o");
+                filter = e => e.CreationDate.CompareTo(creationDateFilter) <= 0;
+
+                expression = (expression == null) ? filter : expression.And(filter);
+                filter = null;
             }
 
             return expression;
