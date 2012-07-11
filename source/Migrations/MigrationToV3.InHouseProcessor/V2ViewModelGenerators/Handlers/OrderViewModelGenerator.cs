@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.Handlers
+namespace RegistrationV2.Handlers
 {
     using System;
     using System.Collections.Generic;
@@ -21,18 +21,19 @@ namespace Registration.Handlers
     using AutoMapper;
     using Infrastructure.Messaging.Handling;
     using Registration.Events;
-    using Registration.ReadModel;
-    using Registration.ReadModel.Implementation;
+    using RegistrationV2.ReadModel;
+    using RegistrationV2.ReadModel.Implementation;
 
-    public class DraftOrderViewModelGenerator :
+    public class OrderViewModelGenerator :
         IEventHandler<OrderPlaced>, IEventHandler<OrderUpdated>,
         IEventHandler<OrderPartiallyReserved>, IEventHandler<OrderReservationCompleted>,
         IEventHandler<OrderRegistrantAssigned>,
-        IEventHandler<OrderConfirmed>, IEventHandler<OrderPaymentConfirmed>
+        IEventHandler<OrderConfirmed>, IEventHandler<OrderPaymentConfirmed>,
+        IEventHandler<OrderTotalsCalculated>
     {
         private readonly Func<ConferenceRegistrationDbContext> contextFactory;
 
-        static DraftOrderViewModelGenerator()
+        static OrderViewModelGenerator()
         {
             // Mapping old version of the OrderPaymentConfirmed event to the new version.
             // Currently it is being done explicitly by the consumer, but this one in particular could be done
@@ -40,7 +41,7 @@ namespace Registration.Handlers
             Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
         }
 
-        public DraftOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
+        public OrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
@@ -125,7 +126,20 @@ namespace Registration.Handlers
             }
         }
 
-        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<SeatQuantity> seats)
+        public void Handle(OrderTotalsCalculated @event)
+        {
+            using (var context = this.contextFactory.Invoke())
+            {
+                var dto = context.Find<DraftOrder>(@event.SourceId);
+                if (WasNotAlreadyHandled(dto, @event.Version))
+                {
+                    dto.OrderVersion = @event.Version;
+                    context.Save(dto);
+                }
+            }
+        }
+
+        private void UpdateReserved(Guid orderId, DateTime reservationExpiration, DraftOrder.States state, int orderVersion, IEnumerable<Registration.SeatQuantity> seats)
         {
             using (var context = this.contextFactory.Invoke())
             {
@@ -165,13 +179,13 @@ namespace Registration.Handlers
             }
             else
             {
-                Trace.TraceWarning(
-                    @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
+                throw new InvalidOperationException(
+                    string.Format(
+                        @"An older order update message was received with with version {1} for order id {0}, last known version {2}.
 This read model generator has an expectation that the EventBus will deliver messages for the same source in order.",
-                    draftOrder.OrderId,
-                    eventVersion,
-                    draftOrder.OrderVersion);
-                return false;
+                        draftOrder.OrderId,
+                        eventVersion,
+                        draftOrder.OrderVersion));
             }
         }
     }

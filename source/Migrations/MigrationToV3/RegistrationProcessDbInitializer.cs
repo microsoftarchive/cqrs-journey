@@ -16,6 +16,7 @@ namespace MigrationToV3
     using System.Data.Entity;
     using System.Data.SqlClient;
     using Registration.Database;
+    using Registration.ReadModel.Implementation;
 
     /// <summary>
     /// This initializer automatically creates the new UndispatchedMessages introduced in V3. 
@@ -33,7 +34,7 @@ namespace MigrationToV3
             // can safely run with already upgraded databases.
             try
             {
-            context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[ConferenceRegistrationProcesses].[UndispatchedMessages]') AND type in (N'U'))
     CREATE TABLE [ConferenceRegistrationProcesses].[UndispatchedMessages]
     (
@@ -69,6 +70,8 @@ IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'Co
                     throw;
                 }
             }
+
+            ConferenceRegistrationDbContextInitializer.CreateIndexes(context);
         }
     }
 }

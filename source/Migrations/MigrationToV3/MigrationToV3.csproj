@@ -30,6 +30,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
       <HintPath>..\..\packages\EntityFramework.4.3.1\lib\net40\EntityFramework.dll</HintPath>
@@ -38,6 +41,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,7 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConferenceRegistrationDbInitializer.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrationProcessDbInitializer.cs" />
@@ -57,9 +61,45 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Conference\Conference.Common\Conference.Common.csproj">
+      <Project>{BAF088F8-3FCB-45EF-A228-6424C34C65CA}</Project>
+      <Name>Conference.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Conference.Contracts\Conference.Contracts.csproj">
+      <Project>{04A13FB9-B5E9-4910-AB9D-5C1BE5DF20EA}</Project>
+      <Name>Conference.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Conference\Conference.csproj">
+      <Project>{DACB93E1-1015-4D08-ABF5-D41C74F526DC}</Project>
+      <Name>Conference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Payments.Contracts\Payments.Contracts.csproj">
+      <Project>{C6E446B0-29C8-4A97-AFE9-9F643B2115DA}</Project>
+      <Name>Payments.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Conference\Payments\Payments.csproj">
+      <Project>{DB59488E-0358-468D-B074-09A3BD4721BF}</Project>
+      <Name>Payments %28Payments\Payments%29</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Conference\Registration\Registration.csproj">
       <Project>{D93CC146-0A5B-4367-B356-CB0FC4B65E2B}</Project>
       <Name>Registration %28Registration\Registration%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Azure\Infrastructure.Azure\Infrastructure.Azure.csproj">
+      <Project>{56A53790-2571-4EA6-8742-2FA00E893B21}</Project>
+      <Name>Infrastructure.Azure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">
+      <Project>{B5786D07-5888-4DF5-B295-3FEA593F3BFE}</Project>
+      <Name>Infrastructure</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Infrastructure\Sql\Infrastructure.Sql\Infrastructure.Sql.csproj">
+      <Project>{F038F286-5AEF-4341-83EC-9F72F42D06D6}</Project>
+      <Name>Infrastructure.Sql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Registration.Contracts\Registration.Contracts.csproj">
+      <Project>{1749075E-95A9-4043-8499-9A77936A9534}</Project>
+      <Name>Registration.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

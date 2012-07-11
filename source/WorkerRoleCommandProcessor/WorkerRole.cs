@@ -34,28 +34,33 @@ namespace WorkerRoleCommandProcessor
             TaskScheduler.UnobservedTaskException += this.OnUnobservedTaskException;
             this.running = true;
 
-            MaintenanceMode.RefreshIsInMaintainanceMode();
-            if (!MaintenanceMode.IsInMaintainanceMode)
+            while (this.running)
             {
-                Trace.WriteLine("Starting the command processor", "Information");
-                using (var processor = new ConferenceProcessor(this.InstrumentationEnabled))
+                if (!MaintenanceMode.IsInMaintainanceMode)
                 {
-                    processor.Start();
+                    Trace.WriteLine("Starting the command processor", "Information");
+                    using (var processor = new ConferenceProcessor(this.InstrumentationEnabled))
+                    {
+                        processor.Start();
 
-                    while (this.running)
+                        while (this.running && !MaintenanceMode.IsInMaintainanceMode)
+                        {
+                            Thread.Sleep(10000);
+                        }
+
+                        processor.Stop();
+
+                        // cause the process to recycle
+                        return;
+                    }
+                }
+                else
+                {
+                    Trace.TraceWarning("Starting the command processor in mantainance mode.");
+                    while (this.running && MaintenanceMode.IsInMaintainanceMode)
                     {
                         Thread.Sleep(10000);
                     }
-
-                    processor.Stop();
-                }
-            }
-            else
-            {
-                Trace.TraceWarning("Starting the command processor in mantainance mode.");
-                while (this.running)
-                {
-                    Thread.Sleep(10000);
                 }
             }
 
@@ -70,13 +75,26 @@ namespace WorkerRoleCommandProcessor
         public override bool OnStart()
         {
             RoleEnvironment.Changing += (sender, e) =>
-            {
-                if (e.Changes.Any(change => change is RoleEnvironmentConfigurationSettingChange))
                 {
-                    // Set e.Cancel to true to restart this role instance
-                    e.Cancel = true;
-                }
-            };
+                    if (e.Changes
+                            .OfType<RoleEnvironmentConfigurationSettingChange>()
+                            .Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
+                    {
+                        Trace.TraceInformation("Recycling worker role because of configuration change");
+                        e.Cancel = true;
+                    }
+                };
+            RoleEnvironment.Changed += (sender, e) =>
+                {
+                    if (e.Changes
+                            .OfType<RoleEnvironmentConfigurationSettingChange>()
+                            .Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
+                    {
+                        Trace.TraceInformation("Refreshing maintenance mode because of configuration change");
+                        MaintenanceMode.RefreshIsInMaintainanceMode();
+                    }
+                };
+            MaintenanceMode.RefreshIsInMaintainanceMode();
 
             var config = DiagnosticMonitor.GetDefaultInitialConfiguration();
 

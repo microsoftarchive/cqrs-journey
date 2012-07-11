@@ -11,19 +11,15 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace MigrationToV3
+namespace RegistrationV2.ReadModel
 {
-    using System.Data.Entity;
-    using Registration.Database;
-    using Registration.ReadModel.Implementation;
+    using System;
+    using System.ComponentModel.DataAnnotations;
 
-    public static class Migration
+    internal class PricedOrderLineSeatTypeDescription
     {
-        public static void Initialize()
-        {
-            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
-            // TODO review whether to 
-            //Database.SetInitializer<ConferenceRegistrationDbContext>(new ConferenceRegistrationDbInitializer());
-        }
+        [Key]
+        public Guid SeatTypeId { get; set; }
+        public string Name { get; set; }
     }
 }
