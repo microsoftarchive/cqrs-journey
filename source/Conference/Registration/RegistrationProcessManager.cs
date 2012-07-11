@@ -25,7 +25,7 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    public class RegistrationProcess : IProcess
+    public class RegistrationProcessManager : IProcessManager
     {
         private static readonly TimeSpan BufferTimeBeforeReleasingSeatsAfterExpiration = TimeSpan.FromMinutes(14);
 
@@ -39,7 +39,7 @@ namespace Registration
 
         private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
-        public RegistrationProcess()
+        public RegistrationProcessManager()
         {
             this.Id = GuidUtil.NewSequentialId();
         }

@@ -49,7 +49,7 @@ namespace DatabaseInitializer
             Database.SetInitializer<MessageLogDbContext>(null);
             Database.SetInitializer<BlobStorageDbContext>(null);
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
-            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<RegistrationProcessManagerDbContext>(null);
             Database.SetInitializer<PaymentsDbContext>(null);
 
             DbContext[] contexts =
@@ -59,7 +59,7 @@ namespace DatabaseInitializer
                     new MessageLogDbContext(connectionString),
                     new BlobStorageDbContext(connectionString),
                     new PaymentsDbContext(connectionString),
-                    new RegistrationProcessDbContext(connectionString),
+                    new RegistrationProcessManagerDbContext(connectionString),
                     new ConferenceRegistrationDbContext(connectionString),
                 };
 
@@ -79,9 +79,9 @@ namespace DatabaseInitializer
                 ConferenceRegistrationDbContextInitializer.CreateIndexes(context);
             }
 
-            using (var context = new RegistrationProcessDbContext(connectionString))
+            using (var context = new RegistrationProcessManagerDbContext(connectionString))
             {
-                RegistrationProcessDbContextInitializer.CreateIndexes(context);
+                RegistrationProcessManagerDbContextInitializer.CreateIndexes(context);
             }
 
             using (var context = new PaymentsDbContext(connectionString))

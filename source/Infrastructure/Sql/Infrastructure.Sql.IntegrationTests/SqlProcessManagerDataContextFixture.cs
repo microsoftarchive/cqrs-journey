@@ -26,13 +26,13 @@ namespace Infrastructure.Sql.IntegrationTests
     using Moq;
     using Xunit;
 
-    public class SqlProcessDataContextFixture : IDisposable
+    public class SqlProcessManagerDataContextFixture : IDisposable
     {
-        protected readonly string dbName = typeof(SqlProcessDataContextFixture).Name + "-" + Guid.NewGuid();
+        protected readonly string dbName = typeof(SqlProcessManagerDataContextFixture).Name + "-" + Guid.NewGuid();
 
-        public SqlProcessDataContextFixture()
+        public SqlProcessManagerDataContextFixture()
         {
-            using (var context = new TestProcessDbContext(dbName))
+            using (var context = new TestProcessManagerDbContext(dbName))
             {
                 context.Database.Delete();
                 context.Database.Create();
@@ -41,7 +41,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
         public void Dispose()
         {
-            using (var context = new TestProcessDbContext(dbName))
+            using (var context = new TestProcessManagerDbContext(dbName))
             {
                 context.Database.Delete();
             }
@@ -52,13 +52,13 @@ namespace Infrastructure.Sql.IntegrationTests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
-                var conference = new OrmTestProcess(id);
+                var conference = new OrmTestProcessManager(id);
                 context.Save(conference);
             }
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
                 var conference = context.Find(id);
 
@@ -71,13 +71,13 @@ namespace Infrastructure.Sql.IntegrationTests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
-                var conference = new OrmTestProcess(id);
+                var conference = new OrmTestProcessManager(id);
                 context.Save(conference);
             }
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
                 var conference = context.Find(id);
                 conference.Title = "CQRS Journey";
@@ -85,7 +85,7 @@ namespace Infrastructure.Sql.IntegrationTests
                 context.Save(conference);
             }
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
                 var conference = context.Find(id);
 
@@ -98,18 +98,18 @@ namespace Infrastructure.Sql.IntegrationTests
         {
             var id = Guid.NewGuid();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
-                var conference = new OrmTestProcess(id);
+                var conference = new OrmTestProcessManager(id);
                 context.Save(conference);
             }
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
             {
                 var conference = context.Find(id);
                 conference.Title = "CQRS Journey!";
 
-                using (var innerContext = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
+                using (var innerContext = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), Mock.Of<ICommandBus>(), Mock.Of<ITextSerializer>()))
                 {
                     var innerConference = innerContext.Find(id);
                     innerConference.Title = "CQRS Journey!!";
@@ -132,9 +132,9 @@ namespace Infrastructure.Sql.IntegrationTests
 
             var command = new TestCommand();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, Mock.Of<ITextSerializer>()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, Mock.Of<ITextSerializer>()))
             {
-                var aggregate = new OrmTestProcess(Guid.NewGuid());
+                var aggregate = new OrmTestProcessManager(Guid.NewGuid());
                 aggregate.AddCommand(command);
                 context.Save(aggregate);
             }
@@ -153,9 +153,9 @@ namespace Infrastructure.Sql.IntegrationTests
 
             bus.Setup(x => x.Send(command2)).Throws<TimeoutException>();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
-                var aggregate = new OrmTestProcess(id);
+                var aggregate = new OrmTestProcessManager(id);
                 aggregate.AddEnvelope(command1, command2);
 
                 Assert.Throws<TimeoutException>(() => context.Save(aggregate));
@@ -167,7 +167,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
             // Clear bus for next run.
             bus = new Mock<ICommandBus>();
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
                 var aggregate = context.Find(id);
 
@@ -187,15 +187,15 @@ namespace Infrastructure.Sql.IntegrationTests
 
             bus.Setup(x => x.Send(command2)).Throws<TimeoutException>();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
-                var aggregate = new OrmTestProcess(id);
+                var aggregate = new OrmTestProcessManager(id);
                 aggregate.AddEnvelope(command1, command2);
 
                 Assert.Throws<TimeoutException>(() => context.Save(aggregate));
             }
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
                 bus.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command2.Body.Id))).Throws<TimeoutException>();
 
@@ -214,9 +214,9 @@ namespace Infrastructure.Sql.IntegrationTests
 
             bus.Setup(x => x.Send(command2)).Throws<TimeoutException>();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
-                var aggregate = new OrmTestProcess(id);
+                var aggregate = new OrmTestProcessManager(id);
                 aggregate.AddEnvelope(command1, command2, command3);
 
                 Assert.Throws<TimeoutException>(() => context.Save(aggregate));
@@ -234,9 +234,9 @@ namespace Infrastructure.Sql.IntegrationTests
 
             bus.Setup(x => x.Send(command2)).Throws<TimeoutException>();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
-                var aggregate = new OrmTestProcess(id);
+                var aggregate = new OrmTestProcessManager(id);
                 aggregate.AddEnvelope(command1, command2, command3);
 
                 Assert.Throws<TimeoutException>(() => context.Save(aggregate));
@@ -251,7 +251,7 @@ namespace Infrastructure.Sql.IntegrationTests
             // The command2 will pass now as it's a different deserialized instance.
             bus.Setup(x => x.Send(It.Is<Envelope<ICommand>>(c => c.Body.Id == command3.Body.Id))).Throws<TimeoutException>();
 
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
                 Assert.Throws<TimeoutException>(() => context.Find(id));
 
@@ -261,7 +261,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
             // Clear bus now.
             bus = new Mock<ICommandBus>();
-            using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus.Object, new JsonTextSerializer()))
+            using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus.Object, new JsonTextSerializer()))
             {
                 var aggregate = context.Find(id);
 
@@ -272,14 +272,14 @@ namespace Infrastructure.Sql.IntegrationTests
             }
         }
 
-        public class TestProcessDbContext : DbContext
+        public class TestProcessManagerDbContext : DbContext
         {
-            public TestProcessDbContext(string nameOrConnectionString)
+            public TestProcessManagerDbContext(string nameOrConnectionString)
                 : base(nameOrConnectionString)
             {
             }
 
-            public DbSet<OrmTestProcess> TestProcesses { get; set; }
+            public DbSet<OrmTestProcessManager> TestProcessManagers { get; set; }
             public DbSet<UndispatchedMessages> UndispatchedMessages { get; set; }
         }
 
@@ -293,7 +293,7 @@ namespace Infrastructure.Sql.IntegrationTests
         }
     }
 
-    public class given_context_that_stalls_on_save_and_on_find_when_publishing_ : SqlProcessDataContextFixture
+    public class given_context_that_stalls_on_save_and_on_find_when_publishing_ : SqlProcessManagerDataContextFixture
     {
         protected TestCommand command1;
         protected TestCommand command2;
@@ -325,9 +325,9 @@ namespace Infrastructure.Sql.IntegrationTests
 
             Task.Factory.StartNew(() =>
             {
-                using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus1.Object, new JsonTextSerializer()))
+                using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus1.Object, new JsonTextSerializer()))
                 {
-                    var aggregate = new OrmTestProcess(id);
+                    var aggregate = new OrmTestProcessManager(id);
                     aggregate.AddEnvelope(new Envelope<ICommand>(command1), new Envelope<ICommand>(command2), new Envelope<ICommand>(command3));
 
                     context.Save(aggregate);
@@ -347,7 +347,7 @@ namespace Infrastructure.Sql.IntegrationTests
 
             Task.Factory.StartNew(() =>
             {
-                using (var context = new SqlProcessDataContext<OrmTestProcess>(() => new TestProcessDbContext(dbName), bus2.Object, new JsonTextSerializer()))
+                using (var context = new SqlProcessManagerDataContext<OrmTestProcessManager>(() => new TestProcessManagerDbContext(dbName), bus2.Object, new JsonTextSerializer()))
                 {
                     var entity = context.Find(id);
                     context.Save(entity);
@@ -461,13 +461,13 @@ namespace Infrastructure.Sql.IntegrationTests
         }
     }
 
-    public class OrmTestProcess : IProcess
+    public class OrmTestProcessManager : IProcessManager
     {
         private readonly List<Envelope<ICommand>> commands = new List<Envelope<ICommand>>();
 
-        protected OrmTestProcess() { }
+        protected OrmTestProcessManager() { }
 
-        public OrmTestProcess(Guid id)
+        public OrmTestProcessManager(Guid id)
         {
             this.Id = id;
         }

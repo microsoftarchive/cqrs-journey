@@ -19,15 +19,15 @@ using Registration.Commands;
 using Registration.Events;
 using Xunit;
 
-namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_process
+namespace Registration.Tests.RegistrationProcessManagerFixture.given_uninitialized_process
 {
     public class Context
     {
-        protected RegistrationProcess sut;
+        protected RegistrationProcessManager sut;
 
         public Context()
         {
-            this.sut = new RegistrationProcess();
+            this.sut = new RegistrationProcessManager();
         }
     }
 
@@ -90,7 +90,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_uninitialized_proc
         [Fact]
         public void then_transitions_to_awaiting_reservation_confirmation_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
     }
 
@@ -130,13 +130,13 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
 {
     public class Context
     {
-        protected RegistrationProcess sut;
+        protected RegistrationProcessManager sut;
         protected Guid orderId;
         protected Guid conferenceId;
 
         public Context()
         {
-            this.sut = new RegistrationProcess();
+            this.sut = new RegistrationProcessManager();
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
@@ -175,7 +175,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.ReservationConfirmationReceived, sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.ReservationConfirmationReceived, sut.State);
         }
     }
 
@@ -201,7 +201,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         [Fact]
         public void then_does_not_transition_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
     }
 
@@ -249,7 +249,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_awaiting_f
         [Fact]
         public void then_transitions_to_awaiting_reservation_confirmation_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
     }
 }
@@ -258,14 +258,14 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
 {
     public class Context
     {
-        protected RegistrationProcess sut;
+        protected RegistrationProcessManager sut;
         protected Guid orderId;
         protected Guid conferenceId;
         protected Guid reservationId;
 
         public Context()
         {
-            this.sut = new RegistrationProcess();
+            this.sut = new RegistrationProcessManager();
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
@@ -372,7 +372,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
         [Fact]
         public void then_transitions_to_awaiting_reservation_confirmation_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.AwaitingReservationConfirmation, sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.AwaitingReservationConfirmation, sut.State);
         }
     }
 
@@ -397,7 +397,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
         [Fact]
         public void then_transitions_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.PaymentConfirmationReceived, this.sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.PaymentConfirmationReceived, this.sut.State);
         }
     }
 
@@ -449,7 +449,7 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_reser
         [Fact]
         public void then_does_not_transition_state()
         {
-            Assert.Equal(RegistrationProcess.ProcessState.ReservationConfirmationReceived, sut.State);
+            Assert.Equal(RegistrationProcessManager.ProcessState.ReservationConfirmationReceived, sut.State);
         }
     }
 
@@ -485,14 +485,14 @@ namespace Registration.Tests.RegistrationProcessFixture.given_process_with_payme
 {
     public class Context
     {
-        protected RegistrationProcess sut;
+        protected RegistrationProcessManager sut;
         protected Guid orderId;
         protected Guid conferenceId;
         protected Guid reservationId;
 
         public Context()
         {
-            this.sut = new RegistrationProcess();
+            this.sut = new RegistrationProcessManager();
             this.orderId = Guid.NewGuid();
             this.conferenceId = Guid.NewGuid();
 
