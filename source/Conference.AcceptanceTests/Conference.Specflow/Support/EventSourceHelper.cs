@@ -46,7 +46,7 @@ namespace Conference.Specflow.Support
             var settings = InfrastructureSettings.Read("Settings.xml");
             var eventSourcingAccount = CloudStorageAccount.Parse(settings.EventSourcing.ConnectionString);
             var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.TableName);
-            var publisher = new EventStoreBusPublisher(ConferenceHelper.GetTopicSender("events"), eventStore, new EventStoreBusPublisherInstrumentation(false));
+            var publisher = new EventStoreBusPublisher(ConferenceHelper.GetTopicSender("events"), eventStore, new EventStoreBusPublisherInstrumentation("worker", false));
             var metadata = new StandardMetadataProvider();
             return new AzureEventSourcedRepository<T>(eventStore, publisher, serializer, metadata, new MemoryCache("RepositoryCache"));
 #endif

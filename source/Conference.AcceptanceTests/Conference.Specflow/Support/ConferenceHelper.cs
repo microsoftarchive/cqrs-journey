@@ -173,7 +173,7 @@ namespace Conference.Specflow.Support
 #if LOCAL
             return new CommandBus(GetMessageSender("SqlBus.Commands"), serializer);
 #else
-            return new CommandBus(GetTopicSender("commands"), new StandardMetadataProvider(), serializer);
+            return new SynchronousCommandBusDecorator(new CommandBus(GetTopicSender("commands"), new StandardMetadataProvider(), serializer));
 #endif
         }
 
