@@ -103,10 +103,10 @@ namespace WorkerRoleCommandProcessor
 
         private void RegisterEventProcessors(UnityContainer container)
         {
-            container.RegisterType<RegistrationProcessRouter>(new ContainerControlledLifetimeManager());
+            container.RegisterType<RegistrationProcessManagerRouter>(new ContainerControlledLifetimeManager());
 
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMOrderPlaced, this.instrumentationEnabled);
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMNextSteps, this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMOrderPlaced, this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMNextSteps, this.instrumentationEnabled);
             container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator, this.instrumentationEnabled);

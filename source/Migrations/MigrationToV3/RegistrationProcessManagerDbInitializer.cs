@@ -26,9 +26,9 @@ namespace MigrationToV3
     /// code paths aren't needed to run anymore.
     /// This also means it's a no-downtime migration.
     /// </summary>
-    internal class RegistrationProcessDbInitializer : IDatabaseInitializer<RegistrationProcessDbContext>
+    internal class RegistrationProcessManagerDbInitializer : IDatabaseInitializer<RegistrationProcessManagerDbContext>
     {
-        public void InitializeDatabase(RegistrationProcessDbContext context)
+        public void InitializeDatabase(RegistrationProcessManagerDbContext context)
         {
             // Note that we only create the table if it doesn't exist, so this 
             // can safely run with already upgraded databases.

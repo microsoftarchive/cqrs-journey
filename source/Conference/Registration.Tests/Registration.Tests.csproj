@@ -70,7 +70,7 @@
     <Compile Include="SeatAssignmentsFixture.cs" />
     <Compile Include="SeatsAvailabilityFixture.cs" />
     <Compile Include="RegistrationProcessFixture.cs" />
-    <Compile Include="RegistrationProcessRouterFixture.cs" />
+    <Compile Include="RegistrationProcessManagerRouterFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\Infrastructure\Infrastructure.csproj">

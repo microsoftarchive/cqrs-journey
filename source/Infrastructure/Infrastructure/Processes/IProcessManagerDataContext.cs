@@ -14,19 +14,20 @@
 namespace Infrastructure.Processes
 {
     using System;
-    using System.Collections.Generic;
-    using Infrastructure.Messaging;
+    using System.Linq.Expressions;
 
-    /// <summary>
-    /// Interface implemented by processes (also known as Sagas in the CQRS community) that 
-    /// publish commands to the command bus.
-    /// </summary>
-    public interface IProcess
+    // TODO: Does this even belong to a reusable infrastructure?
+    // This for reading and writing process managers (aka Sagas in the CQRS community)
+    public interface IProcessManagerDataContext<T> : IDisposable
+        where T : class, IProcessManager
     {
-        Guid Id { get; }
+        T Find(Guid id);
 
-        bool Completed { get; }
+        void Save(T processManager);
 
-        IEnumerable<Envelope<ICommand>> Commands { get; }
+        // TODO: queryability to reload processes from correlation ids, etc. 
+        // Is this appropriate? How do others reload processes? (MassTransit 
+        // uses this kind of queryable thinghy, apparently).
+        T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false);
     }
 }

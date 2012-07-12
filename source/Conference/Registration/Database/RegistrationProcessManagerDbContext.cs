@@ -16,11 +16,11 @@ namespace Registration.Database
     using System.Data.Entity;
     using Infrastructure.Sql.Processes;
 
-    public class RegistrationProcessDbContext : DbContext
+    public class RegistrationProcessManagerDbContext : DbContext
     {
         public const string SchemaName = "ConferenceRegistrationProcesses";
 
-        public RegistrationProcessDbContext(string nameOrConnectionString)
+        public RegistrationProcessManagerDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
         }
@@ -28,14 +28,14 @@ namespace Registration.Database
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<RegistrationProcess>().ToTable("RegistrationProcess", SchemaName);
+            modelBuilder.Entity<RegistrationProcessManager>().ToTable("RegistrationProcess", SchemaName);
             modelBuilder.Entity<UndispatchedMessages>().ToTable("UndispatchedMessages", SchemaName);
         }
 
         // Define the available entity sets for the database.
-        public DbSet<RegistrationProcess> RegistrationProcesses { get; set; }
+        public DbSet<RegistrationProcessManager> RegistrationProcesses { get; set; }
 
-        // Table for pending undispatched messages associated with a process.
+        // Table for pending undispatched messages associated with a process manager.
         public DbSet<UndispatchedMessages> UndispatchedMessages { get; set; }
     }
 }

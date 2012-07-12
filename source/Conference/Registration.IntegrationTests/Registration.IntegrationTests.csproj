@@ -55,7 +55,7 @@
     <Compile Include="DraftOrderViewModelGeneratorFixture.cs" />
     <Compile Include="PricedOrderViewModelGeneratorFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegistrationProcessDbContextFixture.cs" />
+    <Compile Include="RegistrationProcessManagerDbContextFixture.cs" />
     <Compile Include="SeatAssignmentsViewModelGeneratorFixture.cs" />
   </ItemGroup>
   <ItemGroup>

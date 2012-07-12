@@ -36,7 +36,6 @@ namespace Registration.Handlers
 
         public void Handle(MakeSeatReservation command)
         {
-            // TODO: what if there's no aggregate? how do we tell the registration process?
             var availability = this.repository.Get(command.ConferenceId);
             availability.MakeReservation(command.ReservationId, command.Seats);
             this.repository.Save(availability, command.Id.ToString());
