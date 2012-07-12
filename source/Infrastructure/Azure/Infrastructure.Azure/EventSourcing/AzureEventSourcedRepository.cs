@@ -35,7 +35,8 @@ namespace Infrastructure.Azure.EventSourcing
         private readonly IMetadataProvider metadataProvider;
         private readonly ObjectCache cache;
         private readonly Action<T> cacheMementoIfApplicable;
-        private readonly Func<Guid, IMemento> getMementoFromCache;
+        private readonly Func<Guid, Tuple<IMemento, DateTime?>> getMementoFromCache;
+        private readonly Action<Guid> markCacheAsStale;
 
         public AzureEventSourcedRepository(IEventStore eventStore, IEventStoreBusPublisher publisher, ITextSerializer serializer, IMetadataProvider metadataProvider, ObjectCache cache)
         {
@@ -70,30 +71,56 @@ namespace Infrastructure.Azure.EventSourcing
                         var memento = ((IMementoOriginator)originator).SaveToMemento();
                         this.cache.Set(
                             key,
-                            memento,
+                            new Tuple<IMemento, DateTime?>(memento, DateTime.UtcNow),
                             new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(30) });
                     };
-                this.getMementoFromCache = id => (IMemento)this.cache.Get(GetPartitionKey(id));
+                this.getMementoFromCache = id => (Tuple<IMemento, DateTime?>)this.cache.Get(GetPartitionKey(id));
+                this.markCacheAsStale = id =>
+                {
+                    var key = GetPartitionKey(id);
+                    var item = (Tuple<IMemento, DateTime?>)this.cache.Get(key);
+                    if (item != null && item.Item2.HasValue)
+                    {
+                        item = new Tuple<IMemento, DateTime?>(item.Item1, null);
+                        this.cache.Set(
+                            key,
+                            item,
+                            new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(30) });
+                    }
+                };
             }
             else
             {
-                // if no cache object or is not a memento originator, then no-op
+                // if no cache object or is not a cache originator, then no-op
                 this.cacheMementoIfApplicable = o => { };
                 this.getMementoFromCache = id => { return null; };
+                this.markCacheAsStale = id => { };
             }
         }
 
         public T Find(Guid id)
         {
-            var memento = this.getMementoFromCache(id);
-            if (memento != null)
+            var cachedMemento = this.getMementoFromCache(id);
+            if (cachedMemento != null && cachedMemento.Item1 != null)
             {
                 // NOTE: if we had a guarantee that this is running in a single process, there is
                 // no need to check if there are new events after the cached version.
-                var deserialized = this.eventStore.Load(GetPartitionKey(id), memento.Version + 1)
-                    .Select(this.Deserialize);
+                IEnumerable<IVersionedEvent> deserialized;
+                if (!cachedMemento.Item2.HasValue || cachedMemento.Item2.Value < DateTime.UtcNow.AddSeconds(-1))
+                {
+                    deserialized = this.eventStore.Load(GetPartitionKey(id), cachedMemento.Item1.Version + 1).Select(this.Deserialize);
+                }
+                else
+                {
+                    // if the cache entry was updated in the last seconds, then there is a high possibility that it is not stale
+                    // (because we typically have a single writer for high contention aggregates). This is why why optimistcally avoid
+                    // getting the new events from the EventStore since the last memento was created. In the low probable case
+                    // where we get an exception on save, then we mark the cache item as stale so when the command gets
+                    // reprocessed, this time we get the new events from the EventStore.
+                    deserialized = Enumerable.Empty<IVersionedEvent>();
+                }
 
-                return this.originatorEntityFactory.Invoke(id, memento, deserialized);
+                return this.originatorEntityFactory.Invoke(id, cachedMemento.Item1, deserialized);
             }
             else
             {
@@ -129,7 +156,15 @@ namespace Infrastructure.Azure.EventSourcing
             var serialized = events.Select(e => this.Serialize(e, correlationId));
 
             var partitionKey = this.GetPartitionKey(eventSourced.Id);
-            this.eventStore.Save(partitionKey, serialized);
+            try
+            {
+                this.eventStore.Save(partitionKey, serialized);
+            }
+            catch
+            {
+                this.markCacheAsStale(eventSourced.Id);
+                throw;
+            }
 
             this.publisher.SendAsync(partitionKey, events.Length);
 
