@@ -91,7 +91,14 @@ namespace Infrastructure.Azure.Messaging
 
             var messagingFactory = MessagingFactory.Create(this.serviceUri, tokenProvider);
             this.client = messagingFactory.CreateSubscriptionClient(topic, subscription);
-            this.client.PrefetchCount = 50;
+            if (this.requiresSequentialProcessing)
+            {
+                this.client.PrefetchCount = 10;
+            }
+            else
+            {
+                this.client.PrefetchCount = 15;
+            }
 
             this.dynamicThrottling =
                 new DynamicThrottling(
