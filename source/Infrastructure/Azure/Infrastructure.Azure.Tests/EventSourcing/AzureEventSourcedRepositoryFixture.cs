@@ -152,7 +152,8 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
         [Fact]
         public void then_stores_memento_in_cache()
         {
-            Assert.Equal(this.memento, this.cache["TestOriginatorEntity_" + id.ToString()]);
+            var cached = (Tuple<IMemento, DateTime?>)this.cache["TestOriginatorEntity_" + id.ToString()];
+            Assert.Equal(this.memento, cached.Item1);
         }
     }
 
@@ -207,7 +208,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.AzureEventSourcedRepositoryFi
             var eventStore = new Mock<IEventStore>();
             this.memento = Mock.Of<IMemento>(x => x.Version == 1);
             var cache = new MemoryCache(Guid.NewGuid().ToString());
-            cache.Add("TestOriginatorEntity_" + id.ToString(), this.memento, DateTimeOffset.UtcNow.AddMinutes(10));
+            cache.Add("TestOriginatorEntity_" + id.ToString(), new Tuple<IMemento, DateTime?>(this.memento, null), DateTimeOffset.UtcNow.AddMinutes(10));
 
             eventStore.Setup(x => x.Load(It.IsAny<string>(), 2)).Returns(serialized);
             var sut = new AzureEventSourcedRepository<TestOriginatorEntity>(eventStore.Object, Mock.Of<IEventStoreBusPublisher>(), new JsonTextSerializer(), new StandardMetadataProvider(), cache);
