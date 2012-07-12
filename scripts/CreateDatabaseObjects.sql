@@ -215,7 +215,6 @@ CREATE TABLE [ConferenceRegistration].[ConferencesView](
 	[Tagline] [nvarchar](max) NULL,
 	[TwitterSearch] [nvarchar](max) NULL,
 	[StartDate] [datetimeoffset](7) NOT NULL,
-	[SeatsAvailabilityVersion] [int] NOT NULL,
 	[IsPublished] [bit] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
@@ -350,6 +349,7 @@ CREATE TABLE [ConferenceRegistration].[ConferenceSeatTypesView](
 	[Price] [decimal](18, 2) NOT NULL,
 	[Quantity] [int] NOT NULL,
 	[AvailableQuantity] [int] NOT NULL,
+	[SeatsAvailabilityVersion] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -423,12 +423,6 @@ REFERENCES [ConferenceManagement].[Conferences] ([Id])
 ON DELETE CASCADE
 GO
 ALTER TABLE [ConferenceManagement].[SeatTypes] CHECK CONSTRAINT [FK_ConferenceManagement.SeatTypes_ConferenceManagement.Conferences_ConferenceInfo_Id]
-GO
-ALTER TABLE [ConferenceRegistration].[ConferenceSeatTypesView]  WITH CHECK ADD  CONSTRAINT [Conference_Seats] FOREIGN KEY([ConferenceId])
-REFERENCES [ConferenceRegistration].[ConferencesView] ([Id])
-ON DELETE CASCADE
-GO
-ALTER TABLE [ConferenceRegistration].[ConferenceSeatTypesView] CHECK CONSTRAINT [Conference_Seats]
 GO
 ALTER TABLE [ConferenceRegistration].[PricedOrderLinesV3]  WITH CHECK ADD  CONSTRAINT [PricedOrder_Lines] FOREIGN KEY([OrderId])
 REFERENCES [ConferenceRegistration].[PricedOrdersV3] ([OrderId])
