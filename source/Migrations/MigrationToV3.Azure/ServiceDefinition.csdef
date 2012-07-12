@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="MigrationToV3.Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-05.1.7">
+  <WorkerRole name="MigrationToV3.InHouseProcessor" vmsize="Small">
+    <Imports>
+      <Import moduleName="Diagnostics" />
+    </Imports>
+    <ConfigurationSettings>
+      <Setting name="Diagnostics.ScheduledTransferPeriod" />
+      <Setting name="Diagnostics.LogLevelFilter" />
+      <Setting name="Diagnostics.PerformanceCounterSampleRate" />
+      <Setting name="DbContext.Payments" />
+      <Setting name="DbContext.EventStore" />
+      <Setting name="DbContext.BlobStorage" />
+      <Setting name="DbContext.ConferenceRegistrationProcesses" />
+      <Setting name="DbContext.ConferenceRegistration" />
+      <Setting name="DbContext.SqlBus" />
+      <Setting name="DbContext.ConferenceManagement" />
+      <Setting name="MaintenanceMode" />
+      <Setting name="DbContext.MessageLog" />
+      <Setting name="InstrumentationEnabled" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>

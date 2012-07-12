@@ -74,6 +74,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationToV3", "Migrations
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Tests", "Infrastructure\Infrastructure.Tests\Infrastructure.Tests.csproj", "{449F6FFD-3817-496A-BCDE-71D5F4710811}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationToV3.InHouseProcessor", "Migrations\MigrationToV3.InHouseProcessor\MigrationToV3.InHouseProcessor.csproj", "{BA05787C-E0F5-4303-A71B-D282694B759B}"
+EndProject
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "MigrationToV3.Azure", "Migrations\MigrationToV3.Azure\MigrationToV3.Azure.ccproj", "{8CB089FD-F005-4D11-A67D-96255266333E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -229,6 +233,18 @@ Global
 		{449F6FFD-3817-496A-BCDE-71D5F4710811}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
 		{449F6FFD-3817-496A-BCDE-71D5F4710811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{449F6FFD-3817-496A-BCDE-71D5F4710811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA05787C-E0F5-4303-A71B-D282694B759B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CB089FD-F005-4D11-A67D-96255266333E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CB089FD-F005-4D11-A67D-96255266333E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CB089FD-F005-4D11-A67D-96255266333E}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CB089FD-F005-4D11-A67D-96255266333E}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{8CB089FD-F005-4D11-A67D-96255266333E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CB089FD-F005-4D11-A67D-96255266333E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -255,6 +271,8 @@ Global
 		{8BE0E22D-C2D7-4E1A-8F6D-7FC7A9CB049D} = {E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}
 		{F038F286-5AEF-4341-83EC-9F72F42D06D6} = {E3C76BF3-41B7-4361-B2CA-A99A82E2EFB6}
 		{8EC84BDD-9B6E-44E6-A333-A2D9C8A7C201} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
+		{BA05787C-E0F5-4303-A71B-D282694B759B} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
+		{8CB089FD-F005-4D11-A67D-96255266333E} = {EB2A0055-A001-498D-B4AA-7E3DF72C8F84}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\TransientFaultHandling.Core.5.0.1118.2\lib\NET35;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.2\DesignTime;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\lib\NET4;packages\EnterpriseLibrary.WindowsAzure.TransientFaultHandling.5.0.1118.0\DesignTime

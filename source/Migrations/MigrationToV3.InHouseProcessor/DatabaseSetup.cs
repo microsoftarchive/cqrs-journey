@@ -11,19 +11,35 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace MigrationToV3
+namespace MigrationToV3.InHouseProcessor
 {
     using System.Data.Entity;
+    using Conference.Common.Entity;
+    using Infrastructure.Sql.BlobStorage;
+    using Infrastructure.Sql.EventSourcing;
+    using Infrastructure.Sql.MessageLog;
+    using Payments.Database;
+    using Payments.ReadModel.Implementation;
     using Registration.Database;
-    using Registration.ReadModel.Implementation;
 
-    public static class Migration
+    /// <summary>
+    /// Initializes the EF infrastructure.
+    /// </summary>
+    internal static class DatabaseSetup
     {
         public static void Initialize()
         {
-            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
-            // TODO review whether to 
-            //Database.SetInitializer<ConferenceRegistrationDbContext>(new ConferenceRegistrationDbInitializer());
+            Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
+
+            Database.SetInitializer<Registration.ReadModel.Implementation.ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationV2.ReadModel.Implementation.ConferenceRegistrationDbContext>(null);
+            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<EventStoreDbContext>(null);
+            Database.SetInitializer<MessageLogDbContext>(null);
+            Database.SetInitializer<BlobStorageDbContext>(null);
+
+            Database.SetInitializer<PaymentsDbContext>(null);
+            Database.SetInitializer<PaymentsReadDbContext>(null);
         }
     }
 }

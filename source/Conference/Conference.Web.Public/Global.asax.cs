@@ -50,12 +50,9 @@ namespace Conference.Web.Public
                     {
                         RoleEnvironment.RequestRecycle();
                     }
-                    else
+                    else if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
                     {
-                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
-                        {
-                            MaintenanceMode.RefreshIsInMaintainanceMode();
-                        }
+                        MaintenanceMode.RefreshIsInMaintainanceMode();
                     }
                 };
             MaintenanceMode.RefreshIsInMaintainanceMode();

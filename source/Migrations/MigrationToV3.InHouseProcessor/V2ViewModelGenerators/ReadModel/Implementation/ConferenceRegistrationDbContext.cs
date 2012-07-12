@@ -11,14 +11,11 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
-namespace Registration.ReadModel.Implementation
+namespace RegistrationV2.ReadModel.Implementation
 {
     using System;
     using System.Data.Entity;
-    using System.Diagnostics;
     using System.Linq;
-    using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.SqlAzure;
-    using Microsoft.Practices.TransientFaultHandling;
 
     /// <summary>
     /// A repository stored in a database for the views.
@@ -26,14 +23,10 @@ namespace Registration.ReadModel.Implementation
     public class ConferenceRegistrationDbContext : DbContext
     {
         public const string SchemaName = "ConferenceRegistration";
-        private readonly RetryPolicy<SqlAzureTransientErrorDetectionStrategy> retryPolicy;
 
         public ConferenceRegistrationDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
-            this.retryPolicy = new RetryPolicy<SqlAzureTransientErrorDetectionStrategy>(new Incremental(3, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(1.5)) { FastFirstRetry = true });
-            this.retryPolicy.Retrying += (s, e) =>
-                Trace.TraceWarning("An error occurred in attempt number {1} to access the ConferenceRegistrationDbContext: {0}", e.LastException.Message, e.CurrentRetryCount);
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -41,24 +34,18 @@ namespace Registration.ReadModel.Implementation
             base.OnModelCreating(modelBuilder);
 
             // Make the name of the views match exactly the name of the corresponding property.
-            modelBuilder.Entity<DraftOrder>().ToTable("OrdersViewV3", SchemaName);
+            modelBuilder.Entity<DraftOrder>().ToTable("OrdersView", SchemaName);
             modelBuilder.Entity<DraftOrder>().HasMany(c => c.Lines).WithRequired();
-            modelBuilder.Entity<DraftOrderItem>().ToTable("OrderItemsViewV3", SchemaName);
-            modelBuilder.Entity<DraftOrderItem>().HasKey(item => new { item.OrderId, item.SeatType });
-            modelBuilder.Entity<PricedOrder>().ToTable("PricedOrdersV3", SchemaName);
+            modelBuilder.Entity<DraftOrderItem>().ToTable("OrderItemsView", SchemaName);
+            modelBuilder.Entity<PricedOrder>().ToTable("PricedOrders", SchemaName);
             modelBuilder.Entity<PricedOrder>().HasMany(c => c.Lines).WithRequired().HasForeignKey(x => x.OrderId);
-            modelBuilder.Entity<PricedOrderLine>().ToTable("PricedOrderLinesV3", SchemaName);
-            modelBuilder.Entity<PricedOrderLine>().HasKey(seat => new { seat.OrderId, seat.Position });
-            modelBuilder.Entity<PricedOrderLineSeatTypeDescription>().ToTable("PricedOrderLineSeatTypeDescriptionsV3", SchemaName);
-
-            modelBuilder.Entity<Conference>().ToTable("ConferencesView", SchemaName);
-            modelBuilder.Entity<Conference>().HasMany(c => c.Seats).WithRequired();
-            modelBuilder.Entity<SeatType>().ToTable("ConferenceSeatTypesView", SchemaName);
+            modelBuilder.Entity<PricedOrderLine>().ToTable("PricedOrderLines", SchemaName);
+            modelBuilder.Entity<PricedOrderLineSeatTypeDescription>().ToTable("PricedOrderLineSeatTypeDescriptions", SchemaName);
         }
 
         public T Find<T>(Guid id) where T : class
         {
-            return this.retryPolicy.ExecuteAction(() => this.Set<T>().Find(id));
+            return this.Set<T>().Find(id);
         }
 
         public IQueryable<T> Query<T>() where T : class
@@ -73,7 +60,7 @@ namespace Registration.ReadModel.Implementation
             if (entry.State == System.Data.EntityState.Detached)
                 this.Set<T>().Add(entity);
 
-            this.retryPolicy.ExecuteAction(() => this.SaveChanges());
+            this.SaveChanges();
         }
     }
 }
