@@ -18,6 +18,159 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+CREATE TABLE [MessageLog].[Messages](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Kind] [nvarchar](max) NULL,
+	[SourceId] [nvarchar](max) NULL,
+	[AssemblyName] [nvarchar](max) NULL,
+	[Namespace] [nvarchar](max) NULL,
+	[FullName] [nvarchar](max) NULL,
+	[TypeName] [nvarchar](max) NULL,
+	[SourceType] [nvarchar](max) NULL,
+	[CreationDate] [nvarchar](max) NULL,
+	[Payload] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [SqlBus].[Events](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[Body] [nvarchar](max) NOT NULL,
+	[DeliveryDate] [datetime] NULL,
+	[CorrelationId] [nvarchar](max) NULL,
+ CONSTRAINT [PK_SqlBus.Events] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [Events].[Events](
+	[AggregateId] [uniqueidentifier] NOT NULL,
+	[AggregateType] [nvarchar](128) NOT NULL,
+	[Version] [int] NOT NULL,
+	[Payload] [nvarchar](max) NULL,
+	[CorrelationId] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[AggregateId] ASC,
+	[AggregateType] ASC,
+	[Version] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [ConferenceRegistration].[ConferencesView](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Code] [nvarchar](max) NULL,
+	[Name] [nvarchar](max) NULL,
+	[Description] [nvarchar](max) NULL,
+	[Location] [nvarchar](max) NULL,
+	[Tagline] [nvarchar](max) NULL,
+	[TwitterSearch] [nvarchar](max) NULL,
+	[StartDate] [datetimeoffset](7) NOT NULL,
+	[IsPublished] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [ConferenceRegistration].[ConferenceSeatTypesView](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ConferenceId] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](max) NULL,
+	[Description] [nvarchar](max) NULL,
+	[Price] [decimal](18, 2) NOT NULL,
+	[Quantity] [int] NOT NULL,
+	[AvailableQuantity] [int] NOT NULL,
+	[SeatsAvailabilityVersion] [int] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+CREATE NONCLUSTERED INDEX [IX_SeatTypesView_ConferenceId] ON [ConferenceRegistration].[ConferenceSeatTypesView] 
+(
+	[ConferenceId] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [ConferenceManagement].[Conferences](
+	[Id] [uniqueidentifier] NOT NULL,
+	[AccessCode] [nvarchar](6) NULL,
+	[OwnerName] [nvarchar](max) NOT NULL,
+	[OwnerEmail] [nvarchar](max) NOT NULL,
+	[Slug] [nvarchar](max) NOT NULL,
+	[WasEverPublished] [bit] NOT NULL,
+	[Name] [nvarchar](max) NOT NULL,
+	[Description] [nvarchar](max) NOT NULL,
+	[Location] [nvarchar](max) NOT NULL,
+	[Tagline] [nvarchar](max) NULL,
+	[TwitterSearch] [nvarchar](max) NULL,
+	[StartDate] [datetime] NOT NULL,
+	[EndDate] [datetime] NOT NULL,
+	[IsPublished] [bit] NOT NULL,
+ CONSTRAINT [PK_ConferenceManagement.Conferences] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [SqlBus].[Commands](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[Body] [nvarchar](max) NOT NULL,
+	[DeliveryDate] [datetime] NULL,
+	[CorrelationId] [nvarchar](max) NULL,
+ CONSTRAINT [PK_SqlBus.Commands] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [BlobStorage].[Blobs](
+	[Id] [nvarchar](128) NOT NULL,
+	[ContentType] [nvarchar](max) NULL,
+	[Blob] [varbinary](max) NULL,
+	[BlobString] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
+)
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE TABLE [ConferenceRegistration].[PricedOrderLineSeatTypeDescriptionsV3](
 	[SeatTypeId] [uniqueidentifier] NOT NULL,
 	[Name] [nvarchar](max) NULL,
@@ -90,135 +243,6 @@ CREATE TABLE [ConferenceRegistration].[PricedOrdersV3](
 PRIMARY KEY CLUSTERED 
 (
 	[OrderId] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [ConferenceManagement].[Conferences](
-	[Id] [uniqueidentifier] NOT NULL,
-	[AccessCode] [nvarchar](6) NULL,
-	[OwnerName] [nvarchar](max) NOT NULL,
-	[OwnerEmail] [nvarchar](max) NOT NULL,
-	[Slug] [nvarchar](max) NOT NULL,
-	[WasEverPublished] [bit] NOT NULL,
-	[Name] [nvarchar](max) NOT NULL,
-	[Description] [nvarchar](max) NOT NULL,
-	[Location] [nvarchar](max) NOT NULL,
-	[Tagline] [nvarchar](max) NULL,
-	[TwitterSearch] [nvarchar](max) NULL,
-	[StartDate] [datetime] NOT NULL,
-	[EndDate] [datetime] NOT NULL,
-	[IsPublished] [bit] NOT NULL,
- CONSTRAINT [PK_ConferenceManagement.Conferences] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [SqlBus].[Commands](
-	[Id] [bigint] IDENTITY(1,1) NOT NULL,
-	[Body] [nvarchar](max) NOT NULL,
-	[DeliveryDate] [datetime] NULL,
-	[CorrelationId] [nvarchar](max) NULL,
- CONSTRAINT [PK_SqlBus.Commands] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [BlobStorage].[Blobs](
-	[Id] [nvarchar](128) NOT NULL,
-	[ContentType] [nvarchar](max) NULL,
-	[Blob] [varbinary](max) NULL,
-	[BlobString] [nvarchar](max) NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [MessageLog].[Messages](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Kind] [nvarchar](max) NULL,
-	[SourceId] [nvarchar](max) NULL,
-	[AssemblyName] [nvarchar](max) NULL,
-	[Namespace] [nvarchar](max) NULL,
-	[FullName] [nvarchar](max) NULL,
-	[TypeName] [nvarchar](max) NULL,
-	[SourceType] [nvarchar](max) NULL,
-	[CreationDate] [nvarchar](max) NULL,
-	[Payload] [nvarchar](max) NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [SqlBus].[Events](
-	[Id] [bigint] IDENTITY(1,1) NOT NULL,
-	[Body] [nvarchar](max) NOT NULL,
-	[DeliveryDate] [datetime] NULL,
-	[CorrelationId] [nvarchar](max) NULL,
- CONSTRAINT [PK_SqlBus.Events] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [Events].[Events](
-	[AggregateId] [uniqueidentifier] NOT NULL,
-	[AggregateType] [nvarchar](128) NOT NULL,
-	[Version] [int] NOT NULL,
-	[Payload] [nvarchar](max) NULL,
-	[CorrelationId] [nvarchar](max) NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[AggregateId] ASC,
-	[AggregateType] ASC,
-	[Version] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [ConferenceRegistration].[ConferencesView](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Code] [nvarchar](max) NULL,
-	[Name] [nvarchar](max) NULL,
-	[Description] [nvarchar](max) NULL,
-	[Location] [nvarchar](max) NULL,
-	[Tagline] [nvarchar](max) NULL,
-	[TwitterSearch] [nvarchar](max) NULL,
-	[StartDate] [datetimeoffset](7) NOT NULL,
-	[IsPublished] [bit] NOT NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
 )
 GO
@@ -335,30 +359,6 @@ GO
 CREATE NONCLUSTERED INDEX [IX_ConferenceInfo_Id] ON [ConferenceManagement].[SeatTypes] 
 (
 	[ConferenceInfo_Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF)
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [ConferenceRegistration].[ConferenceSeatTypesView](
-	[Id] [uniqueidentifier] NOT NULL,
-	[ConferenceId] [uniqueidentifier] NOT NULL,
-	[Name] [nvarchar](max) NULL,
-	[Description] [nvarchar](max) NULL,
-	[Price] [decimal](18, 2) NOT NULL,
-	[Quantity] [int] NOT NULL,
-	[AvailableQuantity] [int] NOT NULL,
-	[SeatsAvailabilityVersion] [int] NOT NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF)
-)
-GO
-CREATE NONCLUSTERED INDEX [IX_SeatTypesView_ConferenceId] ON [ConferenceRegistration].[ConferenceSeatTypesView] 
-(
-	[ConferenceId] ASC
 )WITH (STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF)
 GO
 SET ANSI_NULLS ON
