@@ -47,7 +47,7 @@ namespace Conference.Specflow.Steps
         {
             conferenceInfo = ScenarioContext.Current.Get<ConferenceInfo>();
             registrationController = RegistrationHelper.GetRegistrationController(conferenceInfo.Slug);
-
+            
             orderViewModel = RegistrationHelper.GetModel<OrderViewModel>(registrationController.StartRegistration().Result);
             Assert.NotNull(orderViewModel);
 
@@ -180,7 +180,7 @@ namespace Conference.Specflow.Steps
         [Then(@"the Registrant assigns these seats")]
         public void ThenTheRegistrantAssignsTheseSeats(Table table)
         {
-            using (var orderController = RegistrationHelper.GetOrderController())
+            using (var orderController = RegistrationHelper.GetOrderController(conferenceInfo.Slug))
             {
                 PricedOrder pricedOrder = null;
                 var timeout = DateTime.Now.Add(Constants.UI.WaitTimeout);

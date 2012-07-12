@@ -20,11 +20,15 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using Conference.Common.Entity;
 using Conference.Web.Public.Controllers;
+using Infrastructure.Azure;
+using Infrastructure.BlobStorage;
 using Infrastructure.Serialization;
-using Infrastructure.Sql.BlobStorage;
+using Microsoft.WindowsAzure;
 using Moq;
 using Payments.ReadModel.Implementation;
 using Registration.ReadModel.Implementation;
+using Infrastructure.Sql.BlobStorage;
+using Infrastructure.Azure.BlobStorage;
 
 namespace Conference.Specflow.Support
 {
@@ -41,7 +45,7 @@ namespace Conference.Specflow.Support
         public static RegistrationController GetRegistrationController(string conferenceCode)
         {
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
-            var orderDao = new OrderDao(new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
+            var orderDao = new OrderDao(ctxFactory, GetBlobStorage(), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
    
             // Setup context mocks
@@ -72,13 +76,19 @@ namespace Conference.Specflow.Support
             return new PaymentController(ConferenceHelper.BuildCommandBus(), paymentDao);
         }
 
-        public static OrderController GetOrderController()
+        public static OrderController GetOrderController(string conferenceCode)
         {
             Func<ConferenceRegistrationDbContext> ctxFactory = () => new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName);
-            var orderDao = new OrderDao(new SqlBlobStorage("BlobStorage"), new JsonTextSerializer());
+            var orderDao = new OrderDao(ctxFactory, GetBlobStorage(), new JsonTextSerializer());
             var conferenceDao = new ConferenceDao(ctxFactory);
 
-            return new OrderController(conferenceDao, orderDao, ConferenceHelper.BuildCommandBus());
+            var orderController = new OrderController(conferenceDao, orderDao, ConferenceHelper.BuildCommandBus());
+            
+            var routeData = new RouteData();
+            routeData.Values.Add("conferenceCode", conferenceCode);
+            orderController.ControllerContext = Mock.Of<ControllerContext>(x => x.RouteData == routeData);
+
+            return orderController;
         }
 
         public static T FindInContext<T>(Guid id) where T : class
@@ -101,6 +111,18 @@ namespace Conference.Specflow.Support
         {
             var viewResult = result as ViewResultBase;
             return viewResult != null ? viewResult.Model as T : default(T);
+        }
+
+        private static IBlobStorage GetBlobStorage()
+        {
+#if LOCAL
+            IBlobStorage blobStorage = new SqlBlobStorage("BlobStorage");
+#else
+            var azureSettings = InfrastructureSettings.Read("Settings.xml");
+            var blobStorageAccount = CloudStorageAccount.Parse(azureSettings.BlobStorage.ConnectionString);
+            IBlobStorage blobStorage = new CloudBlobStorage(blobStorageAccount, azureSettings.BlobStorage.RootContainerName);
+#endif
+            return blobStorage;
         }
     }
 }
