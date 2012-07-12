@@ -18,13 +18,13 @@ namespace Registration.IntegrationTests
     using Registration.Database;
     using Xunit;
 
-    public class RegistrationProcessDbContextFixture
+    public class RegistrationProcessManagerDbContextFixture
     {
         [Fact]
         public void when_saving_process_then_can_retrieve_it()
         {
             var dbName = this.GetType().Name + "-" + Guid.NewGuid();
-            using (var context = new RegistrationProcessDbContext(dbName))
+            using (var context = new RegistrationProcessManagerDbContext(dbName))
             {
                 context.Database.Create();
             }
@@ -32,22 +32,22 @@ namespace Registration.IntegrationTests
             try
             {
                 Guid id = Guid.Empty;
-                using (var context = new RegistrationProcessDbContext(dbName))
+                using (var context = new RegistrationProcessManagerDbContext(dbName))
                 {
-                    var process = new RegistrationProcess();
-                    context.RegistrationProcesses.Add(process);
+                    var pm = new RegistrationProcessManager();
+                    context.RegistrationProcesses.Add(pm);
                     context.SaveChanges();
-                    id = process.Id;
+                    id = pm.Id;
                 }
-                using (var context = new RegistrationProcessDbContext(dbName))
+                using (var context = new RegistrationProcessManagerDbContext(dbName))
                 {
-                    var process = context.RegistrationProcesses.Find(id);
-                    Assert.NotNull(process);
+                    var pm = context.RegistrationProcesses.Find(id);
+                    Assert.NotNull(pm);
                 }
             }
             finally
             {
-                using (var context = new RegistrationProcessDbContext(dbName))
+                using (var context = new RegistrationProcessManagerDbContext(dbName))
                 {
                     context.Database.Delete();
                 }
@@ -58,7 +58,7 @@ namespace Registration.IntegrationTests
         public void when_saving_process_performs_optimistic_locking()
         {
             var dbName = this.GetType().Name + "-" + Guid.NewGuid();
-            using (var context = new RegistrationProcessDbContext(dbName))
+            using (var context = new RegistrationProcessManagerDbContext(dbName))
             {
                 context.Database.Create();
             }
@@ -66,25 +66,25 @@ namespace Registration.IntegrationTests
             try
             {
                 Guid id = Guid.Empty;
-                using (var context = new RegistrationProcessDbContext(dbName))
+                using (var context = new RegistrationProcessManagerDbContext(dbName))
                 {
-                    var process = new RegistrationProcess();
-                    context.RegistrationProcesses.Add(process);
+                    var pm = new RegistrationProcessManager();
+                    context.RegistrationProcesses.Add(pm);
                     context.SaveChanges();
-                    id = process.Id;
+                    id = pm.Id;
                 }
 
-                using (var context = new RegistrationProcessDbContext(dbName))
+                using (var context = new RegistrationProcessManagerDbContext(dbName))
                 {
-                    var process = context.RegistrationProcesses.Find(id);
+                    var pm = context.RegistrationProcesses.Find(id);
 
-                    process.State = RegistrationProcess.ProcessState.PaymentConfirmationReceived;
+                    pm.State = RegistrationProcessManager.ProcessState.PaymentConfirmationReceived;
 
-                    using (var innerContext = new RegistrationProcessDbContext(dbName))
+                    using (var innerContext = new RegistrationProcessManagerDbContext(dbName))
                     {
                         var innerProcess = innerContext.RegistrationProcesses.Find(id);
 
-                        innerProcess.State = RegistrationProcess.ProcessState.ReservationConfirmationReceived;
+                        innerProcess.State = RegistrationProcessManager.ProcessState.ReservationConfirmationReceived;
 
                         innerContext.SaveChanges();
                     }
@@ -94,7 +94,7 @@ namespace Registration.IntegrationTests
             }
             finally
             {
-                using (var context = new RegistrationProcessDbContext(dbName))
+                using (var context = new RegistrationProcessManagerDbContext(dbName))
                 {
                     context.Database.Delete();
                 }

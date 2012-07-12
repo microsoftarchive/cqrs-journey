@@ -33,7 +33,7 @@ namespace MigrationToV3.InHouseProcessor
 
             Database.SetInitializer<Registration.ReadModel.Implementation.ConferenceRegistrationDbContext>(null);
             Database.SetInitializer<RegistrationV2.ReadModel.Implementation.ConferenceRegistrationDbContext>(null);
-            Database.SetInitializer<RegistrationProcessDbContext>(null);
+            Database.SetInitializer<RegistrationProcessManagerDbContext>(null);
             Database.SetInitializer<EventStoreDbContext>(null);
             Database.SetInitializer<MessageLogDbContext>(null);
             Database.SetInitializer<BlobStorageDbContext>(null);

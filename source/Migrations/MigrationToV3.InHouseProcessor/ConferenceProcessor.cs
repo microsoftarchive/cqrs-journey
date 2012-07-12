@@ -80,8 +80,8 @@ namespace MigrationToV3.InHouseProcessor
             container.RegisterInstance<ITextSerializer>(new JsonTextSerializer());
             container.RegisterInstance<IMetadataProvider>(new StandardMetadataProvider());
 
-            container.RegisterType<DbContext, RegistrationProcessDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
-            container.RegisterType<IProcessDataContext<RegistrationProcess>, SqlProcessDataContext<RegistrationProcess>>(
+            container.RegisterType<DbContext, RegistrationProcessManagerDbContext>("registration", new TransientLifetimeManager(), new InjectionConstructor("ConferenceRegistrationProcesses"));
+            container.RegisterType<IProcessManagerDataContext<RegistrationProcessManager>, SqlProcessManagerDataContext<RegistrationProcessManager>>(
                 new TransientLifetimeManager(),
                 new InjectionConstructor(new ResolvedParameter<Func<DbContext>>("registration"), typeof(ICommandBus), typeof(ITextSerializer)));
 
@@ -99,7 +99,7 @@ namespace MigrationToV3.InHouseProcessor
             container.RegisterType<IPricingService, PricingService>(new ContainerControlledLifetimeManager());
 
             // handlers
-            container.RegisterType<ICommandHandler, RegistrationProcessRouter>("RegistrationProcessRouter");
+            container.RegisterType<ICommandHandler, RegistrationProcessManagerRouter>("RegistrationProcessManagerRouter");
             container.RegisterType<ICommandHandler, OrderCommandHandler>("OrderCommandHandler");
             container.RegisterType<ICommandHandler, SeatsAvailabilityHandler>("SeatsAvailabilityHandler");
             container.RegisterType<ICommandHandler, ThirdPartyProcessorPaymentCommandHandler>("ThirdPartyProcessorPaymentCommandHandler");

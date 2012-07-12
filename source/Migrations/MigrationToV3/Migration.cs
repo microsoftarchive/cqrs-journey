@@ -21,7 +21,7 @@ namespace MigrationToV3
     {
         public static void Initialize()
         {
-            Database.SetInitializer<RegistrationProcessDbContext>(new RegistrationProcessDbInitializer());
+            Database.SetInitializer<RegistrationProcessManagerDbContext>(new RegistrationProcessManagerDbInitializer());
             // TODO review whether to 
             //Database.SetInitializer<ConferenceRegistrationDbContext>(new ConferenceRegistrationDbInitializer());
         }

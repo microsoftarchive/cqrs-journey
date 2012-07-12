@@ -97,7 +97,7 @@ namespace MigrationToV3.InHouseProcessor
 
         private void RegisterEventProcessors(UnityContainer container)
         {
-            container.RegisterEventProcessor<RegistrationProcessRouter>(this.busConfig, "Registration.RegistrationProcessRouter", this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, "Registration.RegistrationProcessRouter", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.OrderViewModelGenerator>(this.busConfig, "Registration.OrderViewModelGenerator", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.PricedOrderViewModelGenerator>(this.busConfig, "Registration.PricedOrderViewModelGenerator", this.instrumentationEnabled);
         }

@@ -22,7 +22,7 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
-    public class RegistrationProcessRouter :
+    public class RegistrationProcessManagerRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
         IEnvelopedEventHandler<SeatsReserved>,
@@ -30,9 +30,9 @@ namespace Registration
         IEventHandler<OrderConfirmed>,
         ICommandHandler<ExpireRegistrationProcess>
     {
-        private readonly Func<IProcessDataContext<RegistrationProcess>> contextFactory;
+        private readonly Func<IProcessManagerDataContext<RegistrationProcessManager>> contextFactory;
 
-        public RegistrationProcessRouter(Func<IProcessDataContext<RegistrationProcess>> contextFactory)
+        public RegistrationProcessManagerRouter(Func<IProcessManagerDataContext<RegistrationProcessManager>> contextFactory)
         {
             this.contextFactory = contextFactory;
         }
@@ -41,14 +41,14 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.OrderId == @event.SourceId);
-                if (process == null)
+                var pm = context.Find(x => x.OrderId == @event.SourceId);
+                if (pm == null)
                 {
-                    process = new RegistrationProcess();
+                    pm = new RegistrationProcessManager();
                 }
 
-                process.Handle(@event);
-                context.Save(process);
+                pm.Handle(@event);
+                context.Save(pm);
             }
         }
 
@@ -56,16 +56,16 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.OrderId == @event.SourceId);
-                if (process != null)
+                var pm = context.Find(x => x.OrderId == @event.SourceId);
+                if (pm != null)
                 {
-                    process.Handle(@event);
+                    pm.Handle(@event);
 
-                    context.Save(process);
+                    context.Save(pm);
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the registration process handling the order with id {0}.", @event.SourceId);
+                    Trace.TraceError("Failed to locate the registration process manager handling the order with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -74,17 +74,17 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.ReservationId == envelope.Body.ReservationId);
-                if (process != null)
+                var pm = context.Find(x => x.ReservationId == envelope.Body.ReservationId);
+                if (pm != null)
                 {
-                    process.Handle(envelope);
+                    pm.Handle(envelope);
 
-                    context.Save(process);
+                    context.Save(pm);
                 }
                 else
                 {
                     // TODO: should Cancel seat reservation!
-                    Trace.TraceError("Failed to locate the registration process handling the seat reservation with id {0}. TODO: should Cancel seat reservation!", envelope.Body.ReservationId);
+                    Trace.TraceError("Failed to locate the registration process manager handling the seat reservation with id {0}. TODO: should Cancel seat reservation!", envelope.Body.ReservationId);
                 }
             }
         }
@@ -93,16 +93,16 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.OrderId == @event.SourceId);
-                if (process != null)
+                var pm = context.Find(x => x.OrderId == @event.SourceId);
+                if (pm != null)
                 {
-                    process.Handle(@event);
+                    pm.Handle(@event);
 
-                    context.Save(process);
+                    context.Save(pm);
                 }
                 else
                 {
-                    Trace.TraceInformation("Failed to locate the registration process to complete with id {0}.", @event.SourceId);
+                    Trace.TraceInformation("Failed to locate the registration process manager to complete with id {0}.", @event.SourceId);
                 }
             }
         }
@@ -112,16 +112,16 @@ namespace Registration
             using (var context = this.contextFactory.Invoke())
             {
                 // TODO should not skip the completed processes and move them to a "manual intervention" state
-                var process = context.Find(x => x.OrderId == @event.PaymentSourceId);
-                if (process != null)
+                var pm = context.Find(x => x.OrderId == @event.PaymentSourceId);
+                if (pm != null)
                 {
-                    process.Handle(@event);
+                    pm.Handle(@event);
 
-                    context.Save(process);
+                    context.Save(pm);
                 }
                 else
                 {
-                    Trace.TraceError("Failed to locate the registration process handling the paid order with id {0}.", @event.PaymentSourceId);
+                    Trace.TraceError("Failed to locate the registration process manager handling the paid order with id {0}.", @event.PaymentSourceId);
                 }
             }
         }
@@ -130,12 +130,12 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                var process = context.Find(x => x.Id == command.ProcessId);
-                if (process != null)
+                var pm = context.Find(x => x.Id == command.ProcessId);
+                if (pm != null)
                 {
-                    process.Handle(command);
+                    pm.Handle(command);
 
-                    context.Save(process);
+                    context.Save(pm);
                 }
             }
         }

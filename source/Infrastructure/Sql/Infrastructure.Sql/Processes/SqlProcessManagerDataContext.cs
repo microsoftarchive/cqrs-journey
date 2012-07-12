@@ -26,14 +26,14 @@ namespace Infrastructure.Sql.Processes
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.SqlAzure;
     using Microsoft.Practices.TransientFaultHandling;
 
-    public class SqlProcessDataContext<T> : IProcessDataContext<T> where T : class, IProcess
+    public class SqlProcessManagerDataContext<T> : IProcessManagerDataContext<T> where T : class, IProcessManager
     {
         private readonly ICommandBus commandBus;
         private readonly DbContext context;
         private readonly ITextSerializer serializer;
         private readonly RetryPolicy<SqlAzureTransientErrorDetectionStrategy> retryPolicy;
 
-        public SqlProcessDataContext(Func<DbContext> contextFactory, ICommandBus commandBus, ITextSerializer serializer)
+        public SqlProcessManagerDataContext(Func<DbContext> contextFactory, ICommandBus commandBus, ITextSerializer serializer)
         {
             this.commandBus = commandBus;
             this.context = contextFactory.Invoke();
@@ -46,30 +46,30 @@ namespace Infrastructure.Sql.Processes
 
         public T Find(Guid id)
         {
-            return Find(process => process.Id == id, true);
+            return Find(pm => pm.Id == id, true);
         }
 
         public T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false)
         {
-            T process = null;
+            T pm = null;
             if (!includeCompleted)
             {
                 // first try to get the non-completed, in case the table is indexed by Completed, or there is more
-                // than one process that fulfills the predicate but only 1 is not completed.
-                process = this.retryPolicy.ExecuteAction(() => 
+                // than one process manager that fulfills the predicate but only 1 is not completed.
+                pm = this.retryPolicy.ExecuteAction(() => 
                     this.context.Set<T>().Where(predicate.And(x => x.Completed == false)).FirstOrDefault());
             }
 
-            if (process == null)
+            if (pm == null)
             {
-                process = this.retryPolicy.ExecuteAction(() => 
+                pm = this.retryPolicy.ExecuteAction(() => 
                     this.context.Set<T>().Where(predicate).FirstOrDefault());
             }
 
-            if (process != null)
+            if (pm != null)
             {
                 // TODO: ideally this could be improved to avoid 2 roundtrips to the server.
-                var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+                var undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(pm.Id);
                 try
                 {
                     this.DispatchMessages(undispatchedMessages);
@@ -77,38 +77,38 @@ namespace Infrastructure.Sql.Processes
                 catch (DbUpdateConcurrencyException)
                 {
                     // if another thread already dispatched the messages, ignore
-                    Trace.TraceWarning("Concurrency exception while marking commands as dispatched for process manager with ID {0} in Find method.", process.Id);
+                    Trace.TraceWarning("Concurrency exception while marking commands as dispatched for process manager with ID {0} in Find method.", pm.Id);
                     
                     this.context.Entry(undispatchedMessages).Reload();
 
-                    undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(process.Id);
+                    undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(pm.Id);
                     // undispatchedMessages should be null, as we do not have a rowguid to do optimistic locking, other than when the row is deleted.
                     // Nevertheless, we try dispatching just in case the DB schema is changed to provide optimistic locking.
                     this.DispatchMessages(undispatchedMessages);
                 }
 
-                if (!process.Completed || includeCompleted)
+                if (!pm.Completed || includeCompleted)
                 {
-                    return process;
+                    return pm;
                 }
             }
 
             return null;
         }
 
-        public void Save(T process)
+        public void Save(T processManager)
         {
-            var entry = this.context.Entry(process);
+            var entry = this.context.Entry(processManager);
 
             if (entry.State == System.Data.EntityState.Detached)
-                this.context.Set<T>().Add(process);
+                this.context.Set<T>().Add(processManager);
 
-            var commands = process.Commands.ToList();
+            var commands = processManager.Commands.ToList();
             UndispatchedMessages undispatched = null;
             if (commands.Count > 0)
             {
                 // if there are pending commands to send, we store them as undispatched.
-                undispatched = new UndispatchedMessages(process.Id)
+                undispatched = new UndispatchedMessages(processManager.Id)
                                    {
                                        Commands = this.serializer.Serialize(commands)
                                    };
@@ -131,7 +131,7 @@ namespace Infrastructure.Sql.Processes
             catch (DbUpdateConcurrencyException)
             {
                 // if another thread already dispatched the messages, ignore
-                Trace.TraceWarning("Ignoring concurrency exception while marking commands as dispatched for process manager with ID {0} in Save method.", process.Id);
+                Trace.TraceWarning("Ignoring concurrency exception while marking commands as dispatched for process manager with ID {0} in Save method.", processManager.Id);
             }
         }
 
@@ -185,7 +185,7 @@ namespace Infrastructure.Sql.Processes
             GC.SuppressFinalize(this);
         }
 
-        ~SqlProcessDataContext()
+        ~SqlProcessManagerDataContext()
         {
             this.Dispose(false);
         }
