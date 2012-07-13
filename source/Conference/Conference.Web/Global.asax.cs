@@ -13,23 +13,23 @@
 
 namespace Conference.Web.Admin
 {
+    using System.Data.Entity;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common;
+    using Conference.Common.Entity;
     using Conference.Web.Utils;
+    using Infrastructure;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
 #if LOCAL
-    using System.Data.Entity;
     using Infrastructure.Sql.Messaging;
     using Infrastructure.Sql.Messaging.Implementation;
 #else
-    using Infrastructure;
     using Infrastructure.Azure.Messaging;
     using Infrastructure.Azure;
 #endif
-    using Microsoft.WindowsAzure.ServiceRuntime;
 
     public class MvcApplication : HttpApplication
     {
@@ -73,11 +73,13 @@ namespace Conference.Web.Admin
 
         protected void Application_Start()
         {
-            RoleEnvironment.Changed +=
+#if AZURESDK
+            Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.Changed +=
                 (s, a) =>
                 {
-                    RoleEnvironment.RequestRecycle();
+                    Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.RequestRecycle();
                 };
+#endif
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
             DatabaseSetup.Initialize();
@@ -95,17 +97,19 @@ namespace Conference.Web.Admin
 
             if (!MaintenanceMode.IsInMaintainanceMode)
             {
-                new ServiceBusConfig(settings).Initialize();
+            new ServiceBusConfig(settings).Initialize();
             }
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new StandardMetadataProvider(), serializer);
 #endif
 
+#if AZURESDK
             if (Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.IsAvailable)
             {
                 System.Diagnostics.Trace.Listeners.Add(new Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorTraceListener());
                 System.Diagnostics.Trace.AutoFlush = true;
             }
+#endif
         }
     }
 }
