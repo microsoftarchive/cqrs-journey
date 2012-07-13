@@ -14,7 +14,7 @@
 namespace Conference.Common
 {
     using System;
-    using Microsoft.WindowsAzure.ServiceRuntime;
+    using Microsoft.WindowsAzure;
 
     public class MaintenanceMode
     {
@@ -24,24 +24,9 @@ namespace Conference.Common
 
         public static void RefreshIsInMaintainanceMode()
         {
-            if (RoleEnvironment.IsAvailable)
-            {
-                try
-                {
-                    var settingValue = RoleEnvironment.GetConfigurationSettingValue(MaintenanceModeSettingName);
-                    IsInMaintainanceMode = (!string.IsNullOrEmpty(settingValue) &&
-                                            string.Equals(settingValue, "true", StringComparison.OrdinalIgnoreCase));
-                }
-                catch (RoleEnvironmentException)
-                {
-                    // setting does not exist, assume is not in maintenance mode.
-                    IsInMaintainanceMode = false;
-                }
-            }
-            else
-            {
-                IsInMaintainanceMode = false;
-            }
+            var settingValue = CloudConfigurationManager.GetSetting(MaintenanceModeSettingName);
+            IsInMaintainanceMode = (!string.IsNullOrEmpty(settingValue) &&
+                                    string.Equals(settingValue, "true", StringComparison.OrdinalIgnoreCase));
         }
     }
 }

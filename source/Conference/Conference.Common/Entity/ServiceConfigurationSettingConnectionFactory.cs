@@ -13,14 +13,18 @@
 
 namespace Conference.Common.Entity
 {
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Data.Common;
     using System.Data.Entity.Infrastructure;
-    using Microsoft.WindowsAzure.ServiceRuntime;
+    using System.Linq;
+    using Microsoft.WindowsAzure;
 
     public class ServiceConfigurationSettingConnectionFactory : IDbConnectionFactory
     {
-        private IDbConnectionFactory parent;
+        private readonly object lockObject = new object();
+        private readonly IDbConnectionFactory parent;
+        private Dictionary<string, string> cachedConnectionStringsMap = new Dictionary<string, string>();
 
         public ServiceConfigurationSettingConnectionFactory(IDbConnectionFactory parent)
         {
@@ -29,42 +33,53 @@ namespace Conference.Common.Entity
 
         public DbConnection CreateConnection(string nameOrConnectionString)
         {
+            string connectionString = null;
             if (!IsConnectionString(nameOrConnectionString))
             {
-                var connectionStringName = "DbContext." + nameOrConnectionString;
+                if (!this.cachedConnectionStringsMap.TryGetValue(nameOrConnectionString, out connectionString))
+                {
+                    lock (this.lockObject)
+                    {
+                        if (!this.cachedConnectionStringsMap.TryGetValue(nameOrConnectionString, out connectionString))
+                        {
+                            var connectionStringName = "DbContext." + nameOrConnectionString;
+                            var settingValue = CloudConfigurationManager.GetSetting(connectionStringName);
+                            if (!string.IsNullOrEmpty(settingValue))
+                            {
+                                connectionString = settingValue;
+                            }
 
-                if (RoleEnvironment.IsAvailable)
-                {
-                    try
-                    {
-                        var settingValue = RoleEnvironment.GetConfigurationSettingValue(connectionStringName);
-                        if (!string.IsNullOrEmpty(settingValue))
-                        {
-                            nameOrConnectionString = settingValue;
+                            if (connectionString == null)
+                            {
+                                try
+                                {
+                                    var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
+                                    if (connectionStringSettings != null)
+                                    {
+                                        connectionString = connectionStringSettings.ConnectionString;
+                                    }
+                                }
+                                catch (ConfigurationErrorsException)
+                                {
+                                }
+                            }
+
+                            var immutableDictionary = this.cachedConnectionStringsMap
+                                .Concat(new[] { new KeyValuePair<string, string>(nameOrConnectionString, connectionString) })
+                                .ToDictionary(x => x.Key, x => x.Value);
+
+                            this.cachedConnectionStringsMap = immutableDictionary;
                         }
-                    }
-                    catch (RoleEnvironmentException)
-                    {
-                        // setting does not exist, use original value
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        var connectionString = ConfigurationManager.ConnectionStrings[connectionStringName];
-                        if (connectionString != null)
-                        {
-                            nameOrConnectionString = connectionString.ConnectionString;
-                        }
-                    }
-                    catch (ConfigurationErrorsException)
-                    {
                     }
                 }
             }
 
-            return this.parent.CreateConnection(nameOrConnectionString);
+            if (connectionString == null)
+            {
+                connectionString = nameOrConnectionString;
+            }
+
+            return this.parent.CreateConnection(connectionString);
         }
 
         private static bool IsConnectionString(string connectionStringCandidate)
