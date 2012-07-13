@@ -101,7 +101,7 @@ namespace MigrationToV3.InHouseProcessor
             container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, "Registration.RegistrationProcessRouter", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.OrderViewModelGenerator>(this.busConfig, "Registration.OrderViewModelGenerator", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.PricedOrderViewModelGenerator>(this.busConfig, "Registration.PricedOrderViewModelGenerator", this.instrumentationEnabled);
-            container.RegisterEventProcessor<RegistrationV2.Handlers.SeatAssignmentsViewModelGenerator>(this.busConfig, "Registration.SeatAssignmentsViewModelGenerator", this.instrumentationEnabled);
+            container.RegisterEventProcessor<Registration.Handlers.SeatAssignmentsViewModelGenerator>(this.busConfig, "Registration.SeatAssignmentsViewModelGenerator", this.instrumentationEnabled);
         }
 
         private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry registry)
