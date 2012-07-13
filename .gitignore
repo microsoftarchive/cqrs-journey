@@ -22,5 +22,6 @@ _UpgradeReport_Files
 /source/Infrastructure/Azure/Settings.xml
 /source/Conference.Azure/csx/
 /source/Migrations/MigrationToV2.Azure/csx/
+/source/Migrations/MigrationToV3.Azure/csx/
 *.build.csdef
 *crunch*

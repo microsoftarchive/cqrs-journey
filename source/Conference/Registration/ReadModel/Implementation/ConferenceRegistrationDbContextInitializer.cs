@@ -37,7 +37,7 @@ namespace Registration.ReadModel.Implementation
         public static void CreateIndexes(DbContext context)
         {
             context.Database.ExecuteSqlCommand(@"
-IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'IX_SeatTypesView_ConferenceId')
+IF NOT EXISTS (SELECT name FROM sys.indexes WHERE name = 'IX_SeatTypesView_ConferenceId')
 CREATE NONCLUSTERED INDEX IX_SeatTypesView_ConferenceId ON [" + ConferenceRegistrationDbContext.SchemaName + "].[ConferenceSeatTypesView]( ConferenceId )");
         }
     }

@@ -13,15 +13,12 @@
 
 namespace Conference.Web.Public
 {
-    using System.Linq;
     using System.Runtime.Caching;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
     using Conference.Common;
     using Conference.Web.Utils;
-    using Infrastructure.BlobStorage;
-    using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
     using Microsoft.WindowsAzure.ServiceRuntime;
     using Payments.ReadModel;
@@ -45,15 +42,7 @@ namespace Conference.Web.Public
             RoleEnvironment.Changed +=
                 (s, a) =>
                 {
-                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
-                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
-                    {
-                        RoleEnvironment.RequestRecycle();
-                    }
-                    else if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
-                    {
-                        MaintenanceMode.RefreshIsInMaintainanceMode();
-                    }
+                    RoleEnvironment.RequestRecycle();
                 };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 

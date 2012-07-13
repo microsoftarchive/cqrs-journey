@@ -37,13 +37,13 @@ namespace Registration.Database
         public static void CreateIndexes(DbContext context)
         {
             context.Database.ExecuteSqlCommand(@"
-IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'IX_RegistrationProcessManager_Completed')
+IF NOT EXISTS (SELECT name FROM sys.indexes WHERE name = 'IX_RegistrationProcessManager_Completed')
 CREATE NONCLUSTERED INDEX IX_RegistrationProcessManager_Completed ON [" + RegistrationProcessManagerDbContext.SchemaName + @"].[RegistrationProcess]( Completed )
             
-IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'IX_RegistrationProcessManager_OrderId')
+IF NOT EXISTS (SELECT name FROM sys.indexes WHERE name = 'IX_RegistrationProcessManager_OrderId')
 CREATE NONCLUSTERED INDEX IX_RegistrationProcessManager_OrderId ON [" + RegistrationProcessManagerDbContext.SchemaName + @"].[RegistrationProcess]( OrderId )");
 
-//IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = 'IX_RegistrationProcessManager_ReservationId')
+//IF NOT EXISTS (SELECT name FROM sys.indexes WHERE name = 'IX_RegistrationProcessManager_ReservationId')
 //CREATE NONCLUSTERED INDEX IX_RegistrationProcessManager_ReservationId ON [" + RegistrationProcessDbContext.SchemaName + @"].[RegistrationProcess]( ReservationId )
         }
     }
