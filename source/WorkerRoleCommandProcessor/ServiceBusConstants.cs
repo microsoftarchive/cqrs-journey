@@ -73,9 +73,9 @@ namespace WorkerRoleCommandProcessor
 				/// </summary>
 				public const string ConferenceViewModelGenerator = "Registration.ConferenceViewModelGenerator";
 				/// <summary>
-				/// Registration.SeatAssignmentsViewModelGenerator
+				/// Registration.SeatAssignmentsViewModelGeneratorV3
 				/// </summary>
-				public const string SeatAssignmentsViewModelGenerator = "Registration.SeatAssignmentsViewModelGenerator";
+				public const string SeatAssignmentsViewModelGeneratorV3 = "Registration.SeatAssignmentsViewModelGeneratorV3";
 				/// <summary>
 				/// Registration.SeatAssignmentsHandler
 				/// </summary>

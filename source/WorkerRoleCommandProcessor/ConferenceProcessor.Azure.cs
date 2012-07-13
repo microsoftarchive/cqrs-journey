@@ -110,7 +110,7 @@ namespace WorkerRoleCommandProcessor
             container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator, this.instrumentationEnabled);
-            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGenerator, this.instrumentationEnabled);
+            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler, this.instrumentationEnabled);
             container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler, this.instrumentationEnabled);
         }

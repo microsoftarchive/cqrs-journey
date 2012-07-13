@@ -19,6 +19,7 @@ namespace MigrationToV3.InHouseProcessor
     using System.Threading;
     using Conference;
     using Infrastructure.Azure;
+    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Serialization;
     using Microsoft.WindowsAzure;
@@ -39,6 +40,7 @@ namespace MigrationToV3.InHouseProcessor
             var settings = InfrastructureSettings.Read("Settings.xml");
             var messageLogSettings = settings.MessageLog;
             var messageLogAccount = CloudStorageAccount.Parse(messageLogSettings.ConnectionString);
+            var blobStorageAccount = CloudStorageAccount.Parse(settings.BlobStorage.ConnectionString);
 
             DatabaseSetup.Initialize();
             MigrationToV3.Migration.Initialize();
@@ -59,8 +61,10 @@ namespace MigrationToV3.InHouseProcessor
             Console.WriteLine("Replaying events to regenerate read models");
 
             var logReader = new AzureEventLogReader(messageLogAccount, messageLogSettings.TableName, new JsonTextSerializer());
+            var blobStorage = new CloudBlobStorage(blobStorageAccount, settings.BlobStorage.RootContainerName);
             var maxEventTime = DateTime.UtcNow.Add(TimeSpan.FromMilliseconds(WaitTimeInMilliseconds / -2));
-            migrator.RegenerateV3ViewModels(logReader, dbConnectionString, maxEventTime);
+
+            migrator.RegenerateV3ViewModels(logReader, blobStorage, dbConnectionString, maxEventTime);
 
             Console.WriteLine("Press enter to start processing events. Make sure the v2 processor is disabled.");
             Console.ReadLine();
