@@ -58,7 +58,10 @@ namespace Conference.Web.Public
             // command bus
 
             var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml"));
-            new ServiceBusConfig(settings.ServiceBus).Initialize();
+            if (!Conference.Common.MaintenanceMode.IsInMaintainanceMode)
+            {
+                new ServiceBusConfig(settings.ServiceBus).Initialize();
+            }
             var commandBus = new CommandBus(new TopicSender(settings.ServiceBus, "conference/commands"), metadata, serializer);
 
             var synchronousCommandBus = new SynchronousCommandBusDecorator(commandBus);

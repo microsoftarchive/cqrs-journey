@@ -13,7 +13,6 @@
 
 namespace Conference.Web.Admin
 {
-    using System.Linq;
     using System.Web;
     using System.Web.Mvc;
     using System.Web.Routing;
@@ -77,18 +76,7 @@ namespace Conference.Web.Admin
             RoleEnvironment.Changed +=
                 (s, a) =>
                 {
-                    var changes = a.Changes.OfType<RoleEnvironmentConfigurationSettingChange>().ToList();
-                    if (changes.Any(x => x.ConfigurationSettingName != MaintenanceMode.MaintenanceModeSettingName))
-                    {
-                        RoleEnvironment.RequestRecycle();
-                    }
-                    else
-                    {
-                        if (changes.Any(x => x.ConfigurationSettingName == MaintenanceMode.MaintenanceModeSettingName))
-                        {
-                            MaintenanceMode.RefreshIsInMaintainanceMode();
-                        }
-                    }
+                    RoleEnvironment.RequestRecycle();
                 };
             MaintenanceMode.RefreshIsInMaintainanceMode();
 
@@ -104,7 +92,11 @@ namespace Conference.Web.Admin
             EventBus = new EventBus(new MessageSender(Database.DefaultConnectionFactory, "SqlBus", "SqlBus.Events"), serializer);
 #else
             var settings = InfrastructureSettings.Read(HttpContext.Current.Server.MapPath(@"~\bin\Settings.xml")).ServiceBus;
-            new ServiceBusConfig(settings).Initialize();
+
+            if (!MaintenanceMode.IsInMaintainanceMode)
+            {
+                new ServiceBusConfig(settings).Initialize();
+            }
 
             EventBus = new EventBus(new TopicSender(settings, "conference/events"), new StandardMetadataProvider(), serializer);
 #endif
