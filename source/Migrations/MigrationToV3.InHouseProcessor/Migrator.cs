@@ -20,8 +20,10 @@ namespace MigrationToV3.InHouseProcessor
     using System.Linq;
     using Infrastructure.Azure.MessageLog;
     using Infrastructure.Azure.Messaging;
+    using Infrastructure.BlobStorage;
     using Infrastructure.MessageLog;
     using Infrastructure.Messaging.Handling;
+    using Infrastructure.Serialization;
     using Registration.Handlers;
     using Registration.ReadModel.Implementation;
 
@@ -133,13 +135,18 @@ ALTER TABLE [ConferenceRegistration].[PricedOrderLinesV3] CHECK CONSTRAINT [Pric
             }
         }
 
-        public void RegenerateV3ViewModels(AzureEventLogReader logReader, string dbConnectionString, DateTime maxEventTime)
+        public void RegenerateV3ViewModels(AzureEventLogReader logReader, IBlobStorage blobStorage, string dbConnectionString, DateTime maxEventTime)
         {
             Database.SetInitializer<ConferenceRegistrationDbContext>(null);
 
             var handlers = new List<IEventHandler>();
             handlers.Add(new DraftOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbConnectionString)));
             handlers.Add(new PricedOrderViewModelGenerator(() => new ConferenceRegistrationDbContext(dbConnectionString)));
+            handlers.Add(
+                new SeatAssignmentsViewModelGenerator(
+                    new ConferenceDao(() => new ConferenceRegistrationDbContext(dbConnectionString)),
+                    blobStorage,
+                    new JsonTextSerializer()));
 
             var dispatcher = new EventDispatcher(handlers);
             var events = logReader.Query(new QueryCriteria { EndDate = maxEventTime });

@@ -18,7 +18,6 @@ namespace MigrationToV3.InHouseProcessor
     using System.Threading;
     using Infrastructure;
     using Infrastructure.Azure;
-    using Infrastructure.Azure.BlobStorage;
     using Infrastructure.Azure.EventSourcing;
     using Infrastructure.Azure.Instrumentation;
     using Infrastructure.Azure.Messaging;
@@ -28,6 +27,7 @@ namespace MigrationToV3.InHouseProcessor
     using Infrastructure.Messaging;
     using Infrastructure.Messaging.Handling;
     using Infrastructure.Serialization;
+    using Infrastructure.Sql.BlobStorage;
     using Microsoft.Practices.Unity;
     using Microsoft.WindowsAzure;
     using Registration;
@@ -55,7 +55,8 @@ namespace MigrationToV3.InHouseProcessor
                 {
                     new SubscriptionSettings { Name = "Registration.RegistrationProcessRouter", RequiresSession = true },
                     new SubscriptionSettings { Name = "Registration.OrderViewModelGenerator", RequiresSession = true },
-                    new SubscriptionSettings { Name = "Registration.PricedOrderViewModelGenerator", RequiresSession = true }
+                    new SubscriptionSettings { Name = "Registration.PricedOrderViewModelGenerator", RequiresSession = true },
+                    new SubscriptionSettings { Name = "Registration.SeatAssignmentsViewModelGenerator", RequiresSession = true },
                 });
             this.azureSettings.ServiceBus.Topics.First(t => !t.IsEventBus).Subscriptions.AddRange(
                 new[] 
@@ -75,7 +76,7 @@ namespace MigrationToV3.InHouseProcessor
 
             // blob
             var blobStorageAccount = CloudStorageAccount.Parse(azureSettings.BlobStorage.ConnectionString);
-            container.RegisterInstance<IBlobStorage>(new CloudBlobStorage(blobStorageAccount, azureSettings.BlobStorage.RootContainerName));
+            container.RegisterInstance<IBlobStorage>(new SqlBlobStorage("BlobStorage"));
 
             var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
             var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
@@ -100,6 +101,7 @@ namespace MigrationToV3.InHouseProcessor
             container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, "Registration.RegistrationProcessRouter", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.OrderViewModelGenerator>(this.busConfig, "Registration.OrderViewModelGenerator", this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationV2.Handlers.PricedOrderViewModelGenerator>(this.busConfig, "Registration.PricedOrderViewModelGenerator", this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationV2.Handlers.SeatAssignmentsViewModelGenerator>(this.busConfig, "Registration.SeatAssignmentsViewModelGenerator", this.instrumentationEnabled);
         }
 
         private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry registry)
