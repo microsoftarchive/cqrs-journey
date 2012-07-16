@@ -27,6 +27,7 @@ namespace Registration.ReadModel
             this.Price = price;
             this.Quantity = quantity;
             this.AvailableQuantity = 0;
+            this.SeatsAvailabilityVersion = -1;
         }
 
         protected SeatType()
@@ -35,6 +36,8 @@ namespace Registration.ReadModel
 
         [Key]
         public Guid Id { get; set; }
+
+        // Conference ID is not FK, as we are relaxing the constraint due to eventual consistency
         public Guid ConferenceId { get; set; }
 
         public string Name { get; set; }
@@ -42,5 +45,6 @@ namespace Registration.ReadModel
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public int AvailableQuantity { get; set; }
+        public int SeatsAvailabilityVersion { get; set; }
     }
 }

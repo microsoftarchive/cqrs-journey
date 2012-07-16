@@ -52,7 +52,6 @@ namespace Registration.ReadModel.Implementation
             modelBuilder.Entity<PricedOrderLineSeatTypeDescription>().ToTable("PricedOrderLineSeatTypeDescriptionsV3", SchemaName);
 
             modelBuilder.Entity<Conference>().ToTable("ConferencesView", SchemaName);
-            modelBuilder.Entity<Conference>().HasMany(c => c.Seats).WithRequired();
             modelBuilder.Entity<SeatType>().ToTable("ConferenceSeatTypesView", SchemaName);
         }
 
