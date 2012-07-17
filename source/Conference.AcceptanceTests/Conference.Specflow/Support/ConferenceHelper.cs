@@ -59,6 +59,7 @@ namespace Conference.Specflow.Support
                 throw new TimeoutException("Conference creation error");
 
             // Update the confInfo with the created seats
+            
             conference.Seats.AddRange(createdSeats);
 
             return conference;

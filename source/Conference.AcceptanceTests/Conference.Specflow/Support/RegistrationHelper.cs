@@ -99,14 +99,6 @@ namespace Conference.Specflow.Support
             }
         }
 
-        public static Registration.ReadModel.Conference FindConference(Guid conferenceId)
-        {
-            using (var context = new ConferenceRegistrationDbContext(ConferenceRegistrationDbContext.SchemaName))
-            {
-                return context.Set<Registration.ReadModel.Conference>().Include(x => x.Seats).FirstOrDefault(x => x.Id == conferenceId);
-            }            
-        }
-
         public static T GetModel<T>(ActionResult result) where T : class
         {
             var viewResult = result as ViewResultBase;

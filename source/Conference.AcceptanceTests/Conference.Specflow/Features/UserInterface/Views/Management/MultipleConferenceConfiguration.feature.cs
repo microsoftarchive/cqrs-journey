@@ -121,7 +121,7 @@ testRunner.Given("this base conference information", ((string)(null)), table1);
 #line 26
 testRunner.And("these Seat Types", ((string)(null)), table2);
 #line 30
-testRunner.When("the Business Customer proceeds to create 50 \'random\' conferences");
+testRunner.When("the Business Customer proceeds to create 3 \'random\' conferences");
 #line 31
 testRunner.Then("all the conferences are created");
 #line hidden
