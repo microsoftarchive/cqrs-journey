@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and limitations under the License.
 // ==============================================================================================================
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TechTalk.SpecFlow;
@@ -23,6 +24,9 @@ namespace Conference.Specflow.Support
     [Binding]
     public static class ScenarioContextExtension
     {
+        private readonly static object syncLock = new object();
+        private readonly static string BrowsersKey = Guid.NewGuid().ToString();
+
         [BeforeScenario]
         public static void BeforeScenario()
         {
@@ -40,9 +44,15 @@ namespace Conference.Specflow.Support
             if (ScenarioContext.Current.TryGetValue(out browser))
                 browser.Close();
 
-            List<Browser> browsers;
-            if (ScenarioContext.Current.TryGetValue(out browsers))
-                browsers.ForEach(b => b.Close());
+            lock (syncLock)
+            {
+                List<Browser> browsers;
+                if (ScenarioContext.Current.TryGetValue(BrowsersKey, out browsers))
+                {
+                    browsers.ForEach(b => b.Close());
+                    ScenarioContext.Current.Remove(BrowsersKey);
+                }
+            }
         }
 
         public static Browser Browser(this ScenarioContext context)
@@ -54,15 +64,17 @@ namespace Conference.Specflow.Support
 
         public static Browser NewBrowser(this ScenarioContext context)
         {
-            List<Browser> browsers;
-            if (!context.TryGetValue(out browsers))
+            var browser = CreateBrowser(); 
+            lock (syncLock)
             {
-                browsers = new List<Browser>();
-                context.Set(browsers);
+                List<Browser> browsers;
+                if (!context.TryGetValue(BrowsersKey, out browsers))
+                {
+                    browsers = new List<Browser>();
+                    context.Add(BrowsersKey, browsers);
+                }
+                browsers.Add(browser);
             }
-            var browser = CreateBrowser();
-            browsers.Add(browser);
-
             return browser;
         }
 
