@@ -30,7 +30,7 @@ namespace MigrationToV3.InHouseProcessor
         // List of hardcoded references to make sure events can be deserialized correctly.
         private static readonly Assembly[] assemblies = new[] { typeof(ConferenceCreated).Assembly, typeof(AvailableSeatsChanged).Assembly };
 
-        private static readonly int WaitTimeInMilliseconds = 60 * 1000 * 10;
+        private static readonly TimeSpan WaitTime = TimeSpan.FromMinutes(10);
 
         static void Main(string[] args)
         {
@@ -54,27 +54,30 @@ namespace MigrationToV3.InHouseProcessor
 
             migrator.CreateV3ReadModelTables(ConfigurationManager.ConnectionStrings[dbConnectionString].ConnectionString);
 
-            Console.WriteLine("Waiting to let the new subscriptions fill up with events");
+            Console.WriteLine("Waiting to let the new subscriptions fill up with events. This will take {0:F0} minutes.", WaitTime.TotalMinutes);
 
-            Thread.Sleep(WaitTimeInMilliseconds);
+            Thread.Sleep(WaitTime);
 
             Console.WriteLine("Replaying events to regenerate read models");
 
             var logReader = new AzureEventLogReader(messageLogAccount, messageLogSettings.TableName, new JsonTextSerializer());
             var blobStorage = new CloudBlobStorage(blobStorageAccount, settings.BlobStorage.RootContainerName);
-            var maxEventTime = DateTime.UtcNow.Add(TimeSpan.FromMilliseconds(WaitTimeInMilliseconds / -2));
+
+            var maxEventTime = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(WaitTime.TotalSeconds / 2));
 
             migrator.RegenerateV3ViewModels(logReader, blobStorage, dbConnectionString, maxEventTime);
 
-            Console.WriteLine("Press enter to start processing events. Make sure the v2 processor is disabled.");
+            Console.WriteLine("Set the MaintenanceMode flag to true in the worker role for v2 through the Windows Azure portal, but let the websites keep running. Make sure that the status for the worker role is updated before continuing.");
+            Console.WriteLine("Press enter to start processing events.");
             Console.ReadLine();
 
             using (var processor = new ConferenceProcessor(false))
             {
                 processor.Start();
 
-                Console.WriteLine("Host started");
-                Console.WriteLine("Press enter to finish");
+                Console.WriteLine("Started processing events to keep the v2 read models up to date, so there is no downtime until v3 starts functioning.");
+                Console.WriteLine("Set the MaintenanceMode flag to false in all the v3 roles. Once you verify that the v3 roles are working correctly in the Staging area, you can do a VIP swap so the public website points to v3.");
+                Console.WriteLine("Press enter to finish and stop processing v2 read models (only do this once v3 is in the Production slot). You can also stop the v2 deployment that should be in the Staging slot after the VIP swap");
                 Console.ReadLine();
 
                 processor.Stop();
