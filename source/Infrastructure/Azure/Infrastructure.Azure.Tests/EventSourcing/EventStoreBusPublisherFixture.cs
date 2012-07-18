@@ -181,7 +181,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             this.version = "0001";
             this.rowKey = "Unpublished_" + version;
 
-            this.partitionKeys = Enumerable.Range(0, 2000).Select(i => "Key" + i).ToArray();
+            this.partitionKeys = Enumerable.Range(0, 200).Select(i => "Key" + i).ToArray();
             this.queue = new Mock<IPendingEventsQueue>();
             queue.Setup(x => x.GetPendingAsync(It.IsAny<string>(), It.IsAny<Action<IEnumerable<IEventRecord>, bool>>(), It.IsAny<Action<Exception>>()))
                 .Callback<string, Action<IEnumerable<IEventRecord>, bool>, Action<Exception>>(
