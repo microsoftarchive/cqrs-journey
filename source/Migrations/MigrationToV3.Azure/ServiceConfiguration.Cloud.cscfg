@@ -8,15 +8,10 @@
       <Setting name="Diagnostics.LogLevelFilter" value="Information" />
       <Setting name="Diagnostics.PerformanceCounterSampleRate" value="00:00:30" />
       <Setting name="DbContext.Payments" value="" />
-      <Setting name="DbContext.EventStore" value="" />
       <Setting name="DbContext.ConferenceRegistrationProcesses" value="" />
       <Setting name="DbContext.ConferenceRegistration" value="" />
-      <Setting name="DbContext.SqlBus" value="" />
       <Setting name="DbContext.BlobStorage" value="" />
       <Setting name="DbContext.ConferenceManagement" value="" />
-      <Setting name="MaintenanceMode" value="false" />
-      <Setting name="DbContext.MessageLog" value="" />
-      <Setting name="InstrumentationEnabled" value="false" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
