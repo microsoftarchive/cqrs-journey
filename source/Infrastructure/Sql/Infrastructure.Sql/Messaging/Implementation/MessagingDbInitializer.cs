@@ -23,6 +23,7 @@ namespace Infrastructure.Sql.Messaging.Implementation
     /// </summary>
     public class MessagingDbInitializer
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification="Does not contain user input.")]
         public static void CreateDatabaseObjects(string connectionString, string schema, bool createDatabase = false)
         {
             if (createDatabase)

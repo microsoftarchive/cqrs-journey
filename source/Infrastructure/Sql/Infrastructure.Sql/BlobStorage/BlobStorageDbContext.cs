@@ -40,10 +40,20 @@ namespace Infrastructure.Sql.BlobStorage
             string blobString = "";
             if (contentType == "text/plain")
             {
-                using (var stream = new MemoryStream(blob))
-                using (var reader = new StreamReader(stream))
+                Stream stream = null;
+                try
                 {
-                    blobString = reader.ReadToEnd();
+                    stream = new MemoryStream(blob);
+                    using (var reader = new StreamReader(stream))
+                    {
+                        stream = null;
+                        blobString = reader.ReadToEnd();
+                    }
+                }
+                finally
+                {
+                    if (stream != null)
+                        stream.Dispose();
                 }
             }
 

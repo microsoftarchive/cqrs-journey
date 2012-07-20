@@ -15,6 +15,7 @@ namespace Infrastructure
 {
     using System;
     using System.Runtime.Serialization;
+    using System.Security.Permissions;
 
     [Serializable]
     public class EntityNotFoundException : Exception
@@ -49,6 +50,11 @@ namespace Infrastructure
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {
+            if (info == null)
+                throw new ArgumentNullException("info");
+
+            this.entityId = Guid.Parse(info.GetString("entityId"));
+            this.entityType = info.GetString("entityType");
         }
 
         public Guid EntityId
@@ -59,6 +65,14 @@ namespace Infrastructure
         public string EntityType
         {
             get { return this.entityType; }
+        }
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("entityId", this.entityId.ToString());
+            info.AddValue("entityType", this.entityType);
         }
     }
 }
