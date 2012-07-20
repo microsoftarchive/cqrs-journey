@@ -54,7 +54,8 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
-                            <xs:element name="TableName" type="cqrs:AzureTableName" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="OrdersTableName" type="cqrs:WindowsAzureTableName" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="SeatsAvailabilityTableName" type="cqrs:WindowsAzureTableName" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -62,7 +63,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="ConnectionString" type="xs:string" minOccurs="1" maxOccurs="1" />
-                            <xs:element name="TableName" type="cqrs:AzureTableName" minOccurs="1" maxOccurs="1" />
+                            <xs:element name="TableName" type="cqrs:WindowsAzureTableName" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
@@ -77,7 +78,7 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-    <xs:simpleType name="AzureTableName">
+    <xs:simpleType name="WindowsAzureTableName">
         <xs:restriction base="xs:string">
             <!-- There is no way to annotate or render a more user-friendly error when pattern matching fails -->
             <xs:pattern value="^[A-Za-z][A-Za-z0-9]{2,62}$" />

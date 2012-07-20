@@ -27,8 +27,13 @@ namespace Infrastructure.Azure.EventSourcing
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// Gets or sets the name of the Windows Azure table used for the Orders and Seats Assignments Event Store.
         /// </summary>
-        public string TableName { get; set; }
+        public string OrdersTableName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the Windows Azure table used for the Seats Availability Event Store.
+        /// </summary>
+        public string SeatsAvailabilityTableName { get; set; }
     }
 }

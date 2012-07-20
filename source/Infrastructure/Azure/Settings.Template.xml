@@ -13,44 +13,45 @@
         <Subscription Name="sessionless" RequiresSession="false" SqlFilter="TypeName NOT IN ('AddSeats','RemoveSeats','MakeSeatReservation','CommitSeatReservation','CancelSeatReservation')" />
         <Subscription Name="seatsavailability" RequiresSession="true" SqlFilter="TypeName IN ('AddSeats','RemoveSeats','MakeSeatReservation','CommitSeatReservation','CancelSeatReservation')" />
         <Subscription Name="log" RequiresSession="false"/>
-
-        <MigrationSupport>
-          <!-- stop using this subscription -->
-          <UpdateSubscriptionIfExists Name="all" SqlFilter="1=0"/>
-        </MigrationSupport>
       </Topic>
       <Topic Path="conference/events" IsEventBus="true">
         <Subscription Name="log" RequiresSession="false"/>
-        <Subscription Name="Registration.RegistrationPMOrderPlaced" RequiresSession="false" SqlFilter="TypeName IN ('OrderPlaced')"/>
-        <Subscription Name="Registration.RegistrationPMNextSteps" RequiresSession="false" SqlFilter="TypeName IN ('OrderUpdated','SeatsReserved','PaymentCompleted','OrderConfirmed')"/>
-        <Subscription Name="Registration.OrderViewModelGeneratorV3" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed')"/>
-        <Subscription Name="Registration.PricedOrderViewModelGeneratorV3" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatCreated','SeatUpdated')"/>
-        <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('ConferenceCreated','ConferenceUpdated','ConferencePublished','ConferenceUnpublished','SeatCreated','SeatUpdated','AvailableSeatsChanged','SeatsReserved','SeatsReservationCancelled')"/>
-        <Subscription Name="Registration.SeatAssignmentsViewModelGeneratorV3" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
-        <Subscription Name="Registration.SeatAssignmentsHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderConfirmed','OrderPaymentConfirmed')"/>
-        <Subscription Name="Conference.OrderEventHandler" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderRegistrantAssigned','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatAssigned','SeatAssignmentUpdated','SeatUnassigned')"/>
-
-        <MigrationSupport>
-          <!-- stop using this subscription -->
-          <UpdateSubscriptionIfExists Name="Registration.RegistrationProcessRouter" SqlFilter="1=0"/>
-        </MigrationSupport>
+        <Subscription Name="Registration.RegistrationPMNextSteps" RequiresSession="false" SqlFilter="TypeName IN ('PaymentCompleted')"/>
+        <Subscription Name="Registration.PricedOrderViewModelGeneratorV3" RequiresSession="true" SqlFilter="TypeName IN ('SeatCreated','SeatUpdated')"/>
+        <Subscription Name="Registration.ConferenceViewModelGenerator" RequiresSession="true" SqlFilter="TypeName IN ('ConferenceCreated','ConferenceUpdated','ConferencePublished','ConferenceUnpublished','SeatCreated','SeatUpdated')"/>
+      </Topic>
+      <Topic Path="conference/eventsOrders" IsEventBus="true">
+        <Subscription Name="logOrders" RequiresSession="false"/>
+        <Subscription Name="Registration.RegistrationPMOrderPlacedOrders" RequiresSession="false" SqlFilter="TypeName IN ('OrderPlaced')"/>
+        <Subscription Name="Registration.RegistrationPMNextStepsOrders" RequiresSession="false" SqlFilter="TypeName IN ('OrderUpdated','OrderConfirmed')"/>
+        <Subscription Name="Registration.OrderViewModelGeneratorOrders" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderUpdated','OrderPartiallyReserved','OrderReservationCompleted','OrderRegistrantAssigned','OrderConfirmed','OrderPaymentConfirmed')"/>
+        <Subscription Name="Registration.PricedOrderViewModelOrders" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated')"/>
+        <Subscription Name="Registration.SeatAssignmentsViewModelOrders" RequiresSession="true" SqlFilter="TypeName IN ('SeatAssignmentsCreated','SeatAssigned','SeatUnassigned','SeatAssignmentUpdated')"/>
+        <Subscription Name="Registration.SeatAssignmentsHandlerOrders" RequiresSession="true" SqlFilter="TypeName IN ('OrderConfirmed','OrderPaymentConfirmed')"/>
+        <Subscription Name="Conference.OrderEventHandlerOrders" RequiresSession="true" SqlFilter="TypeName IN ('OrderPlaced','OrderRegistrantAssigned','OrderTotalsCalculated','OrderConfirmed','OrderExpired','SeatAssignmentsCreated','SeatAssigned','SeatAssignmentUpdated','SeatUnassigned')"/>
+      </Topic>
+      <Topic Path="conference/eventsAvailability" IsEventBus="true">
+        <Subscription Name="logAvail" RequiresSession="false"/>
+        <Subscription Name="Registration.RegistrationPMNextStepsAvail" RequiresSession="false" SqlFilter="TypeName IN ('SeatsReserved')"/>
+        <Subscription Name="Registration.ConferenceViewModelAvail" RequiresSession="true" SqlFilter="TypeName IN ('AvailableSeatsChanged','SeatsReserved','SeatsReservationCancelled')"/>
       </Topic>
     </Topics>
   </ServiceBus>
   <EventSourcing>
-    <!-- Use a valid Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
+    <!-- Use a valid Windows Azure storage account, as the development storage emulator does not support entity projections, which we are using in the Event Store -->
     <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
-    <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
-    <TableName>ConferenceEventStore</TableName>
+    <!-- Table name in Windows Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
+    <OrdersTableName>ConferenceEventStoreOrders</OrdersTableName>
+    <SeatsAvailabilityTableName>ConferenceEventStoreSeats</SeatsAvailabilityTableName>
   </EventSourcing>
   <MessageLog>
     <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
-    <!-- Table name in Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
+    <!-- Table name in Windows Azure has restrictions: Only Alphanumeric Characters, Case-Insensitive, 3 to 63 Characters, May Not Begin With a Numeric Character -->
     <TableName>ConferenceMessageLog</TableName>
   </MessageLog>
   <BlobStorage>
     <ConnectionString>DefaultEndpointsProtocol=https;AccountName=[YOUR_ACCOUNT_NAME];AccountKey=[YOUR_ACCOUNT_KEY]</ConnectionString>
-    <!-- Container name in Azure has restrictions: Only Lower-case Alphanumeric Characters and Dashes, 3 to 63 Characters, May Not Begin a Dash, May Not Contain Two Consecutive Dashes -->
+    <!-- Container name in Windows Azure has restrictions: Only Lower-case Alphanumeric Characters and Dashes, 3 to 63 Characters, May Not Begin a Dash, May Not Contain Two Consecutive Dashes -->
     <RootContainerName>conference-read-model</RootContainerName>
- </BlobStorage>
+  </BlobStorage>
 </InfrastructureSettings>

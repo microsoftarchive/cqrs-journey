@@ -93,12 +93,16 @@ namespace Conference.Web.Public
             container.RegisterInstance<IEventBus>(eventBus);
 
             var eventSourcingAccount = CloudStorageAccount.Parse(settings.EventSourcing.ConnectionString);
-            var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.TableName);
+            var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.OrdersTableName);
 
             container.RegisterInstance<IEventStore>(eventStore);
             container.RegisterInstance<IPendingEventsQueue>(eventStore);
-            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation("web.public", instrumentationEnabled));
-            container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
+            container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(
+                    new TopicSender(settings.ServiceBus, "conference/eventsOrders"),
+                    typeof(IPendingEventsQueue),
+                    new EventStoreBusPublisherInstrumentation("web.public - orders", instrumentationEnabled)));
             container.RegisterType(
                 typeof(IEventSourcedRepository<>),
                 typeof(AzureEventSourcedRepository<>),

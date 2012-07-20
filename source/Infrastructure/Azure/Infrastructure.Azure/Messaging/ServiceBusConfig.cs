@@ -75,16 +75,27 @@ namespace Infrastructure.Azure.Messaging
             if (!this.initialized)
                 throw new InvalidOperationException("Service bus configuration has not been initialized.");
 
-            var topicSettings = this.settings.Topics.Find(x => x.IsEventBus);
-            if (topicSettings == null)
-                throw new ArgumentOutOfRangeException("No topic has been marked with the IsEventBus attribute. Cannot create event processor.");
+            TopicSettings topicSettings = null;
+            SubscriptionSettings subscriptionSettings = null;
 
-            var subscriptionSettings = topicSettings.Subscriptions.Find(x => x.Name == subscription);
+            foreach (var settings in this.settings.Topics.Where(t => t.IsEventBus))
+            {
+                subscriptionSettings = settings.Subscriptions.Find(s => s.Name == subscription);
+                if (subscriptionSettings != null)
+                {
+                    topicSettings = settings;
+                    break;
+                }
+            }
+
             if (subscriptionSettings == null)
-                throw new ArgumentOutOfRangeException(string.Format(
-                    CultureInfo.CurrentCulture,
-                    "Subscription '{0}' for topic '{1}' has not been registered in the service bus configuration.",
-                    subscription, topicSettings.Path));
+            {
+                throw new ArgumentOutOfRangeException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        "Subscription '{0}' has not been registered for an event bus topic in the service bus configuration.",
+                        subscription));
+            }
 
             IMessageReceiver receiver;
 
