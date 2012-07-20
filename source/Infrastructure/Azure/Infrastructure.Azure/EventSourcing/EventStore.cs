@@ -27,6 +27,15 @@ namespace Infrastructure.Azure.EventSourcing
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
 
+    /// <summary>
+    /// Implements an event store using Windows Azure Table Storage.
+    /// </summary>
+    /// <remarks>
+    /// <para> This class works closely related to <see cref="EventStoreBusPublisher"/> and <see cref="AzureEventSourcedRepository{T}"/>, and provides a resilient mechanism to 
+    /// store events, and also manage which events are pending for publishing to an event bus.</para>
+    /// <para>Ideally, it would be very valuable to provide asynchronous APIs to avoid blocking I/O calls.</para>
+    /// <para>See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more potential performance and scalability optimizations.</para>
+    /// </remarks>
     public class EventStore : IEventStore, IPendingEventsQueue
     {
         private const string UnpublishedRowKeyPrefix = "Unpublished_";
@@ -87,7 +96,7 @@ namespace Infrastructure.Azure.EventSourcing
         {
             var minRowKey = version.ToString("D10");
             var query = this.GetEntitiesQuery(partitionKey, minRowKey, RowKeyVersionUpperLimit);
-            // TODO: continuation tokens, etc
+            // TODO: use async APIs, continuation tokens
             var all = this.eventStoreRetryPolicy.ExecuteAction(() => query.Execute());
             return all.Select(x => Mapper.Map(x, new EventData { Version = int.Parse(x.RowKey) }));
         }

@@ -20,8 +20,7 @@ namespace Infrastructure.Azure.Messaging
     using System.Xml.Serialization;
 
     /// <summary>
-    /// Simple settings class to configure the connection to Azure 
-    /// messaging APIs.
+    /// Simple settings class to configure the connection to the Windows Azure Service Bus.
     /// </summary>
     [XmlRoot("ServiceBus", Namespace = InfrastructureSettings.XmlNamespace)]
     public class ServiceBusSettings

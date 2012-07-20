@@ -37,12 +37,12 @@ namespace Conference
 
             // NOTE: ToTable used for all entities so that we can prepend 
             // the schema name. This allows all pieces of the application 
-            // to be deployed to a single SQL Azure database, yet avoid 
+            // to be deployed to a single Windows Azure SQL Database, yet avoid 
             // table name collisions, while reducing the deployment costs.
 
             modelBuilder.Entity<ConferenceInfo>().ToTable("Conferences", SchemaName);
-            // Make seat infos required to have a conference info associated, but without 
-            // having to add a navigation property (don't polute the object model).
+            // Make seat info required to have a conference info associated, but without 
+            // having to add a navigation property (don't pollute the object model).
             modelBuilder.Entity<ConferenceInfo>().HasMany(x => x.Seats).WithRequired();
             modelBuilder.Entity<SeatType>().ToTable("SeatTypes", SchemaName);
             modelBuilder.Entity<Order>().ToTable("Orders", SchemaName);

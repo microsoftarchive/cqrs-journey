@@ -19,17 +19,29 @@ namespace Infrastructure.Tasks
 
     public static class TimerTaskFactory
     {
-        public static Task<T> StartNew<T>(Func<T> getResult, Func<T, bool> isResultValid, long milliseconds, DateTime expirationTime)
+        private static readonly TimeSpan DoNotRepeat = TimeSpan.FromMilliseconds(-1);
+
+        /// <summary>
+        /// Starts a new task that will poll for a result using the specified function, and will be completed when it satisfied the specified condition.
+        /// </summary>
+        /// <typeparam name="T">The type of value that will be returned when the task completes.</typeparam>
+        /// <param name="getResult">Function that will be used for polling.</param>
+        /// <param name="isResultValid">Predicate that determines if the result is valid, or if it should continue polling</param>
+        /// <param name="pollInterval">Polling interval.</param>
+        /// <param name="timeout">The timeout interval.</param>
+        /// <returns>The result returned by the specified function, or <see langword="null"/> if the result is not valid and the task times out.</returns>
+        public static Task<T> StartNew<T>(Func<T> getResult, Func<T, bool> isResultValid, TimeSpan pollInterval, TimeSpan timeout)
         {
             Timer timer = null;
             TaskCompletionSource<T> taskCompletionSource = null;
+            DateTime expirationTime = DateTime.UtcNow.Add(timeout);
 
             timer =
                 new Timer(_ =>
                 {
                     try
                     {
-                        if (DateTime.Now > expirationTime)
+                        if (DateTime.UtcNow > expirationTime)
                         {
                             timer.Dispose();
                             taskCompletionSource.SetResult(default(T));
@@ -46,7 +58,7 @@ namespace Infrastructure.Tasks
                         else
                         {
                             // try again
-                            timer.Change(milliseconds, Timeout.Infinite);
+                            timer.Change(pollInterval, DoNotRepeat);
                         }
                     }
                     catch (Exception e)
@@ -58,7 +70,7 @@ namespace Infrastructure.Tasks
 
             taskCompletionSource = new TaskCompletionSource<T>(timer);
 
-            timer.Change(milliseconds, Timeout.Infinite);
+            timer.Change(pollInterval, DoNotRepeat);
 
             return taskCompletionSource.Task;
         }

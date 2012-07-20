@@ -42,8 +42,8 @@ namespace Conference
             // to the database but the events are not published. The recommended 
             // mechanism to solve this lack of transaction support is to persist 
             // failed events to a table in the same database as the conference, in a 
-            // queue that is retried until successfull delivery of events is 
-            // guaranteed. This mechamisn has been implemented for the AzureEventSourcedRepository
+            // queue that is retried until successful delivery of events is 
+            // guaranteed. This mechanism has been implemented for the AzureEventSourcedRepository
             // and that implementation can be used as a guide to implement it here too.
 
             this.eventBus = eventBus;

@@ -67,7 +67,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
 
     public class given_seat_assignments
     {
-        protected Guid assigmentsId = Guid.NewGuid();
+        protected Guid assignmentsId = Guid.NewGuid();
         protected Guid orderId = Guid.NewGuid();
         protected Guid seatType = Guid.NewGuid();
         protected EventSourcingTestHelper<SeatAssignments> sut;
@@ -78,7 +78,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
             this.sut.Setup(new SeatAssignmentsHandler(Mock.Of<IEventSourcedRepository<Order>>(), this.sut.Repository));
             this.sut.Given(new SeatAssignmentsCreated
             {
-                SourceId = assigmentsId,
+                SourceId = assignmentsId,
                 OrderId = orderId,
                 Seats = Enumerable.Range(0, 5).Select(i =>
                     new SeatAssignmentsCreated.SeatAssignmentInfo
@@ -87,7 +87,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
                         SeatType = seatType,
                     })
             },
-            new SeatAssigned(assigmentsId)
+            new SeatAssigned(assignmentsId)
             {
                 Position = 0,
                 SeatType = seatType,
@@ -105,7 +105,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
         {
             var command = new AssignSeat
             {
-                SeatAssignmentsId = assigmentsId,
+                SeatAssignmentsId = assignmentsId,
                 Position = 1,
                 Attendee = new PersonalInfo
                 {
@@ -120,7 +120,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
 
             Assert.Equal(1, @event.Position);
             Assert.Equal(seatType, @event.SeatType);
-            Assert.Equal(assigmentsId, @event.SourceId);
+            Assert.Equal(assignmentsId, @event.SourceId);
             Assert.Equal(command.Attendee, @event.Attendee);
         }
 
@@ -129,7 +129,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
         {
             var command = new UnassignSeat
             {
-                SeatAssignmentsId = assigmentsId,
+                SeatAssignmentsId = assignmentsId,
                 Position = 0,
             };
             sut.When(command);
@@ -137,7 +137,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var @event = sut.ThenHasSingle<SeatUnassigned>();
 
             Assert.Equal(0, @event.Position);
-            Assert.Equal(assigmentsId, @event.SourceId);
+            Assert.Equal(assignmentsId, @event.SourceId);
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
         {
             var command = new UnassignSeat
             {
-                SeatAssignmentsId = assigmentsId,
+                SeatAssignmentsId = assignmentsId,
                 Position = 1,
             };
             sut.When(command);
@@ -158,7 +158,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
         {
             var command = new AssignSeat
             {
-                SeatAssignmentsId = assigmentsId,
+                SeatAssignmentsId = assignmentsId,
                 Position = 0,
                 Attendee = new PersonalInfo
                 {
@@ -172,13 +172,13 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var unassign = sut.ThenHasOne<SeatUnassigned>();
 
             Assert.Equal(0, unassign.Position);
-            Assert.Equal(assigmentsId, unassign.SourceId);
+            Assert.Equal(assignmentsId, unassign.SourceId);
 
             var assign = sut.ThenHasOne<SeatAssigned>();
 
             Assert.Equal(0, assign.Position);
             Assert.Equal(seatType, assign.SeatType);
-            Assert.Equal(assigmentsId, assign.SourceId);
+            Assert.Equal(assignmentsId, assign.SourceId);
             Assert.Equal(command.Attendee, assign.Attendee);
         }
 
@@ -187,7 +187,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
         {
             var command = new AssignSeat
             {
-                SeatAssignmentsId = assigmentsId,
+                SeatAssignmentsId = assignmentsId,
                 Position = 0,
                 Attendee = new PersonalInfo
                 {
@@ -201,7 +201,7 @@ namespace Registration.Tests.SeatAssignmentsFixture
             var assign = sut.ThenHasSingle<SeatAssignmentUpdated>();
 
             Assert.Equal(0, assign.Position);
-            Assert.Equal(assigmentsId, assign.SourceId);
+            Assert.Equal(assignmentsId, assign.SourceId);
             Assert.Equal(command.Attendee, assign.Attendee);
         }
     }

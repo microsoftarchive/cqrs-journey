@@ -17,7 +17,7 @@ namespace Infrastructure.Processes
     using System.Linq.Expressions;
 
     // TODO: Does this even belong to a reusable infrastructure?
-    // This for reading and writing process managers (aka Sagas in the CQRS community)
+    // This for reading and writing process managers (also known as Sagas in the CQRS community)
     public interface IProcessManagerDataContext<T> : IDisposable
         where T : class, IProcessManager
     {
@@ -27,7 +27,7 @@ namespace Infrastructure.Processes
 
         // TODO: queryability to reload processes from correlation ids, etc. 
         // Is this appropriate? How do others reload processes? (MassTransit 
-        // uses this kind of queryable thinghy, apparently).
+        // uses this kind of queryable approach, apparently).
         T Find(Expression<Func<T, bool>> predicate, bool includeCompleted = false);
     }
 }

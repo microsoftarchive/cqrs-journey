@@ -56,7 +56,7 @@ namespace Infrastructure.Sql.Messaging.Handling
             if (handlers.Keys.Any(registeredType => supportedCommandTypes.Contains(registeredType)))
                 throw new ArgumentException("The command handled by the received handler already has a registered handler.");
 
-            // Register this handler for each of he handled types.
+            // Register this handler for each of the handled types.
             foreach (var commandType in supportedCommandTypes)
             {
                 this.handlers.Add(commandType, commandHandler);

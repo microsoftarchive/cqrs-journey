@@ -15,7 +15,6 @@ namespace Registration.Handlers
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Entity;
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
@@ -28,6 +27,9 @@ namespace Registration.Handlers
     using Registration.ReadModel;
     using Registration.ReadModel.Implementation;
 
+    /// <summary>
+    /// Generates a read model that is queried by <see cref="ConferenceDao"/>.
+    /// </summary>
     public class ConferenceViewModelGenerator :
         IEventHandler<ConferenceCreated>,
         IEventHandler<ConferenceUpdated>,
@@ -184,7 +186,7 @@ namespace Registration.Handlers
                     dto.Price = @event.Price;
 
                     // Calculate diff to drive the seat availability.
-                    // Is this appropriate to have it here?
+                    // Is it appropriate to have this here?
                     var diff = @event.Quantity - dto.Quantity;
 
                     dto.Quantity = @event.Quantity;

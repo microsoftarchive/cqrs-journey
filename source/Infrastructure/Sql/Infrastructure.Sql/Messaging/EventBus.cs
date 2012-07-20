@@ -13,7 +13,6 @@
 
 namespace Infrastructure.Sql.Messaging
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -21,7 +20,9 @@ namespace Infrastructure.Sql.Messaging
     using Infrastructure.Serialization;
 
     /// <summary>
-    /// An event bus that sends serialized object payloads through a <see cref="IMessageSender"/>.
+    /// This is an extremely basic implementation of <see cref="IEventBus"/> that is used only for running the sample
+    /// application without the dependency to the Windows Azure Service Bus when using the DebugLocal solution configuration.
+    /// It should not be used in production systems.
     /// </summary>
     public class EventBus : IEventBus
     {
@@ -31,8 +32,6 @@ namespace Infrastructure.Sql.Messaging
         /// <summary>
         /// Initializes a new instance of the <see cref="EventBus"/> class.
         /// </summary>
-        /// <param name="receiver">The receiver to use. If the receiver is <see cref="IDisposable"/>, it will be disposed when the processor is 
-        /// disposed.</param>
         /// <param name="serializer">The serializer to use for the message body.</param>
         public EventBus(IMessageSender sender, ITextSerializer serializer)
         {

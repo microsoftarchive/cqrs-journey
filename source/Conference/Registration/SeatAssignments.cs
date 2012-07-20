@@ -21,16 +21,27 @@ namespace Registration
     using Infrastructure.Utils;
     using Registration.Events;
 
+    /// <summary>
+    /// Entity used to represent seats asignments.
+    /// </summary>
+    /// <remarks>
+    /// In our current business logic, 1 seats assignments instance corresponds to 1 <see cref="Order"/> instance. 
+    /// This does not need to be the case in the future.
+    /// <para>For more information on the domain, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258553">Journey chapter 3</see>.</para>
+    /// </remarks>
     public class SeatAssignments : EventSourced
     {
-        class SeatAssignment
+        private class SeatAssignment
         {
             public SeatAssignment()
             {
                 this.Attendee = new PersonalInfo();
             }
+
             public int Position { get; set; }
+
             public Guid SeatType { get; set; }
+
             public PersonalInfo Attendee { get; set; }
         }
 
@@ -78,9 +89,6 @@ namespace Registration
             base.Handles<SeatAssignmentsCreated>(this.OnCreated);
             base.Handles<SeatAssigned>(this.OnSeatAssigned);
             base.Handles<SeatUnassigned>(this.OnSeatUnassigned);
-
-            // NOTE: we need to add an empty Handles here so that the base class can make 
-            // sure we didn't omit a handler by mistake.
             base.Handles<SeatAssignmentUpdated>(this.OnSeatAssignmentUpdated);
         }
 

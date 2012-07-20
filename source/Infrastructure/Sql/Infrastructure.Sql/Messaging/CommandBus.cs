@@ -21,16 +21,19 @@ namespace Infrastructure.Sql.Messaging
     using Infrastructure.Serialization;
 
     /// <summary>
-    /// A command bus that sends serialized object payloads through a <see cref="IMessageSender"/>.
+    /// This is an extremely basic implementation of <see cref="ICommandBus"/> that is used only for running the sample
+    /// application without the dependency to the Windows Azure Service Bus when using the DebugLocal solution configuration.
+    /// It should not be used in production systems.
     /// </summary>
     public class CommandBus : ICommandBus
     {
         private readonly IMessageSender sender;
-        private ITextSerializer serializer;
+        private readonly ITextSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandBus"/> class.
         /// </summary>
+        /// <param name="serializer">The serializer to use for the message body.</param>
         public CommandBus(IMessageSender sender, ITextSerializer serializer)
         {
             this.sender = sender;

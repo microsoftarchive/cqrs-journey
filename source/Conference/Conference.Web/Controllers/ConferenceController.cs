@@ -90,7 +90,7 @@ namespace Conference.Web.Admin.Controllers
                 return View();
             }
 
-            // TODO: not very secure ;).
+            // TODO: This is not very secure. Should use a better authorization infrastructure in a real production system.
             return RedirectToAction("Index", new { slug = conference.Slug, accessCode });
         }
 

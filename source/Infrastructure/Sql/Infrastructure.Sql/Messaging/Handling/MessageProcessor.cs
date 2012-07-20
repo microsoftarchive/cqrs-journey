@@ -127,7 +127,7 @@ namespace Infrastructure.Sql.Messaging.Handling
             catch (Exception e)
             {
                 // NOTE: we catch ANY exceptions as this is for local 
-                // development/debugging. The Azure implementation 
+                // development/debugging. The Windows Azure implementation 
                 // supports retries and dead-lettering, which would 
                 // be totally overkill for this alternative debug-only implementation.
                 Trace.TraceError("An exception happened while processing message through handler/s:\r\n{0}", e);

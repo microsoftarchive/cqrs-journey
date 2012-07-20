@@ -31,7 +31,8 @@ namespace Infrastructure.Utils
             // get the milliseconds since Jan 1 1970
             byte[] sequential = BitConverter.GetBytes((DateTime.Now.Ticks / 10000L) - EpochMilliseconds);
 
-            // discard the 2 most significant bytes, as we only care about the milliseconds increasing, but the highest ones should be 0 for several thousand years to come.
+            // discard the 2 most significant bytes, as we only care about the milliseconds increasing, but the highest ones 
+            // should be 0 for several thousand years to come (non-issue).
             if (BitConverter.IsLittleEndian)
             {
                 guidBytes[10] = sequential[5];

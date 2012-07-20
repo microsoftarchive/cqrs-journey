@@ -16,38 +16,17 @@ namespace Infrastructure.Azure
     using System;
     using System.Threading;
 
+    /// <summary>
+    /// Provides a way to throttle the work depending on the number of jobs it is able to complete and whether
+    /// the job is penalized for trying to parallelize too many jobs.
+    /// </summary>
     public class DynamicThrottling : IDisposable
     {
-        // configuration
-
-        /// <summary>
-        /// Maximum number of parallel jobs.
-        /// </summary>
         private readonly int maxDegreeOfParallelism;
-
-        /// <summary>
-        /// Minimum number of parallel jobs.
-        /// </summary>
         private readonly int minDegreeOfParallelism;
-
-        /// <summary>
-        /// Number of degrees of parallelism to remove on retrying.
-        /// </summary>
-        private readonly int retryParallelismPenalty;
-
-        /// <summary>
-        /// Number of degrees of parallelism to remove when work fails.
-        /// </summary>
-        private readonly int workFailedParallelismPenalty;
-
-        /// <summary>
-        /// Number of degrees of parallelism to restore on work completed.
-        /// </summary>
+        private readonly int penaltyAmount;
+        private readonly int workFailedPenaltyAmount;
         private readonly int workCompletedParallelismGain;
-
-        /// <summary>
-        /// Interval in milliseconds to restore 1 degree of parallelism.
-        /// </summary>
         private readonly int intervalForRestoringDegreeOfParallelism;
 
         private readonly AutoResetEvent waitHandle = new AutoResetEvent(true);
@@ -56,18 +35,27 @@ namespace Infrastructure.Azure
         private int currentParallelJobs = 0;
         private int availableDegreesOfParallelism;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="DynamicThrottling"/>.
+        /// </summary>
+        /// <param name="maxDegreeOfParallelism">Maximum number of parallel jobs.</param>
+        /// <param name="minDegreeOfParallelism">Minimum number of parallel jobs.</param>
+        /// <param name="penaltyAmount">Number of degrees of parallelism to remove when penalizing slightly.</param>
+        /// <param name="workFailedPenaltyAmount">Number of degrees of parallelism to remove when work fails.</param>
+        /// <param name="workCompletedParallelismGain">Number of degrees of parallelism to restore on work completed.</param>
+        /// <param name="intervalForRestoringDegreeOfParallelism">Interval in milliseconds to restore 1 degree of parallelism.</param>
         public DynamicThrottling(
             int maxDegreeOfParallelism, 
             int minDegreeOfParallelism,
-            int retryParallelismPenalty,
-            int workFailedParallelismPenalty,
+            int penaltyAmount,
+            int workFailedPenaltyAmount,
             int workCompletedParallelismGain,
             int intervalForRestoringDegreeOfParallelism)
         {
             this.maxDegreeOfParallelism = maxDegreeOfParallelism;
             this.minDegreeOfParallelism = minDegreeOfParallelism;
-            this.retryParallelismPenalty = retryParallelismPenalty;
-            this.workFailedParallelismPenalty = workFailedParallelismPenalty;
+            this.penaltyAmount = penaltyAmount;
+            this.workFailedPenaltyAmount = workFailedPenaltyAmount;
             this.workCompletedParallelismGain = workCompletedParallelismGain;
             this.intervalForRestoringDegreeOfParallelism = intervalForRestoringDegreeOfParallelism;
             this.parallelismRestoringTimer = new Timer(s => this.IncrementDegreesOfParallelism(1));
@@ -111,13 +99,13 @@ namespace Infrastructure.Azure
         public void Penalize()
         {
             // Slightly penalize with removal of some degrees of parallelism.
-            this.DecrementDegreesOfParallelism(retryParallelismPenalty);
+            this.DecrementDegreesOfParallelism(this.penaltyAmount);
         }
 
         public void NotifyWorkCompletedWithError()
         {
             // Largely penalize with removal of several degrees of parallelism.
-            this.DecrementDegreesOfParallelism(workFailedParallelismPenalty);
+            this.DecrementDegreesOfParallelism(this.workFailedPenaltyAmount);
             Interlocked.Decrement(ref this.currentParallelJobs);
             // Trace.WriteLine("Job finished with error. Parallel jobs are now: " + this.currentParallelJobs);
             this.waitHandle.Set();
