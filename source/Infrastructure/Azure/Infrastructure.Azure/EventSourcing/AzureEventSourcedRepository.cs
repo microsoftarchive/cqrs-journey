@@ -22,11 +22,23 @@ namespace Infrastructure.Azure.EventSourcing
     using Infrastructure.Serialization;
     using Infrastructure.Util;
 
-    // NOTE: This is a basic implementation of the event store that could be optimized in the future.
+    /// <summary>
+    /// Defines a repository of <see cref="IEventSourced"/> entities.
+    /// </summary>
+    /// <typeparam name="T">The entity type to persist.</typeparam>
+    /// <remarks>
+    /// <para>This is a basic implementation of the event store that could be optimized in the future.</para>
+    /// <para>It supports caching of snapshot if the entity implements the <see cref="IMementoOriginator"/> interface. Ideally, this could be optimized to
+    /// integrate better with sessionful message processors, so that the when the process is guaranteed to be the single temporary writer of a certain entity 
+    /// instance, then there is no need to check for updates in the the <see cref="IEventStore"/> since the last  cached snapshot (<see cref="IMemento"/>).</para>
+    /// <para>Also, it would be very valuable to provide asynchronous APIs to avoid blocking I/O calls.</para>
+    /// <para>See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more potential performance and scalability optimizations.</para>
+    /// </remarks>
     public class AzureEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
-        // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.
+        // Note: Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs, instead of the type's name.
         private static readonly string sourceType = typeof(T).Name;
+
         private readonly IEventStore eventStore;
         private readonly IEventStoreBusPublisher publisher;
         private readonly ITextSerializer serializer;
@@ -113,7 +125,7 @@ namespace Infrastructure.Azure.EventSourcing
                 else
                 {
                     // if the cache entry was updated in the last seconds, then there is a high possibility that it is not stale
-                    // (because we typically have a single writer for high contention aggregates). This is why why optimistcally avoid
+                    // (because we typically have a single writer for high contention aggregates). This is why we optimistically avoid
                     // getting the new events from the EventStore since the last memento was created. In the low probable case
                     // where we get an exception on save, then we mark the cache item as stale so when the command gets
                     // reprocessed, this time we get the new events from the EventStore.

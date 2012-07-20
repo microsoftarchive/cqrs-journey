@@ -26,13 +26,30 @@ namespace Infrastructure.Azure.EventSourcing
     using Infrastructure.Azure.Messaging;
     using Microsoft.ServiceBus.Messaging;
 
+    /// <summary>
+    /// Publishes events in the <see cref="EventStore"/> to the service bus.
+    /// </summary>
+    /// <remarks>
+    /// This class works closely related to <see cref="EventStore"/> and <see cref="AzureEventSourcedRepository{T}"/>, and provides a resilient mechanism to 
+    /// asynchronously publish events to the service bus.
+    /// This class parallelizes the sending of events acknowledging possible service throttling, but makes sure that events for the same partition are 
+    /// published in order using the same SessionId, so consumers of the events that use subscriptions with sessions are guaranteed to receive the events 
+    /// in order within each session.
+    /// <para>
+    /// We could still make several performance improvements. For example, instead of sending 1 event per <see cref="BrokeredMessage"/> we could
+    /// bundle several events for the same session into a single message, reducing the number of I/O calls to both the service bus and table storage, and
+    /// it would also avoid waiting for a message to be completed before sending the next message for the same partition. This change would require some
+    /// changes in other components and the message metadata as well. See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see>
+    /// for more potential performance and scalability optimizations.
+    /// </para>
+    /// </remarks>
     public class EventStoreBusPublisher : IEventStoreBusPublisher, IDisposable
     {
+        private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
         private readonly IMessageSender sender;
         private readonly IPendingEventsQueue queue;
         private readonly BlockingCollection<string> enqueuedKeys;
         private readonly IEventStoreBusPublisherInstrumentation instrumentation;
-        private static readonly int RowKeyPrefixIndex = "Unpublished_".Length;
         private readonly DynamicThrottling dynamicThrottling;
 
         public EventStoreBusPublisher(IMessageSender sender, IPendingEventsQueue queue, IEventStoreBusPublisherInstrumentation instrumentation)
@@ -46,8 +63,8 @@ namespace Infrastructure.Azure.EventSourcing
                 new DynamicThrottling(
                     maxDegreeOfParallelism: 230,
                     minDegreeOfParallelism: 30,
-                    retryParallelismPenalty: 3,
-                    workFailedParallelismPenalty: 10,
+                    penaltyAmount: 3,
+                    workFailedPenaltyAmount: 10,
                     workCompletedParallelismGain: 1,
                     intervalForRestoringDegreeOfParallelism: 8000);
             this.queue.Retrying += (s, e) => this.dynamicThrottling.Penalize();
@@ -65,7 +82,6 @@ namespace Infrastructure.Azure.EventSourcing
                         {
                             if (!cancellationToken.IsCancellationRequested)
                             {
-                                // TODO: verify if not using Task.Factory.StartNew to process new partition makes this process extremely eager, and consumes all resources when stressed.
                                 ProcessPartition(key);
                             }
                             else
@@ -129,7 +145,8 @@ namespace Infrastructure.Azure.EventSourcing
         {
             if (!this.enqueuedKeys.Any(partitionKey.Equals))
             {
-                // if the key is not already in the queue, add it.
+                // if the key is not already in the queue, add it. No need to add it if it's already there, as
+                // when the partition is processed, it will already try to send all events.
                 this.enqueuedKeys.Add(partitionKey);
             }
         }

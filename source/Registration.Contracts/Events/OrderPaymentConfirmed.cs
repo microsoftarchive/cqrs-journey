@@ -15,6 +15,9 @@ namespace Registration.Events
 {
     using Infrastructure.EventSourcing;
 
+    /// <summary>
+    /// This event was deprecated in favor of <see cref="OrderConfirmed"/>.
+    /// </summary>
     public class OrderPaymentConfirmed : VersionedEvent
     {
     }

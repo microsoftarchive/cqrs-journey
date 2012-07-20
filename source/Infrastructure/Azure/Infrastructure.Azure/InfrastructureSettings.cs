@@ -22,7 +22,7 @@ namespace Infrastructure.Azure
     using Infrastructure.Azure.Messaging;
 
     /// <summary>
-    /// Simple settings class to configure the connection to Azure.
+    /// Simple settings class to configure the connection to Windows Azure services.
     /// </summary>
     [XmlRoot("InfrastructureSettings", Namespace = XmlNamespace)]
     public class InfrastructureSettings

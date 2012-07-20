@@ -101,7 +101,7 @@ namespace Registration.Handlers
                     var seatOrderLine = orderLine as SeatOrderLine;
                     if (seatOrderLine != null)
                     {
-                        // should we update the view model to avoid loosing the SeatTypeId?
+                        // should we update the view model to avoid losing the SeatTypeId?
                         line.Description = seatTypeDescriptions.Where(x => x.SeatTypeId == seatOrderLine.SeatType).Select(x => x.Name).FirstOrDefault();
                         line.UnitPrice = seatOrderLine.UnitPrice;
                         line.Quantity = seatOrderLine.Quantity;

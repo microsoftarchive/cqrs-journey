@@ -13,6 +13,9 @@
 
 namespace Infrastructure.Azure.Messaging
 {
+    /// <summary>
+    /// Sepecfies how the <see cref="Microsoft.ServiceBus.Messaging.BrokeredMessage"/> should be released.
+    /// </summary>
     public class MessageReleaseAction
     {
         public static readonly MessageReleaseAction CompleteMessage = new MessageReleaseAction(MessageReleaseActionKind.Complete);

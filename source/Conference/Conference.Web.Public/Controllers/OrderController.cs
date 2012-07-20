@@ -94,7 +94,7 @@ namespace Conference.Web.Public.Controllers
                 .ToList();
 
             // NOTE: in the read model, we care about the OrderId, 
-            // but the write side uses a different AR id for the seat 
+            // but the write side uses a different aggregate root id for the seat 
             // assignments, so we pass that on when we issue commands.
 
             var unassigned = pairs

@@ -27,7 +27,7 @@ namespace Infrastructure.Azure.Messaging
     {
         private readonly IMessageSender sender;
         private readonly IMetadataProvider metadataProvider;
-        private ITextSerializer serializer;
+        private readonly ITextSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandBus"/> class.

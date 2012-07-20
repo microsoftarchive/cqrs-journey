@@ -26,6 +26,19 @@ namespace Infrastructure.Sql.Processes
     using Microsoft.Practices.EnterpriseLibrary.WindowsAzure.TransientFaultHandling.SqlAzure;
     using Microsoft.Practices.TransientFaultHandling;
 
+    /// <summary>
+    /// Data context used to persist instances of <see cref="IProcessManager"/> (also known as Sagas in the CQRS community) using Entity Framework.
+    /// </summary>
+    /// <typeparam name="T">The entity type to persist.</typeparam>
+    /// <remarks>
+    /// <para>See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258564">Reference 6</see> for a description of what is a Process Manager.</para>
+    /// <para>This is a very basic implementation, and would benefit from several optimizations. 
+    /// For example, it would be very valuable to provide asynchronous APIs to avoid blocking I/O calls.
+    /// It would also benefit from dispatching commands asynchronously (but in a resilient way), similar to what the EventStoreBusPublisher does.
+    /// See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more potential performance and scalability optimizations.</para>
+    /// <para>There are a few things that we learnt along the way regarding Process Managers, which we might do differently with the new insights that we
+    /// now have. See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258558"> Journey lessons learnt</see> for more information.</para>
+    /// </remarks>
     public class SqlProcessManagerDataContext<T> : IProcessManagerDataContext<T> where T : class, IProcessManager
     {
         private readonly ICommandBus commandBus;
@@ -82,6 +95,7 @@ namespace Infrastructure.Sql.Processes
                     this.context.Entry(undispatchedMessages).Reload();
 
                     undispatchedMessages = this.context.Set<UndispatchedMessages>().Find(pm.Id);
+
                     // undispatchedMessages should be null, as we do not have a rowguid to do optimistic locking, other than when the row is deleted.
                     // Nevertheless, we try dispatching just in case the DB schema is changed to provide optimistic locking.
                     this.DispatchMessages(undispatchedMessages);
@@ -96,6 +110,11 @@ namespace Infrastructure.Sql.Processes
             return null;
         }
 
+        /// <summary>
+        /// Saves the state of the process manager and publishes the commands in a resilient way.
+        /// </summary>
+        /// <param name="processManager">The instance to save.</param>
+        /// <remarks>For explanation of the implementation details, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see>.</remarks>
         public void Save(T processManager)
         {
             var entry = this.context.Entry(processManager);

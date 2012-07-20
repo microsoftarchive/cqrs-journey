@@ -22,7 +22,7 @@ namespace Infrastructure.Azure.Utils
         /// <summary>
         /// Starts a Task that will complete after the specified due time.
         /// </summary>
-        /// <param name="dueTime">The delay in milliseconds before the returned task completes.
+        /// <param name="dueTime">The delay in milliseconds before the returned task completes.</param>
         /// <returns>
         /// The timed Task.
         /// </returns>

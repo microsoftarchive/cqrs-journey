@@ -16,7 +16,7 @@ namespace Infrastructure.Azure.BlobStorage
     using System.Xml.Serialization;
 
     /// <summary>
-    /// Simple settings class to configure the connection to Azure tables.
+    /// Simple settings class to configure the connection to Windows Azure blobs.
     /// </summary>
     [XmlRoot("BlobStorage", Namespace = InfrastructureSettings.XmlNamespace)]
     public class BlobStorageSettings
@@ -27,7 +27,7 @@ namespace Infrastructure.Azure.BlobStorage
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// Gets or sets the name of the Windows Azure blob container used for read models.
         /// </summary>
         public string RootContainerName { get; set; }
     }

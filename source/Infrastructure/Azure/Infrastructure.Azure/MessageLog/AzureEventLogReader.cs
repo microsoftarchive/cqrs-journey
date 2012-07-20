@@ -42,8 +42,8 @@ namespace Infrastructure.Azure.MessageLog
             this.serializer = serializer;
         }
 
-        // NOTE: we don't have a need (yet?) to query commands, as 
-        // we don't use them to recreate read models, so we just 
+        // NOTE: we don't have a need (yet?) to query commands, as we don't use them to
+        // recreate read models, nor we are using it for BI, so we just 
         // expose events.
         public IEnumerable<IEvent> Query(QueryCriteria criteria)
         {

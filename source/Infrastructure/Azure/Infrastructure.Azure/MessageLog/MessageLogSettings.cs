@@ -16,7 +16,7 @@ namespace Infrastructure.Azure.MessageLog
     using System.Xml.Serialization;
 
     /// <summary>
-    /// Simple settings class to configure the connection to Azure tables.
+    /// Simple settings class to configure the connection to Windows Azure tables.
     /// </summary>
     [XmlRoot("MessageLog", Namespace = InfrastructureSettings.XmlNamespace)]
     public class MessageLogSettings
@@ -27,7 +27,7 @@ namespace Infrastructure.Azure.MessageLog
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the Azure table used for Event Sourcing.
+        /// Gets or sets the name of the Windows Azure table used for the message log.
         /// </summary>
         public string TableName { get; set; }
     }

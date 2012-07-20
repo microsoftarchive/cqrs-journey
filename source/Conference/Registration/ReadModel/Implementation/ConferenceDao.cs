@@ -50,7 +50,6 @@ namespace Registration.ReadModel.Implementation
 
         public ConferenceAlias GetConferenceAlias(string conferenceCode)
         {
-            // TODO: should cache this data.
             using (var context = this.contextFactory.Invoke())
             {
                 return context

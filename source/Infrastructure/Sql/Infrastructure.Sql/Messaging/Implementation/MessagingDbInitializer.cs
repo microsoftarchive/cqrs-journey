@@ -16,6 +16,11 @@ namespace Infrastructure.Sql.Messaging.Implementation
     using System.Data.SqlClient;
     using System.Globalization;
 
+    /// <summary>
+    /// This database initializer is to support <see cref="CommandBus"/> and <see cref="EventBus"/>, which should be only
+    /// used for running the sample application without the dependency to the Windows Azure Service Bus when using the
+    /// DebugLocal solution configuration. It should not be used in production systems.
+    /// </summary>
     public class MessagingDbInitializer
     {
         public static void CreateDatabaseObjects(string connectionString, string schema, bool createDatabase = false)

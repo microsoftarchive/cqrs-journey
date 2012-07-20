@@ -29,10 +29,10 @@ namespace Conference.Web.Public.Controllers
     {
         public const string ThirdPartyProcessorPayment = "thirdParty";
         public const string InvoicePayment = "invoice";
-        private const int DraftOrderWaitTimeoutInSeconds = 5;
-        private const long DraftOrderPollPeriodInMilliseconds = 500;
-        private const int PricedOrderWaitTimeoutInSeconds = 5;
-        private const long PricedOrderPollPeriodInMilliseconds = 500;
+        private static readonly TimeSpan DraftOrderWaitTimeout = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan DraftOrderPollInterval = TimeSpan.FromMilliseconds(750);
+        private static readonly TimeSpan PricedOrderWaitTimeout = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan PricedOrderPollInterval = TimeSpan.FromMilliseconds(750);
 
         private readonly ICommandBus commandBus;
         private readonly IOrderDao orderDao;
@@ -106,7 +106,7 @@ namespace Conference.Web.Public.Controllers
                 return View(viewModel);
             }
 
-            // checks that there are still enough available seats, and the seat type IDs submitted ar valid.
+            // checks that there are still enough available seats, and the seat type IDs submitted are valid.
             ModelState.Clear();
             bool needsExtraValidation = false;
             foreach (var seat in command.Seats)
@@ -201,7 +201,10 @@ namespace Conference.Web.Public.Controllers
 
                     if (order.State == DraftOrder.States.PartiallyReserved)
                     {
-                        //TODO: have a clear message in the UI saying there was a hiccup and he actually didn't get all the seats.
+                        //TODO: have a clear message in the UI saying there was a problem and he actually didn't get all the seats.
+                        // This happened as a result the seats availability being eventually but not fully consistent when
+                        // starting the reservation. It is very uncommon to reach this step, but could happen under heavy
+                        // load, and when competing for the last remaining seats of the conference.
                         return this.RedirectToAction("StartRegistration", new { conferenceCode = this.ConferenceCode, orderId, orderVersion = order.OrderVersion });
                     }
 
@@ -352,8 +355,8 @@ namespace Conference.Web.Public.Controllers
                 TimerTaskFactory.StartNew<DraftOrder>(
                     () => this.orderDao.FindDraftOrder(orderId),
                     order => order != null && order.State != DraftOrder.States.PendingReservation && order.OrderVersion > lastOrderVersion,
-                    DraftOrderPollPeriodInMilliseconds,
-                    DateTime.Now.AddSeconds(DraftOrderWaitTimeoutInSeconds));
+                    DraftOrderPollInterval,
+                    DraftOrderWaitTimeout);
         }
 
         private Task<PricedOrder> WaitUntilOrderIsPriced(Guid orderId, int lastOrderVersion)
@@ -362,8 +365,8 @@ namespace Conference.Web.Public.Controllers
                 TimerTaskFactory.StartNew<PricedOrder>(
                     () => this.orderDao.FindPricedOrder(orderId),
                     order => order != null && order.OrderVersion > lastOrderVersion,
-                    PricedOrderPollPeriodInMilliseconds,
-                    DateTime.Now.AddSeconds(PricedOrderWaitTimeoutInSeconds));
+                    PricedOrderPollInterval,
+                    PricedOrderWaitTimeout);
         }
     }
 }

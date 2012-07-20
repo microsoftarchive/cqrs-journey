@@ -204,10 +204,10 @@ namespace Infrastructure.Azure.IntegrationTests.SessionSubscriptionReceiverInteg
 
             sender.Send(new BrokeredMessage(body1) { SessionId = "foo" });
             stopWatch.Start();
-            Assert.True(message1received.WaitOne(5000));
+            Assert.True(message1received.WaitOne(10000));
 
             sender.Send(new BrokeredMessage(body2) { SessionId = "bar" });
-            Assert.True(message2received.WaitOne(5000));
+            Assert.True(message2received.WaitOne(10000));
             stopWatch.Stop();
 
             receiver.Stop();
