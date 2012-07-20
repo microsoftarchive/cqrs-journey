@@ -16,7 +16,7 @@ namespace Infrastructure.Azure.EventSourcing
     using System.Xml.Serialization;
 
     /// <summary>
-    /// Simple settings class to configure the connection to Azure tables.
+    /// Simple settings class to configure the connection to Windows Azure tables.
     /// </summary>
     [XmlRoot("EventSourcing", Namespace = InfrastructureSettings.XmlNamespace)]
     public class EventSourcingSettings

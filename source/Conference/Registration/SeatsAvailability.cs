@@ -21,13 +21,30 @@ namespace Registration
     using Registration.Events;
 
     /// <summary>
-    /// Manages the availability of conference seats.
+    /// Manages the availability of conference seats. Currently there is one <see cref="SeatsAvailability"/> instance per conference.
     /// </summary>
+    /// <remarks>
+    /// <para>For more information on the domain, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258553">Journey chapter 3</see>.</para>
+    /// <para>
+    /// Some of the instances of <see cref="SeatsAvailability"/> are highly contentious, as there could be several users trying to register for the 
+    /// same conference at the same time.
+    /// </para>
+    /// <para>
+    /// Because for large conferences a single instance of <see cref="SeatsAvailability"/> can contain a big event stream, the class implements
+    /// <see cref="IMementoOriginator"/>, so that a <see cref="IMemento"/> object with the objects' internal state (a snapshot) can be cached.
+    /// If the repository supports caching snapshots, then the next time an instance of <see cref="SeatsAvailability"/> is created, it can pass
+    /// the cached <see cref="IMemento"/> in the constructor overload, and avoid reading thousands of events from the event store.
+    /// </para>
+    /// </remarks>
     public class SeatsAvailability : EventSourced, IMementoOriginator
     {
         private readonly Dictionary<Guid, int> remainingSeats = new Dictionary<Guid, int>();
         private readonly Dictionary<Guid, List<SeatQuantity>> pendingReservations = new Dictionary<Guid, List<SeatQuantity>>();
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="SeatsAvailability"/> class.
+        /// </summary>
+        /// <param name="id">The identifier. Currently this correlates to the ConferenceID as specified in <see cref="Handlers.SeatsAvailabilityHandler"/>.</param>
         public SeatsAvailability(Guid id)
             : base(id)
         {
@@ -37,12 +54,23 @@ namespace Registration
             base.Handles<SeatsReservationCancelled>(this.OnSeatsReservationCancelled);
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="SeatsAvailability"/> class, specifying the past events.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="history">The event stream of this event sourced object.</param>
         public SeatsAvailability(Guid id, IEnumerable<IVersionedEvent> history)
             : this(id)
         {
             this.LoadFrom(history);
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="SeatsAvailability"/> class, specifying a snapshot, and the new events since the snapshot was taken.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="memento">A snapshot of the object created by this entity in the past.</param>
+        /// <param name="history">The event stream of this event sourced object since the <paramref name="memento"/> was created.</param>
         public SeatsAvailability(Guid id, IMemento memento, IEnumerable<IVersionedEvent> history)
             : this(id)
         {
@@ -202,6 +230,10 @@ namespace Registration
             }
         }
 
+        /// <summary>
+        /// Saves the object's state to an opaque memento object (a snapshot) that can be used to restore the state by using the constructor overload.
+        /// </summary>
+        /// <returns>An opaque memento object that can be used to restore the state.</returns>
         public IMemento SaveToMemento()
         {
             return new Memento
@@ -212,7 +244,7 @@ namespace Registration
             };
         }
 
-        public class Memento : IMemento
+        internal class Memento : IMemento
         {
             public int Version { get; internal set; }
             internal KeyValuePair<Guid, int>[] RemainingSeats { get; set; }

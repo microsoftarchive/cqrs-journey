@@ -22,6 +22,9 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
+    /// <summary>
+    /// Routes messages (commands and events) to the <see cref="RegistrationProcessManager"/>.
+    /// </summary>
     public class RegistrationProcessManagerRouter :
         IEventHandler<OrderPlaced>,
         IEventHandler<OrderUpdated>,
@@ -111,7 +114,9 @@ namespace Registration
         {
             using (var context = this.contextFactory.Invoke())
             {
-                // TODO should not skip the completed processes and move them to a "manual intervention" state
+                // TODO: should not skip the completed processes and try to re-acquire the reservation,
+                // and if not possible due to not enough seats, move them to a "manual intervention" state.
+                // This was not implemented but would be very important.
                 var pm = context.Find(x => x.OrderId == @event.PaymentSourceId);
                 if (pm != null)
                 {

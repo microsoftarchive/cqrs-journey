@@ -21,19 +21,34 @@ namespace Registration
     using Infrastructure.EventSourcing;
     using Registration.Events;
 
+    /// <summary>
+    /// Represents an order placed by a user.
+    /// </summary>
+    /// <remarks>
+    /// <para>For more information on the domain, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258553">Journey chapter 3</see>.</para>
+    /// <para>The order is not final at time of creation, and goes through several steps until it is finally completed.</para>
+    /// <para>This entity does not implement the <see cref="IMementoOriginator"/> interface because we do not expect each instance
+    /// to have a long event stream, nor each instance will be accessed very frequently and from the same process to benefit from in-memory caching.</para>
+    /// </remarks>
     public class Order : EventSourced
     {
+        /// <summary>
+        /// Suggest a seats reservation expiration time in case the Order is not completed before this time ellapses.
+        /// </summary>
         private static readonly TimeSpan ReservationAutoExpiration = TimeSpan.FromMinutes(15);
 
         private List<SeatQuantity> seats;
         private bool isConfirmed;
         private Guid conferenceId;
 
+        /// <summary>
+        /// Mapping old version of the <see cref="OrderPaymentConfirmed"/> event to the new version (<see cref="OrderConfirmed"/>).
+        /// Currently it is being done explicitly by the consumer, but this one in particular could be done
+        /// at the deserialization level, as it is just a rename, not a functionality change.
+        /// <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258556">Journey chapter 6</see> for more information.
+        /// </summary>
         static Order()
         {
-            // Mapping old version of the OrderPaymentConfirmed event to the new version.
-            // Currently it is being done explicitly by the consumer, but this one in particular could be done
-            // at the deserialization level, as it is just a rename, not a functionality change.
             Mapper.CreateMap<OrderPaymentConfirmed, OrderConfirmed>();
         }
 
@@ -57,6 +72,19 @@ namespace Registration
             this.LoadFrom(history);
         }
 
+        /// <summary>
+        /// Creates a new order with the specified items and id.
+        /// </summary>
+        /// <remarks>
+        /// The total is calculated at creation time. This was a change done in the V3 version of the system to optimize 
+        /// the UI workflow. 
+        /// See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more information on 
+        /// the optimization and migration to V3.
+        /// </remarks>
+        /// <param name="id">The identifier.</param>
+        /// <param name="conferenceId">The conference that the order applies to.</param>
+        /// <param name="items">The desired seats to register to.</param>
+        /// <param name="pricingService">Service that calculates the pricing.</param>
         public Order(Guid id, Guid conferenceId, IEnumerable<OrderItem> items, IPricingService pricingService)
             : this(id)
         {
@@ -73,6 +101,17 @@ namespace Registration
             this.Update(new OrderTotalsCalculated { Total = totals.Total, Lines = totals.Lines != null ? totals.Lines.ToArray() : null, IsFreeOfCharge = totals.Total == 0m });
         }
 
+        /// <summary>
+        /// Updates the order with the specified items.
+        /// </summary>
+        /// <remarks>
+        /// The total is now calculated at this time. This was a change done in the V3 version of the system to optimize 
+        /// the UI workflow. 
+        /// See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more information on 
+        /// the optimization and migration to V3.
+        /// </remarks>
+        /// <param name="items">The desired seats to register to.</param>
+        /// <param name="pricingService">Service that calculates the pricing.</param>
         public void UpdateSeats(IEnumerable<OrderItem> items, IPricingService pricingService)
         {
             var all = ConvertItems(items);
@@ -106,7 +145,7 @@ namespace Registration
         public void Expire()
         {
             if (this.isConfirmed)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Cannot expire a confirmed order.");
 
             this.Update(new OrderExpired());
         }
@@ -129,9 +168,14 @@ namespace Registration
         public SeatAssignments CreateSeatAssignments()
         {
             if (!this.isConfirmed)
-                throw new InvalidOperationException("Cannot create seat assignments for an order that isn't paid yet.");
+                throw new InvalidOperationException("Cannot create seat assignments for an order that isn't confirmed yet.");
 
             return new SeatAssignments(this.Id, this.seats.AsReadOnly());
+        }
+
+        private static List<SeatQuantity> ConvertItems(IEnumerable<OrderItem> items)
+        {
+            return items.Select(x => new SeatQuantity(x.SeatType, x.Quantity)).ToList();
         }
 
         private void OnOrderPlaced(OrderPlaced e)
@@ -170,11 +214,6 @@ namespace Registration
 
         private void OnOrderTotalsCalculated(OrderTotalsCalculated e)
         {
-        }
-
-        private static List<SeatQuantity> ConvertItems(IEnumerable<OrderItem> items)
-        {
-            return items.Select(x => new SeatQuantity(x.SeatType, x.Quantity)).ToList();
         }
     }
 }

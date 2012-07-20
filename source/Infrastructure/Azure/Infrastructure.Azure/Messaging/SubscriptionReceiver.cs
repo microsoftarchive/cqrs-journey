@@ -27,9 +27,21 @@ namespace Infrastructure.Azure.Messaging
     using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
-    /// Implements an asynchronous receiver of messages from an Azure 
-    /// service bus topic subscription.
+    /// Implements an asynchronous receiver of messages from a Windows Azure 
+    /// Service Bus topic subscription.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// In V3 we made a lot of changes to optimize the performance and scalability of the receiver.
+    /// See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more information on the optimizations and migration to V3.
+    /// </para>
+    /// <para>
+    /// The current implementation uses async calls to communicate with the service bus, although the message processing is done with a blocking synchronous call.
+    /// We could still make several performance improvements. For example, we could react to system-wide throttling indicators to avoid overwhelming
+    /// the services when under heavy load. See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see> for more potential 
+    /// performance and scalability optimizations.
+    /// </para>
+    /// </remarks>
     public class SubscriptionReceiver : IMessageReceiver, IDisposable
     {
         private static readonly TimeSpan ReceiveLongPollingTimeout = TimeSpan.FromMinutes(1);
@@ -108,8 +120,8 @@ namespace Infrastructure.Azure.Messaging
                 new DynamicThrottling(
                     maxDegreeOfParallelism: 100,
                     minDegreeOfParallelism: 50,
-                    retryParallelismPenalty: 3,
-                    workFailedParallelismPenalty: 5,
+                    penaltyAmount: 3,
+                    workFailedPenaltyAmount: 5,
                     workCompletedParallelismGain: 1,
                     intervalForRestoringDegreeOfParallelism: 8000);
             this.receiveRetryPolicy = new RetryPolicy<ServiceBusTransientErrorDetectionStrategy>(backgroundRetryStrategy);
@@ -255,7 +267,7 @@ namespace Infrastructure.Azure.Messaging
 
                                         schedulingElapsedMilliseconds = roundtripStopwatch.ElapsedMilliseconds;
 
-                                        // Make sure we are not told to stop receiving while we were waiting for a new message.
+                                        // Make sure the process was told to stop receiving while it was waiting for a new message.
                                         if (!cancellationToken.IsCancellationRequested)
                                         {
                                             try
@@ -293,7 +305,7 @@ namespace Infrastructure.Azure.Messaging
 
                                     if (!this.processInParallel)
                                     {
-                                        // Continue receiving and processing new messages until we are told to stop.
+                                        // Continue receiving and processing new messages until told to stop.
                                         receiveNext.Invoke();
                                     }
                                 });
@@ -303,7 +315,7 @@ namespace Infrastructure.Azure.Messaging
                             this.dynamicThrottling.NotifyWorkCompleted();
                             if (!this.processInParallel)
                             {
-                                // Continue receiving and processing new messages until we are told to stop.
+                                // Continue receiving and processing new messages until told to stop.
                                 receiveNext.Invoke();
                             }
                         }
@@ -323,7 +335,7 @@ namespace Infrastructure.Azure.Messaging
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     this.dynamicThrottling.NotifyWorkStarted();
-                    // Continue receiving and processing new messages until we are told to stop.
+                    // Continue receiving and processing new messages until told to stop.
                     receiveMessage.Invoke();
                 }
             };
@@ -337,7 +349,7 @@ namespace Infrastructure.Azure.Messaging
 
                 if (!cancellationToken.IsCancellationRequested)
                 {
-                    // Continue receiving and processing new messages until we are told to stop regardless of any exceptions.
+                    // Continue receiving and processing new messages until told to stop regardless of any exceptions.
                     TaskEx.Delay(10000).ContinueWith(t => receiveMessage.Invoke());
                 }
             };

@@ -14,7 +14,6 @@
 namespace Registration.ReadModel.Implementation
 {
     using System.Data.Entity;
-    using System.Linq;
 
     public class ConferenceRegistrationDbContextInitializer : IDatabaseInitializer<ConferenceRegistrationDbContext>
     {

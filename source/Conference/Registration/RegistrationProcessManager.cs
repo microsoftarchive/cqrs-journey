@@ -25,6 +25,19 @@ namespace Registration
     using Registration.Commands;
     using Registration.Events;
 
+    /// <summary>
+    /// Represents a Process Manager that is in charge of communicating between the different distributed components
+    /// when registering to a conference, reserving the seats, expiring the reservation in case the order is not
+    /// completed in time, etc.
+    /// </summary>
+    /// <remarks>
+    /// <para>For more information on the domain, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258553">Journey chapter 3</see>.</para>
+    /// <para>For more information on Process Managers, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258564">Reference 6</see>.</para>
+    /// <para>For more information on the optimizations and hardening we did to this class, and for more potential performance and scalability optimizations, 
+    /// see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see>.</para>
+    /// <para>There are a few things that we learnt along the way regarding Process Managers, which we might do differently with the new insights that we
+    /// now have. See <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258558"> Journey lessons learnt</see> for more information.</para>
+    /// </remarks>
     public class RegistrationProcessManager : IProcessManager
     {
         private static readonly TimeSpan BufferTimeBeforeReleasingSeatsAfterExpiration = TimeSpan.FromMinutes(14);
@@ -51,7 +64,7 @@ namespace Registration
         public Guid ReservationId { get; internal set; }
         public Guid SeatReservationCommandId { get; internal set; }
 
-        // feels akward and possibly disrupting to store these properties here. Would it be better if instead of using 
+        // feels awkward and possibly disrupting to store these properties here. Would it be better if instead of using 
         // current state values, we use event sourcing?
         public DateTime? ReservationAutoExpiration { get; internal set; }
         public Guid ExpirationCommandId { get; set; }

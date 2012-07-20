@@ -16,6 +16,9 @@ namespace Infrastructure.Azure.EventSourcing
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Represents an event store that contains events that are marked as pending for publishing.
+    /// </summary>
     public interface IPendingEventsQueue
     {
         /// <summary>

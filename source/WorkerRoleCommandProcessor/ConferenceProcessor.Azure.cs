@@ -35,12 +35,12 @@ namespace WorkerRoleCommandProcessor
     using Registration.Handlers;
 
     /// <summary>
-    /// Azure-side of the processor, which is included for compilation conditionally 
+    /// Windows Azure side of the processor, which is included for compilation conditionally 
     /// at the csproj level.
     /// </summary>
     /// <devdoc>
     /// NOTE: this file is only compiled on non-DebugLocal configurations. In DebugLocal 
-    /// you will not see full syntax coloring, intellisense, etc.. But it is still 
+    /// you will not see full syntax coloring, IntelliSense, etc.. But it is still 
     /// much more readable and usable than a grayed-out piece of code inside an #if
     /// </devdoc>
     partial class ConferenceProcessor
@@ -210,7 +210,7 @@ namespace WorkerRoleCommandProcessor
         }
 
         // to satisfy the IProcessor requirements.
-        // TODO: we should unify and probaly use token-based Start only processors.
+        // TODO: we should unify and probably use token-based Start only processors.
         private class PublisherProcessorAdapter : IProcessor
         {
             private IEventStoreBusPublisher publisher;

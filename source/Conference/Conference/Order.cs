@@ -44,7 +44,7 @@ namespace Conference
         public Guid ConferenceId { get; set; }
 
         /// <summary>
-        /// Used for correlating with the seat assigmnents.
+        /// Used for correlating with the seat assignments.
         /// </summary>
         public Guid? AssignmentsId { get; set; }
 

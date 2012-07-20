@@ -28,7 +28,7 @@ namespace MigrationToV3.InHouseProcessor
     using Registration.ReadModel.Implementation;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Supports the migration of the app deployed to pseudo-production from V2 to V3.
     /// </summary>
     public class Migrator
     {

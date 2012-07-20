@@ -23,8 +23,7 @@ namespace Infrastructure.Azure.Messaging
     using Microsoft.ServiceBus.Messaging;
 
     /// <summary>
-    /// Implements an asynchronous sender of messages to an Azure 
-    /// service bus topic.
+    /// Implements an asynchronous sender of messages to a Windows Azure Service Bus topic.
     /// </summary>
     public class TopicSender : IMessageSender
     {
@@ -102,18 +101,9 @@ namespace Infrastructure.Azure.Messaging
         public void SendAsync(Func<BrokeredMessage> messageFactory, Action successCallback, Action<Exception> exceptionCallback)
         {
             this.retryPolicy.ExecuteAction(
-                ac =>
-                {
-                    this.DoBeginSendMessage(messageFactory(), ac);
-                },
-                ar =>
-                {
-                    this.DoEndSendMessage(ar);
-                },
-                () =>
-                {
-                    successCallback();
-                },
+                ac => this.DoBeginSendMessage(messageFactory(), ac),
+                this.DoEndSendMessage,
+                successCallback,
                 ex =>
                 {
                     Trace.TraceError("An unrecoverable error occurred while trying to send a message:\r\n{0}", ex);

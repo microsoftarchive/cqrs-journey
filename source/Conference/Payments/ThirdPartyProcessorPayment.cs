@@ -21,6 +21,12 @@ namespace Payments
     using Infrastructure.Database;
     using Payments.Contracts.Events;
 
+    /// <summary>
+    /// Represents a payment through a 3rd party system.
+    /// </summary>
+    /// <remarks>
+    /// <para>For more information on the Payments BC, see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258555">Journey chapter 5</see>.</para>
+    /// </remarks>
     public class ThirdPartyProcessorPayment : IAggregateRoot, IEventPublisher
     {
         public enum States

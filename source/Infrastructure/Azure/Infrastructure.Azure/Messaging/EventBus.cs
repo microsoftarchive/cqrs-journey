@@ -15,6 +15,8 @@ namespace Infrastructure.Azure.Messaging
 {
     using System.Collections.Generic;
     using System.IO;
+
+    using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
     using Microsoft.ServiceBus.Messaging;
@@ -22,6 +24,8 @@ namespace Infrastructure.Azure.Messaging
     /// <summary>
     /// An event bus that sends serialized object payloads through a <see cref="IMessageSender"/>.
     /// </summary>
+    /// <remarks>Note that <see cref="Infrastructure.EventSourcing.IEventSourced"/> entities persisted through the <see cref="IEventSourcedRepository{T}"/>
+    /// do not use the <see cref="IEventBus"/>, but has its own event publishing mechanism.</remarks>
     public class EventBus : IEventBus
     {
         private readonly IMessageSender sender;

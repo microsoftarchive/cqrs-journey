@@ -20,12 +20,15 @@ namespace Infrastructure.Sql.EventSourcing
     using Infrastructure.EventSourcing;
     using Infrastructure.Messaging;
     using Infrastructure.Serialization;
-    using Infrastructure.Sql.Messaging;
     using Infrastructure.Util;
 
-    // TODO: This is an extremely basic implementation of the event store (straw man), that will be replaced in the future.
-    // It does not check for event versions before committing, nor is transactional with the event bus.
-    // It does not do any snapshots either, which the SeatsAvailability will definitely need.
+    /// <summary>
+    /// This is an extremely basic implementation of the event store (straw man), that is used only for running the sample application
+    /// without the dependency to the Windows Azure Service Bus when using the DebugLocal solution configuration.
+    /// It does not check for event versions before committing, nor is transactional with the event bus nor resilient to connectivity errors or crashes.
+    /// It does not do any snapshots either for entities that implement <see cref="IMementoOriginator"/>, which would benefit the usage of SeatsAvailability.
+    /// </summary>
+    /// <typeparam name="T">The entity type to persist.</typeparam>
     public class SqlEventSourcedRepository<T> : IEventSourcedRepository<T> where T : class, IEventSourced
     {
         // Could potentially use DataAnnotations to get a friendly/unique name in case of collisions between BCs.

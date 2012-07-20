@@ -18,6 +18,14 @@ namespace Registration.ReadModel.Implementation
     using System.Linq;
     using System.Runtime.Caching;
 
+    /// <summary>
+    /// Decorator that wraps <see cref="ConferenceDao"/> and caches this data in memory, as it can be accessed several times.
+    /// This embraces eventual consistency, as we acknowledge the fact that the read model is stale even without caching.
+    /// </summary>
+    /// <remarks>
+    /// For more information on the optimizations we did for V3
+    /// see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see>.
+    /// </remarks>
     public class CachingConferenceDao : IConferenceDao
     {
         private readonly IConferenceDao decoratedDao;
@@ -77,6 +85,16 @@ namespace Registration.ReadModel.Implementation
             return cached;
         }
 
+        /// <summary>
+        /// Gets ifnromation about the seat types.
+        /// </summary>
+        /// <remarks>
+        /// Because the seat type contains the number of available seats, and this information can change often, notice
+        /// how we manage the risks associated with displaying data that is very stale by adjusting caching duration 
+        /// or not even caching at all if only a few seats remain.
+        /// For more information on the optimizations we did for V3
+        /// see <see cref="http://go.microsoft.com/fwlink/p/?LinkID=258557"> Journey chapter 7</see>.
+        /// </remarks>
         public IList<SeatType> GetPublishedSeatTypes(Guid conferenceId)
         {
             var key = "ConferenceDao_PublishedSeatTypes_" + conferenceId;
