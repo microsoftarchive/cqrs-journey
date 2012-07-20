@@ -68,6 +68,7 @@ namespace Infrastructure.Sql.Messaging.Implementation
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Does not contain user input.")]
         private void InsertMessage(Message message, DbConnection connection)
         {
             using (var command = (SqlCommand)connection.CreateCommand())

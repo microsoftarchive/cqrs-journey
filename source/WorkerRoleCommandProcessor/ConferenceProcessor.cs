@@ -72,6 +72,7 @@ namespace WorkerRoleCommandProcessor
         public void Dispose()
         {
             this.container.Dispose();
+            this.cancellationTokenSource.Dispose();
         }
 
         private UnityContainer CreateContainer()
@@ -113,8 +114,6 @@ namespace WorkerRoleCommandProcessor
 
             return container;
         }
-
-
 
         partial void OnCreating();
         partial void OnCreateContainer(UnityContainer container);

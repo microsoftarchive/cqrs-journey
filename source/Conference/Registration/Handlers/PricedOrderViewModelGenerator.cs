@@ -41,7 +41,7 @@ namespace Registration.Handlers
         public PricedOrderViewModelGenerator(Func<ConferenceRegistrationDbContext> contextFactory)
         {
             this.contextFactory = contextFactory;
-            this.seatDescriptionsCache = new MemoryCache("SeatDescriptionsCache");
+            this.seatDescriptionsCache = MemoryCache.Default;
         }
 
         public void Handle(OrderPlaced @event)
@@ -198,7 +198,7 @@ namespace Registration.Handlers
 
                 dto.Name = @event.Name;
                 context.SaveChanges();
-                this.seatDescriptionsCache.Set(dto.SeatTypeId.ToString(), dto, new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) });
+                this.seatDescriptionsCache.Set("SeatDescription_" + dto.SeatTypeId.ToString(), dto, new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) });
             }
         }
 
@@ -237,7 +237,7 @@ This read model generator has an expectation that the EventBus will deliver mess
             PricedOrderLineSeatTypeDescription cached;
             foreach (var seatType in seatTypeIds)
             {
-                cached = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache.Get(seatType.ToString());
+                cached = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache.Get("SeatDescription_" + seatType.ToString());
                 if (cached == null)
                 {
                     notCached.Add(seatType);
@@ -260,7 +260,7 @@ This read model generator has an expectation that the EventBus will deliver mess
                     // even though we went got a fresh version we don't want to overwrite a fresher version set by the event handler for seat descriptions
                     var desc = (PricedOrderLineSeatTypeDescription)this.seatDescriptionsCache
                         .AddOrGetExisting(
-                            seatType.SeatTypeId.ToString(),
+                            "SeatDescription_" + seatType.SeatTypeId.ToString(),
                             seatType,
                             new CacheItemPolicy { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) })
                         ?? seatType;

@@ -520,7 +520,15 @@ namespace Infrastructure.Azure.Messaging
         private void OnMessageCompleted(bool success, CountdownEvent countdown)
         {
             this.instrumentation.MessageCompleted(success);
-            countdown.Signal();
+            try
+            {
+                countdown.Signal();
+            }
+            catch (ObjectDisposedException)
+            {
+                // It could happen in a rare case that due to a timing issue between closing the session and disposing the countdown,
+                // that the countdown is already disposed. This is OK and it can continue processing normally.
+            }
         }
     }
 }
