@@ -183,12 +183,6 @@ namespace WorkerRoleCommandProcessor
 
             Database.DefaultConnectionFactory = new ServiceConfigurationSettingConnectionFactory(Database.DefaultConnectionFactory);
 
-            // Setup V3 migrations.
-            // In future revisions, this line will change to invoke a V4 migration (possibly)
-            // and the initialization of the V3 migration won't be needed anymore, as the 
-            // production database will already have been migrated to V3.
-            MigrationToV3.Migration.Initialize();
-
             return base.OnStart();
         }
 

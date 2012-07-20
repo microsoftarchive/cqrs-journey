@@ -19,15 +19,8 @@ namespace WorkerRoleCommandProcessor
     {
         static void Main(string[] args)
         {
-
             // Cleanup default EF DB initializers.
             DatabaseSetup.Initialize();
-
-            // Setup V3 migrations.
-            // In future revisions, this line will change to invoke a V4 migration (possibly)
-            // and the initialization of the V3 migration won't be needed anymore, as the 
-            // production database will already have been migrated to V3.
-            MigrationToV3.Migration.Initialize();
 
             using (var processor = new ConferenceProcessor(false))
             {

@@ -49,10 +49,6 @@ namespace Conference.Web.Public
 
             DatabaseSetup.Initialize();
 
-            // We need to also setup the migration in the website, as the read models are queried 
-            // from here and also need upgrade (PricedOrder in particular for V3).
-            MigrationToV3.Migration.Initialize();
-
             this.container = CreateContainer();
 
             DependencyResolver.SetResolver(new UnityServiceLocator(this.container));
