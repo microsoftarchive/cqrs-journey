@@ -253,6 +253,7 @@ namespace Conference.Specflow.Steps
             if (navigateToRegPage)
             {
                 browser.GoTo(Constants.RegistrationPage(conferenceInfo.Slug));
+                browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
             }
 
             foreach (var row in table.Rows)

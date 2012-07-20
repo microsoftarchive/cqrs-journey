@@ -91,6 +91,7 @@ namespace Conference.Specflow.Steps
         public void WhenTheBusinessCustomerProceedToGetAccessToTheConferenceSettings()
         {
             Browser.GoTo(Constants.ConferenceManagementAccessPage);
+            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
             Browser.SetInput("name", ScenarioContext.Current.Get<string>(Constants.EmailSessionKey), "email");
             Browser.SetInput("name", ScenarioContext.Current.Get<string>(Constants.AccessCodeSessionKey), "accessCode");
             Browser.Click(Constants.UI.ConferenceManagementAccessId);
@@ -135,6 +136,7 @@ namespace Conference.Specflow.Steps
         {
             // Navigate to Registration page
             Browser.GoTo(Constants.ConferenceManagementCreatePage);
+            Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
         }
 
         private void PopulateConferenceInformation(Table table, bool create = false)

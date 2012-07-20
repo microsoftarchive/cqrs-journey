@@ -17,13 +17,16 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Threading;
 using TechTalk.SpecFlow;
+using WatiN.Core;
 
 namespace Conference.Specflow.Support
 {
     [Binding]
     public class TestEvents
     {
+        //[STAThread] //http://watin.org/documentation/sta-apartmentstate/
         [BeforeTestRun]
         public static void BeforeTestRun()
         {
@@ -38,6 +41,18 @@ namespace Conference.Specflow.Support
                 UseShellExecute = false,
             };
 
+            // May be used to control browser visibility 
+            // instead of setting Visible = true on each instance creation.
+            //Settings.Instance.MakeNewIeInstanceVisible = true;
+
+            // Close all running IE instances
+            while (IE.InternetExplorersNoWait().Count > 0)
+            {
+                var ie = IE.InternetExplorersNoWait()[0];
+                ie.ForceClose();
+            } 
+
+
             // Check if the WorkerRoleCommandProcessor is running
             if (Process.GetProcessesByName(Path.GetFileNameWithoutExtension(start.FileName)).Any())
             {
@@ -46,11 +61,8 @@ namespace Conference.Specflow.Support
 
             // Start in a new thread to dec
             Process.Start(Path.GetFullPath(@"..\..\..\..\WorkerRoleCommandProcessor\bin\Debug\CommandProcessor.exe"));
-        }
-
-        [AfterTestRun]
-        public static void AfterTestRun()
-        {
+            // Wait for processor initialization and warm up
+            Thread.Sleep(Constants.CommandProcessorWaitTimeout);
         }
 
         private static void StartWebHost(int port, string projectPhysicalPath)

@@ -43,9 +43,6 @@ When the command to register the selected Order Items is lost
 And the event for Order placed is emitted
 	# command: MakeSeatReservation
 Then the command for reserving the selected Seats is received
-	# event: SeatsReserved
-And  the event for reserving the selected Seats is emitted
-#No more events or commands are emitted
 
 
 #- Times-out because it is expecting a timely response from any of the commands it has sent, but for some reason the recipients of those commands fail to respond.
@@ -53,6 +50,7 @@ Scenario: Times-out after the reservation is completed
 	# event: OrderPlaced
 When the event for Order placed gets expired
 Then the event for confirming the Order is not emitted
+
 
 #- Receives an unexpected event (i.e. PaymentCompleted after the order has been expired).
 Scenario: Execute the Payment process after the order has expired

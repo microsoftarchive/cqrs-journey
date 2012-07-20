@@ -55,6 +55,7 @@ namespace Conference.Specflow.Steps.Views
             for(var i = 1; i <= conferences; i++)
             {
                 Browser.GoTo(Constants.ConferenceManagementCreatePage);
+                Browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
                 PopulateConferenceInformation(isRandom ? (i + "000" + rnd.Next()) : i.ToString(CultureInfo.InvariantCulture));
                 Browser.Click(Constants.UI.CreateConferenceId);
                 Browser.Click(Constants.UI.PublishConferenceId);

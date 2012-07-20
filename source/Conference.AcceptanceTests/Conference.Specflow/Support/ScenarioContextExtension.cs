@@ -42,14 +42,14 @@ namespace Conference.Specflow.Support
         {
             Browser browser;
             if (ScenarioContext.Current.TryGetValue(out browser))
-                browser.Close();
+                browser.Dispose();
 
             lock (syncLock)
             {
                 List<Browser> browsers;
                 if (ScenarioContext.Current.TryGetValue(BrowsersKey, out browsers))
                 {
-                    browsers.ForEach(b => b.Close());
+                    browsers.ForEach(b => b.Dispose());
                     ScenarioContext.Current.Remove(BrowsersKey);
                 }
             }

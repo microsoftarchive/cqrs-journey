@@ -131,8 +131,6 @@ testRunner.When("the command to register the selected Order Items is lost");
 testRunner.And("the event for Order placed is emitted");
 #line 45
 testRunner.Then("the command for reserving the selected Seats is received");
-#line 47
-testRunner.And("the event for reserving the selected Seats is emitted");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -144,13 +142,13 @@ testRunner.And("the event for reserving the selected Seats is emitted");
         public virtual void Times_OutAfterTheReservationIsCompleted()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Times-out after the reservation is completed", ((string[])(null)));
-#line 52
+#line 49
 this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
-#line 54
+#line 51
 testRunner.When("the event for Order placed gets expired");
-#line 55
+#line 52
 testRunner.Then("the event for confirming the Order is not emitted");
 #line hidden
             this.ScenarioCleanup();
@@ -163,19 +161,19 @@ testRunner.Then("the event for confirming the Order is not emitted");
         public virtual void ExecuteThePaymentProcessAfterTheOrderHasExpired()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Execute the Payment process after the order has expired", ((string[])(null)));
-#line 58
+#line 56
 this.ScenarioSetup(scenarioInfo);
 #line 28
 this.FeatureBackground();
-#line 59
+#line 57
 testRunner.Given("the event for Order placed gets expired");
-#line 61
+#line 59
 testRunner.When("the command for initiate the payment is sent");
-#line 63
+#line 61
 testRunner.And("the command for completing the payment process is sent");
-#line 65
+#line 63
 testRunner.Then("the event for confirming the payment is emitted");
-#line 67
+#line 65
 testRunner.And("the event for confirming the Order is not emitted");
 #line hidden
             this.ScenarioCleanup();
