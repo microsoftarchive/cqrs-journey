@@ -20,8 +20,10 @@ namespace Conference.Specflow.Support
     {
 #if LOCAL
         public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan CommandProcessorWaitTimeout = TimeSpan.FromSeconds(5);
 #else   // Wait more for slower Azure connections
-        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(10);
+        public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(30);
+        public static readonly TimeSpan CommandProcessorWaitTimeout = TimeSpan.FromSeconds(60);
 #endif
         public const string NoWatiN = "NoWatiN";
         public const string RandomSlug = "(random)";
@@ -36,7 +38,7 @@ namespace Conference.Specflow.Support
             // Max time for wait on a screen to show up
             public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(40); 
 #else
-            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(59); 
+            public static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(180); 
 #endif
             public const string NextStepId = "Next";
             public const string FindId = "find";

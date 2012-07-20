@@ -32,7 +32,8 @@ namespace Conference.Specflow.Support
                         "Could not find {0} link on the page", controlId));
                 }
             }
-            element.Click();
+            element.ClickNoWait();
+            element.WaitForComplete();
         }
 
         private static Element FindLink(Browser browser, string value)
@@ -79,7 +80,8 @@ namespace Conference.Specflow.Support
                 var item = list.OwnListItem(Find.ByText(value));
                 if (item.Exists)
                 {
-                    item.Click();
+                    item.ClickNoWait();
+                    item.WaitForComplete();
                 }
             }
         }

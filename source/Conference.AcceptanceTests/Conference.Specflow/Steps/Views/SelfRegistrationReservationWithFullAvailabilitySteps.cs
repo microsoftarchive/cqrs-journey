@@ -35,6 +35,7 @@ namespace Conference.Specflow.Steps
 
             // Navigate to Registration page
             browser.GoTo(Constants.FindOrderPage(ScenarioContext.Current.Get<ConferenceInfo>().Slug));
+            browser.WaitForComplete((int)Constants.UI.WaitTimeout.TotalSeconds);
             browser.SetInput("name", email, "email");
             browser.SetInput("name", accessCode, "accessCode");
             browser.Click(Constants.UI.FindId);
