@@ -53,17 +53,9 @@ namespace WorkerRoleCommandProcessor
 				/// </summary>
 				public const string Log = "log";
 				/// <summary>
-				/// Registration.RegistrationPMOrderPlaced
-				/// </summary>
-				public const string RegistrationPMOrderPlaced = "Registration.RegistrationPMOrderPlaced";
-				/// <summary>
 				/// Registration.RegistrationPMNextSteps
 				/// </summary>
 				public const string RegistrationPMNextSteps = "Registration.RegistrationPMNextSteps";
-				/// <summary>
-				/// Registration.OrderViewModelGeneratorV3
-				/// </summary>
-				public const string OrderViewModelGeneratorV3 = "Registration.OrderViewModelGeneratorV3";
 				/// <summary>
 				/// Registration.PricedOrderViewModelGeneratorV3
 				/// </summary>
@@ -72,18 +64,74 @@ namespace WorkerRoleCommandProcessor
 				/// Registration.ConferenceViewModelGenerator
 				/// </summary>
 				public const string ConferenceViewModelGenerator = "Registration.ConferenceViewModelGenerator";
+			}
+		}
+
+		public static class EventsOrders
+		{
+			/// <summary>
+			/// conference/eventsOrders
+			/// </summary>
+			public const string Path = "conference/eventsOrders";
+
+			public static class Subscriptions
+			{
 				/// <summary>
-				/// Registration.SeatAssignmentsViewModelGeneratorV3
+				/// logOrders
 				/// </summary>
-				public const string SeatAssignmentsViewModelGeneratorV3 = "Registration.SeatAssignmentsViewModelGeneratorV3";
+				public const string LogOrders = "logOrders";
 				/// <summary>
-				/// Registration.SeatAssignmentsHandler
+				/// Registration.RegistrationPMOrderPlacedOrders
 				/// </summary>
-				public const string SeatAssignmentsHandler = "Registration.SeatAssignmentsHandler";
+				public const string RegistrationPMOrderPlacedOrders = "Registration.RegistrationPMOrderPlacedOrders";
 				/// <summary>
-				/// Conference.OrderEventHandler
+				/// Registration.RegistrationPMNextStepsOrders
 				/// </summary>
-				public const string OrderEventHandler = "Conference.OrderEventHandler";
+				public const string RegistrationPMNextStepsOrders = "Registration.RegistrationPMNextStepsOrders";
+				/// <summary>
+				/// Registration.OrderViewModelGeneratorOrders
+				/// </summary>
+				public const string OrderViewModelGeneratorOrders = "Registration.OrderViewModelGeneratorOrders";
+				/// <summary>
+				/// Registration.PricedOrderViewModelOrders
+				/// </summary>
+				public const string PricedOrderViewModelOrders = "Registration.PricedOrderViewModelOrders";
+				/// <summary>
+				/// Registration.SeatAssignmentsViewModelOrders
+				/// </summary>
+				public const string SeatAssignmentsViewModelOrders = "Registration.SeatAssignmentsViewModelOrders";
+				/// <summary>
+				/// Registration.SeatAssignmentsHandlerOrders
+				/// </summary>
+				public const string SeatAssignmentsHandlerOrders = "Registration.SeatAssignmentsHandlerOrders";
+				/// <summary>
+				/// Conference.OrderEventHandlerOrders
+				/// </summary>
+				public const string OrderEventHandlerOrders = "Conference.OrderEventHandlerOrders";
+			}
+		}
+
+		public static class EventsAvailability
+		{
+			/// <summary>
+			/// conference/eventsAvailability
+			/// </summary>
+			public const string Path = "conference/eventsAvailability";
+
+			public static class Subscriptions
+			{
+				/// <summary>
+				/// logAvail
+				/// </summary>
+				public const string LogAvail = "logAvail";
+				/// <summary>
+				/// Registration.RegistrationPMNextStepsAvail
+				/// </summary>
+				public const string RegistrationPMNextStepsAvail = "Registration.RegistrationPMNextStepsAvail";
+				/// <summary>
+				/// Registration.ConferenceViewModelAvail
+				/// </summary>
+				public const string ConferenceViewModelAvail = "Registration.ConferenceViewModelAvail";
 			}
 		}
 

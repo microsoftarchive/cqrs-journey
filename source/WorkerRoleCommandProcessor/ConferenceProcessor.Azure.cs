@@ -66,9 +66,11 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IBlobStorage>(new CloudBlobStorage(blobStorageAccount, azureSettings.BlobStorage.RootContainerName));
 
             var commandBus = new CommandBus(new TopicSender(azureSettings.ServiceBus, Topics.Commands.Path), metadata, serializer);
-            var topicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
-            container.RegisterInstance<IMessageSender>(topicSender);
-            var eventBus = new EventBus(topicSender, metadata, serializer);
+            var eventsTopicSender = new TopicSender(azureSettings.ServiceBus, Topics.Events.Path);
+            container.RegisterInstance<IMessageSender>("events", eventsTopicSender);
+            container.RegisterInstance<IMessageSender>("orders", new TopicSender(azureSettings.ServiceBus, Topics.EventsOrders.Path));
+            container.RegisterInstance<IMessageSender>("seatsavailability", new TopicSender(azureSettings.ServiceBus, Topics.EventsAvailability.Path));
+            var eventBus = new EventBus(eventsTopicSender, metadata, serializer);
 
             var sessionlessCommandProcessor =
                 new CommandProcessor(new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Sessionless, false, new SubscriptionReceiverInstrumentation(Topics.Commands.Subscriptions.Sessionless, this.instrumentationEnabled)), serializer);
@@ -82,7 +84,7 @@ namespace WorkerRoleCommandProcessor
             container.RegisterInstance<IProcessor>("SessionlessCommandProcessor", sessionlessCommandProcessor);
             container.RegisterInstance<IProcessor>("SeatsAvailabilityCommandProcessor", seatsAvailabilityCommandProcessor);
 
-            RegisterRepository(container);
+            RegisterRepositories(container);
             RegisterEventProcessors(container);
             RegisterCommandHandlers(container, sessionlessCommandProcessor, seatsAvailabilityCommandProcessor);
 
@@ -96,6 +98,14 @@ namespace WorkerRoleCommandProcessor
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
                 new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Events.Path, Topics.Events.Subscriptions.Log)));
 
+            container.RegisterInstance<IProcessor>("OrderEventLogger", new AzureMessageLogListener(
+                new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
+                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.EventsOrders.Path, Topics.EventsOrders.Subscriptions.LogOrders)));
+
+            container.RegisterInstance<IProcessor>("SeatsAvailabilityEventLogger", new AzureMessageLogListener(
+                new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
+                new SubscriptionReceiver(azureSettings.ServiceBus, Topics.EventsAvailability.Path, Topics.EventsAvailability.Subscriptions.LogAvail)));
+
             container.RegisterInstance<IProcessor>("CommandLogger", new AzureMessageLogListener(
                 new AzureMessageLogWriter(messageLogAccount, azureSettings.MessageLog.TableName),
                 new SubscriptionReceiver(azureSettings.ServiceBus, Topics.Commands.Path, Topics.Commands.Subscriptions.Log)));
@@ -105,14 +115,20 @@ namespace WorkerRoleCommandProcessor
         {
             container.RegisterType<RegistrationProcessManagerRouter>(new ContainerControlledLifetimeManager());
 
-            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMOrderPlaced, this.instrumentationEnabled);
             container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.Events.Subscriptions.RegistrationPMNextSteps, this.instrumentationEnabled);
-            container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.OrderViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.PricedOrderViewModelGeneratorV3, this.instrumentationEnabled);
             container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.ConferenceViewModelGenerator, this.instrumentationEnabled);
-            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsViewModelGeneratorV3, this.instrumentationEnabled);
-            container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.Events.Subscriptions.SeatAssignmentsHandler, this.instrumentationEnabled);
-            container.RegisterEventProcessor<global::Conference.OrderEventHandler>(this.busConfig, Topics.Events.Subscriptions.OrderEventHandler, this.instrumentationEnabled);
+
+            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.EventsOrders.Subscriptions.RegistrationPMOrderPlacedOrders, this.instrumentationEnabled);
+            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.EventsOrders.Subscriptions.RegistrationPMNextStepsOrders, this.instrumentationEnabled);
+            container.RegisterEventProcessor<DraftOrderViewModelGenerator>(this.busConfig, Topics.EventsOrders.Subscriptions.OrderViewModelGeneratorOrders, this.instrumentationEnabled);
+            container.RegisterEventProcessor<PricedOrderViewModelGenerator>(this.busConfig, Topics.EventsOrders.Subscriptions.PricedOrderViewModelOrders, this.instrumentationEnabled);
+            container.RegisterEventProcessor<SeatAssignmentsViewModelGenerator>(this.busConfig, Topics.EventsOrders.Subscriptions.SeatAssignmentsViewModelOrders, this.instrumentationEnabled);
+            container.RegisterEventProcessor<SeatAssignmentsHandler>(this.busConfig, Topics.EventsOrders.Subscriptions.SeatAssignmentsHandlerOrders, this.instrumentationEnabled);
+            container.RegisterEventProcessor<Conference.OrderEventHandler>(this.busConfig, Topics.EventsOrders.Subscriptions.OrderEventHandlerOrders, this.instrumentationEnabled);
+
+            container.RegisterEventProcessor<RegistrationProcessManagerRouter>(this.busConfig, Topics.EventsAvailability.Subscriptions.RegistrationPMNextStepsAvail, this.instrumentationEnabled);
+            container.RegisterEventProcessor<ConferenceViewModelGenerator>(this.busConfig, Topics.EventsAvailability.Subscriptions.ConferenceViewModelAvail, this.instrumentationEnabled);
         }
 
         private static void RegisterCommandHandlers(IUnityContainer unityContainer, ICommandHandlerRegistry sessionlessRegistry, ICommandHandlerRegistry seatsAvailabilityRegistry)
@@ -127,26 +143,70 @@ namespace WorkerRoleCommandProcessor
             }
         }
 
-        private void RegisterRepository(UnityContainer container)
+        private void RegisterRepositories(UnityContainer container)
         {
             // repository
             var eventSourcingAccount = CloudStorageAccount.Parse(this.azureSettings.EventSourcing.ConnectionString);
-            var eventStore = new EventStore(eventSourcingAccount, this.azureSettings.EventSourcing.TableName);
+            var ordersEventStore = new EventStore(eventSourcingAccount, this.azureSettings.EventSourcing.OrdersTableName);
+            var seatsAvailabilityEventStore = new EventStore(eventSourcingAccount, this.azureSettings.EventSourcing.SeatsAvailabilityTableName);
 
-            container.RegisterInstance<IEventStore>(eventStore);
-            container.RegisterInstance<IPendingEventsQueue>(eventStore);
-            container.RegisterInstance<IEventStoreBusPublisherInstrumentation>(new EventStoreBusPublisherInstrumentation("worker", this.instrumentationEnabled));
-            container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(new ContainerControlledLifetimeManager());
-            var cache = new MemoryCache("RepositoryCache");
-            container.RegisterType(
-                typeof(IEventSourcedRepository<>),
-                typeof(AzureEventSourcedRepository<>),
+            container.RegisterInstance<IEventStore>("orders", ordersEventStore);
+            container.RegisterInstance<IPendingEventsQueue>("orders", ordersEventStore);
+
+            container.RegisterInstance<IEventStore>("seatsavailability", seatsAvailabilityEventStore);
+            container.RegisterInstance<IPendingEventsQueue>("seatsavailability", seatsAvailabilityEventStore);
+
+            container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(
+                "orders",
                 new ContainerControlledLifetimeManager(),
-                new InjectionConstructor(typeof(IEventStore), typeof(IEventStoreBusPublisher), typeof(ITextSerializer), typeof(IMetadataProvider), cache));
+                new InjectionConstructor(
+                    new ResolvedParameter<IMessageSender>("orders"),
+                    new ResolvedParameter<IPendingEventsQueue>("orders"),
+                    new EventStoreBusPublisherInstrumentation("worker - orders", this.instrumentationEnabled)));
+            container.RegisterType<IEventStoreBusPublisher, EventStoreBusPublisher>(
+                "seatsavailability",
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(
+                    new ResolvedParameter<IMessageSender>("seatsavailability"),
+                    new ResolvedParameter<IPendingEventsQueue>("seatsavailability"),
+                    new EventStoreBusPublisherInstrumentation("worker - seatsavailability", this.instrumentationEnabled)));
+
+            var cache = new MemoryCache("RepositoryCache");
+
+            container.RegisterType<IEventSourcedRepository<Order>, AzureEventSourcedRepository<Order>>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(
+                    new ResolvedParameter<IEventStore>("orders"),
+                    new ResolvedParameter<IEventStoreBusPublisher>("orders"),
+                    typeof(ITextSerializer),
+                    typeof(IMetadataProvider),
+                    cache));
+
+            container.RegisterType<IEventSourcedRepository<SeatAssignments>, AzureEventSourcedRepository<SeatAssignments>>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(
+                    new ResolvedParameter<IEventStore>("orders"),
+                    new ResolvedParameter<IEventStoreBusPublisher>("orders"),
+                    typeof(ITextSerializer),
+                    typeof(IMetadataProvider),
+                    cache));
+
+            container.RegisterType<IEventSourcedRepository<SeatsAvailability>, AzureEventSourcedRepository<SeatsAvailability>>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionConstructor(
+                    new ResolvedParameter<IEventStore>("seatsavailability"),
+                    new ResolvedParameter<IEventStoreBusPublisher>("seatsavailability"),
+                    typeof(ITextSerializer),
+                    typeof(IMetadataProvider),
+                    cache));
 
             // to satisfy the IProcessor requirements.
-            container.RegisterInstance<IProcessor>("EventStoreBusPublisher", new PublisherProcessorAdapter(
-                container.Resolve<IEventStoreBusPublisher>(), this.cancellationTokenSource.Token));
+            container.RegisterInstance<IProcessor>(
+                "OrdersEventStoreBusPublisher",
+                new PublisherProcessorAdapter(container.Resolve<IEventStoreBusPublisher>("orders"), this.cancellationTokenSource.Token));
+            container.RegisterInstance<IProcessor>(
+                "SeatsAvailabilityEventStoreBusPublisher",
+                new PublisherProcessorAdapter(container.Resolve<IEventStoreBusPublisher>("seatsavailability"), this.cancellationTokenSource.Token));
         }
 
         // to satisfy the IProcessor requirements.
