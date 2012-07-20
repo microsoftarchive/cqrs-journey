@@ -161,6 +161,7 @@ namespace Infrastructure.Azure.Instrumentation
                     this.messagesReceivedPerSecondCounter.Dispose();
                     this.averageMessageProcessingTimeCounter.Dispose();
                     this.averageMessageProcessingTimeBaseCounter.Dispose();
+                    this.currentMessagesInProcessCounter.Dispose();
                 }
             }
         }

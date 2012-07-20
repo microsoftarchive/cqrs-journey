@@ -73,6 +73,7 @@ namespace Infrastructure.Azure.Instrumentation
                 if (this.InstrumentationEnabled)
                 {
                     this.totalSessionsCounter.Dispose();
+                    this.currentSessionsCounter.Dispose();
                 }
             }
         }
