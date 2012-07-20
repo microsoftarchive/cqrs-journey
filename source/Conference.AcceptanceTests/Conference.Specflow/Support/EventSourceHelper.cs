@@ -15,6 +15,7 @@ using System;
 using Infrastructure.Azure.Instrumentation;
 using Infrastructure.EventSourcing;
 using Infrastructure.Serialization;
+using Registration;
 #if LOCAL
 using System.Data.Entity;
 using Infrastructure.Sql.EventSourcing;
@@ -36,19 +37,19 @@ namespace Conference.Specflow.Support
             Database.SetInitializer<EventStoreDbContext>(null);
         }
 #endif
-        public static IEventSourcedRepository<T> GetRepository<T>() where T : class, IEventSourced
+        public static IEventSourcedRepository<SeatsAvailability> GetSeatsAvailabilityRepository()
         {
             var serializer = new JsonTextSerializer();
 #if LOCAL
             Func<EventStoreDbContext> ctxFactory = () => new EventStoreDbContext("EventStore");
-            return new SqlEventSourcedRepository<T>(ConferenceHelper.BuildEventBus(), serializer, ctxFactory);
+            return new SqlEventSourcedRepository<SeatsAvailability>(ConferenceHelper.BuildEventBus(), serializer, ctxFactory);
 #else
             var settings = InfrastructureSettings.Read("Settings.xml");
             var eventSourcingAccount = CloudStorageAccount.Parse(settings.EventSourcing.ConnectionString);
-            var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.TableName);
-            var publisher = new EventStoreBusPublisher(ConferenceHelper.GetTopicSender("events"), eventStore, new EventStoreBusPublisherInstrumentation("worker", false));
+            var eventStore = new EventStore(eventSourcingAccount, settings.EventSourcing.SeatsAvailabilityTableName);
+            var publisher = new EventStoreBusPublisher(ConferenceHelper.GetTopicSender("eventsAvailability"), eventStore, new EventStoreBusPublisherInstrumentation("worker", false));
             var metadata = new StandardMetadataProvider();
-            return new AzureEventSourcedRepository<T>(eventStore, publisher, serializer, metadata, new MemoryCache("RepositoryCache"));
+            return new AzureEventSourcedRepository<SeatsAvailability>(eventStore, publisher, serializer, metadata, new MemoryCache("RepositoryCache"));
 #endif
         }
     }

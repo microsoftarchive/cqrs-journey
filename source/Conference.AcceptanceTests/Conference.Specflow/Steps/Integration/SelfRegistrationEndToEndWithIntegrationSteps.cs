@@ -69,7 +69,7 @@ namespace Conference.Specflow.Steps
         [Scope(Tag = "RegistrationProcessHardeningIntegration")]
         public void ThenTheCommandForReservingTheSelectedSeatsIsReceived()
         {
-            var repository = EventSourceHelper.GetRepository<SeatsAvailability>();
+            var repository = EventSourceHelper.GetSeatsAvailabilityRepository();
             var command = ScenarioContext.Current.Get<RegisterToConference>();
 
             var availability = repository.Find(command.ConferenceId);
