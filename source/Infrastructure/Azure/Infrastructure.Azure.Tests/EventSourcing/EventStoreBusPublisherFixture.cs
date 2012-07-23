@@ -52,7 +52,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
             queue.Setup(x => x.GetPendingAsync(partitionKey, It.IsAny<Action<IEnumerable<IEventRecord>, bool>>(), It.IsAny<Action<Exception>>()))
                 .Callback<string, Action<IEnumerable<IEventRecord>, bool>, Action<Exception>>((key, success, error) => success(new[] { testEvent }, false));
             this.sender = new MessageSenderMock();
-            var sut = new EventStoreBusPublisher(sender, queue.Object, Mock.Of<IEventStoreBusPublisherInstrumentation>());
+            var sut = new EventStoreBusPublisher(sender, queue.Object, new MockEventStoreBusPublisherInstrumentation());
             var cancellationTokenSource = new CancellationTokenSource();
             sut.Start(cancellationTokenSource.Token);
 
@@ -122,7 +122,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                 
             queue.Setup(x => x.GetPartitionsWithPendingEvents()).Returns(pendingKeys);
             this.sender = new MessageSenderMock();
-            var sut = new EventStoreBusPublisher(sender, queue.Object, Mock.Of<IEventStoreBusPublisherInstrumentation>());
+            var sut = new EventStoreBusPublisher(sender, queue.Object, new MockEventStoreBusPublisherInstrumentation());
             var cancellationTokenSource = new CancellationTokenSource();
             sut.Start(cancellationTokenSource.Token);
 
@@ -208,7 +208,7 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
                         It.IsAny<Action<Exception>>()))
                 .Callback<string, string, Action<bool>, Action<Exception>>((p, r, s, e) => s(true));
             this.sender = new MessageSenderMock();
-            this.sut = new EventStoreBusPublisher(sender, queue.Object, Mock.Of<IEventStoreBusPublisherInstrumentation>());
+            this.sut = new EventStoreBusPublisher(sender, queue.Object, new MockEventStoreBusPublisherInstrumentation());
             this.cancellationTokenSource = new CancellationTokenSource();
             sut.Start(cancellationTokenSource.Token);
         }
@@ -275,5 +275,13 @@ namespace Infrastructure.Azure.Tests.EventSourcing.EventStoreBusPublisherFixture
         {
             this.cancellationTokenSource.Cancel();
         }
+    }
+
+    class MockEventStoreBusPublisherInstrumentation : IEventStoreBusPublisherInstrumentation
+    {
+        void IEventStoreBusPublisherInstrumentation.EventsPublishingRequested(int eventCount) { }
+        void IEventStoreBusPublisherInstrumentation.EventPublished() { }
+        void IEventStoreBusPublisherInstrumentation.EventPublisherStarted() { }
+        void IEventStoreBusPublisherInstrumentation.EventPublisherFinished() { }
     }
 }
