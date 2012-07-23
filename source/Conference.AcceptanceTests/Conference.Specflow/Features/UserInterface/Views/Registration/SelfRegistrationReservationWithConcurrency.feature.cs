@@ -92,7 +92,7 @@ namespace Conference.Specflow.Features.UserInterface.Views.Registration
             this.ScenarioTearDown();
         }
         
-        [Xunit.FactAttribute()]
+        [Xunit.FactAttribute(Skip="Ignored")]
         [Xunit.TraitAttribute("FeatureTitle", "Self-Registrant scenarios for making a Reservation for a Conference site where tw" +
             "o Registrants make simultaneous reservations")]
         [Xunit.TraitAttribute("Description", "Only one Order Item is available and two Registrants try to reserve it, then only" +
@@ -100,9 +100,10 @@ namespace Conference.Specflow.Features.UserInterface.Views.Registration
         public virtual void OnlyOneOrderItemIsAvailableAndTwoRegistrantsTryToReserveItThenOnlyOneGetsTheReservation()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Only one Order Item is available and two Registrants try to reserve it, then only" +
-                    " one gets the reservation", ((string[])(null)));
-#line 25
- this.ScenarioSetup(scenarioInfo);
+                    " one gets the reservation", new string[] {
+                        "Ignore"});
+#line 27
+this.ScenarioSetup(scenarioInfo);
 #line 20
 this.FeatureBackground();
 #line hidden
@@ -112,7 +113,7 @@ this.FeatureBackground();
             table2.AddRow(new string[] {
                         "CQRS Workshop",
                         "6"});
-#line 26
+#line 28
  testRunner.Given("the selected Order Items", ((string)(null)), table2);
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
@@ -121,13 +122,13 @@ this.FeatureBackground();
             table3.AddRow(new string[] {
                         "CQRS Workshop",
                         "6"});
-#line 29
+#line 31
  testRunner.And("another Registrant select these Order Items", ((string)(null)), table3);
-#line 32
- testRunner.When("the Registrant proceeds to make the Reservation");
-#line 33
- testRunner.And("another Registrant proceeds to make the Reservation with seats already reserved");
 #line 34
+ testRunner.When("the Registrant proceeds to make the Reservation");
+#line 35
+ testRunner.And("another Registrant proceeds to make the Reservation with seats already reserved");
+#line 36
  testRunner.Then("the Reservation is confirmed for all the selected Order Items");
 #line hidden
             TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
@@ -138,7 +139,7 @@ this.FeatureBackground();
                         "CQRS Workshop",
                         "4",
                         "Could not reserve all the requested seats."});
-#line 35
+#line 37
  testRunner.And("a second Reservation is offered to select any of these available seats", ((string)(null)), table4);
 #line hidden
             this.ScenarioCleanup();

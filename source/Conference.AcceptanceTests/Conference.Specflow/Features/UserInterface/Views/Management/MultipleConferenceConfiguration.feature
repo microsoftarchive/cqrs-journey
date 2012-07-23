@@ -16,9 +16,10 @@ Feature:  Multiple Conference configuration scenarios for creating and editing m
 	As a Business Customer
 	I want to be able to create multiple Conferences and set their properties
 
-
 #Multiple creation scenario
 #The %1 placeholder will be replaced with an ordinal counter.
+#Future regression research
+@Ignore 
 Scenario: Multiple Seat Types are created and assigned to a new existing Conference
 Given this base conference information
 | Owner   | Email           | Name    | Description              | Slug    | Start      | End        |
