@@ -1,14 +1,11 @@
 ## Microsoft patterns & practices
-# CQRS Journey sample application
+# CQRS Journey Reference Implementation
 
 http://cqrsjourney.github.com
 
 # Release Notes
 
-_4th May 2012_
-
-You can find the release notes that apply to the Pseudo-Production
-Release (V1) of the Contoso Conference Management System [here][releasenotes].
+The most up-to-date version of the release notes issues is available [online]:[releasenotes]
 
 The release notes include information about:
 
@@ -23,18 +20,18 @@ The release notes include information about:
 
 If you would like to become involved in the development of the CQRS Journey sample application and guidance, you can contribute in many different ways:
 
-* We strongly value user feedback and appreciate your questions, bug reports and feature requests. For more details how you can submit these, see the section "[Using the Sample Application, Reading the Documentation, and Providing Feedback](#sampleapp)" below. 
+* We strongly value user feedback and appreciate your questions, bug reports and feature requests. For more details how you can submit these, see the section "[Using the Reference Implementation, Reading the Documentation, and Providing Feedback](#sampleapp)" below. 
 * You can also contribute changes to the code, which might include bug fixes and improvements as well as new features. See the section "[Contributing Changes to the Code](#changecode)" below.
 * You can also revise or propose new content for the guide. See the section "[Contributing Changes to the Guide](#changeguide)" below.
 * You can provide review comments to the draft guide. See the section "[Simple Document Review](#simplereview)" below.
 
 <a name="sampleapp" />
 
-## Using the Sample Application, Reading the Documentation, and Providing Feedback
+## Using the Reference Implementation, Reading the Documentation, and Providing Feedback
 
 Reviewing the CQRS Journey guidance and code, asking and answering questions, reporting bugs and making feature requests are critical activities of the project community: we value your feedback!
 
-In order to become familiar with the functionality of the sample app you can obtain the source code from GitHub (see "[Obtaining the source code](#obtainsource)" below) and compile it locally. While you become familiar with the functionality, you can report bugs or request new features (see "[Report bugs and request features](#reportbugs)" below).   You can also download the current draft of the documentation from GitHub.
+In order to become familiar with the functionality of the reference implementation you can obtain the source code from GitHub (see "[Obtaining the source code](#obtainsource)" below) and compile it locally. While you become familiar with the functionality, you can report bugs or request new features (see "[Report bugs and request features](#reportbugs)" below).   You can also download the current draft of the documentation from GitHub.
 
 We would love to hear your thoughts, be it comments, suggestions, ideas or anything else. However, in the end we are creating Microsoft guidance. So we'll happily take your feedback but you need to understand that by providing us feedback in any form you are agreeing that (i) we may freely use, disclose, reproduce, modify, license, distribute and otherwise commercialize your feedback in  any Microsoft product, technology, service, specification or other documentation, (ii) others may use, disclose, reproduce, license, distribute and otherwise commercialize your feedback in connection with our products and services, and (iii) you will not be compensated for any of these things. We may incorporate ideas or make changes based on comments you make, or we may make changes to the product that are indirectly influenced by discussions that we have with you and other folks in the community. 
 
