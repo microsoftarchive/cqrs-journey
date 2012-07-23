@@ -74,14 +74,15 @@ namespace Conference.Specflow.Features.UserInterface.Views.Management
             this.ScenarioTearDown();
         }
         
-        [Xunit.FactAttribute()]
+        [Xunit.FactAttribute(Skip="Ignored")]
         [Xunit.TraitAttribute("FeatureTitle", "Multiple Conference configuration scenarios for creating and editing many Confere" +
             "nces")]
         [Xunit.TraitAttribute("Description", "Multiple Seat Types are created and assigned to a new existing Conference")]
         public virtual void MultipleSeatTypesAreCreatedAndAssignedToANewExistingConference()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Multiple Seat Types are created and assigned to a new existing Conference", ((string[])(null)));
-#line 22
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Multiple Seat Types are created and assigned to a new existing Conference", new string[] {
+                        "Ignore"});
+#line 23
 this.ScenarioSetup(scenarioInfo);
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
@@ -100,7 +101,7 @@ this.ScenarioSetup(scenarioInfo);
                         "neuro%1",
                         "05/02/2012",
                         "07/12/2012"});
-#line 23
+#line 24
 testRunner.Given("this base conference information", ((string)(null)), table1);
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
@@ -118,11 +119,11 @@ testRunner.Given("this base conference information", ((string)(null)), table1);
                         "Test seat type 2",
                         "100000",
                         "1"});
-#line 26
+#line 27
 testRunner.And("these Seat Types", ((string)(null)), table2);
-#line 30
-testRunner.When("the Business Customer proceeds to create 3 \'random\' conferences");
 #line 31
+testRunner.When("the Business Customer proceeds to create 3 \'random\' conferences");
+#line 32
 testRunner.Then("all the conferences are created");
 #line hidden
             this.ScenarioCleanup();
