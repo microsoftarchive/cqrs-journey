@@ -5,7 +5,7 @@ http://cqrsjourney.github.com
 
 # Release Notes
 
-The most up-to-date version of the release notes issues is available [online][releasenotes]
+The most up-to-date version of the release notes issues is available [online][releasenotes].
 
 The release notes include information about:
 
