@@ -227,4 +227,4 @@ An easy way to review the docs and comment on them (without using Git, GitHub, o
 
 For any further inquiries, contact the project leader, Grigori Melnik, at _grigori dot melnik at microsoft dot com_
 
-[releasenotes]: https://github.com/mspnp/cqrs-journey-doc/blob/master/Appendix1_Running.markdown
+[releasenotes]: https://github.com/mspnp/cqrs-journey/blob/master/docs/Appendix1_Running.markdown
