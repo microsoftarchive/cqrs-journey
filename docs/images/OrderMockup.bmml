@@ -1,0 +1,348 @@
+<mockup version="1.0" skin="sketch" measuredW="2025" measuredH="1188" mockupW="1608" mockupH="1188">
+  <controls>
+    <control controlID="84" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="417" y="0" w="520" h="260" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>A%20Web%20Page%0Ahttp%3A//contoso.com/pnpsummit2012</text>
+      </controlProperties>
+    </control>
+    <control controlID="85" controlTypeID="com.balsamiq.mockups::Label" x="443" y="93" w="-1" h="-1" measuredW="71" measuredH="21" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Welcome....</text>
+      </controlProperties>
+    </control>
+    <control controlID="86" controlTypeID="com.balsamiq.mockups::Button" x="726" y="126" w="-1" h="-1" measuredW="73" measuredH="27" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Register</text>
+      </controlProperties>
+    </control>
+    <control controlID="87" controlTypeID="com.balsamiq.mockups::Label" x="442" y="130" w="-1" h="-1" measuredW="269" measuredH="21" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>4%20days%20left%20before%20the%20early%20registration%20ends%21</text>
+      </controlProperties>
+    </control>
+    <control controlID="88" controlTypeID="com.balsamiq.mockups::Link" x="847" y="78" w="-1" h="-1" measuredW="43" measuredH="21" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Sign%20In</text>
+      </controlProperties>
+    </control>
+    <control controlID="89" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="965" y="0" w="520" h="374" measuredW="450" measuredH="400" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>A%20Web%20Page%0Ahttp%3A//contoso.com/pnpsummit2012</text>
+      </controlProperties>
+    </control>
+    <control controlID="90" controlTypeID="com.balsamiq.mockups::DataGrid" x="989" y="128" w="459" h="170" measuredW="292" measuredH="175" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Registration%20Type%2C%20Price%2C%20Quantity%0APre-Conference%2C%20%24%20199%2C%200%0AFull%20Pass%2C%20%24%20999%2C%201%0APost-Conference%20Workshop%2C%20%24%20199%2C%200%0A%20%0ATotal%2C%2C%24%20999</text>
+      </controlProperties>
+    </control>
+    <control controlID="91" controlTypeID="com.balsamiq.mockups::Label" x="989" y="92" w="-1" h="-1" measuredW="97" measuredH="21" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Available%20seats%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="92" controlTypeID="com.balsamiq.mockups::Label" x="992" y="313" w="89" h="21" measuredW="87" measuredH="21" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Discount%20code%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="93" controlTypeID="com.balsamiq.mockups::TextInput" x="1096" y="309" w="-1" h="-1" measuredW="79" measuredH="27" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="94" controlTypeID="com.balsamiq.mockups::Button" x="1182" y="309" w="-1" h="-1" measuredW="55" measuredH="27" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Apply</text>
+      </controlProperties>
+    </control>
+    <control controlID="95" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="1505" y="0" w="520" h="374" measuredW="450" measuredH="400" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>A%20Web%20Page%0Ahttp%3A//contoso.com/pnpsummit2012</text>
+      </controlProperties>
+    </control>
+    <control controlID="96" controlTypeID="com.balsamiq.mockups::DataGrid" x="1529" y="128" w="459" h="170" measuredW="292" measuredH="175" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <text>Registration%20Type%2C%20Price%2C%20Quantity%0APre-Conference%2C%20%24%20199%2C%200%0AFull%20Pass%2C%20%24%20999%2C%201%0APost-Conference%20Workshop%2C%20%24%20199%2C%200%0A%20%0ATotal%2C%2C%24%20999</text>
+      </controlProperties>
+    </control>
+    <control controlID="97" controlTypeID="com.balsamiq.mockups::Label" x="1529" y="92" w="-1" h="-1" measuredW="97" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Available%20seats%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="98" controlTypeID="com.balsamiq.mockups::Label" x="1532" y="313" w="89" h="21" measuredW="87" measuredH="21" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Discount%20code%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="99" controlTypeID="com.balsamiq.mockups::TextInput" x="1636" y="309" w="112" h="-1" measuredW="93" measuredH="27" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>SPEAKER123</text>
+      </controlProperties>
+    </control>
+    <control controlID="100" controlTypeID="com.balsamiq.mockups::Button" x="1757" y="309" w="-1" h="-1" measuredW="55" measuredH="27" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Apply</text>
+      </controlProperties>
+    </control>
+    <control controlID="101" controlTypeID="com.balsamiq.mockups::Button" x="1360" y="309" w="88" h="27" measuredW="73" measuredH="27" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Proceed</text>
+      </controlProperties>
+    </control>
+    <control controlID="102" controlTypeID="com.balsamiq.mockups::Button" x="1900" y="309" w="88" h="27" measuredW="73" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Proceed</text>
+      </controlProperties>
+    </control>
+    <control controlID="103" controlTypeID="com.balsamiq.mockups::ComboBox" x="1345" y="153" w="62" h="-1" measuredW="40" measuredH="23" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>0</text>
+      </controlProperties>
+    </control>
+    <control controlID="104" controlTypeID="com.balsamiq.mockups::ComboBox" x="1885" y="152" w="62" h="-1" measuredW="40" measuredH="23" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>0</text>
+      </controlProperties>
+    </control>
+    <control controlID="105" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="965" y="387" w="520" h="801" measuredW="450" measuredH="400" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Checkout%0Ahttp%3A//contoso.com/pnpsummit2012</text>
+      </controlProperties>
+    </control>
+    <control controlID="106" controlTypeID="com.balsamiq.mockups::DataGrid" x="982" y="552" w="459" h="170" measuredW="292" measuredH="175" zOrder="22" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>left</align>
+        <italic>false</italic>
+        <text>Registration%20Type%2C%20Price%2C%20Quantity%0AFull%20Pass%2C%20%24%20999%2C%201%0APost-Conference%20Workshop%2C%20%24%20199%2C%201%0A%20%0A%20%0ATotal%2C%2C%24%20199</text>
+      </controlProperties>
+    </control>
+    <control controlID="107" controlTypeID="com.balsamiq.mockups::Label" x="982" y="516" w="-1" h="-1" measuredW="99" measuredH="21" zOrder="23" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Selected%20seats%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="108" controlTypeID="com.balsamiq.mockups::Button" x="984" y="1161" w="88" h="27" measuredW="74" measuredH="27" zOrder="24" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Pay%20Now</text>
+      </controlProperties>
+    </control>
+    <control controlID="109" controlTypeID="__group__" x="417" y="387" w="520" h="374" measuredW="520" measuredH="374" zOrder="25" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="0" y="0" w="520" h="374" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="109">
+          <controlProperties>
+            <text>A%20Web%20Page%0Ahttp%3A//contoso.com/pnpsummit2012</text>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::DataGrid" x="24" y="128" w="459" h="170" measuredW="292" measuredH="175" zOrder="1" locked="false" isInGroup="109">
+          <controlProperties>
+            <align>left</align>
+            <text>Registration%20Type%2C%20Price%2C%20Quantity%0APre-Conference%2C%20%24%20199%2C%200%0AFull%20Pass%2C%20%24%20999%2C%201%0APost-Conference%20Workshop%2C%20%24%20199%2C%200%0A%20%0ATotal%2C%2C%24%200</text>
+          </controlProperties>
+        </control>
+        <control controlID="2" controlTypeID="com.balsamiq.mockups::Label" x="24" y="92" w="-1" h="-1" measuredW="97" measuredH="21" zOrder="2" locked="false" isInGroup="109">
+          <controlProperties>
+            <text>Available%20seats%3A</text>
+          </controlProperties>
+        </control>
+        <control controlID="3" controlTypeID="com.balsamiq.mockups::Label" x="27" y="313" w="89" h="21" measuredW="87" measuredH="21" zOrder="3" locked="false" isInGroup="109">
+          <controlProperties>
+            <text>Discount%20code%3A</text>
+          </controlProperties>
+        </control>
+        <control controlID="4" controlTypeID="com.balsamiq.mockups::TextInput" x="131" y="309" w="112" h="-1" measuredW="79" measuredH="27" zOrder="4" locked="false" isInGroup="109">
+          <controlProperties>
+            <text/>
+          </controlProperties>
+        </control>
+        <control controlID="5" controlTypeID="com.balsamiq.mockups::Button" x="252" y="309" w="-1" h="-1" measuredW="55" measuredH="27" zOrder="5" locked="false" isInGroup="109">
+          <controlProperties>
+            <text>Apply</text>
+          </controlProperties>
+        </control>
+        <control controlID="6" controlTypeID="com.balsamiq.mockups::Label" x="27" y="245" w="-1" h="-1" measuredW="375" measuredH="21" zOrder="6" locked="false" isInGroup="109">
+          <controlProperties>
+            <color>6710886</color>
+            <italic>true</italic>
+            <text>Ticket%20Discount%20SPEAKER123%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20-%24%20999%20%20%20%20%20%20%20%20%20%20%20%201</text>
+          </controlProperties>
+        </control>
+        <control controlID="7" controlTypeID="com.balsamiq.mockups::Button" x="395" y="309" w="88" h="27" measuredW="73" measuredH="27" zOrder="7" locked="false" isInGroup="109">
+          <controlProperties>
+            <text>Proceed</text>
+          </controlProperties>
+        </control>
+        <control controlID="8" controlTypeID="com.balsamiq.mockups::ComboBox" x="380" y="152" w="62" h="-1" measuredW="40" measuredH="23" zOrder="8" locked="false" isInGroup="109">
+          <controlProperties>
+            <text>0</text>
+          </controlProperties>
+        </control>
+        <control controlID="9" controlTypeID="com.balsamiq.mockups::HRule" x="24" y="266" w="458" h="-1" measuredW="100" measuredH="5" zOrder="9" locked="false" isInGroup="109"/>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="110" controlTypeID="com.balsamiq.mockups::HRule" x="1529" y="265" w="458" h="-1" measuredW="100" measuredH="5" zOrder="26" locked="false" isInGroup="-1"/>
+    <control controlID="111" controlTypeID="com.balsamiq.mockups::HRule" x="988" y="271" w="458" h="-1" measuredW="100" measuredH="5" zOrder="27" locked="false" isInGroup="-1"/>
+    <control controlID="112" controlTypeID="com.balsamiq.mockups::HRule" x="984" y="690" w="458" h="-1" measuredW="100" measuredH="5" zOrder="28" locked="false" isInGroup="-1"/>
+    <control controlID="113" controlTypeID="com.balsamiq.mockups::Label" x="984" y="638" w="-1" h="-1" measuredW="375" measuredH="21" zOrder="29" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>6710886</color>
+        <italic>true</italic>
+        <text>Ticket%20Discount%20SPEAKER123%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20-%24%20999%20%20%20%20%20%20%20%20%20%20%20%201</text>
+      </controlProperties>
+    </control>
+    <control controlID="114" controlTypeID="com.balsamiq.mockups::Canvas" x="1252" y="500" w="190" h="52" measuredW="100" measuredH="70" zOrder="30" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderColor>16776960</borderColor>
+        <borderStyle>none</borderStyle>
+        <color>16776960</color>
+      </controlProperties>
+    </control>
+    <control controlID="115" controlTypeID="com.balsamiq.mockups::Label" x="1252" y="500" w="194" h="52" measuredW="340" measuredH="28" zOrder="31" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>0</color>
+        <size>20</size>
+        <text>15%3A00%20minutes%20to%20complete%20registration</text>
+      </controlProperties>
+    </control>
+    <control controlID="116" controlTypeID="com.balsamiq.mockups::Label" x="984" y="757" w="193" h="21" measuredW="184" measuredH="21" zOrder="32" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Registrant%20Contact%20Information%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="117" controlTypeID="com.balsamiq.mockups::TextInput" x="1056" y="778" w="227" h="-1" measuredW="79" measuredH="27" zOrder="33" locked="false" isInGroup="-1"/>
+    <control controlID="118" controlTypeID="com.balsamiq.mockups::TextInput" x="1056" y="805" w="227" h="-1" measuredW="79" measuredH="27" zOrder="34" locked="false" isInGroup="-1"/>
+    <control controlID="119" controlTypeID="com.balsamiq.mockups::Label" x="987" y="781" w="-1" h="-1" measuredW="44" measuredH="21" zOrder="35" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Name%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="120" controlTypeID="com.balsamiq.mockups::Label" x="984" y="809" w="-1" h="-1" measuredW="57" measuredH="21" zOrder="36" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Address%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="121" controlTypeID="com.balsamiq.mockups::RadioButtonGroup" x="984" y="849" w="-1" h="-1" measuredW="95" measuredH="63" zOrder="37" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>%28o%29%20Credit%20Card%0A%28%20%29%20PayPal%0A%28%20%29%20Invoice%20Me</text>
+      </controlProperties>
+    </control>
+    <control controlID="122" controlTypeID="com.balsamiq.mockups::Label" x="984" y="919" w="185" h="21" measuredW="170" measuredH="21" zOrder="38" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Registrant%20Billing%20Information%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="123" controlTypeID="com.balsamiq.mockups::Label" x="984" y="997" w="165" h="21" measuredW="126" measuredH="21" zOrder="39" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Payment%20Information%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="124" controlTypeID="com.balsamiq.mockups::TextInput" x="1056" y="940" w="227" h="-1" measuredW="79" measuredH="27" zOrder="40" locked="false" isInGroup="-1"/>
+    <control controlID="125" controlTypeID="com.balsamiq.mockups::TextInput" x="1056" y="967" w="227" h="-1" measuredW="79" measuredH="27" zOrder="41" locked="false" isInGroup="-1"/>
+    <control controlID="126" controlTypeID="com.balsamiq.mockups::Label" x="987" y="940" w="-1" h="-1" measuredW="44" measuredH="21" zOrder="42" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Name%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="127" controlTypeID="com.balsamiq.mockups::Label" x="984" y="968" w="-1" h="-1" measuredW="57" measuredH="21" zOrder="43" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Address%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="128" controlTypeID="com.balsamiq.mockups::CheckBox" x="1159" y="918" w="-1" h="-1" measuredW="117" measuredH="22" zOrder="44" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Same%20as%20above</text>
+      </controlProperties>
+    </control>
+    <control controlID="129" controlTypeID="com.balsamiq.mockups::Image" x="984" y="1026" w="457" h="79" measuredW="77" measuredH="79" zOrder="45" locked="false" isInGroup="-1">
+      <controlProperties>
+        <filter>true</filter>
+        <src>./assets/Card.png</src>
+      </controlProperties>
+    </control>
+    <control controlID="130" controlTypeID="__group__" x="1505" y="400" w="520" h="306" measuredW="520" measuredH="306" zOrder="46" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="0" y="0" w="520" h="306" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="130">
+          <controlProperties>
+            <text>Confirmation%0Ahttp%3A//contoso.com/pnpsummit2012</text>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::Label" x="78" y="99" w="420" h="42" measuredW="294" measuredH="21" zOrder="1" locked="false" isInGroup="130">
+          <controlProperties>
+            <text>You%20have%20successfully%20submitted%20your%20registration%21%20</text>
+          </controlProperties>
+        </control>
+        <control controlID="2" controlTypeID="com.balsamiq.mockups::Icon" x="24" y="96" w="-1" h="-1" measuredW="48" measuredH="48" zOrder="2" locked="false" isInGroup="130">
+          <controlProperties>
+            <icon>EmoticonIcon%7Clarge</icon>
+          </controlProperties>
+        </control>
+        <control controlID="3" controlTypeID="com.balsamiq.mockups::Label" x="17" y="166" w="471" h="19" measuredW="471" measuredH="21" zOrder="3" locked="false" isInGroup="130">
+          <controlProperties>
+            <bold>true</bold>
+            <text>You%20will%20receive%20an%20email%20with%20your%20confirmation%20number%20for%20your%20order%20%23%209999.</text>
+          </controlProperties>
+        </control>
+        <control controlID="4" controlTypeID="com.balsamiq.mockups::Button" x="17" y="210" w="-1" h="-1" measuredW="174" measuredH="27" zOrder="4" locked="false" isInGroup="130">
+          <controlProperties>
+            <text>Assign%20seats%20to%20attendees</text>
+          </controlProperties>
+        </control>
+        <control controlID="5" controlTypeID="com.balsamiq.mockups::Label" x="208" y="214" w="-1" h="-1" measuredW="275" measuredH="21" zOrder="5" locked="false" isInGroup="130">
+          <controlProperties>
+            <color>0</color>
+            <text>You%20can%20do%20this%20later%20too%20from%20%22My%20Conference%22</text>
+          </controlProperties>
+        </control>
+        <control controlID="6" controlTypeID="com.balsamiq.mockups::Canvas" x="203" y="208" w="280" h="33" measuredW="100" measuredH="70" zOrder="6" locked="false" isInGroup="130">
+          <controlProperties>
+            <backgroundAlpha>0.25</backgroundAlpha>
+            <borderColor>16776960</borderColor>
+            <borderStyle>none</borderStyle>
+            <color>16776960</color>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="131" controlTypeID="com.balsamiq.mockups::StickyNote" x="1169" y="1045" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="47" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>User%20enters%20card%20details%20here</text>
+      </controlProperties>
+    </control>
+    <control controlID="132" controlTypeID="com.balsamiq.mockups::Arrow" x="799" y="139" w="166" h="10" measuredW="150" measuredH="100" zOrder="48" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13576743</color>
+        <leftArrow>false</leftArrow>
+      </controlProperties>
+    </control>
+    <control controlID="133" controlTypeID="com.balsamiq.mockups::Arrow" x="1448" y="313" w="57" h="10" measuredW="150" measuredH="100" zOrder="49" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13576743</color>
+        <leftArrow>false</leftArrow>
+      </controlProperties>
+    </control>
+    <control controlID="134" controlTypeID="com.balsamiq.mockups::Arrow" x="937" y="334" w="1004" h="66" measuredW="150" measuredH="100" zOrder="50" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13576743</color>
+        <curvature>-1</curvature>
+        <direction>bottom</direction>
+        <leftArrow>true</leftArrow>
+        <rightArrow>false</rightArrow>
+      </controlProperties>
+    </control>
+    <control controlID="135" controlTypeID="com.balsamiq.mockups::Arrow" x="899" y="712" w="66" h="10" measuredW="150" measuredH="100" zOrder="51" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13576743</color>
+        <leftArrow>false</leftArrow>
+      </controlProperties>
+    </control>
+    <control controlID="136" controlTypeID="com.balsamiq.mockups::Arrow" x="1070" y="706" w="769" h="470" measuredW="150" measuredH="100" zOrder="52" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13576743</color>
+        <curvature>-1</curvature>
+        <direction>bottom</direction>
+        <leftArrow>false</leftArrow>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
