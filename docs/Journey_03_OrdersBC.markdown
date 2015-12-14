@@ -358,7 +358,7 @@ requirement for a timer is best done using a process manager.
 
 ## Aggregates and aggregate roots
 
-In the two models that have the **Order** aggregate and the **SeatsAvailability** aggregate, the team easily identified the entities that make up the aggregate, and the aggregate root. The choice is not so clear in the model with a single aggregate: it does not seem natural to access orders through a **SeatsAvailability** entity, or to access the seat availability through an **Order** entity. Creating a new entity to act as an aggregate root seems unnecessary.
+In the two models that have the **Order** aggregate and the **SeatsAvailability** aggregate, the team easily identified the entities that make up the aggregate, and the aggregate root. The choice is not so clear in the model with a single aggregate: it does not seem natural to access orders through a **SeatsAvailability** entity, or to access the seat availability through an **Order** entity. Creating a new entity to act as an aggregate root seems necessary.
 
 The team decided on the model that incorporated a process manager because this 
 offers the best way to handle the concurrency requirements in this 
@@ -724,7 +724,7 @@ the constructor in the **Order** class shows this happening. Notice how
 the system uses GUIDs to identify the different entities. 
 
 ```Cs
-public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> lines)
+public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> items)
 {
     this.Id = id;
     this.UserId = userId;
