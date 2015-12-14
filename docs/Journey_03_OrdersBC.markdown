@@ -724,7 +724,7 @@ the constructor in the **Order** class shows this happening. Notice how
 the system uses GUIDs to identify the different entities. 
 
 ```Cs
-public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> lines)
+public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> items)
 {
     this.Id = id;
     this.UserId = userId;
