@@ -1668,7 +1668,7 @@ operator appears alongside the '@AggregateRoot'. Denoted by double
 colons - '::' - the scope context element may or may not have whitespace 
 between its two characters, and is used to identify relationships 
 between two objects. Above, the AR '@Invoice' is generating the 
-'CustomerSent!' event in response to logic invoked by the 
+'CustomerInvoiceSent!' event in response to logic invoked by the 
 'CustomerInvoiceHandler'. The next example demonstrates use of the scope 
 element on an AR which generates multiple events in response to a single 
 command: 
