@@ -1,7 +1,7 @@
 ## Microsoft patterns & practices
 # CQRS Journey Reference Implementation
 
-## Current Status :exclamation:
+## :warning: Current Status :exclamation:
 This project is not being actively maintained. The source has not been updated since **July, 2012**.
 We will attempt to provide help and answer questions. However, the source and docs are presented as-is. 
 There are currently no plans to update this project.
